@@ -173,11 +173,12 @@ class HotelTable extends Component implements HasForms, HasTable
                     })
                     ->modalHeading('Add Hotel with GIATA Code')
                     ->modalWidth('lg')
-                    ->form(HotelForm::getCoreFields()),
+                    ->form(HotelForm::getCoreFields())
+                    ->visible(! $this->vendor?->id),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('exportDatabase')
                         ->label('Export Database')
-                        ->icon('heroicon-o-arrow-up-tray')
+                        ->icon('heroicon-o-arrow-down-tray')
                         ->action(function () {
                             if (! $this->exportDatabase()) {
                                 return false;
@@ -198,7 +199,7 @@ class HotelTable extends Component implements HasForms, HasTable
                         }),
                     Tables\Actions\Action::make('importDatabase')
                         ->label('Import Database')
-                        ->icon('heroicon-o-arrow-down-tray')
+                        ->icon('heroicon-o-arrow-up-tray')
                         ->form([
                             FileUpload::make('dumpFile')
                                 ->label('Select Dump File')
@@ -225,13 +226,14 @@ class HotelTable extends Component implements HasForms, HasTable
                         }),
                     Tables\Actions\Action::make('exportFiles')
                         ->label('Export Files')
-                        ->icon('heroicon-o-chevron-double-up')
+                        ->icon('heroicon-o-chevron-double-down')
                         ->action(function () {
-                            $zip = new ZipArchive;
+                            /** @var ZipArchive $zip */
+                            $zip = app(ZipArchive::class);
                             $zipFile = storage_path('app/public/files.zip');
 
                             if ($zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-                                $directories = ['products', 'images'];
+                                $directories = ['products', 'products/thumbnails', 'images'];
                                 foreach ($directories as $directory) {
                                     $files = Storage::disk('public')->files($directory);
                                     foreach ($files as $file) {
@@ -250,7 +252,7 @@ class HotelTable extends Component implements HasForms, HasTable
                         }),
                     Tables\Actions\Action::make('importFiles')
                         ->label('Import Files')
-                        ->icon('heroicon-o-chevron-double-down')
+                        ->icon('heroicon-o-chevron-double-up')
                         ->form([
                             FileUpload::make('zipFile')
                                 ->label('Select Zip File')
@@ -260,7 +262,8 @@ class HotelTable extends Component implements HasForms, HasTable
                         ])
                         ->action(function (array $data) {
                             $zipFile = Storage::disk('public')->path($data['zipFile']);
-                            $zip = new ZipArchive;
+                            /** @var ZipArchive $zip */
+                            $zip = app(ZipArchive::class);
 
                             if ($zip->open($zipFile) === true) {
                                 $zip->extractTo(storage_path('app/public'));
@@ -281,7 +284,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->label('Database Actions')
                     ->icon('heroicon-o-circle-stack')
                     ->iconButton()
-                    ->visible(fn () => env('EXPORT_BD_USE', false)),
+                    ->visible(! $this->vendor?->id),
             ]);
     }
 

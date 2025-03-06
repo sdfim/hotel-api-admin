@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Transformers\IcePortal;
 
+use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
@@ -21,11 +22,15 @@ class IcePortalHotelContentTransformer implements SupplierContentTransformerInte
             $images = is_array($hotel['images']) ? $hotel['images'] : json_decode($hotel['images'], true);
             $amenities = is_array($hotel['amenities']) ? $hotel['amenities'] : json_decode($hotel['amenities'], true);
 
+            $fees = Arr::get($hotel, 'fees', []);
+            $policies = Arr::get($hotel, 'policies', []);
+            $descriptions = Arr::get($hotel, 'descriptions', []);
+            $descriptions = array_merge($fees, $policies, $descriptions);
+
             $hotelResponse->setGiataHotelCode(isset($hotel['giata_id']) ? intval($hotel['giata_id']) : 0);
             $hotelResponse->setImages($images ?? []);
-            $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);
+            $hotelResponse->setDescription($descriptions);
             $hotelResponse->setHotelName($hotel['name']);
-            $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['address']['latitude'] ?? $hotel['latitude'] ?? '');
             $hotelResponse->setLongitude($hotel['address']['longitude'] ?? $hotel['latitude'] ?? '');
             $hotelResponse->setRating($hotel['rating'] ?? '');

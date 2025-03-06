@@ -103,6 +103,12 @@ class HotelForm extends Component implements HasForms
     {
         $this->verified = ! $this->verified;
         $this->record->product->update(['verified' => $this->verified]);
+
+        Notification::make()
+            ->title('Verification Status Changed')
+            ->body('The verification status has been successfully updated.')
+            ->success()
+            ->send();
     }
 
     public function toggleOnSale()
@@ -110,6 +116,16 @@ class HotelForm extends Component implements HasForms
         if ($this->onSale) {
             $this->dispatch('open-modal', id: 'open-modal-on-sale-causation');
         } else {
+            if (! $this->record->product->vendor->verified) {
+                Notification::make()
+                    ->title('Action Denied')
+                    ->body('Vendor must be verified to toggle OnSale status.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
             $this->onSale = ! $this->onSale;
             $this->record->product->update([
                 'onSale' => $this->onSale,
@@ -237,6 +253,10 @@ class HotelForm extends Component implements HasForms
                                             return self::validateRequiredField($get, $state, 'Star Rating');
                                         })
                                         ->numeric()
+                                        ->minValue(0)
+                                        ->maxValue(6)
+                                        ->inputMode('decimal')
+                                        ->step(0.5)
                                         ->label('Star Rating'),
                                     TextInput::make('num_rooms')
                                         ->required()
@@ -275,6 +295,133 @@ class HotelForm extends Component implements HasForms
                                             }
                                         }),
                                     Hidden::make('product.hero_image_thumbnails')->dehydrated(),
+                                ]),
+
+                            // from Data Sources tab
+                            Grid::make(2)
+                                ->schema([
+                                    Grid::make(1)
+                                        ->schema([
+                                            Actions::make([
+                                                Action::make('current content viewer')
+                                                    ->modalHeading('Viewer Property Hotel '
+                                                        .$this->record->giata_code.' '.$this->record->product->name)
+                                                    ->modalWidth('7xl')
+                                                    ->modalContent(function () {
+                                                        return view('dashboard.hotel_repository.modal-detail', [
+                                                            'giataCode' => $this->data['giata_code'] ?? null,
+                                                        ]);
+                                                    })
+                                                    ->modalSubmitAction(fn ($action) => $action->hidden())
+                                                    ->modalCancelAction(fn ($action) => $action->hidden())
+                                                    ->extraAttributes(['class' => 'h-12']),
+                                            ]),
+                                        ]),
+                                    Grid::make(6)
+                                        ->schema([
+                                            Select::make('product.content_source_id')
+                                                ->label('Content Source')
+                                                ->options(ContentSource::pluck('name', 'id'))
+                                                ->required()
+                                                ->rule('required', function (Get $get, $state) {
+                                                    return self::validateRequiredField($get, $state, 'Content Source');
+                                                })->columnSpan(5),
+                                            Actions::make([
+                                                Action::make('viewer')
+                                                    ->modalHeading('Compare Content Hotel '
+                                                        .$this->record->giata_code.' '.$this->record->product->name)
+                                                    ->modalWidth('7xl')
+                                                    ->modalContent(function () {
+                                                        return view('dashboard.hotel_repository.modal-compare-content', [
+                                                            'giataCode' => $this->data['giata_code'] ?? null,
+                                                        ]);
+                                                    })
+                                                    ->modalSubmitAction(fn ($action) => $action->hidden())
+                                                    ->modalCancelAction(fn ($action) => $action->hidden())
+                                                    ->extraAttributes(['class' => 'h-12']),
+                                            ])
+                                                ->columnSpan(1)
+                                                ->extraAttributes([
+                                                    'class' => 'flex justify-end',
+                                                ]),
+                                        ])->columnSpan(1),
+
+                                    Select::make('room_images_source_id')
+                                        ->label('Room Images Source')
+                                        ->placeholder('Select an option')
+                                        ->options(ContentSource::pluck('name', 'id'))
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Room Images Source');
+                                        }),
+
+                                    Grid::make(6)
+                                        ->schema([
+                                            Select::make('product.property_images_source_id')
+                                                ->label('Property Images Source')
+                                                ->options(ContentSource::pluck('name', 'id'))
+                                                ->required()
+                                                ->rule('required', function (Get $get, $state) {
+                                                    return self::validateRequiredField($get, $state, 'Property Images Source');
+                                                })->columnSpan(5),
+                                            Actions::make([
+                                                Action::make('viewer ')
+                                                    ->modalHeading('Compare Property Images Hotel '
+                                                        .$this->record->giata_code.' '.$this->record->product->name)
+                                                    ->modalWidth('5xl')
+                                                    ->modalContent(function () {
+                                                        return view('dashboard.hotel_repository.modal-compare-images', [
+                                                            'giataCode' => $this->data['giata_code'] ?? null,
+                                                        ]);
+                                                    })
+                                                    ->modalSubmitAction(fn ($action) => $action->hidden())
+                                                    ->modalCancelAction(fn ($action) => $action->hidden())
+                                                    ->extraAttributes(['class' => 'h-12']),
+                                            ])
+                                                ->columnSpan(1)
+                                                ->extraAttributes([
+                                                    'class' => 'flex justify-end',
+                                                ]),
+                                        ])->columnSpan(1),
+
+                                    Select::make('product.default_currency')
+                                        ->label('Default Currency')
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Default Currency');
+                                        })
+                                        ->options([
+                                            'USD' => 'USD',
+                                            'EUR' => 'EUR',
+                                            'GBP' => 'GBP',
+                                            'JPY' => 'JPY',
+                                            'AUD' => 'AUD',
+                                            'CAD' => 'CAD',
+                                            'CHF' => 'CHF',
+                                            'CNY' => 'CNY',
+                                            'SEK' => 'SEK',
+                                            'NZD' => 'NZD',
+                                        ]),
+
+                                    TextInput::make('weight')
+                                        ->label('Weight')
+                                        ->integer(),
+                                    Grid::make(1)
+                                        ->schema([
+                                            CustomToggle::make('is_not_auto_weight')
+                                                ->label('Do not update weight automatically'),
+                                        ])
+                                        ->extraAttributes(['class' => 'mt-10'])
+                                        ->columnSpan(1),
+
+                                    Select::make('channels')
+                                        ->label('Channels')
+                                        ->multiple()
+                                        ->options(Channel::pluck('name', 'id')),
+
+                                    Section::make('Drivers')
+                                        ->schema($toggles)
+                                        ->columns(8),
                                 ]),
                         ])
                         ->columns(1),
@@ -316,132 +463,7 @@ class HotelForm extends Component implements HasForms
                     // Tab 3: Data Sources
                     CustomTab::make('Data Sources')
                         ->id('data-sources')
-                        ->schema([
-                            Grid::make(1)
-                                ->schema([
-                                    Actions::make([
-                                        Action::make('current content viewer')
-                                            ->modalHeading('Viewer Property Hotel '
-                                                .$this->record->giata_code.' '.$this->record->product->name)
-                                            ->modalWidth('7xl')
-                                            ->modalContent(function () {
-                                                return view('dashboard.hotel_repository.modal-detail', [
-                                                    'giataCode' => $this->data['giata_code'] ?? null,
-                                                ]);
-                                            })
-                                            ->modalSubmitAction(fn ($action) => $action->hidden())
-                                            ->modalCancelAction(fn ($action) => $action->hidden())
-                                            ->extraAttributes(['class' => 'h-12']),
-                                    ]),
-                                ]),
-                            Grid::make(6)
-                                ->schema([
-                                    Select::make('product.content_source_id')
-                                        ->label('Content Source')
-                                        ->options(ContentSource::pluck('name', 'id'))
-                                        ->required()
-                                        ->rule('required', function (Get $get, $state) {
-                                            return self::validateRequiredField($get, $state, 'Content Source');
-                                        })->columnSpan(5),
-                                    Actions::make([
-                                        Action::make('viewer')
-                                            ->modalHeading('Compare Content Hotel '
-                                                .$this->record->giata_code.' '.$this->record->product->name)
-                                            ->modalWidth('7xl')
-                                            ->modalContent(function () {
-                                                return view('dashboard.hotel_repository.modal-compare-content', [
-                                                    'giataCode' => $this->data['giata_code'] ?? null,
-                                                ]);
-                                            })
-                                            ->modalSubmitAction(fn ($action) => $action->hidden())
-                                            ->modalCancelAction(fn ($action) => $action->hidden())
-                                            ->extraAttributes(['class' => 'h-12']),
-                                    ])
-                                        ->columnSpan(1)
-                                        ->extraAttributes([
-                                            'class' => 'flex justify-end',
-                                        ]),
-                                ])->columnSpan(1),
-
-                            Select::make('room_images_source_id')
-                                ->label('Room Images Source')
-                                ->placeholder('Select an option')
-                                ->options(ContentSource::pluck('name', 'id'))
-                                ->required()
-                                ->rule('required', function (Get $get, $state) {
-                                    return self::validateRequiredField($get, $state, 'Room Images Source');
-                                }),
-
-                            Grid::make(6)
-                                ->schema([
-                                    Select::make('product.property_images_source_id')
-                                        ->label('Property Images Source')
-                                        ->options(ContentSource::pluck('name', 'id'))
-                                        ->required()
-                                        ->rule('required', function (Get $get, $state) {
-                                            return self::validateRequiredField($get, $state, 'Property Images Source');
-                                        })->columnSpan(5),
-                                    Actions::make([
-                                        Action::make('viewer ')
-                                            ->modalHeading('Compare Property Images Hotel '
-                                                .$this->record->giata_code.' '.$this->record->product->name)
-                                            ->modalWidth('5xl')
-                                            ->modalContent(function () {
-                                                return view('dashboard.hotel_repository.modal-compare-images', [
-                                                    'giataCode' => $this->data['giata_code'] ?? null,
-                                                ]);
-                                            })
-                                            ->modalSubmitAction(fn ($action) => $action->hidden())
-                                            ->modalCancelAction(fn ($action) => $action->hidden())
-                                            ->extraAttributes(['class' => 'h-12']),
-                                    ])
-                                        ->columnSpan(1)
-                                        ->extraAttributes([
-                                            'class' => 'flex justify-end',
-                                        ]),
-                                ])->columnSpan(1),
-
-                            Select::make('product.default_currency')
-                                ->label('Default Currency')
-                                ->required()
-                                ->rule('required', function (Get $get, $state) {
-                                    return self::validateRequiredField($get, $state, 'Default Currency');
-                                })
-                                ->options([
-                                    'USD' => 'USD',
-                                    'EUR' => 'EUR',
-                                    'GBP' => 'GBP',
-                                    'JPY' => 'JPY',
-                                    'AUD' => 'AUD',
-                                    'CAD' => 'CAD',
-                                    'CHF' => 'CHF',
-                                    'CNY' => 'CNY',
-                                    'SEK' => 'SEK',
-                                    'NZD' => 'NZD',
-                                ]),
-                            TextInput::make('weight')->label('Weight')
-                                ->integer(),
-                            //                            TextInput::make('travel_agent_commission')
-                            //                                ->label('Travel Agent Commission')
-                            //                                ->numeric('decimal'),
-                            Select::make('channels')
-                                ->label('Channels')
-                                ->multiple()
-                                ->options(Channel::pluck('name', 'id')),
-                            //                            Select::make('galleries')
-                            //                                ->label('Galleries')
-                            //                                ->multiple()
-                            //                                ->options(ImageGallery::pluck('gallery_name', 'id')),
-                            //                            Select::make('product.off_sale_by_sources')
-                            //                                ->label('Off Sale By Sources')
-                            //                                ->multiple()
-                            //                                ->options(SupplierNameEnum::optionsDriver()),
-
-                            Section::make('Drivers')
-                                ->schema($toggles)
-                                ->columns(8),
-
-                        ])
+                        ->schema([])
                         ->columns(2),
                 ]),
             Actions::make([
@@ -503,9 +525,14 @@ class HotelForm extends Component implements HasForms
                 ->disabled(fn () => $record),
             Select::make('product.vendor_id')
                 ->label('Vendor Name')
-//                ->disabled(fn () => $record)
-                ->options(function () {
-                    $query = Vendor::query();
+                ->options(function ($record) {
+                    $query = Vendor::query()
+                        ->whereJsonContains('type', 'hotel');
+                    if ($record?->product?->vendor->independent_flag) {
+                        $query->where('id', $record->product->vendor->id);
+                    } else {
+                        $query->where('independent_flag', false);
+                    }
                     if (auth()->user()->hasRole(RoleSlug::EXTERNAL_USER->value)) {
                         $query->where('name', auth()->user()->currentTeam->name);
                     }
@@ -550,7 +577,7 @@ class HotelForm extends Component implements HasForms
             ->send();
 
         $referrerUrl = request()->header('referer');
-        $tab = '-data-sources-tab'; // Default value
+        $tab = '-product-tab'; // Default value
         if ($referrerUrl) {
             $query = parse_url($referrerUrl, PHP_URL_QUERY);
             parse_str($query, $params);

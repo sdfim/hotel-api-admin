@@ -14,7 +14,10 @@ use Illuminate\Support\Arr;
 
 class SaveBookingMetadata implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -22,8 +25,7 @@ class SaveBookingMetadata implements ShouldQueue
     public function __construct(
         private readonly array $filters,
         private readonly array $reservation
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.

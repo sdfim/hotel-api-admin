@@ -5,18 +5,12 @@
             'related' => [
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
-//                ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
+                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
             ],
         ],
         'Location' => [
             'tab_name' => '-location-tab',
             'related' => [],
-        ],
-        'Data Sources' => [
-            'tab_name' => '-data-sources-tab',
-            'related' => [
-                ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
-            ],
         ],
         'Rooms' => [
             'tab_name' => 'rooms',
@@ -40,18 +34,19 @@
             'tab_name' => 'ultimate-amenities',
             'related' => [
                 ['title' => 'Ultimate Amenities', 'component' => 'products.product-affiliations-table'],
+                ['title' => 'Consortia Amenities', 'component' => 'products.product-consortia-amenities-table'],
             ],
         ],
         'Fees and Taxes' => [
             'tab_name' => 'fee-and-tax',
             'related' => [
-                ['title' => 'Fees and Taxes', 'component' => 'products.hotel-fee-tax-table'],
+                ['title' => 'Fees and Taxes', 'component' => 'products.product-fee-tax-table'],
             ],
         ],
         'Hotel Service' => [
             'tab_name' => 'service',
             'related' => [
-                ['title' => 'Informational Service', 'component' => 'products.product-informative-services-table'],
+                ['title' => 'Add Ons or Informational Services', 'component' => 'products.product-informative-services-table'],
             ],
         ],
         'Promotions' => [
@@ -74,12 +69,12 @@
                 ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
-        'UJV Commission' => [
-            'tab_name' => 'travel-agency-commission',
-            'related' => [
-                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
-            ],
-        ],
+//        'UJV Commission' => [
+//            'tab_name' => 'travel-agency-commission',
+//            'related' => [
+//                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
+//            ],
+//        ],
         'Galleries' => [
             'tab_name' => 'images-gallery',
             'related' => [
@@ -90,7 +85,7 @@
     ];
 
     $hotelTitle = ['Rooms', 'Rates', 'Website Search Generation'];
-    $createTabs = ['Product', 'Location', 'Data Sources', 'Gallery',];
+    $createTabs = ['Product', 'Location', 'Gallery',];
 @endphp
 @extends('layouts.master')
 @section('title')
@@ -98,79 +93,79 @@
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
-        <div class=" dark:bg-zinc-800 dark:border-zinc-600">
-            <div class="breadcrumb-container">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">Admin</a></li>
-{{--                        <li class="breadcrumb-item"><a href="{{ route('supplier-repository.index') }}">Supplier Repository</a></li>--}}
-{{--                        <li class="breadcrumb-item"><a href="{{ route('vendor-repository.index') }}">Vendors</a></li>--}}
-                        <li class="breadcrumb-item"><a href="{{ route('product-repository.index') }}">Products</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('hotel-repository.index') }}">Hotels</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $hotel?->product?->name }}</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="card-body pb-0">
-                <h2 class="font-semibold" x-data="{ message: '{{ $hotel->exists ? $text['edit'] : $text['create'] }} {{ $hotel?->product?->name }}' }"
-                    x-text="message"></h2>
-            </div>
+        <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('product-repository.index') }}">Products</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('hotel-repository.index') }}">Hotels</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $hotel?->product?->name }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="card-body pb-0">
+            <h2 class="font-semibold dark:text-white"
+                x-data="{ message: '{{ $hotel->exists ? $text['edit'] : $text['create'] }} {{ $hotel?->product?->name }}' }"
+                x-text="message"></h2>
+        </div>
 
-            <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
-                <div class="relative overflow-x-auto">
+        <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
+            <div class="relative overflow-x-auto">
 
-                    <div x-data="{activeTab: new URLSearchParams(window.location.search).get('tab') || '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
-                         class="sr_tab-container">
+                <div
+                    x-data="{activeTab: new URLSearchParams(window.location.search).get('tab') || '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
+                    class="sr_tab-container">
 
-                        <ul class="sr_tab-list flex justify-between w-full">
-                            @foreach ($tabGroups as $group => $tabs)
-                                @if (!$hotel->exists && !in_array($group, $createTabs))
-                                    @continue
-                                @endif
-                                <li class="sr_tab-item mr-1 flex items-end">
-                                    <a href="#"
-                                       class="sr_tab-link"
-                                       :class="{ 'sr_active': activeTab === '{{ $tabs['tab_name'] }}' }"
-                                       @click.prevent="
+                    <ul class="sr_tab-list flex justify-between w-full dark:bg-gray-900">
+                        @foreach ($tabGroups as $group => $tabs)
+                            @if (!$hotel->exists && !in_array($group, $createTabs))
+                                @continue
+                            @endif
+                            <li class="sr_tab-item mr-1 flex items-end">
+                                <a href="#"
+                                   class="sr_tab-link dark:bg-gray-400"
+                                   :class="{ 'sr_active': activeTab === '{{ $tabs['tab_name'] }}' }"
+                                   @click.prevent="
                                        activeTab = '{{ $tabs['tab_name'] }}';
 {{--                                       $wire.set('activeTab', '{{ $tabs['tab_name'] }}')--}}
                                         const url = new URL(window.location);
                                        url.searchParams.set('tab', '{{ $tabs['tab_name'] }}');
                                        window.history.pushState({}, '', url);
                                        ">
-                                        <span>{{ $group }}</span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
+                                    <span>{{ $group }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
 
-                        <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
-                            @livewire('hotels.hotel-form', compact('hotel'))
-                        </div>
-
-                        @if ($hotel->exists)
-                            <div class="sr_tab-content w-full">
-                                @foreach ($tabGroups as $group => $tabs)
-                                    <div x-show="activeTab === '{{ $tabs['tab_name'] }}'" class="sr_tab-panel">
-                                        @foreach ($tabs['related'] as $tab)
-                                            <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
-                                            @if ($tab['title'] === 'Pricing Rules')
-                                                @livewire($tab['component'], ['productId' => $product->id, 'isSrCreator' => true])
-                                            @elseif ($tab['title'] === 'Contact Information')
-                                                @livewire($tab['component'], ['contactableId' => $product->id, 'contactableType' => 'Product'])
-                                            @elseif (in_array($tab['title'], $hotelTitle))
-                                                @livewire($tab['component'], ['hotel' => $hotel])
-                                            @else
-                                                @livewire($tab['component'], ['product' => $product])
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
+                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
+                        @livewire('hotels.hotel-form', compact('hotel'))
                     </div>
 
+                    @if ($hotel->exists)
+                        <div class="sr_tab-content w-full">
+                            @foreach ($tabGroups as $group => $tabs)
+                                <div x-show="activeTab === '{{ $tabs['tab_name'] }}'" class="sr_tab-panel">
+                                    @foreach ($tabs['related'] as $tab)
+                                        <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
+                                        @if ($tab['title'] === 'Pricing Rules')
+                                            @livewire($tab['component'], ['productId' => $product->id, 'isSrCreator' =>
+                                            true])
+                                        @elseif ($tab['title'] === 'Contact Information')
+                                            @livewire($tab['component'], ['contactableId' => $product->id,
+                                            'contactableType' => 'Product'])
+                                        @elseif (in_array($tab['title'], $hotelTitle))
+                                            @livewire($tab['component'], ['hotel' => $hotel])
+                                        @else
+                                            @livewire($tab['component'], ['product' => $product])
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
+
             </div>
         </div>
     </div>

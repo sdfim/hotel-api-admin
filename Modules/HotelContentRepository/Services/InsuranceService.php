@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Services;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\GiataGeography;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
@@ -66,7 +67,7 @@ class InsuranceService
 
         $totalPassengersNumber = ApiSearchInspectorRepository::getTotalOccupancy($apiSearchInspectorItem['occupancy']);
         $bookingItemTotalPrice = (float) Arr::get($itemPricing, 'total_price', 0);
-        $costPerPassenger = $totalPassengersNumber > 0 ? $bookingItemTotalPrice / $totalPassengersNumber : 0;
+        $costPerPassenger = $totalPassengersNumber > 0 ? floor($bookingItemTotalPrice / $totalPassengersNumber) : 0;
 
         $insuranceRateTier = InsuranceRateTier::where('vendor_id', $insuranceProvider->id)
             ->where('insurance_type_id', $insuranceType->id)
@@ -178,6 +179,12 @@ class InsuranceService
             $compareSign = $rule['compare_sign'];
             $restrictionValue = $rule['restriction_value'];
 
+            if ($type === 'travel_location') {
+                if (preg_match('/^(.*?) \(/', $restrictionValue, $matches)) {
+                    $restrictionValue = $matches[1];
+                }
+            }
+
             // Retrieve the actual value from the booking item
             $actualValue = $this->getBookingItemValue($bookingItem, $restrictionType);
 
@@ -213,7 +220,9 @@ class InsuranceService
             return $ages->isNotEmpty() ? $ages->min() : 33;
         }
         if ($restrictionType === 'travel_location') {
-            return Arr::get($search, 'destination');
+            $cityId = Arr::get($search, 'destination', 'test');
+            $geography = GiataGeography::where('city_id', $cityId)->first();
+            return $geography ? $geography->country_name : null;
         }
         if ($restrictionType === 'trip_duration_days') {
             $checkIn = Arr::get($search, 'check_in');

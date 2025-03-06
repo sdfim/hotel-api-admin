@@ -39,15 +39,10 @@ class AmenitiesTable extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->url(fn (ConfigAmenity $record): string => route('configurations.amenities.edit', $record))
                     ->visible(fn (ConfigAmenity $record) => Gate::allows('update', $record)),
-                //                    DeleteAction::make()
-                //                        ->requiresConfirmation()
-                //                        ->action(fn (ConfigAmenity $record) => $record->delete())
-                //                        ->visible(fn (ConfigAmenity $record) => Gate::allows('delete', $record)),
-                //                ]),
             ])
             ->bulkActions([
                 BulkAction::make('delete')
-                    ->action(fn (array $records) => ConfigAmenity::destroy($records))
+                    ->action(fn ($records) => ConfigAmenity::destroy($records->pluck('id')->toArray()))
                     ->requiresConfirmation()
                     ->visible(fn () => Gate::allows('delete', ConfigAmenity::class)),
             ])

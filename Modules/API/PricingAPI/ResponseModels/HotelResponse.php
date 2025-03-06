@@ -38,6 +38,18 @@ class HotelResponse extends BaseResponse
 
     private string $rating;
 
+    private array $supplier_information;
+
+    public function setSupplierInformation(array $supplier_information): void
+    {
+        $this->supplier_information = $supplier_information;
+    }
+
+    public function getSupplierInformation(): array
+    {
+        return $this->supplier_information;
+    }
+
     public function setRating(string $rating): void
     {
         $this->rating = $rating;
@@ -229,6 +241,7 @@ class HotelResponse extends BaseResponse
             'refundable_rates' => $this->getRefundableRates(),
             'room_groups' => $this->getRoomGroups(),
             'room_combinations' => $this->getRoomCombinations(),
+            'supplier_information' => $this->getSupplierInformation(),
             'deposit_information' => $this->getDepositInformation(),
         ];
     }

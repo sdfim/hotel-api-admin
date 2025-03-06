@@ -23,6 +23,8 @@ use Modules\HotelContentRepository\Models\Hotel;
 class ExpediaHotelPricingTransformer
 {
     private ExpediaPricingRulesApplier $pricingRulesApplier;
+    private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+    private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     public function __construct(
         private readonly PricingDtoTools $pricingDtoTools,
@@ -131,6 +133,11 @@ class ExpediaHotelPricingTransformer
         $this->roomCombinations = [];
 
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
+
+        $hotelResponse->setSupplierInformation([
+            'supplier_terms_and_conditions_client' => self::TA_CLIENT,
+            'supplier_terms_and_conditions_agent' => self::TA_AGENT,
+        ]);
 
         return $hotelResponse->toArray();
     }

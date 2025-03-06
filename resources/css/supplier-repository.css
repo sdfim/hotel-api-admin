@@ -28,6 +28,12 @@
     --primary-950: 26, 26, 69;
 }
 
+.choices__list--multiple .choices__item {
+    font-size: 0.85rem;
+    line-height: 0.9rem;
+    padding: .45rem .5rem;
+}
+
 .pd-history-button {
     background: none;
     border: none;

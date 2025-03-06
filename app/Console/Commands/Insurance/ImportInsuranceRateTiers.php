@@ -29,28 +29,33 @@ class ImportInsuranceRateTiers extends Command
 
         $records = $csv->getRecords();
 
-        DB::transaction(function () use ($vendor_id, $insurance_type_id, $records) {
-            DB::table('insurance_rate_tiers')
-                ->where('vendor_id', $vendor_id)
-                ->where('insurance_type_id', $insurance_type_id)
-                ->delete();
+        try {
+            DB::transaction(function () use ($vendor_id, $insurance_type_id, $records) {
+                DB::table('insurance_rate_tiers')
+                    ->where('vendor_id', $vendor_id)
+                    ->where('insurance_type_id', $insurance_type_id)
+                    ->delete();
 
-            foreach ($records as $record) {
-                DB::table('insurance_rate_tiers')->insert([
-                    'vendor_id' => $vendor_id,
-                    'insurance_type_id' => $insurance_type_id,
-                    'min_trip_cost' => $record['min_trip_cost'],
-                    'max_trip_cost' => $record['max_trip_cost'],
-                    'consumer_plan_cost' => $record['consumer_plan_cost'],
-                    'ujv_retention' => $record['consumer_plan_cost'] - $record['net_to_trip_mate'],
-                    'net_to_trip_mate' => $record['net_to_trip_mate'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+                foreach ($records as $record) {
+                    DB::table('insurance_rate_tiers')->insert([
+                        'vendor_id' => $vendor_id,
+                        'insurance_type_id' => $insurance_type_id,
+                        'min_trip_cost' => $record['min_trip_cost'],
+                        'max_trip_cost' => $record['max_trip_cost'],
+                        'consumer_plan_cost' => $record['consumer_plan_cost'],
+                        'ujv_retention' => $record['consumer_plan_cost'] - $record['net_to_trip_mate'],
+                        'net_to_trip_mate' => $record['net_to_trip_mate'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
 
-            $this->info('Insurance rate tiers imported successfully.');
-        }, 1);
+                }
+
+                $this->info('Insurance rate tiers imported successfully.');
+            }, 1);
+        } catch (\Exception $e) {
+            $this->error('Error processing record: '.$e->getMessage());
+        }
 
         return 0;
     }

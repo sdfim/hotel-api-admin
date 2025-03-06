@@ -61,6 +61,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(function () {
                 $query = PricingRule::query();
+
                 if (! empty($this->giataKeyIds)) {
                     $query->whereHas('conditions', function ($query) {
                         $query->where('field', 'property')
@@ -73,9 +74,24 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     return PricingRule::query()->whereRaw('1 = 0');
                 }
                 if ($this->rateCode) {
+                    // When rateCode is set, filter only by 'rate_code' and 'property' conditions
                     $query->whereHas('conditions', function ($query) {
                         $query->where('field', 'rate_code')
                             ->where('value_from', $this->rateCode);
+                    });
+
+                    // Also, include the 'property' field but exclude other 'rate_code' conditions
+                    $query->orWhereHas('conditions', function ($query) {
+                        $query->where('field', 'property')
+                            ->where(function ($query) {
+                                $query->whereJsonContains('value', $this->giataKeyIds)
+                                    ->orWhere('value_from', $this->giataKeyIds[0]);
+                            });
+                    });
+
+                    // Ensure no other rate_code conditions are included
+                    $query->whereDoesntHave('conditions', function ($query) {
+                        $query->where('field', 'rate_code')->where('value_from', '!=', $this->rateCode);
                     });
                 }
 
@@ -126,13 +142,13 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     )
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('rule_expiration_date')
-                    ->label('Expiration Date')
+                    ->label('Travel End Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
@@ -200,7 +216,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         ->requiresConfirmation()
                         ->action(fn (PricingRule $record) => $record->delete())
                         ->visible(fn (PricingRule $record): bool => Gate::allows('delete', $record)),
-                ]),
+                ])
+                    ->visible(fn (PricingRule $record): bool => (
+                        $this->productId && ! $this->rateCode) ||
+                        ($this->productId && $this->rateCode && $record->conditions->contains('field', 'rate_code'))
+                        || (! $this->productId && ! $this->rateCode)
+                    ),
             ])
             ->headerActions([
                 Action::make('Create in Modal')

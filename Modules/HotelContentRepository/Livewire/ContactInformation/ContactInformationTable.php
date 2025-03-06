@@ -13,6 +13,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -21,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContactInformationDepartmentEnum;
@@ -53,7 +55,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             $contactable = Product::find($contactableId) ?? null;
         }
 
-        $this->title = 'Contact Information for <h4>'.($contactable ? $contactable->name : 'Unknown Entity').'</h4>';
+        $this->title = 'Contact Information for '.($contactable ? $contactable->name : 'Unknown Entity');
     }
 
     public function schemeForm(): array
@@ -66,10 +68,9 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 ->schema([
                     TextInput::make('first_name')
                         ->label('First Name')
-                        ->required(),
+                        ->rules(['required', 'string', 'max:191']),
                     TextInput::make('last_name')
-                        ->label('Last Name')
-                        ->required(),
+                        ->label('Last Name'),
                     TextInput::make('job_title')
                         ->label('Job Title'),
                     Select::make('ujv_departments')
@@ -93,18 +94,21 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
             CustomRepeater::make('phones')
                 ->label('Phones')
+                ->defaultItems(0)
                 ->schema([
                     Grid::make(6)
                         ->schema([
                             TextInput::make('country_code')
                                 ->hiddenLabel()
-                                ->placeholder('Country Code*'),
+                                ->placeholder('Country Code*')
+                                ->rules(['required', 'string', 'max:5']),
                             TextInput::make('area_code')
                                 ->hiddenLabel()
                                 ->placeholder('Area Code'),
                             TextInput::make('phone')
                                 ->hiddenLabel()
-                                ->placeholder('Phone*'),
+                                ->placeholder('Phone*')
+                                ->rules(['required', 'string', 'max:15']),
                             TextInput::make('extension')
                                 ->hiddenLabel()
                                 ->placeholder('Extension'),
@@ -122,10 +126,11 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->schema([
                             TextInput::make('email')
                                 ->hiddenLabel()
-                                ->placeholder('Email*')
-                                ->required(),
+                                ->rules(['required'])
+                                ->placeholder('Email*'),
                             Select::make('departments')
                                 ->hiddenLabel()
+                                ->rules(['required'])
                                 ->placeholder('Select UJV Department*')
                                 ->multiple()
                                 ->options(ContactInformationDepartmentEnum::options())
@@ -213,6 +218,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->tooltip('Edit Contact Information')
                     ->form($this->schemeForm())
+                    ->closeModalByClickingAway(false)
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
                         $data['ujv_departments'] = $record->ujvDepartments->pluck('id')->toArray();
@@ -231,15 +237,25 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make()
+                CreateAction::make('addContact')
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->modalWidth('6xl')
                     ->form($this->schemeForm())
-                    ->createAnother(false)
-                    ->action(function ($data) {
+                    ->closeModalByClickingAway(false)
+                    ->action(function ($data, CreateAction $action) {
                         /** @var AddContactInformation $addContactInformation */
                         $addContactInformation = app(AddContactInformation::class);
                         $addContactInformation->execute($data, $this->contactableId, $this->contactableType);
+                        if (Arr::get($action->getArguments(), 'another', false)) {
+                            Notification::make()
+                                ->title('Contact Information created successfully')
+                                ->success()
+                                ->send();
+                            $this->reset('mountedTableActionsData');
+                            $this->mountedTableActionsData[0]['contactable_id'] = $this->contactableId;
+                            $this->mountedTableActionsData[0]['emails'][] = ['email' => '', 'departments' => []];
+                            $action->halt();
+                        }
                     })
                     ->tooltip('Add New Contact Information')
                     ->icon('heroicon-o-plus')

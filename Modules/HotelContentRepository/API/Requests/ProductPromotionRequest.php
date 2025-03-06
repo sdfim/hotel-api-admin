@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\API\Requests;
 
 use Modules\API\Validate\ApiRequest;
+use OpenApi\Annotations as OA;
 
 class ProductPromotionRequest extends ApiRequest
 {
@@ -347,6 +348,7 @@ class ProductPromotionRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
+
     public function rules(): array
     {
         return [

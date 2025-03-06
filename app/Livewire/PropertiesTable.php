@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\SupplierNameEnum;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use stdClass;
 
 class PropertiesTable extends Component implements HasForms, HasTable
@@ -250,6 +252,11 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->form(fn () => PropertiesTable::getFormSchema())
                     ->mutateFormDataUsing(fn (array $data) => PropertiesTable::createProperty($data))
                     ->visible(fn () => Gate::allows('create', Property::class)),
+                ExportAction::make()->exports([
+                    ExcelExport::make('table')
+                        ->fromTable()
+                        ->withFilename('properties_export_'.now()->format('Y_m_d_H_i_s').'.xlsx'),
+                ]),
             ])
             ->query($this->query())
             ->columns([

@@ -54,7 +54,9 @@ class IcePortalClient
             return $response->json()['access_token'];
         }
 
-        throw new Exception('Unable to retrieve token');
+//        throw new Exception('Unable to retrieve token');
+        \Log::error('Unable to retrieve token');
+        return '';
     }
 
     public function get(string $endpoint, array $query = []): PromiseInterface|Response

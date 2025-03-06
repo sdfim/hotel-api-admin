@@ -43,7 +43,7 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
     public function mount(Hotel $hotel)
     {
         $this->hotelId = $hotel->id;
-        $this->title = 'Website Search Generation for <h4>'.$hotel->product->name.'</h4>';
+        $this->title = 'Website Search Generation for '.$hotel->product->name;
     }
 
     public function schemeForm($record = null): array
@@ -78,8 +78,8 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                             'property_code' => 'Property Code',
                             'adults' => 'Adults',
                             'children' => 'Children',
-                            'start_travel_date' => 'Start Travel Date',
-                            'end_travel_date' => 'End Travel Date',
+                            'start_travel_date' => 'Travel Start Date',
+                            'end_travel_date' => 'Travel End Date',
                             'nights' => 'Nights',
                             'search_property_identifier' => 'Search Property Identifier',
                         ])

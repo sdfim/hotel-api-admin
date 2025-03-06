@@ -10,7 +10,6 @@
             <directory>tests/Feature</directory>
             <exclude>tests/Feature/API/Local</exclude>
             <exclude>tests/Feature/API/BookingFlow</exclude>
-            <exclude>tests/Feature/Teams</exclude>
             <exclude>tests/Feature/Console/Commands</exclude>
         </testsuite>
         <testsuite name="Unit">
@@ -30,12 +29,12 @@
             <file>Modules/AdministrationSuite/Http/Controllers/BookingInspectorController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/BookingItemsController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/ExceptionsReportChartController.php</file>
-            <file>Modules/AdministrationSuite/Http/Controllers/IceHbsiController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/IcePortalController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/MappingExpediaGiatasController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/PropertyMappingController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/StatisticChartsController.php</file>
             <file>app/Actions/Fortify/CreateNewUser.php</file>
-            <file>app/Livewire/IceHbsiPropertyTable.php</file>
+            <file>app/Livewire/IcePortalPropertyTable.php</file>
         </exclude>
     </source>
     <php>

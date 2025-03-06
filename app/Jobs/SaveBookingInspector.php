@@ -12,7 +12,10 @@ use Modules\Inspector\BookingInspectorController;
 
 class SaveBookingInspector implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -23,9 +26,7 @@ class SaveBookingInspector implements ShouldQueue
         private readonly array $client_content = [],
         private readonly string $status = 'success',
         private readonly array $status_describe = [],
-        private readonly BookingInspectorController $bookingInspector = new BookingInspectorController(),
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
@@ -36,7 +37,10 @@ class SaveBookingInspector implements ShouldQueue
         $this->inspector['status_describe'] = $this->status_describe;
         $this->inspector['type'] = Arr::get($this->inspector, 'type', 'hotel');
 
-        $this->bookingInspector->save(
+        /* @var BookingInspectorController $bookingInspector */
+        $bookingInspector = app(BookingInspectorController::class);
+
+        $bookingInspector->save(
             $this->inspector,
             $this->content,
             $this->client_content

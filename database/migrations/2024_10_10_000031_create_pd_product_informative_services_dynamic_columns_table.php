@@ -18,6 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('product_informative_service_id');
             $table->string('name');
             $table->text('value');
+            $table->boolean('show_on_invoice')->default(false);
+            $table->boolean('show_on_itinerary')->default(false);
+            $table->boolean('show_on_vendor_manifest')->default(false);
             $table->foreign('product_informative_service_id', 'fk_prod_info_service_id')
                 ->references('id')
                 ->on('pd_product_informative_services')

@@ -340,15 +340,13 @@ class ProductAffiliationRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
+
     public function rules(): array
     {
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
-            'consortia_id' => 'required|integer|exists:config_consortia,id',
-            'description' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'amenities' => 'nullable|array',
         ];
     }
 }

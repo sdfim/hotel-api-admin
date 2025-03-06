@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
 
             HotelContentRepositorySeeder::class,
 
+            ConfigInsuranceDocumentationTypeSeeder::class,
             ConfigConsortiumSeeder::class,
             ConfigAttributeSeeder::class,
             ConfigServiceTypeSeeder::class,

@@ -2,8 +2,10 @@
 
 namespace Modules\Insurance\Livewire\Type;
 
+use App\Helpers\ClassHelper;
 use App\Livewire\Components\CustomRepeater;
 use App\Models\Enums\RoleSlug;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -21,6 +23,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\Enums\InsuranceSaleTypeEnum;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceType;
 
@@ -42,6 +45,17 @@ class InsuranceTypeTable extends Component implements HasForms, HasTable
                 ->label('Name')
                 ->required()
                 ->unique(ignorable: $record),
+            TextInput::make('commission')
+                ->label('TA Commission')
+                ->numeric()
+                ->minValue(0)
+                ->required()
+                ->suffix('%'),
+            Select::make('sale_type')
+                ->label('Sale Type')
+                ->options(InsuranceSaleTypeEnum::getOptions())
+                ->preload()
+                ->required(),
 
             CustomRepeater::make('benefits')
                 ->label('Benefits')
@@ -71,6 +85,14 @@ class InsuranceTypeTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('sale_type')
+                    ->label('Sale Type')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('commission')
+                    ->label('TA Commission, %')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('benefits')
@@ -137,6 +159,9 @@ class InsuranceTypeTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Insurance Type')
 //                    ->visible(fn (): bool => Gate::allows('create', InsurancePlan::class))
                     ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->tooltip('Add New Insurance Type')
                     ->iconButton(),
             ])
             ->bulkActions([

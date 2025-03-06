@@ -245,6 +245,7 @@ class AddHotel
 
         $hotel->update(Arr::only($data, [
             'weight',
+            'is_not_auto_weight',
             'giata_code',
             'featured_flag',
             'sale_type',

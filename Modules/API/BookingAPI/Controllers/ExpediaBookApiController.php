@@ -28,11 +28,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookTransformer;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookingRetrieveBookingTransformer;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookingRetrieveBookingTransformer;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookTransformer;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 
@@ -43,10 +43,10 @@ class ExpediaBookApiController extends BaseBookApiController
     private array $base_params;
 
     public function __construct(
-        private readonly RapidClient                      $rapidClient,
-        private readonly ExpediaHotelBookTransformer      $expediaBookDto,
-        private readonly ExpediaHotelPricingTransformer   $ExpediaHotelPricingDto,
-        private readonly PricingRulesTools                $pricingRulesService,
+        private readonly RapidClient $rapidClient,
+        private readonly ExpediaHotelBookTransformer $expediaBookDto,
+        private readonly ExpediaHotelPricingTransformer $ExpediaHotelPricingDto,
+        private readonly PricingRulesTools $pricingRulesService,
         private readonly ExpediaHotelBookingApiController $expediaHotelBookingApiController,
     ) {
         $this->base_params = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone') === 'package'
@@ -371,7 +371,7 @@ class ExpediaBookApiController extends BaseBookApiController
             ];
 
             $clientResponse = $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
-            SaveBookingInspector::dispatch($inspectorBook, $content, $clientResponse);
+            SaveBookingInspector::dispatchSync($inspectorBook, $content, $clientResponse);
 
         } catch (ConnectException $e) {
             Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
@@ -403,7 +403,7 @@ class ExpediaBookApiController extends BaseBookApiController
         }
 
         // Save Book data to Reservation
-        SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
+        SaveReservations::dispatchSync($booking_id, $filters, $dataPassengers);
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
@@ -412,11 +412,11 @@ class ExpediaBookApiController extends BaseBookApiController
             $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
         }
 
-        $this->saveBookingInfo($filters, $content, $bookingInspector);
+        $this->saveBookingInfo($filters, $content, $bookingInspector, true);
 
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
-        $this->retrieveBooking($filters, $item);
+        $this->retrieveBooking($filters, $item, true);
 
         // after retrieveBooking, we need to update the ApiBookingsMetadata with the cancellation_paths
         $this->saveBookingInfo($filters, $content, $bookingInspector);
@@ -463,7 +463,7 @@ class ExpediaBookApiController extends BaseBookApiController
         return $responses;
     }
 
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -503,7 +503,11 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $clientDataResponse = ExpediaHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
 
-        SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientDataResponse);
+        if ($isSync) {
+            SaveBookingInspector::dispatchSync($bookingInspector, $dataResponse, $clientDataResponse);
+        } else {
+            SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientDataResponse);
+        }
 
         if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {
             return (array) $dataResponse;
@@ -623,7 +627,7 @@ class ExpediaBookApiController extends BaseBookApiController
         ];
     }
 
-    private function saveBookingInfo(array $filters, array $content, ApiBookingInspector $bookingInspector): void
+    private function saveBookingInfo(array $filters, array $content, ApiBookingInspector $bookingInspector, bool $isSync = false): void
     {
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $roomId = json_decode($bookingInspector->request)?->room_id;
@@ -638,6 +642,10 @@ class ExpediaBookApiController extends BaseBookApiController
             'retrieve_path' => $linkBookRetrieves,
         ];
 
-        SaveBookingMetadata::dispatch($filters, $reservation);
+        if ($isSync) {
+            SaveBookingMetadata::dispatchSync($filters, $reservation);
+        } else {
+            SaveBookingMetadata::dispatch($filters, $reservation);
+        }
     }
 }

@@ -284,6 +284,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
+
     public function rules(): array
     {
         return [

@@ -4828,12 +4828,12 @@
                                     "price_value_target": {
                                         "type": "string",
                                         "enum": [
-                                            "per_guest",
+                                            "per_person",
                                             "per_room",
                                             "per_night",
                                             "not_applicable"
                                         ],
-                                        "example": "per_guest"
+                                        "example": "per_person"
                                     }
                                 },
                                 "type": "object"
@@ -5001,12 +5001,12 @@
                                     "price_value_target": {
                                         "type": "string",
                                         "enum": [
-                                            "per_guest",
+                                            "per_person",
                                             "per_room",
                                             "per_night",
                                             "not_applicable"
                                         ],
-                                        "example": "per_guest"
+                                        "example": "per_person"
                                     }
                                 },
                                 "type": "object"
@@ -5222,12 +5222,12 @@
                                     "price_value_target": {
                                         "type": "string",
                                         "enum": [
-                                            "per_guest",
+                                            "per_person",
                                             "per_room",
                                             "per_night",
                                             "not_applicable"
                                         ],
-                                        "example": "per_guest"
+                                        "example": "per_person"
                                     }
                                 },
                                 "type": "object"
@@ -5395,12 +5395,12 @@
                                     "price_value_target": {
                                         "type": "string",
                                         "enum": [
-                                            "per_guest",
+                                            "per_person",
                                             "per_room",
                                             "per_night",
                                             "not_applicable"
                                         ],
-                                        "example": "per_guest"
+                                        "example": "per_person"
                                     }
                                 },
                                 "type": "object"

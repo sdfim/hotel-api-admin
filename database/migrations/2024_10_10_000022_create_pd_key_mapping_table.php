@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
-            $table->foreign('key_mapping_owner_id')->references('id')->on('pd_key_mapping_owners');
+            $table->foreign('key_mapping_owner_id')->references('id')->on('pd_key_mapping_owners')->onDelete('cascade');
         });
     }
 

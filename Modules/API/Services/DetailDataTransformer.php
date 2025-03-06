@@ -61,6 +61,7 @@ class DetailDataTransformer
         $this->updateContentResultWithInternalData($result, $hotel);
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
+        $internalPropertyDescription = array_values(array_filter($internalPropertyDescription, fn ($description) => $description !== null));
 
         if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
             $result['images'] = array_merge($internalPropertyImages, $result['images']);
@@ -106,9 +107,9 @@ class DetailDataTransformer
 
         $result['rooms'] = array_merge($internalRooms, $result['rooms']);
 
-        foreach ($result['rooms'] as $key => $room) {
-            $contentSupplier = Arr::get($room, 'content_supplier', '');
-            $supplierRoomId = Arr::get($room, 'supplier_room_id', '');
+        foreach ($result['rooms'] as $key => $resultRoom) {
+            $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
+            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
@@ -172,14 +173,13 @@ class DetailDataTransformer
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
-        $result['hotel_fees'] = $this->getHotelFees($hotel);
+        //        $result['hotel_fees'] = $this->getHotelFees($hotel);
         $result['attributes'] = $this->getHotelAttributes($hotel);
-        //        $result['rooms'] = $this->getHotelRooms($hotel);
+        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
         $result['drivers'] = $this->getHotelDrivers($hotel);
-        //        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function updateContentResultWithInternalData(array &$result, $hotel): void
@@ -192,21 +192,24 @@ class DetailDataTransformer
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
         $result['attributes'] = $this->getHotelAttributes($hotel);
+        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight ?? 0;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
         $result['drivers'] = $this->getHotelDrivers($hotel);
-        //        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function getHotelFees($hotel): array
     {
         return $hotel->product->descriptiveContentsSection
             ->map(function ($section) {
-                if ($section->descriptiveType->type === 'Taxes And Fees') {
+                if ($section->descriptiveType?->type === 'Taxes And Fees') {
                     return [
-                        'name' => $section->descriptiveType->name,
+                        //                        'name' => 'hotel_fees_'.$section->descriptiveType?->name,
+                        'name' => 'hotel_fees',
                         'value' => $section->value,
+                        'start_date' => $section->start_date,
+                        'end_date' => $section->end_date,
                     ];
                 }
             })
@@ -275,23 +278,6 @@ class DetailDataTransformer
         })->all();
     }
 
-    private function getProductAmenities($hotel): array
-    {
-        if (! $hotel->product->affiliations) {
-            return [];
-        }
-
-        return $hotel->product->affiliations->map(function ($depositInfo) {
-            return [
-                'consortia' => $depositInfo->consortia->name,
-                'description' => $depositInfo->description,
-                'start_date' => $depositInfo->start_date,
-                'end_date' => $depositInfo->end_date,
-                'amenities' => $depositInfo->amenities,
-            ];
-        })->all();
-    }
-
     private function formatConditions(Collection $conditions): string
     {
         return collect($conditions)->map(function ($condition) {
@@ -310,26 +296,62 @@ class DetailDataTransformer
 
     public function getHotelDescriptions($hotel): array
     {
-        return $hotel->product->descriptiveContentsSection
+        $descriptions = $hotel->product->descriptiveContentsSection
+            ->filter(function ($section) {
+                return $section->descriptiveType?->type !== 'Taxes And Fees';
+            })
             ->map(function ($section) {
                 return [
-                    'name' => $section->descriptiveType->name,
+                    'name' => $section->descriptiveType?->name,
                     'value' => $section->value,
                     'start_date' => $section->start_date,
                     'end_date' => $section->end_date,
                 ];
             })
             ->all();
+
+        $descriptions = array_merge($descriptions, $this->getHotelFees($hotel));
+
+        $descriptions = array_filter($descriptions, function ($description) {
+            return $description !== null;
+        });
+
+        return array_values($descriptions);
     }
 
     private function getHotelAttributes($hotel): array
     {
         return $hotel->product->attributes->map(function ($attribute) {
             return [
-                'name' => $attribute->attribute->name,
+                'name' => $attribute->attribute?->name,
                 'category' => $attribute->category?->name ?? 'general',
             ];
         })->all();
+    }
+
+    private function getUltimateAmenities($hotel): array
+    {
+        return $hotel->product->affiliations
+            ->filter(function ($affiliation) {
+                return $affiliation->room_id === null;
+            })
+            ->map(function ($affiliation) {
+                return [
+                    'start_date' => $affiliation->start_date,
+                    'end_date' => $affiliation->end_date,
+                    'amenities' => $affiliation->amenities->map(function ($amenity) {
+                        return [
+                            'name' => $amenity->amenity->name,
+                            'consortia' => $amenity->consortia,
+                            'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                            'price' => $amenity->price,
+                            'min_night_stay' => $amenity->min_night_stay,
+                            'max_night_stay' => $amenity->max_night_stay,
+                        ];
+                    })->all(),
+                ];
+            })
+            ->all();
     }
 
     private function getHotelDrivers($hotel): array
@@ -350,14 +372,22 @@ class DetailDataTransformer
                 return [$attribute->id => $attribute->name];
             })->all();
 
+            $ultimateAmenities = [];
             if ($room->affiliations) {
-                $amenities = $room->affiliations->map(function ($amenity) {
+                $ultimateAmenities = $room->affiliations->map(function ($affiliation) {
                     return [
-                        'consortia' => $amenity->consortia->name,
-                        'description' => $amenity->description,
-                        'start_date' => $amenity->start_date,
-                        'end_date' => $amenity->end_date,
-                        'amenities' => $amenity->amenities,
+                        'start_date' => $affiliation->start_date,
+                        'end_date' => $affiliation->end_date,
+                        'amenities' => $affiliation->amenities->map(function ($amenity) {
+                            return [
+                                'name' => $amenity->amenity->name,
+                                'consortia' => $amenity->consortia,
+                                'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                                'price' => $amenity->price,
+                                'min_night_stay' => $amenity->min_night_stay,
+                                'max_night_stay' => $amenity->max_night_stay,
+                            ];
+                        })->all(),
                     ];
                 })->all();
             }
@@ -391,12 +421,14 @@ class DetailDataTransformer
                 'connecting_room_types' => $relatedRooms,
                 'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'attributes' => $attributes,
-                //                'amenities' => $amenities,
+                'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,
                 'descriptions' => $room->description,
                 'supplier_codes' => $supplierCodes,
             ];
         }
+
+        \Log::debug('Rooms', $rooms);
 
         return $rooms;
     }

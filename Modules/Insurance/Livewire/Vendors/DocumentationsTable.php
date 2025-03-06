@@ -3,6 +3,8 @@
 namespace Modules\Insurance\Livewire\Vendors;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\InsuranceDocumentationTypes\InsuranceDocumentationTypesForm;
+use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Enums\RoleSlug;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -20,11 +22,12 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Modules\Enums\InsuranceDocTypeEnum;
-use Modules\Enums\InsuranceDocVisibilityEnum;
 use Modules\Enums\VendorTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\Vendor;
@@ -38,9 +41,6 @@ class DocumentationsTable extends Component implements HasForms, HasTable
     public function mount(InsuranceProviderDocumentation $record): void
     {
         $data = $record->toArray();
-        foreach ($record->viewable ?? [] as $option) {
-            $data['viewable'][$option] = true;
-        }
         $this->form->fill($data);
     }
 
@@ -55,19 +55,12 @@ class DocumentationsTable extends Component implements HasForms, HasTable
             return [];
         }
 
-        $options = [
-            InsuranceDocTypeEnum::PRIVACY_POLICY->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
-            InsuranceDocTypeEnum::TERMS_AND_CONDITION->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
-            InsuranceDocTypeEnum::TRAVEL_PROTECTION_PLAN_SUMMARY->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
-            InsuranceDocTypeEnum::SCHEDULE_OF_BENEFITS_PLAN_COSTS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
-            InsuranceDocTypeEnum::CLAIM_PROCESS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
-            InsuranceDocTypeEnum::EMERGENCY_TRAVEL_ASSISTANCE_PLATINUM->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
-            InsuranceDocTypeEnum::EMERGENCY_TRAVEL_ASSISTANCE_SILVER->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
-            InsuranceDocTypeEnum::TRIPMATE_CLAIMS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
-            InsuranceDocTypeEnum::GENERAL_INFORMATION->value => [InsuranceDocVisibilityEnum::INTERNAL->value, InsuranceDocVisibilityEnum::EXTERNAL->value],
-        ];
+        $arr = ConfigInsuranceDocumentationType::where('id', $documentType)->first();
+        if (! $arr) {
+            return [];
+        }
 
-        return array_intersect_key(InsuranceDocVisibilityEnum::getOptions(), array_flip($options[$documentType] ?? []));
+        return $arr->viewable;
     }
 
     public function schemeForm(?InsuranceProviderDocumentation $record = null): array
@@ -79,32 +72,39 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                         ->label('Provider Documentation')
                         ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                         ->preload()
-                        ->required(),
+                        ->rules(['required']),
 
-                    Select::make('document_type')
+                    Select::make('document_type_id')
                         ->label('Type Document')
                         ->reactive()
-                        ->options(InsuranceDocTypeEnum::getOptions())
-                        ->required(),
+                        ->createOptionForm(app(InsuranceDocumentationTypesForm::class)->getSchema())
+                        ->createOptionUsing(function (array $data) {
+                            ConfigInsuranceDocumentationType::create($data);
+                            Notification::make()
+                                ->title('Document type created successfully')
+                                ->success()
+                                ->send();
+                        })
+                        ->options(ConfigInsuranceDocumentationType::pluck('name_type', 'id')->toArray())
+                        ->rules(['required']),
 
                 ]),
             Grid::make(6)
-                ->schema(function (callable $get) {
-                    $listOptions = array_values($this->getVisibilityOptions($get('document_type')));
-                    $toggles = [];
-                    foreach ($listOptions as $key => $option) {
-                        $toggles[] = CustomToggle::make('viewable.'.$option)
-                            ->label($option);
-                    }
-
-                    return $toggles;
-                }),
+                ->schema([
+                    CustomToggle::make('viewable.External')
+                        ->label('External')
+                        ->visible(fn (callable $get) => in_array('External', array_values($this->getVisibilityOptions($get('document_type_id'))))),
+                    CustomToggle::make('viewable.Internal')
+                        ->label('Internal')
+                        ->visible(fn (callable $get) => in_array('Internal', array_values($this->getVisibilityOptions($get('document_type_id'))))),
+                ]),
             FileUpload::make('path')
                 ->label('Upload file')
                 ->disk('public')
                 ->directory('insurance-documentation')
                 ->visibility('private')
-                ->downloadable(),
+                ->downloadable()
+                ->rules(['required']),
         ];
     }
 
@@ -123,7 +123,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->label('Vendor name')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('document_type')
+                TextColumn::make('documentType.name_type')
                     ->label('Document type')
                     ->sortable()
                     ->searchable()
@@ -132,12 +132,13 @@ class DocumentationsTable extends Component implements HasForms, HasTable
             ->actions([
                 Action::make('download')
                     ->icon('heroicon-s-arrow-down-circle')
+                    ->iconButton()
                     ->color('success')
-                    ->label('Download File')
+                    ->tooltip('Download File')
                     ->action(function (InsuranceProviderDocumentation $record) {
                         $filePath = $record->path;
 
-                        if (Storage::disk('public')->exists('dump.sql')) {
+                        if (Storage::disk('public')->exists($filePath)) {
                             return response()->download(
                                 Storage::disk('public')->path($filePath),
                                 basename($filePath)
@@ -151,15 +152,43 @@ class DocumentationsTable extends Component implements HasForms, HasTable
 
                         return false;
                     }),
+                Action::make('View')
+                    ->icon('heroicon-s-eye')
+                    ->iconButton()
+                    ->color('success')
+                    ->tooltip('View File')
+                    ->url(function (InsuranceProviderDocumentation $record) {
+                        $filePath = $record->path;
+
+                        if (Storage::disk('public')->exists($filePath)) {
+                            return Storage::url($filePath);
+                        }
+
+                        Notification::make()
+                            ->title('File not found')
+                            ->danger()
+                            ->send();
+
+                        return false;
+                    })
+                    ->openUrlInNewTab(),
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Provider Documentation')
                     ->form(fn (InsuranceProviderDocumentation $record) => $this->schemeForm($record))
+                    ->closeModalByClickingAway(false)
                     ->fillForm(function (InsuranceProviderDocumentation $record) {
                         return $record->toArray();
                     })
                     ->visible(fn (InsuranceProviderDocumentation $record): bool => Gate::allows('update', $record))
-                    ->action(function (InsuranceProviderDocumentation $record, array $data) {
+                    ->action(function (InsuranceProviderDocumentation $record, array $data, EditAction $action) {
+                        if (! $data['path'] || $data['path'] instanceof UploadedFile) {
+                            Notification::make()
+                                ->title('File not found')
+                                ->danger()
+                                ->send();
+                            $action->halt();
+                        }
                         $record->update($data);
 
                         Notification::make()
@@ -197,8 +226,28 @@ class DocumentationsTable extends Component implements HasForms, HasTable
             ->headerActions([
                 CreateAction::make()
                     ->form($this->schemeForm())
-                    ->action(function (array $data) {
+                    ->closeModalByClickingAway(false)
+                    ->action(function (array $data, CreateAction $action) {
+                        if (! $data['path'] || $data['path'] instanceof UploadedFile) {
+                            Notification::make()
+                                ->title('File not found')
+                                ->danger()
+                                ->send();
+                            $action->halt();
+                        }
                         InsuranceProviderDocumentation::create($data);
+
+                        if (Arr::get($action->getArguments(), 'another', false)) {
+                            Notification::make()
+                                ->title('Documentation created successfully')
+                                ->success()
+                                ->send();
+
+                            $this->reset('mountedTableActionsData');
+                            $this->mountedTableActionsData[0]['viewable'] = ['Internal' => false, 'External' => false];
+                            $this->mountedTableActionsData[0]['path'] = [];
+                            $action->halt();
+                        }
 
                         Notification::make()
                             ->title('Created successfully')

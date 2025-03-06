@@ -29,7 +29,6 @@ class InsuranceRestriction extends Model
         'insurance_type_id',
         'compare',
         'value',
-        'sale_type',
     ];
 
     public function vendor(): BelongsTo

@@ -32,6 +32,8 @@
     use App\Models\Configurations\ConfigJobDescription;
     use App\Models\Configurations\ConfigServiceType;
     use App\Models\Configurations\ConfigChain;
+    use App\Models\Configurations\ConfigInsuranceDocumentationType;
+    use Modules\HotelContentRepository\Models\KeyMappingOwner;
     use Modules\HotelContentRepository\Models\ImageGallery;
     use Modules\HotelContentRepository\Models\Image;
     use App\Models\Team;
@@ -49,6 +51,8 @@
         $canView(ConfigJobDescription::class) ||
         $canView(ConfigServiceType::class) ||
         $canView(ConfigChain::class);
+        $canView(ConfigInsuranceDocumentationType::class);
+        $canView(KeyMappingOwner::class);
 @endphp
 
     <!-- ========== Left Sidebar Start ========== -->
@@ -137,6 +141,20 @@
                                     <a href="{{ route('configurations.chains.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
                                     >Chains </a>
+                                </li>
+                            @endif
+                            @if($canView(ConfigInsuranceDocumentationType::class))
+                                <li>
+                                    <a href="{{ route('configurations.insurance-documentation-types.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >Insurance Documentation Types </a>
+                                </li>
+                            @endif
+                            @if($canView(KeyMappingOwner::class))
+                                <li>
+                                    <a href="{{ route('configurations.external-identifiers.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >External Identifiers </a>
                                 </li>
                             @endif
                         </ul>

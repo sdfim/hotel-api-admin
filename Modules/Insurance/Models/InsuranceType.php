@@ -12,6 +12,8 @@ class InsuranceType extends Model
     protected $fillable = [
         'name',
         'benefits',
+        'sale_type',
+        'commission',
     ];
 
     protected $casts = [

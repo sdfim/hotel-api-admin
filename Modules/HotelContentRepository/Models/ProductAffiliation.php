@@ -2,10 +2,12 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use App\Models\Configurations\ConfigConsortium;
+use App\Models\Configurations\ConfigAmenity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductAffiliationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 use Spatie\Activitylog\LogOptions;
@@ -28,17 +30,18 @@ class ProductAffiliation extends Model
         'product_id',
         'rate_id',
         'room_id',
-        'consortia_id',
-        'description',
         'start_date',
         'end_date',
-        'amenities',
+        'consortia',
+        'is_paid',
+        'price',
     ];
 
     protected $casts = [
-        'amenities' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
+        'consortia' => 'array',
+        'is_paid' => 'boolean',
     ];
 
     protected $hidden = [
@@ -52,15 +55,25 @@ class ProductAffiliation extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function consortia(): BelongsTo
+    public function amenities(): HasMany
     {
-        return $this->belongsTo(ConfigConsortium::class);
+        return $this->hasMany(ProductAffiliationAmenity::class);
+    }
+
+    public function rate(): BelongsTo
+    {
+        return $this->belongsTo(HotelRate::class);
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(HotelRoom::class);
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['product_id', 'affiliation_name', 'combinable'])
+            ->logOnly(['*'])
             ->logOnlyDirty()
             ->useLogName('product_affiliation');
     }

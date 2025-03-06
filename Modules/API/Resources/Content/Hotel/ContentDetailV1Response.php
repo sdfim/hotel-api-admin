@@ -233,7 +233,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "manipulable_price_type": "total_price",
  *               "price_value": "50.00",
  *               "price_value_type": "percentage",
- *               "price_value_target": "per_guest",
+ *               "price_value_target": "per_person",
  *               "conditions": "booking_date < 2021-09-01, travel_date between 2021-12-23 2022-01-02, room_type!= Private Villa"
  *             },
  *             {
@@ -243,7 +243,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "manipulable_price_type": "total_price",
  *               "price_value": "100.00",
  *               "price_value_type": "percentage",
- *               "price_value_target": "per_guest",
+ *               "price_value_target": "per_person",
  *               "conditions": "booking_date > 2021-09-01, room_type!= Private Villa, travel_date between 2021-12-23 2022-01-02"
  *             }
  *           },
@@ -255,7 +255,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "manipulable_price_type": "total_price",
  *               "price_value": "100.00",
  *               "price_value_type": "percentage",
- *               "price_value_target": "per_guest",
+ *               "price_value_target": "per_person",
  *               "conditions": "travel_date between 2021-01-03 2021-03-31, room_type!= Private Villa, days_until_departure < 3"
  *             },
  *             {
@@ -265,7 +265,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "manipulable_price_type": "total_price",
  *               "price_value": "100.00",
  *               "price_value_type": "percentage",
- *               "price_value_target": "per_guest",
+ *               "price_value_target": "per_person",
  *               "conditions": "travel_date between 2021-04-01 2021-06-30, room_type!= Private Villa, days_until_departure < 7"
  *             }
  *           },
@@ -333,10 +333,6 @@ namespace Modules\API\Resources\Content\Hotel;
  *               },
  *               "descriptions": "<p><strong>1 King Bed</strong></p><p>420-sq-foot soundproofed room, balcony/patio with pool views </p><br/><p><b>Internet</b> - Free WiFi </p><p><b>Food & Drink</b> - Coffee/tea maker and room service (limited hours) </p><p><b>Sleep</b> - Blackout drapes/curtains and bed sheets </p><p><b>Bathroom</b> - Private bathroom, shower, a hair dryer, and towels</p><p><b>Practical</b> - Safe, iron/ironing board, and desk; rollaway/extra beds and cribs/infant beds available on request</p><p><b>Comfort</b> - Air conditioning and daily housekeeping</p><p>Non-Smoking</p>"
  *             }
- *           },
- *           "supplier_information": {
- *             "supplier_terms_and_conditions_client": "https://developer.expediapartnersolutions.com/terms/en",
- *             "supplier_terms_and_conditions_agent": "https://developer.expediapartnersolutions.com/terms/agent/en/"
  *           },
  *           "weight": null,
  *           "structure": {

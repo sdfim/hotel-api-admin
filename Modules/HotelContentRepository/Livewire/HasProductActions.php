@@ -21,6 +21,7 @@ trait HasProductActions
                 ->iconButton()
                 ->modalHeading(new HtmlString("Edit {$this->title}"))
                 ->form($this->schemeForm())
+                ->closeModalByClickingAway(false)
                 ->visible(fn () => Gate::allows('create', Product::class)),
         ];
 

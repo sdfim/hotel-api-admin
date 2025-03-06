@@ -41,7 +41,7 @@ class PricingRulesDataGenerationTools
      */
     public function getPriceValueTargetKeys(): array
     {
-        return ['per_guest', 'per_room', 'per_night', 'not_applicable'];
+        return ['per_person', 'per_room', 'per_night', 'not_applicable'];
     }
 
     /**
