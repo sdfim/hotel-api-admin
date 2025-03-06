@@ -18,7 +18,6 @@ use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\Enums\RouteBookingEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
@@ -26,11 +25,13 @@ use Modules\Enums\TypeRequestEnum;
 class RouteBookingApiController extends Controller
 {
     private ?string $type;
+
     private ?string $supplier;
+
     private ?string $route;
 
     public function __construct(
-        private readonly HotelBookingApiHandler  $hotelBookingApiHandler,
+        private readonly HotelBookingApiHandler $hotelBookingApiHandler,
         private readonly FlightBookingApiHandler $flightBookingApiHandler,
         private readonly ComboBookingApiHandler $comboBookingApiHandler,
     ) {}
@@ -92,8 +93,27 @@ class RouteBookingApiController extends Controller
             if (! $this->validatedUuid('booking_item')) {
                 return [];
             }
-            $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+
             $cacheBookingItem = Cache::get('room_combinations:'.$request->booking_item);
+
+            $apiBookingItem = null;
+            if (! $cacheBookingItem) {
+                $waitTime = 0;
+                $maxWaitTime = 5;
+                while ($waitTime < $maxWaitTime) {
+                    $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+                    if ($apiBookingItem) {
+                        break;
+                    }
+                    \Log::debug('Waiting for booking_item to be available '.$waitTime.' s', ['request' => $request]);
+                    sleep(1);
+                    $waitTime++;
+                }
+                if (! $apiBookingItem) {
+                    return ['error' => 'Unable to get booking_item within '.$maxWaitTime.' seconds'];
+                }
+            }
+
             if (! $apiBookingItem && ! $cacheBookingItem) {
                 return ['error' => 'Invalid booking_item'];
             }
@@ -118,19 +138,15 @@ class RouteBookingApiController extends Controller
             }
             $bi = BookingRepository::geTypeSupplierByBookingId($request->get('booking_id'));
 
-            if (empty($bi))
-            {
+            if (empty($bi)) {
                 /**
                  * This logic was added to support imported bookings from TravelTek
                  */
                 $bi = ApiBookingsMetadataRepository::geTypeSupplierByBookingId($request->get('booking_id'));
 
-                if (empty($bi))
-                {
+                if (empty($bi)) {
                     return ['error' => 'Invalid booking_id'];
-                }
-                else
-                {
+                } else {
                     $bi['token_id'] = $requestTokenId;
                 }
             }

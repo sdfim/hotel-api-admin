@@ -769,7 +769,18 @@ class BookApiHandler extends BaseController
             if (! $this->validatedUuid('booking_id')) {
                 return ['error' => 'Invalid booking_id'];
             }
-            $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
+            $waitTime = 0;
+            $maxWaitTime = 5;
+            $bi = null;
+            while ($waitTime < $maxWaitTime) {
+                $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
+                if (! empty($bi)) {
+                    break;
+                }
+                \Log::debug('Waiting for booking_id to be available '.$waitTime.' s');
+                sleep(1);
+                $waitTime++;
+            }
             if (empty($bi)) {
                 return ['error' => 'Invalid booking_id'];
             }

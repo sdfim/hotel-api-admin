@@ -6,8 +6,6 @@ use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Modules\Enums\SupplierNameEnum;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class ExpediaHotelContentDetailTransformer
 {
@@ -28,7 +26,6 @@ class ExpediaHotelContentDetailTransformer
         } else {
             \Log::error('ExpediaHotelContentDetailTransformer | Probably an error with the expedia_content_slave table');
         }
-        $viewAmenities = request()->get('category_amenities') === 'true';
 
         $address = Arr::get($supplierResponse, 'address.line_1', '').', '.
             Arr::get($supplierResponse, 'address.city', '');
@@ -45,23 +42,19 @@ class ExpediaHotelContentDetailTransformer
         $hotelResponse->setLongitude(Arr::get($supplierResponse, 'location.coordinates.longitude', ''));
         $hotelResponse->setRating(Arr::get($supplierResponse, 'rating', ''));
         $amenities = Arr::get($supplierResponse, 'amenities', []);
-        if ($viewAmenities) {
-            $hotelResponse->setAmenities($amenities);
-        } else {
-            $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
-                return [
-                    'name' => Arr::get($amenity, 'name'),
-                    'category' => Arr::get($amenity, 'categories.0', 'general'),
-                ];
-            }, $amenities)));
-        }
+        $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
+            return [
+                'name' => Arr::get($amenity, 'name'),
+                'category' => Arr::get($amenity, 'categories.0', 'general'),
+            ];
+        }, $amenities)));
         $hotelResponse->setGiataDestination(Arr::get($supplierResponse, 'city', ''));
         $hotelResponse->setUserRating(Arr::get($supplierResponse, 'rating', ''));
 
         $attractionsData = Arr::get($supplierResponse, 'descriptions.attractions', []);
         $attractions = $this->expediaTranformerService->parseAttractions($attractionsData);
         $nearestAirports = array_filter($attractions, function ($attraction) {
-            return strpos($attraction['name'], 'Airport') !== false;
+            return str_contains($attraction['name'], 'Airport');
         });
         $hotelResponse->setNearestAirports(array_values($nearestAirports));
 
@@ -108,16 +101,12 @@ class ExpediaHotelContentDetailTransformer
                 $roomResponse->setSupplierRoomId(Arr::get($room, 'id', ''));
                 $roomResponse->setUnifiedRoomCode(Arr::get($room, 'id', ''));
                 $roomResponse->setSupplierRoomName(Arr::get($room, 'name', ''));
-                if ($viewAmenities) {
-                    $roomResponse->setAmenities($amenities);
-                } else {
-                    $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
-                        return [
-                            'name' => Arr::get($amenity, 'name'),
-                            'category' => Arr::get($amenity, 'categories.0', 'general'),
-                        ];
-                    }, $amenities)));
-                }
+                $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
+                    return [
+                        'name' => Arr::get($amenity, 'name'),
+                        'category' => Arr::get($amenity, 'categories.0', 'general'),
+                    ];
+                }, $amenities)));
                 $roomResponse->setImages($images);
                 $roomResponse->setDescriptions(Arr::get($room, 'descriptions.overview', ''));
                 $rooms[] = $roomResponse->toArray();

@@ -34,7 +34,19 @@ class HbsiService
         }
         $completeBookingItem = [];
         foreach ($room_combinations as $key => $value) {
-            $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
+            $bookingItem = null;
+            $waitTime = 0;
+            $maxWaitTime = 5;
+
+            while ($waitTime < $maxWaitTime) {
+                $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
+                if ($bookingItem) {
+                    break;
+                }
+                sleep(1);
+                $waitTime++;
+            }
+
             $booking_item_data = json_decode($bookingItem->booking_item_data, true);
             $booking_pricing_data = json_decode($bookingItem->booking_pricing_data, true);
 
@@ -364,4 +376,3 @@ class HbsiService
 
     }
 }
-

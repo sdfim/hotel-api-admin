@@ -11,15 +11,17 @@ use Illuminate\Queue\SerializesModels;
 
 class SaveBookingItems implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
-        private readonly array $bookingItems
-    ) {
-    }
+        private readonly array $bookingItems,
+    ) {}
 
     /**
      * Execute the job.
@@ -28,8 +30,7 @@ class SaveBookingItems implements ShouldQueue
     {
         $chunks = array_chunk($this->bookingItems, 100);
 
-        foreach($chunks as $value)
-        {
+        foreach ($chunks as $value) {
             ApiBookingItem::insert($value);
         }
     }

@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Suppliers\IcePortalSupplier\IcePortalClient;
+use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
 use Modules\API\Tools\Geography;
 
@@ -29,16 +29,15 @@ class IcePortalHotelController
     private const ICE_MTYPE = 34347;
 
     public function __construct(
-        private readonly IcePortalClient $client,
-        private readonly icePortalAssetTransformer $icePortalAssetTransformer,
+        private readonly IceHBSIClient $client,
+        private readonly IcePortalAssetTransformer $icePortalAssetTransformer,
     ) {}
 
     public function search(array $filters): array
     {
         if (isset($filters['giata_ids'])) {
-            $giata_id = Arr::get($filters, 'giata_ids.0', '');
-            $city_id = Property::where('code', $giata_id)->first()->city_id;
-            $geographyData = GiataGeography::where('city_id', $city_id)->first();
+            $giataIdsd = Arr::get($filters, 'giata_ids', [1]);
+            return IcePortalRepository::dataByGiataIds($giataIdsd);
         } elseif (isset($filters['session']) || isset($filters['latitude'])) {
             return [];
         } elseif (isset($filters['place'])) {
@@ -61,7 +60,7 @@ class IcePortalHotelController
             $geographyData = GiataGeography::where('city_id', $city_id)->first();
         }
 
-        $propertyRepository = new PropertyRepository();
+        $propertyRepository = new PropertyRepository;
 
         $results = IcePortalRepository::dataByCity($geographyData?->city_name);
         if (count($results) > 0 && ! request()->supplier_data) {
@@ -88,7 +87,7 @@ class IcePortalHotelController
             'pageSize' => isset($filters['results_per_page']) && $filters['results_per_page'] <= 500 ?
                 $filters['results_per_page'] : self::RESULT_PER_PAGE,
         ]);
-        Log::info('IcePortalClient | search | runtime /v1/listings', [
+        Log::info('IceHBSIClient | search | runtime /v1/listings', [
             'runtime' => microtime(true) - $ct.' seconds',
         ]);
 
@@ -120,7 +119,7 @@ class IcePortalHotelController
             if (! empty($missingProperties)) {
                 $ct = microtime(true);
                 $resultsFromIseAsync = $this->fetchHotelAssets($missingProperties);
-                Log::info('IcePortalClient | search | runtime fetchHotelAssets', [
+                Log::info('IceHBSIClient | search | runtime fetchHotelAssets', [
                     'runtime' => microtime(true) - $ct.' seconds',
                 ]);
             }
@@ -130,7 +129,7 @@ class IcePortalHotelController
             $results['results'] = $propertyRepository->associateByGiata($results['results'], 'ICE_PORTAL');
 
         } else {
-            Log::error('IcePortalClient | search | error', [
+            Log::error('IceHBSIClient | search | error', [
                 'response' => $response->json(),
                 'error' => $response->serverError(),
             ]);
@@ -142,7 +141,7 @@ class IcePortalHotelController
     public function fetchHotelAssets(array $results): array
     {
         $responses = Http::pool(function (Pool $pool) use ($results) {
-            Log::info('IcePortalClient | search | results', $results);
+            Log::info('IceHBSIClient | search | results', $results);
             foreach ($results['results'] as $result) {
                 $pool->withToken($this->client->fetchToken())
                     ->get($this->client->url('/v1/listings/'.$result['listingID'].'/assets'), [
@@ -158,7 +157,7 @@ class IcePortalHotelController
         foreach ($responses as $key => $response) {
 
             $responseData = $response->json();
-            Log::info('IcePortalClient | search | response', [
+            Log::info('IceHBSIClient | search | response', [
                 'response' => $responseData,
                 'key' => $key,
             ]);
@@ -191,7 +190,7 @@ class IcePortalHotelController
         try {
             IcePortalProperty::insert($batch);
         } catch (Exception $e) {
-            Log::error('IcePortalClient | search | error', [
+            Log::error('IceHBSIClient | search | error', [
                 'message' => $e->getMessage(),
                 'error' => $e->getTraceAsString(),
             ]);
@@ -217,7 +216,7 @@ class IcePortalHotelController
         if ($response->successful()) {
             $results = $response->json();
         } else {
-            Log::error('IcePortalClient | search | error', [
+            Log::error('IceHBSIClient | search | error', [
                 'response' => $response->json(),
                 'error' => $response->serverError(),
             ]);
@@ -272,7 +271,7 @@ class IcePortalHotelController
                 $results[$giataId] = $responseData;
                 $listingIDs[] = $responseData['listingID'];
             } else {
-                Log::error('IcePortalClient | search | error', [
+                Log::error('IceHBSIClient | search | error', [
                     'giataId' => $giataId,
                     'response' => $response instanceof \Illuminate\Http\Client\Response ? $response->json() : null,
                     'error' => $response instanceof \Illuminate\Http\Client\Response ? $response->serverError() : 'Connection error',
@@ -298,7 +297,7 @@ class IcePortalHotelController
             if ($assetResponse instanceof \Illuminate\Http\Client\Response && $assetResponse->successful()) {
                 $results[$giataId]['assets'] = $assetResponse->json();
             } else {
-                Log::error('IcePortalClient | search | error fetching assets', [
+                Log::error('IceHBSIClient | search | error fetching assets', [
                     'giataId' => $giataId,
                     'response' => $assetResponse instanceof \Illuminate\Http\Client\Response ? $assetResponse->json() : null,
                     'error' => $assetResponse instanceof \Illuminate\Http\Client\Response ? $assetResponse->serverError() : 'Connection error',

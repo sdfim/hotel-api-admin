@@ -21,8 +21,11 @@ class FlowHbsiBookTest extends Command
     protected string $url;
 
     private ?string $destination;
+
     private ?string $supplier;
+
     private ?array $query;
+
     private ?string $type;
 
     public function __construct()
@@ -39,9 +42,9 @@ class FlowHbsiBookTest extends Command
         $this->supplier = $this->argument('supplier');
         $this->type = $this->argument('type');
 
-        $this->destination = !$this->destination ? '508' : $this->destination;
-        $this->supplier = !$this->supplier ? 'HBSI' : $this->supplier;
-        $step = !$step ? 1 : $step;
+        $this->destination = ! $this->destination ? '508' : $this->destination;
+        $this->supplier = ! $this->supplier ? 'HBSI' : $this->supplier;
+        $step = ! $step ? 1 : $step;
         $this->type = $this->type ?? 'test';
 
         foreach (range(1, $step) as $index) {
@@ -59,6 +62,7 @@ class FlowHbsiBookTest extends Command
             $responseData = $this->makeSearchRequest($s);
             if (! isset($responseData['data']['query']['occupancy'])) {
                 $retryCount++;
+
                 continue;
             }
 
@@ -68,7 +72,6 @@ class FlowHbsiBookTest extends Command
             $searchId = $responseData['data']['search_id'];
             $bookingItem = $this->getBookingItem($responseData);
 
-            sleep(1);
             $retryCount++;
         }
         $this->info('search_id = '.$searchId ?? 'null');
@@ -90,7 +93,6 @@ class FlowHbsiBookTest extends Command
         $bookingItems['search_2'] = $bookingItem['booking_item'];
         $bookingRateOrdinals['search_2'] = $bookingItem['rate_ordinal'];
 
-        sleep(2);
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $this->query);
 
@@ -103,16 +105,14 @@ class FlowHbsiBookTest extends Command
         $this->warn('addPassengers group for search_3');
         $this->addPassengers($bookingId, $bookingItems2, $this->query);
 
-        sleep(3);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem['booking_item']);
 
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        sleep(3);
-        $this->warn('BOOK '.$bookingId);
-        $this->book($bookingId, $bookingItems);
+        //        $this->warn('BOOK '.$bookingId);
+        //        $this->book($bookingId, $bookingItems);
     }
 
     private function getBookingItem(array $responseData): ?array
@@ -123,18 +123,18 @@ class FlowHbsiBookTest extends Command
 
         $bookingItems = [];
         if ($countRooms === 1) {
-//            foreach ($flattened as $key => $value) {
-//                if (str_contains($key, 'booking_item')) {
-//                    $bookingItems[$key] = $value;
-//                }
-//            }
+            //            foreach ($flattened as $key => $value) {
+            //                if (str_contains($key, 'booking_item')) {
+            //                    $bookingItems[$key] = $value;
+            //                }
+            //            }
             $hotels = $responseData['data']['results'];
 
             foreach ($hotels as $hotel) {
                 $ro = 1;
                 foreach ($hotel['room_groups'] as $room_groups) {
                     foreach ($room_groups['rooms'] as $room) {
-                        if (!$room['non_refundable']) {
+                        if (! $room['non_refundable']) {
                             $booking_item = $room['booking_item'];
                             $rate_ordinal = $ro;
                             $ro++;

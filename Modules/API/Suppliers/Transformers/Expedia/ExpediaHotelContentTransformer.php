@@ -60,7 +60,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             $attractionsData = Arr::get($descriptionsData, 'attractions', '');
             $attractions = $this->expediaTranformerService->parseAttractions($attractionsData);
             $nearestAirports = array_filter($attractions, function ($attraction) {
-                return strpos($attraction['name'], 'Airport') !== false;
+                return str_contains($attraction['name'], 'Airport');
             });
             $hotelResponse->setNearestAirports(array_values($nearestAirports));
 
@@ -75,12 +75,13 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             $hotelResponse->setLongitude($hotel['location']['coordinates']['longitude']);
             $hotelResponse->setRating($hotel['rating']);
             $amenities = $hotel['amenities'] ? json_decode(json_encode($hotel['amenities']), true) : [];
-            if (! is_array($amenities)) {
-                $amenities = [];
-            }
             $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
-                return $amenity['name'];
+                return [
+                    'name' => Arr::get($amenity, 'name'),
+                    'category' => Arr::get($amenity, 'categories.0', 'general'),
+                ];
             }, $amenities)));
+
             $hotelResponse->setGiataDestination($hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
 

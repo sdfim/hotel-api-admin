@@ -8,7 +8,7 @@ enum SupplierNameEnum: string
     case HBSI = 'HBSI';
     case ICE_PORTAL = 'IcePortal';
 
-    static function getValues()
+    static function getValues(): array
     {
         return [self::EXPEDIA->value, self::HBSI->value, self::ICE_PORTAL->value];
     }

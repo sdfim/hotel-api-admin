@@ -7,13 +7,13 @@ namespace Modules\API\Suppliers\Transformers\IcePortal;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
-use Modules\API\Suppliers\IcePortalSupplier\IcePortalClient;
+use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 use Modules\Enums\SupplierNameEnum;
 
 class IcePortalHotelContentDetailTransformer
 {
     public function __construct(
-        private readonly IcePortalClient $client,
+        private readonly IceHBSIClient $client,
         private readonly IcePortalAssetTransformer $icePortalAssetTransformer,
     ) {}
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\IcePortalSupplier;
+namespace Modules\API\Suppliers\IceSuplier;
 
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -8,8 +8,13 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-class IcePortalClient
+class IceHBSIClient
 {
+    /**
+     * Number of seconds in one day.
+     */
+    private const ONE_DAY_IN_SECONDS = 86400; // 24 * 60 * 60
+
     private string $clientId;
 
     private string $clientSecret;
@@ -18,10 +23,15 @@ class IcePortalClient
 
     private string $tokenUrl;
 
-    private string $token;
+    /**
+     * @var string|null The access token.
+     */
+    private ?string $token = null;
 
     /**
-     * @throws Exception
+     * Constructor.
+     *
+     * Initializes the client with configuration values.
      */
     public function __construct()
     {
@@ -30,16 +40,24 @@ class IcePortalClient
         $this->clientSecret = config("$namespace.client_secret");
         $this->baseUrl = config("$namespace.base_url");
         $this->tokenUrl = config("$namespace.token_url");
-        $this->token = $this->getToken();
     }
 
     /**
-     * @throws Exception
+     * Retrieves the access token.
+     *
+     * @return string The access token.
+     *
+     * @throws Exception If unable to retrieve the token.
      */
     private function getToken(): string
     {
+        if ($this->token !== null) {
+            return $this->token;
+        }
+
         if (Cache::has('ice_portal_token')) {
-            return Cache::get('ice_portal_token');
+            $this->token = Cache::get('ice_portal_token');
+            return $this->token;
         }
 
         $response = Http::asForm()->post($this->tokenUrl, [
@@ -49,24 +67,22 @@ class IcePortalClient
         ]);
 
         if ($response->successful()) {
-            Cache::put('ice_portal_token', $response->json()['access_token'], 24 * 60 * 60);
-
-            return $response->json()['access_token'];
+            $this->token = $response->json()['access_token'];
+            Cache::put('ice_portal_token', $this->token, self::ONE_DAY_IN_SECONDS);
+            return $this->token;
         }
 
-//        throw new Exception('Unable to retrieve token');
-        \Log::error('Unable to retrieve token');
-        return '';
+        throw new Exception('Unable to retrieve token');
     }
 
     public function get(string $endpoint, array $query = []): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->get($this->baseUrl.$endpoint, $query);
+        return Http::withToken($this->getToken())->get($this->baseUrl.$endpoint, $query);
     }
 
     public function post(string $endpoint, array $data = []): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->post($this->baseUrl.$endpoint, $data);
+        return Http::withToken($this->getToken())->post($this->baseUrl.$endpoint, $data);
     }
 
     public function pool($callback): array

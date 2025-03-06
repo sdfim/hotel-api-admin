@@ -18,7 +18,7 @@ class HbsiHotelBookingApiController extends BaseHotelBookingApiController
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'add_item', $filters['rate_type'], 'hotel',
         ]);
-        SaveBookingInspector::dispatch($bookingInspector);
+        SaveBookingInspector::dispatchSync($bookingInspector);
 
         return ['booking_id' => $booking_id];
     }

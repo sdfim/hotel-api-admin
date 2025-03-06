@@ -153,11 +153,11 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     DatePicker::make('start_date')
                         ->label('Travel Start Date')
                         ->native(false)
-                        ->rules(['required', 'date']),
+                        ->rules(['date']),
                     DatePicker::make('end_date')
                         ->label('Travel End Date')
                         ->native(false)
-                        ->rules(['required', 'date', 'after_or_equal:start_date']),
+                        ->rules(['date', 'after_or_equal:start_date']),
                 ]),
 
             Fieldset::make('Type Setting')

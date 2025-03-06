@@ -73,8 +73,6 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(5);
-
         $bookingId = $this->addBookingItem($bookingItem);
         $bookingItems['search_1'] = $bookingItem;
 
@@ -86,12 +84,8 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(5);
-
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems['search_2'] = $bookingItem;
-
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(5);
 
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
@@ -104,16 +98,11 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(5);
-
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems2['search_3'] = $bookingItem;
 
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(5);
-
         $this->addPassengers($bookingId, $bookingItems2, $query2);
 
-        if (env('QUEUE_CONNECTION') !== 'sync') sleep(3);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 
