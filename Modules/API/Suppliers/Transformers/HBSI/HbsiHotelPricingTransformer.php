@@ -740,8 +740,16 @@ class HbsiHotelPricingTransformer
         // Filter repoTaxFees based on start_date and end_date
         foreach ($repoTaxFees as $key => $fees) {
             $repoTaxFees[$key] = array_filter($fees, function ($feeTax) {
-                $startDate = Carbon::parse(Arr::get($feeTax, 'start_date', ''));
-                $endDate = Carbon::parse(Arr::get($feeTax, 'end_date', ''));
+                $startDate = Arr::get($feeTax, 'start_date', '');
+                $endDate = Arr::get($feeTax, 'end_date', '');
+
+                // If start_date and end_date are not set, apply the rule
+                if (empty($startDate) || empty($endDate)) {
+                    return true;
+                }
+
+                $startDate = Carbon::parse($startDate);
+                $endDate = Carbon::parse($endDate);
                 $checkin = Carbon::parse($this->checkin);
                 $checkout = Carbon::parse($this->checkout);
 
