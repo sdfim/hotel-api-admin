@@ -36,9 +36,8 @@ class IcePortalHotelController
     public function search(array $filters): array
     {
         if (isset($filters['giata_ids'])) {
-            $giata_id = Arr::get($filters, 'giata_ids.0', '');
-            $city_id = Property::where('code', $giata_id)->first()->city_id;
-            $geographyData = GiataGeography::where('city_id', $city_id)->first();
+            $giataIdsd = Arr::get($filters, 'giata_ids', [1]);
+            return IcePortalRepository::dataByGiataIds($giataIdsd);
         } elseif (isset($filters['session']) || isset($filters['latitude'])) {
             return [];
         } elseif (isset($filters['place'])) {
@@ -61,7 +60,7 @@ class IcePortalHotelController
             $geographyData = GiataGeography::where('city_id', $city_id)->first();
         }
 
-        $propertyRepository = new PropertyRepository();
+        $propertyRepository = new PropertyRepository;
 
         $results = IcePortalRepository::dataByCity($geographyData?->city_name);
         if (count($results) > 0 && ! request()->supplier_data) {
