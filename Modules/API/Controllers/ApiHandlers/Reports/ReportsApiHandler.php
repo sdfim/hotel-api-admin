@@ -23,11 +23,13 @@ class ReportsApiHandler extends BaseController
     {
         $bookingsQuery = $this->getBookingsQuery();
         $this->applyDateFilters($bookingsQuery, $request);
-
+        $bookings = $this->transformBookingsData($bookingsQuery->get());
         $bookingsInspectorUrl = $this->getBookingInspectorUrl();
-        $bookings = $this->transformBookingsData($bookingsQuery->get(), $bookingsInspectorUrl);
-
-        return $this->sendResponse($bookings, 'success');
+        $data = [
+            'bookings' => $bookings,
+            'bookings_inspector_url' => $bookingsInspectorUrl,
+        ];
+        return $this->sendResponse($data, 'success');
     }
 
     /**
@@ -82,13 +84,12 @@ class ReportsApiHandler extends BaseController
      * @param string $bookingsInspectorUrl
      * @return array
      */
-    protected function transformBookingsData(Collection $bookings, string $bookingsInspectorUrl): array
+    protected function transformBookingsData(Collection $bookings): array
     {
-        return $bookings->map(function ($booking) use ($bookingsInspectorUrl) {
+        return $bookings->map(function ($booking) {
             return [
                 'booking_item'              => $booking->booking_item,
                 'booking_id'                => $booking->booking_id,
-                'booking_id_url'            => $bookingsInspectorUrl,
                 'supplier'                  => $booking->supplier->name,
                 'supplier_booking_item_id'  => $booking->supplier_booking_item_id,
                 'hotel_supplier_id'         => $booking->hotel_supplier_id,
