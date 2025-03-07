@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Modules\Enums\SupplierNameEnum;
 
@@ -66,7 +67,7 @@ class ApiBookingsMetadata extends Model
 
     public function hotel(): ?HasOneThrough
     {
-        if (!in_array($this->supplier->name, [SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value]))
+        if (!in_array($this->supplier?->name, [SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value]))
         {
             return null;
         }
@@ -79,5 +80,16 @@ class ApiBookingsMetadata extends Model
             'hotel_supplier_id', // Local key on the current model (e.g., ApiBookingsMetadata)
             'giata_id' // Local key on the mappings table
         )->where('mappings.supplier', $this->supplier->name);
+    }
+
+    /**
+     * Get the inspectors associated with the booking metadata.
+     *
+     * @return HasMany
+     */
+    public function inspectors(): HasMany
+    {
+        return $this->hasMany(ApiBookingInspector::class, 'booking_id', 'booking_id')
+            ->whereColumn('booking_item', 'booking_item');
     }
 }
