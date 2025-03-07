@@ -5,7 +5,7 @@ namespace Modules\HotelContentRepository\Models\Factories;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -43,8 +43,8 @@ class ProductFeeTaxFactory extends Factory
             'commissionable' => $this->faker->boolean,
             'fee_category' => $this->faker->randomElement(['optional', 'mandatory']),
             'apply_type' => $this->faker->randomElement([
-                ProductFeeTaxApplyTypeEnum::PER_NIGHT->value,
-                ProductFeeTaxApplyTypeEnum::PER_PERSON->value,
+                ProductApplyTypeEnum::PER_NIGHT->value,
+                ProductApplyTypeEnum::PER_PERSON->value,
             ]),
             'supplier_id' => $supplier->id,
             'action_type' => 'create',

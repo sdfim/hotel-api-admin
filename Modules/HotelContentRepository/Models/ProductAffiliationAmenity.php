@@ -18,6 +18,7 @@ class ProductAffiliationAmenity extends Model
         'consortia',
         'is_paid',
         'price',
+        'apply_type',
         'min_night_stay',
         'max_night_stay',
     ];

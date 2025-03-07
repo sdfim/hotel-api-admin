@@ -15,6 +15,7 @@ return new class extends Migration
             $table->json('consortia')->nullable();
             $table->boolean('is_paid')->default(false);
             $table->decimal('price', 8, 2)->nullable();
+            $table->string('apply_type')->nullable();
             $table->unsignedInteger('min_night_stay')->nullable();
             $table->unsignedInteger('max_night_stay')->nullable();
             $table->timestamps();

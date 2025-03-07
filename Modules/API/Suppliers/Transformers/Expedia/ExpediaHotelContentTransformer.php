@@ -67,6 +67,8 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             $descriptions = array_merge($descriptions, $hotel_fees, $policies, $checkin, $checkout);
             $descriptions = array_values(array_filter($descriptions, fn ($description) => $description !== null));
 
+            $totalRooms = $this->calculateTotalRooms($hotel);
+
             $hotelResponse->setGiataHotelCode($hotel['giata_id'] ?? '');
             $hotelResponse->setImages($images);
             $hotelResponse->setDescription($descriptions);
@@ -74,6 +76,8 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             $hotelResponse->setLatitude($hotel['location']['coordinates']['latitude']);
             $hotelResponse->setLongitude($hotel['location']['coordinates']['longitude']);
             $hotelResponse->setRating($hotel['rating']);
+            $hotelResponse->setCurrency(Arr::get($supplierResponse, 'currency', ''));
+            $hotelResponse->setNumberRooms($totalRooms);
             $amenities = $hotel['amenities'] ? json_decode(json_encode($hotel['amenities']), true) : [];
             $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
                 return [
@@ -89,5 +93,19 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
         }
 
         return $contentSearchResponse;
+    }
+
+    private function calculateTotalRooms(array $supplierResponse): int
+    {
+        $statistics = json_decode(Arr::get($supplierResponse, 'statistics', '{}'), true);
+        $totalRooms = 0;
+
+        foreach ($statistics as $stat) {
+            if (str_contains($stat['name'], 'Total number of rooms')) {
+                $totalRooms = (int) $stat['value'];
+                break;
+            }
+        }
+        return $totalRooms;
     }
 }

@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\AddProductInformativeService;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\EditProductInformativeService;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
@@ -110,6 +111,22 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->label('Total Rack')
                                 ->numeric()
                                 ->required(),
+                            TextInput::make('total_net')
+                                ->label('Total Net')
+                                ->numeric(),
+                            Select::make('apply_type')
+                                ->label('Apply Type')
+                                ->options([
+                                    ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                                    ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                                    ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                                    ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                                ])
+                                ->reactive()
+                                ->rules(['required']),
+                        ]),
+                    Grid::make(2)
+                        ->schema([
                             Select::make('currency')
                                 ->label('Currency')
                                 ->required()

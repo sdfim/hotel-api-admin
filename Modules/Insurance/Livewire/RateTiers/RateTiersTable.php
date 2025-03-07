@@ -138,7 +138,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     })
                     ->visible(fn (InsuranceRateTier $record): bool => Gate::allows('update', $record))
                     ->action(function (InsuranceRateTier $record, array $data) {
-                        $this->validateData($data);
+                        $this->validateData($data, $record);
                         $record->update($data);
 
                         Notification::make()
@@ -309,7 +309,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
         return view('livewire.insurance.rate-tiers.rate-tiers-table');
     }
 
-    protected function validateData(array $data)
+    protected function validateData(array $data, ?InsuranceRateTier $record = null)
     {
         $minTripCost = $data['min_trip_cost'];
         $maxTripCost = $data['max_trip_cost'];
@@ -331,6 +331,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
             ->where('insurance_type_id', $insuranceTypeId)
             ->where('min_trip_cost', '<=', $minTripCost)
             ->where('max_trip_cost', '>=', $minTripCost)
+            ->where('id', '!=', $record->id ?? null)
             ->exists();
 
         if ($exists) {
@@ -348,6 +349,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
             ->where('insurance_type_id', $insuranceTypeId)
             ->where('min_trip_cost', '<=', $maxTripCost)
             ->where('max_trip_cost', '>=', $maxTripCost)
+            ->where('id', '!=', $record->id ?? null)
             ->exists();
 
         if ($exists) {

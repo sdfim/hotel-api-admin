@@ -17,6 +17,8 @@ return new class extends Migration
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
             $table->decimal('cost', 8, 2);
+            $table->decimal('total_net', 8, 2)->nullable();
+            $table->string('apply_type')->nullable();
             $table->string('name');
             $table->string('currency');
             $table->time('service_time')->nullable();

@@ -7,20 +7,19 @@ use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Services\MappingCacheService;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
-
 
 class ExpediaHotelController
 {
-
     protected float|string $current_time;
+
     private const RESULT_PER_PAGE = 5000;
+
     private const PAGE = 1;
 
     public function __construct(
@@ -36,7 +35,7 @@ class ExpediaHotelController
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
 
-        $cacheKey = 'preSearchData_' . md5(json_encode($filters) . $initiator);
+        $cacheKey = 'preSearchData_'.md5(json_encode($filters).$initiator);
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
@@ -44,8 +43,8 @@ class ExpediaHotelController
         try {
             $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $expedia = new ExpediaContent();
-            $geography = new Geography();
+            $expedia = new ExpediaContent;
+            $geography = new Geography;
 
             // $filters['ids'] - array of Expedia property ids
             // $filters['giata_ids'] - array of Giata ids
@@ -68,7 +67,7 @@ class ExpediaHotelController
             }
 
             // Use the mappings in query logic
-            $giataCodes = array_filter(array_map(function($id) use ($mappings) {
+            $giataCodes = array_filter(array_map(function ($id) use ($mappings) {
                 return $mappings[$id] ?? null;
             }, $filters['ids']));
 
@@ -95,6 +94,7 @@ class ExpediaHotelController
                     'expedia_content_slave.checkout as checkout',
                     'expedia_content_slave.fees as fees',
                     'expedia_content_slave.policies as policies',
+                    'expedia_content_slave.statistics as statistics',
                 ];
                 $selectFields = array_merge($selectFields, $additionalFields);
             }
@@ -137,8 +137,8 @@ class ExpediaHotelController
         $endTime = microtime(true) - $timeStart;
         $finalMemoryUsage = memory_get_usage();
         $finalMemoryUsageMB = $finalMemoryUsage / 1024 / 1024;
-        Log::info('Final memory usage: ' . $finalMemoryUsageMB . ' MB');
-        Log::info('ExpediaHotelApiHandler | preSearchData | mysql query ' . $endTime . ' seconds');
+        Log::info('Final memory usage: '.$finalMemoryUsageMB.' MB');
+        Log::info('ExpediaHotelApiHandler | preSearchData | mysql query '.$endTime.' seconds');
 
         return [
             'ids' => $ids ?? 0,

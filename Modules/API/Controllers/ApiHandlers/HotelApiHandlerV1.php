@@ -132,6 +132,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
+
         $resultsExpedia = $this->getExpediaResults($giataCodes);
         $resultsIcePortal = $this->getIcePortalResults($giataCodes);
 
@@ -274,9 +275,12 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
         $detailResults = array_merge($resultsExpedia, $filteredResultsIcePortal);
         $romsImagesData = $this->mergeRooms($detailResults, $resultsExpedia, $resultsIcePortal, $roomMappers);
+        if (empty($detailResults)) {
+            return [];
+        }
 
-        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
-        $detailResults = $this->addMissingGiataCodes($detailResults, $missingGiataCodes);
+//        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
+//        $detailResults = $this->addMissingGiataCodes($detailResults, $missingGiataCodes);
 
         return $this->updateDetailResults($detailResults, $structureSource, $repoData, $resultsIcePortal, $romsImagesData);
     }

@@ -17,7 +17,7 @@ use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ItemTypeEnum;
-use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 
@@ -791,8 +791,8 @@ class HbsiHotelPricingTransformer
                                         $rateData['Type'] = $tax['Type'];
                                         $rateData['Code'] = 'OBE_'.$editFeeTax['id'];
                                         $rateData['Amount'] = match ($editFeeTax['apply_type']) {
-                                            ProductFeeTaxApplyTypeEnum::PER_PERSON->value => round(($editFeeTax['net_value'] / $numberOfNights), 3),
-                                            ProductFeeTaxApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($editFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
+                                            ProductApplyTypeEnum::PER_PERSON->value => round(($editFeeTax['net_value'] / $numberOfNights), 3),
+                                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($editFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
                                             default => $editFeeTax['net_value'],
                                         };
                                         $rateData['Description'] = $editFeeTax['name'];
@@ -871,8 +871,8 @@ class HbsiHotelPricingTransformer
                             // TODO: Check if this is correct or not
                             // Recalculate the nightly fee on a per person basis
                             'Amount' => match ($addFeeTax['apply_type']) {
-                                ProductFeeTaxApplyTypeEnum::PER_PERSON->value => round(($addFeeTax['net_value'] / $numberOfNights), 3),
-                                ProductFeeTaxApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($addFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
+                                ProductApplyTypeEnum::PER_PERSON->value => round(($addFeeTax['net_value'] / $numberOfNights), 3),
+                                ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($addFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
                                 default => $addFeeTax['net_value'],
                             },
                             'Description' => $addFeeTax['name'],

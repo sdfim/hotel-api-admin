@@ -19,6 +19,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Facades\DB;
+use Modules\Enums\ProductApplyTypeEnum;
 
 trait DepositFieldTrait
 {
@@ -96,11 +97,10 @@ trait DepositFieldTrait
                     Select::make('price_value_target')
                         ->label('Price Value Target')
                         ->options([
-                            'per_person' => 'Per Person',
-                            'per_room' => 'Per Room',
-                            'per_night' => 'Per Night',
-                            'per_person_per_night' => 'Per Person Per Night',
-                            'not_applicable' => 'N/A',
+                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                         ])
                         ->required(),
                 ])

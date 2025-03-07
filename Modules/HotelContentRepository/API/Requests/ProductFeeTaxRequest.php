@@ -4,7 +4,7 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Modules\API\Validate\ApiRequest;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
 
@@ -390,7 +390,7 @@ class ProductFeeTaxRequest extends ApiRequest
             'type' => 'required|in:'.implode(',', array_column(ProductFeeTaxTypeEnum::cases(), 'value')),
             'value_type' => 'required|in:'.implode(',', array_column(ProductFeeTaxValueTypeEnum::cases(), 'value')),
             'collected_by' => 'required|in:'.implode(',', array_column(FeeTaxCollectedByEnum::cases(), 'value')),
-            'apply_type' => 'required|in:'.implode(',', array_column(ProductFeeTaxApplyTypeEnum::cases(), 'value')),
+            'apply_type' => 'required|in:'.implode(',', array_column(ProductApplyTypeEnum::cases(), 'value')),
             'commissionable' => 'required|boolean',
             'fee_category' => 'required|string|max:255',
             'supplier_id' => 'required|integer|exists:suppliers,id',

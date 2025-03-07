@@ -28,7 +28,7 @@ use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\API\Suppliers\Enums\HBSI\HbsiFeeTaxTypeEnum;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -200,10 +200,12 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     Select::make('apply_type')
                         ->label('Apply Type')
                         ->options([
-                            ProductFeeTaxApplyTypeEnum::PER_NIGHT->value => 'Per Night',
-                            ProductFeeTaxApplyTypeEnum::PER_PERSON->value => 'Per Person',
-                            ProductFeeTaxApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                         ])
+                        ->reactive()
                         ->rules(['required']),
 
                     TextInput::make('net_value')

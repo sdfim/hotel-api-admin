@@ -17,6 +17,8 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setLatitude('');
         $contentSearchResponse->setLongitude('');
         $contentSearchResponse->setRating('');
+        $contentSearchResponse->setCurrency('');
+        $contentSearchResponse->setNumberRooms(0);
         $contentSearchResponse->setAmenities([]);
         $contentSearchResponse->setUltimateAmenities([]);
         $contentSearchResponse->setGiataDestination('');

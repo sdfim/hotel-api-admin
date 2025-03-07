@@ -20,6 +20,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\HotelRoom;
 
@@ -174,9 +175,10 @@ trait HasPricingRuleFields
                     Select::make('price_value_target')
                         ->label('Price Value Target')
                         ->options([
-                            'per_person' => 'Per Person',
-                            'per_room' => 'Per Room',
-                            'per_night' => 'Per Night',
+                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                             'not_applicable' => 'N/A',
                             'exclude_action' => '',
                         ])

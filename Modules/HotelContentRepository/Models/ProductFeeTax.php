@@ -6,7 +6,7 @@ use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Models\Factories\ProductFeeTaxFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 use Spatie\Activitylog\LogOptions;
@@ -49,7 +49,7 @@ class ProductFeeTax extends Model
         'net_value' => 'float',
         'rack_value' => 'float',
         'commissionable' => 'boolean',
-        'apply_type' => ProductFeeTaxApplyTypeEnum::class,
+        'apply_type' => ProductApplyTypeEnum::class,
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];

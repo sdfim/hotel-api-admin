@@ -172,8 +172,9 @@ class DetailDataTransformer
         $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
+        $result['currency'] = $hotel->product->default_currency;
+        $result['number_rooms'] = $hotel->num_rooms;
         $result['user_rating'] = $hotel->star_rating;
-        //        $result['hotel_fees'] = $this->getHotelFees($hotel);
         $result['attributes'] = $this->getHotelAttributes($hotel);
         $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight;
@@ -190,6 +191,8 @@ class DetailDataTransformer
         $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
+        $result['currency'] = $hotel->product->default_currency;
+        $result['number_rooms'] = $hotel->num_rooms;
         $result['user_rating'] = $hotel->star_rating;
         $result['attributes'] = $this->getHotelAttributes($hotel);
         $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
@@ -331,7 +334,7 @@ class DetailDataTransformer
 
     private function getUltimateAmenities($hotel): array
     {
-        return $hotel->product->affiliations
+        $amenities = $hotel->product->affiliations
             ->filter(function ($affiliation) {
                 return $affiliation->room_id === null;
             })
@@ -345,6 +348,7 @@ class DetailDataTransformer
                             'consortia' => $amenity->consortia,
                             'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
                             'price' => $amenity->price,
+                            'apply_type' => $amenity->apply_type,
                             'min_night_stay' => $amenity->min_night_stay,
                             'max_night_stay' => $amenity->max_night_stay,
                         ];
@@ -352,6 +356,8 @@ class DetailDataTransformer
                 ];
             })
             ->all();
+
+        return array_values($amenities);
     }
 
     private function getHotelDrivers($hotel): array
@@ -368,8 +374,11 @@ class DetailDataTransformer
     {
         $rooms = [];
         foreach ($hotel->rooms as $room) {
-            $attributes = $room->attributes->mapWithKeys(function ($attribute) {
-                return [$attribute->id => $attribute->name];
+            $attributes = $room->attributes->map(function ($attribute) {
+                return [
+                    'name' => $attribute?->name,
+                    'category' => 'general',
+                ];
             })->all();
 
             $ultimateAmenities = [];
@@ -384,6 +393,7 @@ class DetailDataTransformer
                                 'consortia' => $amenity->consortia,
                                 'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
                                 'price' => $amenity->price,
+                                'apply_type' => $amenity->apply_type,
                                 'min_night_stay' => $amenity->min_night_stay,
                                 'max_night_stay' => $amenity->max_night_stay,
                             ];

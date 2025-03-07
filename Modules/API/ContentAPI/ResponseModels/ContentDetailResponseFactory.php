@@ -15,6 +15,8 @@ class ContentDetailResponseFactory
         $contentDetailResponse->setLatitude('');
         $contentDetailResponse->setLongitude('');
         $contentDetailResponse->setRating('');
+        $contentDetailResponse->setCurrency('');
+        $contentDetailResponse->setNumberRooms(0);
         $contentDetailResponse->setNearestAirports([]);
         $contentDetailResponse->setAmenities([]);
         $contentDetailResponse->setUltimateAmenities([]);

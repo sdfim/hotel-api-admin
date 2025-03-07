@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\HotelRate;
@@ -113,7 +114,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                         })
                                         ->required(),
                                 ]),
-                            Grid::make(4)
+                            Grid::make(5)
                                 ->schema([
                                     Select::make('consortia')
                                         ->label('Consortia')
@@ -134,6 +135,16 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                         ->numeric()
                                         ->minValue(0)
                                         ->step('0.01')
+                                        ->visible(fn ($get) => $get('is_paid') == 1),
+                                    Select::make('apply_type')
+                                        ->label('Apply Type')
+                                        ->options([
+                                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                                        ])
+                                        ->reactive()
                                         ->visible(fn ($get) => $get('is_paid') == 1),
                                 ]),
                             Grid::make(2)
@@ -161,25 +172,6 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()
                     ->where('product_id', $this->productId)
             )
-//            ->modifyQueryUsing(function (Builder $query) {
-//                if ($this->rateId) {
-//                    $query->where(function ($q) {
-//                        $q->where('rate_id', $this->rateId)
-//                            ->orWhereNull('rate_id');
-//                    });
-//                    $query->where(function ($q) {
-//                        $q->whereIn('room_id', $this->rateRoomIds)
-//                            ->orWhereNull('room_id');
-//                    });
-//                } elseif ($this->roomId) {
-//                    $query->where(function ($q) {
-//                        $q->where('room_id', $this->roomId)
-//                            ->orWhereNull('rate_id')->whereNull('room_id');
-//                    });
-//                } else {
-//                    $query->whereNull('rate_id')->whereNull('room_id');
-//                }
-//            })
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

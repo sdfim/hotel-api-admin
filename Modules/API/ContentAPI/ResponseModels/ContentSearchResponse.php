@@ -38,6 +38,29 @@ class ContentSearchResponse
 
     private array $nearest_airports;
 
+    private string $currency;
+
+    private string $number_rooms;
+
+    public function setCurrency(string $currency): void
+    {
+        $this->currency = $currency;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    public function setNumberRooms(string $number_rooms): void
+    {
+        $this->number_rooms = $number_rooms;
+    }
+
+    public function getNumberRooms(): string
+    {
+        return $this->number_rooms;
+    }
 
     public function setNearestAirports(array $nearest_airports): void
     {
@@ -215,14 +238,16 @@ class ContentSearchResponse
             'giata_hotel_code' => $this->getGiataHotelCode(),
             'weight' => $this->getWeight(),
             'images' => $this->getImages(),
-            'description' => $this->getDescription(),
-            'nearest_airports' => $this->getNearestAirports(),
-            'deposit_information' => $this->getDepositInformation(),
-            'cancellation_policies' => $this->getCancellationPolicies(),
             'hotel_name' => $this->getHotelName(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
+            'currency' => $this->getCurrency(),
+            'number_rooms' => $this->getNumberRooms(),
+            'nearest_airports' => $this->getNearestAirports(),
+            'description' => $this->getDescription(),
+            'deposit_information' => $this->getDepositInformation(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
             'attributes' => array_values($this->getAmenities()),
             'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),

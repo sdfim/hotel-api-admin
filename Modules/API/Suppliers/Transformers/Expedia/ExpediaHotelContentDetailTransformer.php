@@ -15,24 +15,9 @@ class ExpediaHotelContentDetailTransformer
 
     public function ExpediaToContentDetailResponse(array $supplierResponse, int $giata_id): array
     {
-        $contentResponse = [];
-
-        $hotelImages = [];
-        $images = Arr::get($supplierResponse, 'images', []);
-        if (is_iterable($images)) {
-            foreach ($images as $image) {
-                $hotelImages[] = Arr::get($image, 'links.1000px.href', '');
-            }
-        } else {
-            \Log::error('ExpediaHotelContentDetailTransformer | Probably an error with the expedia_content_slave table');
-        }
-
-        $address = Arr::get($supplierResponse, 'address.line_1', '').', '.
-            Arr::get($supplierResponse, 'address.city', '');
-
-        if ($postalCode = Arr::get($supplierResponse, 'address.postal_code')) {
-            $address .= " - $postalCode";
-        }
+        $hotelImages = $this->extractHotelImages($supplierResponse);
+        $address = $this->constructAddress($supplierResponse);
+        $totalRooms = $this->calculateTotalRooms($supplierResponse);
 
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
@@ -41,6 +26,8 @@ class ExpediaHotelContentDetailTransformer
         $hotelResponse->setLatitude(Arr::get($supplierResponse, 'location.coordinates.latitude', ''));
         $hotelResponse->setLongitude(Arr::get($supplierResponse, 'location.coordinates.longitude', ''));
         $hotelResponse->setRating(Arr::get($supplierResponse, 'rating', ''));
+        $hotelResponse->setCurrency(Arr::get($supplierResponse, 'currency', ''));
+        $hotelResponse->setNumberRooms($totalRooms);
         $amenities = Arr::get($supplierResponse, 'amenities', []);
         $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
             return [
@@ -98,7 +85,7 @@ class ExpediaHotelContentDetailTransformer
                 }
                 $roomResponse = ContentDetailRoomsResponseFactory::create();
                 $roomResponse->setContentSupplier(SupplierNameEnum::EXPEDIA->value);
-                $roomResponse->setSupplierRoomId(Arr::get($room, 'id', ''));
+                $roomResponse->setSupplierRoomId(Arr::get($room, 'id', 0));
                 $roomResponse->setUnifiedRoomCode(Arr::get($room, 'id', ''));
                 $roomResponse->setSupplierRoomName(Arr::get($room, 'name', ''));
                 $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
@@ -117,5 +104,44 @@ class ExpediaHotelContentDetailTransformer
         $contentResponse[] = $hotelResponse->toArray();
 
         return $contentResponse;
+    }
+
+    private function extractHotelImages(array $supplierResponse): array
+    {
+        $hotelImages = [];
+        $images = Arr::get($supplierResponse, 'images', []);
+        if (is_iterable($images)) {
+            foreach ($images as $image) {
+                $hotelImages[] = Arr::get($image, 'links.1000px.href', '');
+            }
+        } else {
+            \Log::error('ExpediaHotelContentDetailTransformer | Probably an error with the expedia_content_slave table');
+        }
+        return $hotelImages;
+    }
+
+    private function constructAddress(array $supplierResponse): string
+    {
+        $address = Arr::get($supplierResponse, 'address.line_1', '').', '.
+            Arr::get($supplierResponse, 'address.city', '');
+
+        if ($postalCode = Arr::get($supplierResponse, 'address.postal_code')) {
+            $address .= " - $postalCode";
+        }
+        return $address;
+    }
+
+    private function calculateTotalRooms(array $supplierResponse): int
+    {
+        $statistics = Arr::get($supplierResponse, 'statistics', '{}');
+        $totalRooms = 0;
+
+        foreach ($statistics as $stat) {
+            if (str_contains($stat['name'], 'Total number of rooms')) {
+                $totalRooms = (int) $stat['value'];
+                break;
+            }
+        }
+        return $totalRooms;
     }
 }

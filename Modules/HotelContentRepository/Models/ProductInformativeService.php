@@ -34,6 +34,8 @@ class ProductInformativeService extends Model
         'start_date',
         'end_date',
         'cost',
+        'total_net',
+        'apply_type',
         'name',
         'currency',
         'service_time',
