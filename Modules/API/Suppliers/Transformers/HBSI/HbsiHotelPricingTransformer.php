@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
@@ -26,6 +27,8 @@ class HbsiHotelPricingTransformer
     private HbsiPricingRulesApplier $pricingRulesApplier;
 
     private array $mapperSupplierRepository;
+
+    private array $depositInformation;
 
     /**
      * @var string[]
@@ -124,13 +127,16 @@ class HbsiHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
-            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key);
+            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
         }
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
-
-    public function setHotelResponse(array $propertyGroup, int|string $key): array
+    private function filterActiveDepositInformation(array $depositInformation):array
+    {
+        return $depositInformation;
+    }
+    public function setHotelResponse(array $propertyGroup, int|string $key,array $query): array
     {
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
@@ -142,6 +148,7 @@ class HbsiHotelPricingTransformer
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
+        $hotelResponse->setDepositInformation($this->filterActiveDepositInformation(Arr::get($this->depositInformation,$propertyGroup['giata_id'], [])));
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -150,7 +157,7 @@ class HbsiHotelPricingTransformer
         $lowestPrice = 100000;
 
         foreach ($propertyGroup['rooms'] as $roomGroup) {
-            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key);
+            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $hotelResponse->getDepositInformation(), $query);
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
             $lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
             if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
@@ -191,7 +198,7 @@ class HbsiHotelPricingTransformer
         return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
     }
 
-    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId): array
+    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId, array $depositInformation, array $query): array
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
@@ -219,7 +226,7 @@ class HbsiHotelPricingTransformer
                 continue;
             }
 
-            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $depositInformation, $query);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -251,7 +258,7 @@ class HbsiHotelPricingTransformer
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
+    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $depositInformation, array $query): array
     {
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
@@ -471,6 +478,7 @@ class HbsiHotelPricingTransformer
             'hotel_id' => $propertyGroup['giata_id'] ?? 0,
             'room_id' => $rate['id'] ?? $roomType ?? 0,
         ];
+        $roomResponse->setDeposits(DepositResolver::resolve($roomResponse, $depositInformation, $query));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
@@ -540,6 +548,7 @@ class HbsiHotelPricingTransformer
     private function getBreakdown(array $rates): array
     {
         $breakdown = [];
+        $fees = [];
         $night = 0;
         if (isset($rates['Rates']['Rate']) && is_numeric(array_key_first($rates['Rates']['Rate']))) {
             $loopRates = $rates['Rates']['Rate'];
@@ -573,21 +582,33 @@ class HbsiHotelPricingTransformer
                     }
 
                     foreach ($_taxes as $_tax) {
+                        $type = null;
                         $code = strtolower($_tax['@attributes']['Code']);
                         $name = strtolower($_tax['@attributes']['Type']);
-                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) {
+                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees) || $_tax['@attributes']['Type'] === 'PropertyCollects') {
                             $type = 'fee';
                         }
                         if (in_array($code, $this->taxes)) {
                             $type = 'tax';
                         }
-                        $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax'.' '.$name,
-                            'amount' => $_tax['@attributes']['Amount'],
-                            'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
-                                : $_tax['@attributes']['Code']),
-                        ];
+
+                        if($type !== 'fee') {
+                            $taxesFeesRate[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }else{
+                            $fees[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }
 
                         $taxType = strtolower($_tax['@attributes']['Type']);
 
@@ -617,7 +638,7 @@ class HbsiHotelPricingTransformer
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => [],
-            'fees' => [],
+            'fees' => $fees,
 
         ];
     }
@@ -625,6 +646,9 @@ class HbsiHotelPricingTransformer
     private function fetchSupplierRepositoryData(array $giataIds): void
     {
         $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
+        $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return[$hotel->giata_code =>  $hotel->product?->depositInformations];
+        })->toArray();
         $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
                 $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
@@ -713,6 +737,11 @@ class HbsiHotelPricingTransformer
     private function transformTaxes(array $taxes): array
     {
         $transformedTaxes = [];
+        //it means that is not an array
+        if(isset($taxes['@attributes']))
+        {
+            $taxes = [$taxes];
+        }
 
         foreach ($taxes as $tax) {
             $transformedTaxes[] = [
@@ -728,10 +757,7 @@ class HbsiHotelPricingTransformer
 
     private function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy): void
     {
-        if (! isset($this->repoTaxFees[$giataCode])) {
-            return;
-        }
-        $repoTaxFees = $this->repoTaxFees[$giataCode];
+        $repoTaxFees = Arr::get($this->repoTaxFees, $giataCode, []);
 
         // Calculate the number of nights and the number of passengers
         $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
@@ -907,6 +933,17 @@ class HbsiHotelPricingTransformer
                         $rate['Taxes'] = array_filter($rate['Taxes'], function ($tax) use ($deleteFeeTax) {
                             return strcasecmp($tax['Description'], $deleteFeeTax['old_name']) !== 0;
                         });
+                    }
+                }
+            }else{
+                foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
+                    if(Arr::get($tax,'Type') === 'PropertyCollects')
+                    {
+                        if (! isset($rate['Fees'])) {
+                            $rate['Fees'] = [];
+                        }
+                        $rate['Fees'][] = $tax;
+                        unset($rate['Taxes'][$key]);
                     }
                 }
             }
