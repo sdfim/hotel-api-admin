@@ -9,43 +9,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
+use Modules\API\Services\MappingCacheService;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
-
 
 class ExpediaHotelController
 {
-    private ExpediaService $expediaService;
-
     protected float|string $current_time;
 
     private const RESULT_PER_PAGE = 5000;
 
     private const PAGE = 1;
 
-    public function __construct()
-    {
-        $this->expediaService = new ExpediaService();
-    }
+    public function __construct(
+        private ExpediaService $expediaService,
+        private MappingCacheService $mappingCacheService
+    ) {}
 
     public function preSearchData(array &$filters, string $initiator): ?array
     {
         $timeStart = microtime(true);
+        $mainDB = config('database.connections.mysql.database');
 
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
 
-        $cacheKey = 'preSearchData_' . md5(json_encode($filters) . $initiator);
+        $cacheKey = 'preSearchData_'.md5(json_encode($filters).$initiator);
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
         try {
-            $expedia = new ExpediaContent();
+            $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $geography = new Geography();
+            $expedia = new ExpediaContent;
+            $geography = new Geography;
 
+            // $filters['ids'] - array of Expedia property ids
+            // $filters['giata_ids'] - array of Giata ids
             if (isset($filters['giata_ids'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByGiataIds($filters['giata_ids']);
             } elseif (isset($filters['place']) && ! isset($filters['session'])) {
@@ -63,6 +65,11 @@ class ExpediaHotelController
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
                 $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
             }
+
+            // Use the mappings in query logic
+            $giataCodes = array_filter(array_map(function ($id) use ($mappings) {
+                return $mappings[$id] ?? null;
+            }, $filters['ids']));
 
             $fields = isset($filters['fullList']) ? ExpediaContent::getFullListFields() : ExpediaContent::getShortListFields();
             $query = $expedia->select();
@@ -96,8 +103,9 @@ class ExpediaHotelController
             $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
                 ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
-                ->where($mainDB.'.mappings.supplier',MappingSuppliersEnum::Expedia->value)
-                ->whereNotNull($mainDB.'.mappings.supplier_id')
+//                ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value)
+//                ->whereNotNull($mainDB.'.mappings.supplier_id')
+                ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
                 ->select($selectFields);
 
             if (isset($filters['hotel_name'])) {

@@ -31,16 +31,15 @@ use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
 use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingAvailabileEndpointsChangeBookHotelRequest;
+use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
+use Modules\API\Requests\BookingChangeHardBookHotelRequest;
 use Modules\API\Requests\BookingChangeSoftBookHotelRequest;
 use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
-use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
-use Modules\API\Requests\BookingChangeHardBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
-use Modules\API\Tools\ClearSearchCacheByBookingItemsTools;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -53,17 +52,10 @@ class BookApiHandler extends BaseController
 {
     private const AGE_ADULT = 18;
 
-    /**
-     * @param ExpediaBookApiController $expedia
-     * @param HbsiBookApiController $hbsi
-     * @param ClearSearchCacheByBookingItemsTools $searchCache
-     */
     public function __construct(
-        private readonly ExpediaBookApiController            $expedia,
-        private readonly HbsiBookApiController               $hbsi,
-        private readonly ClearSearchCacheByBookingItemsTools $searchCache = new ClearSearchCacheByBookingItemsTools(),
-
-    ) { }
+        private readonly ExpediaBookApiController $expedia,
+        private readonly HbsiBookApiController $hbsi,
+    ) {}
 
     /**
      * @throws GuzzleException
@@ -104,14 +96,17 @@ class BookApiHandler extends BaseController
 
         $data = [];
         Log::debug('BookApiHandler book items: '.$items);
+
         foreach ($items as $item) {
             Log::debug('BookApiHandler book LOOP item: '.$item);
+            $type = $item->search_type;
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 $supplierName = SupplierNameEnum::from($supplier->name);
-                $data[] = match ($supplierName) {
-                    SupplierNameEnum::EXPEDIA => $this->expedia->book($filters, $item),
-                    SupplierNameEnum::HBSI => $this->hbsi->book($filters, $item),
+
+                $data[] = match ([$supplierName, $type]) {
+                    [SupplierNameEnum::EXPEDIA, TypeRequestEnum::HOTEL->value] => $this->expedia->book($filters, $item),
+                    [SupplierNameEnum::HBSI, TypeRequestEnum::HOTEL->value] => $this->hbsi->book($filters, $item),
                     default => [],
                 };
             } catch (Exception $e) {
@@ -126,7 +121,7 @@ class BookApiHandler extends BaseController
             }
         }
 
-        $totalTime = (microtime(true) - $sts) . ' seconds';
+        $totalTime = (microtime(true) - $sts).' seconds';
 
         foreach ($data as $item) {
             if (isset($item['error'])) {
@@ -147,10 +142,9 @@ class BookApiHandler extends BaseController
          * This prevents the possibility of booking an already booked booking_item.
          */
         $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
-//        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache); // Dispatch job to clear cache
-        $this->searchCache->clear($itemsToDeleteFromCache);
+        ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
-        $totalTime = (microtime(true) - $sts) . ' seconds';
+        $totalTime = (microtime(true) - $sts).' seconds';
 
         Log::info("BOOK ACTION - END - $request->booking_id", ['time' => $totalTime]); //$request->booking_id
 
@@ -171,29 +165,31 @@ class BookApiHandler extends BaseController
         $supplierMach = $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
 
         $isNonRefundable = ApiBookingItemRepository::isNonRefundable($request->booking_item);
-        if ($isNonRefundable) $supplierMach = 'NonRefundable';
+        if ($isNonRefundable) {
+            $supplierMach = 'NonRefundable';
+        }
 
         $endpointDetails = [
             'soft-change' => [
                 'name' => 'Soft Change',
                 'description' => 'Endpoint to handle soft changes in booking.',
-                'url' => 'api/booking/change/soft-change'
+                'url' => 'api/booking/change/soft-change',
             ],
             'availability' => [
                 'name' => 'Availability Check',
                 'description' => 'Endpoint to check booking availability.',
-                'url' => 'api/booking/change/availability'
+                'url' => 'api/booking/change/availability',
             ],
             'price-check' => [
                 'name' => 'Price Check',
                 'description' => 'Endpoint to check the price of bookings.',
-                'url' => 'api/booking/change/price-check'
+                'url' => 'api/booking/change/price-check',
             ],
             'hard-change' => [
                 'name' => 'Hard Change',
                 'description' => 'Endpoint to handle hard changes in booking.',
-                'url' => 'api/booking/change/hard-change'
-            ]
+                'url' => 'api/booking/change/hard-change',
+            ],
         ];
 
         $endpoints = match ($supplierMach) {
@@ -230,7 +226,7 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
 
         if (isset($filters['special_requests'])) {
-            foreach ($filters['special_requests'] as $k =>$item) {
+            foreach ($filters['special_requests'] as $k => $item) {
                 $filters['special_requests'][$k]['booking_item'] = $request->booking_item;
             }
         }
@@ -250,7 +246,7 @@ class BookApiHandler extends BaseController
             $pIndex = 0;
             foreach ($passengersData['passengers'] as $passenger) {
                 $bItem = Arr::first($passenger['booking_items'] ?? [], fn ($value) => $value['booking_item'] == $request->booking_item);
-                if (!isset($passenger['booking_items']) || $bItem) {
+                if (! isset($passenger['booking_items']) || $bItem) {
                     $passengersReq[$pIndex]['date_of_birth'] = $passenger['date_of_birth'];
                     $pIndex++;
                 }
@@ -335,18 +331,20 @@ class BookApiHandler extends BaseController
             return $this->sendError('This booking_item is non-refundable', 'failed');
         }
 
-        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
 
-        if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
 
-        if (!ApiBookingInspector::where('booking_id', $request->booking_id)
+        if (! ApiBookingInspector::where('booking_id', $request->booking_id)
             ->where('booking_item', $request->booking_item)
             ->where('type', 'price-check')
             ->where('status', 'success')->exists()) {
@@ -357,7 +355,7 @@ class BookApiHandler extends BaseController
         $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first();
 
         if (isset($filters['special_requests'])) {
-            foreach ($filters['special_requests'] as $k =>$item) {
+            foreach ($filters['special_requests'] as $k => $item) {
                 $filters['special_requests'][$k]['booking_item'] = $request->booking_item;
             }
         }
@@ -373,8 +371,9 @@ class BookApiHandler extends BaseController
                 default => [],
             };
         } catch (Exception $e) {
-            Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -391,14 +390,16 @@ class BookApiHandler extends BaseController
             return $this->sendError('This booking_item is non-refundable', 'failed');
         }
 
-        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
         $determinant = $this->determinant($request, false);
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
 
-        if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
 
@@ -429,16 +430,19 @@ class BookApiHandler extends BaseController
                 default => [],
             };
         } catch (Exception $e) {
-            Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
-        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
 
         $result = [
             'query' => $filters,
-            'result' => $data ? Arr::get($data, 'result'): [],
+            'result' => $data ? Arr::get($data, 'result') : [],
             'change_search_id' => $data ? Arr::get($data, 'change_search_id') : '',
         ];
 
@@ -451,14 +455,16 @@ class BookApiHandler extends BaseController
             return $this->sendError('This booking_item is non-refundable', 'failed');
         }
 
-        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
         $determinant = $this->determinant($request, false);
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
 
-        if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
         $filters = $request->all();
@@ -473,20 +479,22 @@ class BookApiHandler extends BaseController
                 default => [],
             };
         } catch (Exception $e) {
-            Log::error('BookApiHandler | priceCheck ' . $e->getMessage());
+            Log::error('BookApiHandler | priceCheck '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
-        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
 
         $result = [
-            'result' => $data ? Arr::get($data, 'result'): [],
+            'result' => $data ? Arr::get($data, 'result') : [],
         ];
 
         return $this->sendResponse($result, 'success');
     }
-
 
     public function listBookings(ListBookingsRequest $request): JsonResponse
     {
@@ -524,8 +532,11 @@ class BookApiHandler extends BaseController
         $retrieved = [];
 
         foreach ($itemsBooked as $item) {
-            if (in_array($item->booking_item, $retrieved)) continue;
-            else $retrieved[] = $item->booking_item;
+            if (in_array($item->booking_item, $retrieved)) {
+                continue;
+            } else {
+                $retrieved[] = $item->booking_item;
+            }
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
@@ -556,7 +567,9 @@ class BookApiHandler extends BaseController
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
         $determinant = $this->determinant($request, false);
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
 
         if (isset($request->booking_item)) {
             $itemsBooked = ApiBookingsMetadataRepository::bookedItem($request->booking_id, $request->booking_item);
@@ -568,8 +581,9 @@ class BookApiHandler extends BaseController
         $data = [];
         $canceled = [];
         foreach ($itemsBooked as $item) {
-            if (!BookRepository::isBook($request->booking_id, $item->booking_item, false)) {
+            if (! BookRepository::isBook($request->booking_id, $item->booking_item, false)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
+
                 continue;
             }
 
@@ -704,8 +718,9 @@ class BookApiHandler extends BaseController
                 };
             }
         } catch (Exception $e) {
-            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+            Log::error('HotelBookingApiHandler | addPassengers '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -715,17 +730,14 @@ class BookApiHandler extends BaseController
     private function determinant(Request $request, bool $validateWithApiBookings = true): array
     {
         // This validation must remains here for the previous bookings with TravelTek (imported HBSI bookings)
-        if (! $validateWithApiBookings)
-        {
+        if (! $validateWithApiBookings) {
             $apiBooking = ApiBookingsMetadata::where('booking_id', $request->get('booking_id'));
 
-            if ($request->has('booking_item'))
-            {
+            if ($request->has('booking_item')) {
                 $apiBooking = $apiBooking->where('booking_item', $request->get('booking_item'));
             }
 
-            if ($apiBooking->first() === null)
-            {
+            if ($apiBooking->first() === null) {
                 return ['error' => 'Invalid Booking'];
             }
 
@@ -756,7 +768,18 @@ class BookApiHandler extends BaseController
             if (! $this->validatedUuid('booking_id')) {
                 return ['error' => 'Invalid booking_id'];
             }
-            $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
+            $waitTime = 0;
+            $maxWaitTime = 5;
+            $bi = null;
+            while ($waitTime < $maxWaitTime) {
+                $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
+                if (! empty($bi)) {
+                    break;
+                }
+                \Log::debug('Waiting for booking_id to be available '.$waitTime.' s');
+                sleep(1);
+                $waitTime++;
+            }
             if (empty($bi)) {
                 return ['error' => 'Invalid booking_id'];
             }

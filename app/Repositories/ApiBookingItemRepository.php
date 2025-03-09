@@ -3,11 +3,27 @@
 namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use Illuminate\Support\Arr;
 use Modules\Enums\ItemTypeEnum;
 
 class ApiBookingItemRepository
 {
+    public static function isComleteCache(string $booking_item): bool
+    {
+        $bookingItem = ApiBookingItemCache::where('booking_item', $booking_item)->first();
+
+        return $bookingItem->rate_type === ItemTypeEnum::COMPLETE->value;
+    }
+
+
+    public static function getItemDataCache(string $booking_item): ?array
+    {
+        $bookingItem = ApiBookingItemCache::where('booking_item', $booking_item)->first();
+
+        return json_decode($bookingItem?->booking_item_data, true);
+    }
+
     public static function isComlete(string $booking_item): bool
     {
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
@@ -43,8 +59,10 @@ class ApiBookingItemRepository
     {
         $res = false;
         $childList = self::getChildrenBookingItems($booking_item);
-        if (!$childList) $childList = [$booking_item];
-        foreach ($childList as $child)  {
+        if (! $childList) {
+            $childList = [$booking_item];
+        }
+        foreach ($childList as $child) {
             $item = self::getItemPricingData($child);
             $currentRes = Arr::get($item, 'non_refundable', false);
             if ($currentRes) {
@@ -52,6 +70,7 @@ class ApiBookingItemRepository
                 break;
             }
         }
+
         return $res;
     }
 

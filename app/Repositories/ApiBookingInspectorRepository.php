@@ -4,15 +4,15 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\Supplier;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
+use App\Models\Supplier;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
-use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
@@ -49,9 +49,9 @@ class ApiBookingInspectorRepository
             ->where('sub_type', 'create')
             ->where('status', '!=', 'error')
             ->where('supplier_id', $supplierId)
-            ->where(function($query) use ($pairs) {
+            ->where(function ($query) use ($pairs) {
                 foreach ($pairs as $pair) {
-                    $query->where(function($subQuery) use ($pair) {
+                    $query->where(function ($subQuery) use ($pair) {
                         $subQuery->where('booking_id', '!=', $pair['booking_id'])
                             ->orWhere('booking_item', '!=', $pair['booking_item']);
                     });
@@ -95,7 +95,7 @@ class ApiBookingInspectorRepository
         return $linkDeleteItems;
     }
 
-    public static function getLinkPutMethod(string $booking_id, string $booking_item, int $room_id): string|null
+    public static function getLinkPutMethod(string $booking_id, string $booking_item, int $room_id): ?string
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve'.'%')
@@ -225,8 +225,7 @@ class ApiBookingInspectorRepository
 
     public static function isBook(string $booking_id, string $booking_item, bool $validateWithBookingInspector = true): bool
     {
-        if (! $validateWithBookingInspector)
-        {
+        if (! $validateWithBookingInspector) {
             return ApiBookingsMetadata::where('booking_id', $booking_id)
                 ->where('booking_item', $booking_item)
                 ->exists();
@@ -356,7 +355,9 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
-        if (!$bookingInspector) return null;
+        if (! $bookingInspector) {
+            return null;
+        }
 
         return ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'book')
@@ -380,11 +381,15 @@ class ApiBookingInspectorRepository
 
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
-        $search_id = $query['search_id'] ?? $booking_item
-            ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
-            : null;
+        $search_id = $query['search_id'] ?? (
+            $booking_item
+                ? (ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
+                ?? ApiBookingItemCache::where('booking_item', $booking_item)->first()?->search_id)
+                : null
+        );
 
-        $inspector = new ApiBookingInspector();
+        /** @var ApiBookingInspector $inspector */
+        $inspector = app(ApiBookingInspector::class);
         $inspector->booking_id = $booking_id;
         $inspector->token_id = $token_id;
         $inspector->supplier_id = $supplier_id;
