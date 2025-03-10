@@ -81,15 +81,4 @@ class ApiBookingsMetadata extends Model
             'giata_id' // Local key on the mappings table
         )->where('mappings.supplier', $this->supplier->name);
     }
-
-    /**
-     * Get the inspectors associated with the booking metadata.
-     *
-     * @return HasMany
-     */
-    public function inspectors(): HasMany
-    {
-        return $this->hasMany(ApiBookingInspector::class, 'booking_id', 'booking_id')
-            ->whereColumn('booking_item', 'booking_item');
-    }
 }
