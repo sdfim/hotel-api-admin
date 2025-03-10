@@ -2,6 +2,7 @@
 
 namespace Modules\API\Controllers\ApiHandlers\Reports;
 
+use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -14,21 +15,29 @@ use Illuminate\Support\Collection;
 class ReportsApiHandler extends BaseController
 {
     /**
-     * Get the bookings report.
+     * Get the missing bookings and booking errors report.
      *
      * @param Request $request
      * @return JsonResponse
      */
     public function bookings(Request $request): JsonResponse
     {
+        $inspectorsQuery = $this->getInspectorsQuery();
+        $this->applyDateFilters($inspectorsQuery, $request);
+        $inspectors = $this->transformInspectorsData($inspectorsQuery->get());
+
         $bookingsQuery = $this->getBookingsQuery();
         $this->applyDateFilters($bookingsQuery, $request);
         $bookings = $this->transformBookingsData($bookingsQuery->get());
+
         $bookingsInspectorUrl = $this->getBookingInspectorUrl();
+
         $data = [
             'bookings' => $bookings,
+            'inspectors' => $inspectors,
             'bookings_inspector_url' => $bookingsInspectorUrl,
         ];
+
         return $this->sendResponse($data, 'success');
     }
 
@@ -41,15 +50,23 @@ class ReportsApiHandler extends BaseController
     {
         return ApiBookingsMetadata::query()
             ->with([
-                'inspectors' => function ($query) {
-                    $query->where('sub_type', 'create');
-                },
                 'supplier',
             ]);
     }
 
     /**
-     * Apply date filters to the booking query.
+     * Get the inspectors query.
+     *
+     * @return Builder
+     */
+    protected function getInspectorsQuery(): Builder
+    {
+        return ApiBookingInspector::query()
+            ->where('sub_type', 'create');
+    }
+
+    /**
+     * Apply date filters to the passed query.
      *
      * @param Builder $query
      * @param Request $request
@@ -77,11 +94,10 @@ class ReportsApiHandler extends BaseController
         return config('app.app_url') . '/admin/booking-inspector/';
     }
 
-        /**
-     * Transform the bookings collection into an array for API response.
+    /**
+     * Transform the bookings meta data collection into an array for API response.
      *
      * @param Collection|ApiBookingsMetadata[] $bookings
-     * @param string $bookingsInspectorUrl
      * @return array
      */
     protected function transformBookingsData(Collection $bookings): array
@@ -96,7 +112,24 @@ class ReportsApiHandler extends BaseController
                 'hotel'                     => $booking->hotel?->name,
                 'main_guest'                => $this->getMainGuest($booking->booking_item_data),
                 'created_at'                => $booking->created_at,
-                'booking_attempts'         => $booking->inspectors,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Transform the booking inspectors collection into an array for API response.
+     *
+     * @param Collection|ApiBookingInspector[] $inspectors
+     * @return array
+     */
+    protected function transformInspectorsData(Collection $inspectors): array
+    {
+        return $inspectors->map(function ($inspector) {
+            return [
+                'id'                        => $inspector->id,
+                'booking_item'              => $inspector->booking_item,
+                'booking_id'                => $inspector->booking_id,
+                'status'                    => $inspector->status,
             ];
         })->toArray();
     }
