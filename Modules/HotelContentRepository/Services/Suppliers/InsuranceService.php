@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\HotelContentRepository\Services;
+namespace Modules\HotelContentRepository\Services\Suppliers;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingItem;

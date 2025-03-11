@@ -153,8 +153,9 @@ class DetailHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'property_id' => 'required_without:property_ids|int|digits_between:4,12',
-            'property_ids' => 'required_without:property_id|string',
+            'property_id' => 'required_without_all:property_ids,giata_ids|int|digits_between:4,12',
+            'property_ids' => 'required_without_all:property_id,giata_ids|string',
+            'giata_ids' => 'required_without_all:property_id,property_ids|string',
             'type' => 'required|in:hotel,flight,combo',
             'supplier' => 'string',
             'room_type_codes' => 'array',
