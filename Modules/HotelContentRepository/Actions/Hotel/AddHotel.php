@@ -13,6 +13,7 @@ use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\MealPlansEnum;
 use Modules\HotelContentRepository\API\Requests\HotelRequest;
 use Modules\HotelContentRepository\Events\Hotel\HotelAdded;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\ProductAttribute;
@@ -75,7 +76,11 @@ class AddHotel
             }
         }
 
-        return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes) {
+        /** @var HotelForm $hotelForm */
+        $hotelForm = app(HotelForm::class);
+        $address = $hotelForm->getGeocodingData($property->latitude, $property->longitude);
+
+        return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes, $address) {
             $hotel = Hotel::create([
                 'giata_code' => $property->code,
                 'star_rating' => max($property->rating ?? 1, 1),
@@ -84,10 +89,10 @@ class AddHotel
                 'hotel_board_basis' => $mealPlansRes,
                 'room_images_source_id' => $source_id,
                 'address' => [
-                    'line_1' => $property->mapper_address ?? '',
-                    'city' => $property->city ?? '',
-                    'country_code' => $property->address->CountryName ?? '',
-                    'state_province_name' => $property->address->AddressLine ?? '',
+                    'line_1' => Arr::get($address, 'line_1', null) ?? $property->mapper_address ?? '',
+                    'city' => Arr::get($address, 'city', null) ?? $property->city ?? '',
+                    'country_code' => Arr::get($address, 'country_code', null) ?? $property->address->CountryName ?? '',
+                    'state_province_name' => Arr::get($address, 'line_1', null) ?? $property->address->AddressLine ?? '',
                 ],
             ]);
 

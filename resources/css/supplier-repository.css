@@ -421,6 +421,15 @@ thead .bg-gray-50{
 .hotel-modal-header.wm-800{
     max-width: 800px;
 }
+.hotel-modal-header-simple.wm-1400{
+    max-width: 1400px;
+}
+.hotel-modal-header-simple.wm-1200{
+    max-width: 1200px;
+}
+.hotel-modal-header-simple.wm-1000{
+    max-width: 1000px;
+}
 .hotel-modal {
     position: fixed;
     top: 0;
@@ -442,6 +451,14 @@ thead .bg-gray-50{
     width: 100%;
     max-width: 500px;
     text-align: center;
+}
+/* Modal Content */
+.hotel-modal-header-simple {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
 }
 
 /* Modal Title */

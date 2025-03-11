@@ -87,8 +87,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->label('What star ratings to be searched for on the system, 0 ... 5.5')
                     ->numeric()
                     ->step(0.5)
-                    ->minValue(fn(): int => 0.0)
-                    ->maxValue(fn(): int => 5.5)
+                    ->minValue(fn(): float => 0.0)
+                    ->maxValue(fn(): float => 5.5)
                     ->required(),
                 TextInput::make('stop_bookings')
                     ->label('Stop bookings within a number of hours from time of search execution, hours')

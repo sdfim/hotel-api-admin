@@ -105,6 +105,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->toggleable(),
                 TextColumn::make('room_type')
                     ->label('Room Type')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('consortia')
                     ->label('Consortia')

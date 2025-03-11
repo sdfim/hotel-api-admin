@@ -44,6 +44,8 @@ class VendorForm extends Component implements HasForms
 
     public $showDeleteConfirmation = false;
 
+    public $showModalLogInfoVendor = false;
+
     public function mount(?Vendor $vendor): void
     {
         $this->record = $vendor ?? app(Vendor::class);

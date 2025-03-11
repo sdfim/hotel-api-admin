@@ -103,7 +103,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->rateCode !== null && $record->conditions->contains('field', 'rate_code') => 'Rate',
+                            $record->conditions->contains('field', 'rate_code') => 'Rate',
                             $this->productId !== null => 'Hotel',
                             default => '',
                         };

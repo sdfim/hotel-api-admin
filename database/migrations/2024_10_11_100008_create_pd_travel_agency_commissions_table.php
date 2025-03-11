@@ -15,8 +15,8 @@ return new class extends Migration
             $table->decimal('commission_value', 10, 2);
             $table->string('commission_value_type');
             $table->date('date_range_start');
-            $table->date('date_range_end');
-            $table->string('room_type')->nullable();
+            $table->date('date_range_end')->nullable();
+            $table->text('room_type')->nullable();
             $table->json('consortia')->nullable();
             $table->timestamps();
 

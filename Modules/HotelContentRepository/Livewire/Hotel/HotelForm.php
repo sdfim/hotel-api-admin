@@ -54,7 +54,9 @@ class HotelForm extends Component implements HasForms
 
     public $showDeleteConfirmation = false;
 
-    public $showInfoModal = false;
+    public $showModalLogInfoOnSale = false;
+
+    public $showModalLogInfoProduct = false;
 
     public string $onSaleCausation = '';
 
@@ -87,16 +89,6 @@ class HotelForm extends Component implements HasForms
         }
 
         $this->form->fill($data);
-    }
-
-    public function showInfoModal()
-    {
-        $this->activityDetails = Activity::where('subject_id', $this->record->id)
-            ->where('subject_type', get_class($this->record))
-            ->whereRaw("JSON_CONTAINS(properties->'$.attributes.onSale', 'true')")
-            ->get();
-
-        $this->showInfoModal = true;
     }
 
     public function toggleVerified()
@@ -587,52 +579,66 @@ class HotelForm extends Component implements HasForms
         return redirect()->route('hotel-repository.edit', ['hotel_repository' => $hotel, 'tab' => $tab]);
     }
 
+    public function getGeocodingData(float $lat, float $lng): array
+    {
+        $addressArr = [];
+        // Reverse geocoding logic
+        $apiKey = config('filament-google-maps.key');
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lng}&key={$apiKey}";
+
+        $response = file_get_contents($url);
+        $results = json_decode($response, true);
+        $streetNumber = $route = $city = $postal_town = $state_province_name = $zip = $country_code = '';
+
+        if (! empty($results['results'][0]['address_components'])) {
+            $components = $results['results'][0]['address_components'];
+
+            // Populate address fields
+            foreach ($components as $component) {
+                if (in_array('street_number', $component['types'])) {
+                    $streetNumber = $component['long_name'];
+                }
+                if (in_array('route', $component['types'])) {
+                    $route = $component['long_name'];
+                }
+                if (in_array('locality', $component['types'])) {
+                    $city = $component['long_name'];
+                }
+                if (in_array('postal_town', $component['types'])) {
+                    $postal_town = $component['long_name'];
+                }
+                if (in_array('administrative_area_level_1', $component['types'])) {
+                    $state_province_name = $component['long_name'];
+                }
+                if (in_array('postal_code', $component['types'])) {
+                    $zip = $component['long_name'];
+                }
+                if (in_array('country', $component['types'])) {
+                    $country_code = $component['short_name'];
+                }
+            }
+
+            $addressArr['line_1'] = trim("$streetNumber $route, $zip");
+            $addressArr['city'] = $city !== '' ? $city : $postal_town;
+            $addressArr['state_province_name'] = $state_province_name;
+            $addressArr['country_code'] = $country_code;
+        }
+
+        return $addressArr;
+    }
+
     protected function handleReverseGeocoding(array $state, callable $set): void
     {
         if (isset($state['lat']) && isset($state['lng'])) {
             $set('product.lat', $state['lat']);
             $set('product.lng', $state['lng']);
 
-            // Reverse geocoding logic
-            $apiKey = config('filament-google-maps.key');
-            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$state['lat']},{$state['lng']}&key={$apiKey}";
-
-            $response = file_get_contents($url);
-            $results = json_decode($response, true);
-            $streetNumber = $route = $city = $postal_town = $state_province_name = $zip = $country_code = '';
-
-            if (! empty($results['results'][0]['address_components'])) {
-                $components = $results['results'][0]['address_components'];
-
-                // Populate address fields
-                foreach ($components as $component) {
-                    if (in_array('street_number', $component['types'])) {
-                        $streetNumber = $component['long_name'];
-                    }
-                    if (in_array('route', $component['types'])) {
-                        $route = $component['long_name'];
-                    }
-                    if (in_array('locality', $component['types'])) {
-                        $city = $component['long_name'];
-                    }
-                    if (in_array('postal_town', $component['types'])) {
-                        $postal_town = $component['long_name'];
-                    }
-                    if (in_array('administrative_area_level_1', $component['types'])) {
-                        $state_province_name = $component['long_name'];
-                    }
-                    if (in_array('postal_code', $component['types'])) {
-                        $zip = $component['long_name'];
-                    }
-                    if (in_array('country', $component['types'])) {
-                        $country_code = $component['short_name'];
-                    }
-                }
-
-                $set('addressArr.line_1', trim("$streetNumber $route, $zip"));
-                $set('addressArr.city', $city !== '' ? $city : $postal_town);
-                $set('addressArr.state_province_name', $state_province_name);
-                $set('addressArr.country_code', $country_code);
+            $addressArr = $this->getGeocodingData((float) $state['lat'], (float) $state['lng']);
+            if (! empty($addressArr)) {
+                $set('addressArr.line_1', $addressArr['line_1']);
+                $set('addressArr.city', $addressArr['city']);
+                $set('addressArr.state_province_name', $addressArr['state_province_name']);
+                $set('addressArr.country_code', $addressArr['country_code']);
             }
         }
     }
