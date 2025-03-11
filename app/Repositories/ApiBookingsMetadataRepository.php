@@ -38,6 +38,13 @@ class ApiBookingsMetadataRepository
             [];
     }
 
+    public static function getBookedItem($booking_id, $booking_item): ApiBookingsMetadata
+    {
+        return ApiBookingsMetadata::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
+            ->first();
+    }
+
     public static function updateBookingItemData(ApiBookingsMetadata $apiBookingsMetadata, array $bookingItemData): ApiBookingsMetadata
     {
         $apiBookingsMetadata->booking_item_data = $bookingItemData;

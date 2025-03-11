@@ -166,8 +166,7 @@ class Vendor extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'verified', 'address', 'lat', 'lng', 'website'])
-            ->logOnlyDirty()
+            ->logAll()
             ->useLogName('vendor');
     }
 }

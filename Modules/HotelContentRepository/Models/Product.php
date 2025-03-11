@@ -229,8 +229,7 @@ class Product extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['*'])
-            ->logOnlyDirty()
+            ->logAll()
             ->useLogName('product');
     }
 }

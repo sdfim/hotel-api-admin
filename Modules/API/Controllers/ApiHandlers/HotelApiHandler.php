@@ -263,7 +263,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             $token = $request->bearerToken();
-            $keyPricingSearch = $request->type.':pricingSearch:'.http_build_query(Arr::dot($filters)).':'.$token;
+            $keyPricingSearch = $request->type.':pricingSearch:'.http_build_query(Arr::dot($this->getCacheKeyFromFilters($filters))).':'.$token;
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);
 
@@ -715,6 +715,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             'bookingItems' => $bookingItems ?? [],
             'dataOriginal' => $dataOriginal ?? [],
         ];
+    }
 
+    private function getCacheKeyFromFilters(array $filters): array
+    {
+        $_filters = [...$filters];
+
+        unset($_filters['session']);
+
+        return $_filters;
     }
 }

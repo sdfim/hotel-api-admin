@@ -73,8 +73,7 @@ class ProductAffiliation extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['*'])
-            ->logOnlyDirty()
+            ->logAll()
             ->useLogName('product_affiliation');
     }
 }

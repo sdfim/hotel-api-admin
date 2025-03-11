@@ -94,8 +94,7 @@ class Hotel extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['*'])
-            ->logOnlyDirty()
+            ->logAll()
             ->useLogName('hotel');
     }
 }
