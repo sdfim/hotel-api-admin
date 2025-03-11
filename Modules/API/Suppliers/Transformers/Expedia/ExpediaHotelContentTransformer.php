@@ -100,10 +100,12 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
         $statistics = json_decode(Arr::get($supplierResponse, 'statistics', '{}'), true);
         $totalRooms = 0;
 
-        foreach ($statistics as $stat) {
-            if (str_contains($stat['name'], 'Total number of rooms')) {
-                $totalRooms = (int) $stat['value'];
-                break;
+        if (is_array($statistics)) {
+            foreach ($statistics as $stat) {
+                if (str_contains($stat['name'], 'Total number of rooms')) {
+                    $totalRooms = (int) $stat['value'];
+                    break;
+                }
             }
         }
         return $totalRooms;
