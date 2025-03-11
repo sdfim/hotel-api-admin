@@ -20,6 +20,7 @@ class ContentDetailRoomsResponseFactory
         $contentDetailRoomsResponse->setDescriptions('');
         $contentDetailRoomsResponse->setContentSupplier('');
         $contentDetailRoomsResponse->setRelatedRooms([]);
+        $contentDetailRoomsResponse->setSupplierCodes([]);
 
         return $contentDetailRoomsResponse;
     }

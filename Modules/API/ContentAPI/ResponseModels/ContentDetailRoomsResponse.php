@@ -24,6 +24,18 @@ class ContentDetailRoomsResponse
 
     private array $ultimate_amenities;
 
+    private array $supplier_codes;
+
+    public function setSupplierCodes(array $supplier_codes): void
+    {
+        $this->supplier_codes = $supplier_codes;
+    }
+
+    public function getSupplierCodes(): array
+    {
+        return $this->supplier_codes;
+    }
+
     public function setUltimateAmenities(array $ultimate_amenities): void
     {
         $this->ultimate_amenities = $ultimate_amenities;
@@ -137,6 +149,7 @@ class ContentDetailRoomsResponse
             'images' => $this->getImages(),
             'descriptions' => $this->getDescriptions(),
             'connecting_room_types' => $this->getRelatedRooms(),
+            'supplier_codes' => $this->getSupplierCodes(),
         ];
     }
 }
