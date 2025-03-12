@@ -91,7 +91,7 @@ class ReportsApiHandler extends BaseController
      */
     protected function getBookingInspectorUrl(): string
     {
-        return config('app.app_url') . '/admin/booking-inspector/';
+        return url('admin/booking-inspector/') . '/';
     }
 
     /**
