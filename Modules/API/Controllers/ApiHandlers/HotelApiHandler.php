@@ -263,6 +263,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             $token = $request->bearerToken();
+
             $keyPricingSearch = $request->type.':pricingSearch:'.http_build_query(Arr::dot($this->getCacheKeyFromFilters($filters))).':'.$token;
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);
