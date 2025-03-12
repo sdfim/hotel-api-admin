@@ -109,11 +109,12 @@ class DetailDataTransformer
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
+//            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
+            $supplierRoomCode = Arr::get($resultRoom, 'supplier_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($supplierRoomId, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($supplierRoomCode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }
@@ -150,6 +151,8 @@ class DetailDataTransformer
         } else {
             $result['descriptions'] = $internalPropertyDescription;
         }
+
+        $result['rooms'] = array_values($result['rooms']);
 
         $result['structure'] = $structureSource;
     }
@@ -424,12 +427,12 @@ class DetailDataTransformer
                 'content_supplier' => 'Internal Repository',
                 'unified_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
+                'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
-                'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'attributes' => $attributes,
                 'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,

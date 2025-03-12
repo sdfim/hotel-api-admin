@@ -141,7 +141,12 @@ class IcePortalHotelContentDetailTransformer
             $roomResponse->setSupplierRoomId(Arr::get($room, 'roomID'));
             $roomResponse->setSupplierRoomCode(Arr::get($room, 'roomCode'));
             $roomResponse->setUnifiedRoomCode(Arr::get($room, 'roomCode'));
-            $roomResponse->setAmenities(array_unique($roomAmenities));
+            $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
+                return [
+                    'name' => $amenity,
+                    'category' => 'general',
+                ];
+            }, $roomAmenities)));
             $roomResponse->setImages($images);
             $roomResponse->setDescriptions(Arr::get($room, 'description', ''));
             $rooms[] = $roomResponse->toArray();
