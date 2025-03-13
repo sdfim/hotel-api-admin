@@ -291,8 +291,8 @@ class TravelAgencyCommissionRequest extends ApiRequest
         $commissionValueTypes = implode(',', CommissionValueTypeEnum::values());
 
         return [
-            'name' => 'required|string',
             'product_id' => 'required|integer|exists:pd_products,id',
+            'commission_id' => 'required|integer|exists:pd_commissions,id',
             'commission_value' => 'required|numeric',
             'commission_value_type' => 'required|in:'.$commissionValueTypes,
             'date_range_start' => 'required|date',
