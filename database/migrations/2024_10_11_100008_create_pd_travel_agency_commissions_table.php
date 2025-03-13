@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_travel_agency_commissions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
-            $table->string('name');
+            $table->unsignedBigInteger('commission_id');
             $table->decimal('commission_value', 10, 2);
             $table->string('commission_value_type');
             $table->date('date_range_start');
@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
+            $table->foreign('commission_id')->references('id')->on('pd_commissions')->onDelete('cascade');
         });
     }
 

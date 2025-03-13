@@ -13,6 +13,7 @@ use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
 use App\Models\IcePortalProperty;
 use App\Models\InformationalService;
+use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
@@ -38,6 +39,7 @@ use App\Policies\TravelAgencyCommissionPolicy;
 use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\HotelContentRepository\Models\Commission;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
@@ -83,6 +85,7 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigChain::class => ConfigChainPolicy::class,
         ConfigInsuranceDocumentationType::class => ConfigInsuranceDocumentationTypePolicy::class,
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
+        Commission::class => CommissionPolicy::class,
         InformationalService::class => InformationalServicePolicy::class,
         TravelAgencyCommission::class => TravelAgencyCommissionPolicy::class,
         ImageGallery::class => ImageGalleryPolicy::class,

@@ -109,12 +109,11 @@ class DetailDataTransformer
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-//            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
-            $supplierRoomCode = Arr::get($resultRoom, 'supplier_room_code', '');
+            $unifiedRoomСode = Arr::get($resultRoom, 'unified_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($supplierRoomCode, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($unifiedRoomСode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }

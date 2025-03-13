@@ -86,7 +86,6 @@ class ExpediaHotelContentDetailTransformer
                 $roomResponse = ContentDetailRoomsResponseFactory::create();
                 $roomResponse->setContentSupplier(SupplierNameEnum::EXPEDIA->value);
                 $roomResponse->setSupplierRoomId(Arr::get($room, 'id', 0));
-                $roomResponse->setSupplierRoomCode(Arr::get($room, 'id', 0));
                 $roomResponse->setUnifiedRoomCode(Arr::get($room, 'id', ''));
                 $roomResponse->setSupplierRoomName(Arr::get($room, 'name', ''));
                 $roomResponse->setAmenities(array_values(array_map(function ($amenity) {

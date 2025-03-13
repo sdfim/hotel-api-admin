@@ -11,6 +11,7 @@ use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
@@ -136,6 +137,7 @@ Route::prefix('admin')->group(function () {
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
             Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
+            Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
         });
 
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);

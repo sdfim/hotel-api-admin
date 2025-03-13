@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models;
 use App\Models\Configurations\ConfigConsortium;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\HotelContentRepository\Models\Factories\TravelAgencyCommissionFactory;
@@ -27,7 +28,7 @@ class TravelAgencyCommission extends Model
 
     protected $fillable = [
         'product_id',
-        'name',
+        'commission_id',
         'commission_value',
         'commission_value_type',
         'date_range_start',
@@ -47,6 +48,11 @@ class TravelAgencyCommission extends Model
         'date_range_end' => 'date',
         'consortia' => 'array'
     ];
+
+    public function commission(): BelongsTo
+    {
+        return $this->belongsTo(Commission::class, 'commission_id');
+    }
 
     public function product(): HasOne
     {

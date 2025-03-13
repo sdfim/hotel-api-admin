@@ -34,6 +34,7 @@
     use App\Models\Configurations\ConfigChain;
     use App\Models\Configurations\ConfigInsuranceDocumentationType;
     use Modules\HotelContentRepository\Models\KeyMappingOwner;
+    use Modules\HotelContentRepository\Models\Commission;
     use Modules\HotelContentRepository\Models\ImageGallery;
     use Modules\HotelContentRepository\Models\Image;
     use App\Models\Team;
@@ -53,6 +54,7 @@
         $canView(ConfigChain::class);
         $canView(ConfigInsuranceDocumentationType::class);
         $canView(KeyMappingOwner::class);
+        $canView(Commission::class);
 @endphp
 
     <!-- ========== Left Sidebar Start ========== -->
@@ -157,6 +159,13 @@
                                     >External Identifiers </a>
                                 </li>
                             @endif
+                            @if($canView(Commission::class))
+                                <li>
+                                    <a href="{{ route('configurations.commissions.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >Commissions </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -228,15 +237,15 @@
                         </a>
                     </li>
                 @endif
-{{--                @if($canView(TravelAgencyCommission::class))--}}
-{{--                    <li>--}}
-{{--                        <a href="{{ Route('travel-agency-commission.index') }}"--}}
-{{--                           class="{{ ClassHelper::sidebarPointClass() }}">--}}
-{{--                            <i class="dripicons-lifting"></i>--}}
-{{--                            <span data-key="t-property-weighting">Agency Commissions</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
-{{--                @endif--}}
+                {{--                @if($canView(TravelAgencyCommission::class))--}}
+                {{--                    <li>--}}
+                {{--                        <a href="{{ Route('travel-agency-commission.index') }}"--}}
+                {{--                           class="{{ ClassHelper::sidebarPointClass() }}">--}}
+                {{--                            <i class="dripicons-lifting"></i>--}}
+                {{--                            <span data-key="t-property-weighting">Agency Commissions</span>--}}
+                {{--                        </a>--}}
+                {{--                    </li>--}}
+                {{--                @endif--}}
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -360,45 +369,45 @@
                                 </li>
                             @endif
                             @if($canView(Product::class))
-                               <li>
-                                   <a href="javascript: void(0);" aria-expanded="false"
-                                      class="{{ ClassHelper::sidebarCildrenP2Class() }}">
-                                       <i class="dripicons-trophy"></i>
-                                       <span data-key="t-products">Products</span>
-                                   </a>
-                                   <ul>
-                                       <li>
-                                           <a href="{{ Route('hotel-repository.index') }}"
-                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                               <i class="dripicons-store"></i>
-                                               <span>Hotels</span>
-                                           </a>
-                                       </li>
-                                       <li>
-                                           <a href="#"
-                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                               <i class="dripicons-web"></i>
-                                               <span>Tours</span>
-                                           </a>
-                                       </li>
-                                       <li>
-                                           <a href="#"
-                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                               <i class="dripicons-suitcase"></i>
-                                               <span>Transfers</span>
-                                           </a>
-                                       </li>
-                                   </ul>
-                               </li>
+                                <li>
+                                    <a href="javascript: void(0);" aria-expanded="false"
+                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">
+                                        <i class="dripicons-trophy"></i>
+                                        <span data-key="t-products">Products</span>
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="{{ Route('hotel-repository.index') }}"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-store"></i>
+                                                <span>Hotels</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-web"></i>
+                                                <span>Tours</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-suitcase"></i>
+                                                <span>Transfers</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
                             @endif
                             @if($canView(Product::class))
-                                    <li>
-                                        <a href="{{ Route('pd-grid.index') }}"
-                                           class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                            <i class="dripicons-to-do"></i>
-                                            <span>PD Grid</span>
-                                        </a>
-                                    </li>
+                                <li>
+                                    <a href="{{ Route('pd-grid.index') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-to-do"></i>
+                                        <span>PD Grid</span>
+                                    </a>
+                                </li>
                             @endif
                             @if($canView(InsurancePlan::class))
                                 <li>
@@ -430,7 +439,7 @@
                         </a>
                     </li>
                 @endif
-                    @canany(['log-viewer', 'swagger-docs', 'activities'])
+                @canany(['log-viewer', 'swagger-docs', 'activities'])
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="{{ ClassHelper::sidebarParrentClass() }}">
@@ -447,15 +456,15 @@
                                     </a>
                                 </li>
                             @endcan
-                                @can('log-viewer')
-                                    <li>
-                                        <a href="{{ url('admin/activities') }}"
-                                           class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                            <i class="dripicons-document"></i>
-                                            <span data-key="t-log-viewer">Activity Log</span>
-                                        </a>
-                                    </li>
-                                @endcan
+                            @can('log-viewer')
+                                <li>
+                                    <a href="{{ url('admin/activities') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-document"></i>
+                                        <span data-key="t-log-viewer">Activity Log</span>
+                                    </a>
+                                </li>
+                            @endcan
                             @can('swagger-docs')
                                 <li>
                                     <a href="javascript: void(0);" aria-expanded="false"
