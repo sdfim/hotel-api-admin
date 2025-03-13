@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Livewire\Configurations\Commission\CommissionForm;
+use App\Livewire\Configurations\Commission\CommissionTable;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerForm;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerTable;
 use Illuminate\Support\ServiceProvider;
@@ -97,5 +99,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
 
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-table', KeyMappingOwnerTable::class);
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-form', KeyMappingOwnerForm::class);
+        Livewire::component('configurations.commissions.commission-table', CommissionTable::class);
+        Livewire::component('configurations.commissions.commission-form', CommissionForm::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\TravelAgencyCommission;
 
+use App\Livewire\Configurations\Commission\CommissionForm;
 use App\Livewire\Configurations\Consortia\ConsortiaForm;
 use App\Models\Configurations\ConfigConsortium;
 use Filament\Forms\Components\DatePicker;
@@ -21,6 +22,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\CommissionValueTypeEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\Commission;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 
@@ -44,8 +46,19 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
     {
         return [
             Hidden::make('product_id')->default($this->productId),
-            TextInput::make('name')
+            Select::make('commission_id')
+                ->relationship('commission', 'name')
                 ->label('Commission Name')
+                ->createOptionForm(CommissionForm::getSchema())
+                ->createOptionUsing(function (array $data) {
+                    $commission = Commission::create($data);
+                    Notification::make()
+                        ->title('Commission created successfully')
+                        ->success()
+                        ->send();
+
+                    return $commission->id;
+                })
                 ->required(),
             Grid::make()->schema([
                 TextInput::make('commission_value')
@@ -99,7 +112,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 TravelAgencyCommission::query()->where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('commission.name')
                     ->label('Commission Name')
                     ->searchable()
                     ->toggleable(),

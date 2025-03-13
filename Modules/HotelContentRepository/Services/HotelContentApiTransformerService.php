@@ -107,11 +107,11 @@ class HotelContentApiTransformerService
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
+            $unifiedRoomCode = Arr::get($resultRoom, 'unified_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($supplierRoomId, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($unifiedRoomCode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }
@@ -143,6 +143,8 @@ class HotelContentApiTransformerService
 
             return $room;
         }, $result['rooms']);
+
+        $result['rooms'] = array_values($result['rooms']);
 
         // Content Descriptions
         $additionalDescriptions = $internalPropertyDescription;
