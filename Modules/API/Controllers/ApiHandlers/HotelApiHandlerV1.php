@@ -20,7 +20,6 @@ use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransfor
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
-use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -274,13 +273,13 @@ class HotelApiHandlerV1 extends HotelApiHandler
         $filteredResultsIcePortal = $this->filterResultsIcePortal($resultsIcePortal, $existingExpediaGiataIds);
 
         $detailResults = array_merge($resultsExpedia, $filteredResultsIcePortal);
-        $romsImagesData = $this->mergeRooms($detailResults, $resultsExpedia, $resultsIcePortal, $roomMappers);
+        $romsImagesData = $this->mergeRooms($detailResults, $resultsExpedia, $resultsIcePortal, $roomMappers, $structureSource);
         if (empty($detailResults)) {
             return [];
         }
 
-//        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
-//        $detailResults = $this->addMissingGiataCodes($detailResults, $missingGiataCodes);
+        //        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
+        //        $detailResults = $this->addMissingGiataCodes($detailResults, $missingGiataCodes);
 
         return $this->updateDetailResults($detailResults, $structureSource, $repoData, $resultsIcePortal, $romsImagesData);
     }
@@ -317,7 +316,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
         });
     }
 
-    private function mergeRooms(array &$detailResults, array $resultsExpedia, array $resultsIcePortal, array $roomMappers): array
+    private function mergeRooms(array &$detailResults, array $resultsExpedia, array $resultsIcePortal, array $roomMappers, array $structureSource): array
     {
         $romsImagesData = [];
         foreach ($detailResults as &$item) {
@@ -328,47 +327,37 @@ class HotelApiHandlerV1 extends HotelApiHandler
             $expediaRooms = $expediaKey !== false ? $resultsExpedia[$expediaKey]['rooms'] : [];
             $icePortalRooms = $icePortalKey !== false ? $resultsIcePortal[$icePortalKey]['rooms'] : [];
 
+            $unionRooms = array_merge($expediaRooms, $icePortalRooms);
+
             $mergedRooms = [];
-            foreach ($expediaRooms as $expediaRoom) {
-                $expediaRoomId = $expediaRoom['supplier_room_id'];
+            foreach ($unionRooms as $unionRoom) {
+                $unifiedRoomCode = $unionRoom['unified_room_code'];
                 $foundInMapper = false;
 
                 if (! isset($roomMappers[$giataCode])) {
-                    $mergedRooms[] = $expediaRoom;
+                    $mergedRooms[] = $unionRoom;
 
                     continue;
                 }
 
                 foreach ($roomMappers[$giataCode] as $mapper) {
                     $externalCode = $mapper['external_code'];
+                    if (! $externalCode) {
+                        continue;
+                    }
 
-                    if (in_array($expediaRoomId, $mapper)) {
-                        $romsImagesData[$giataCode][$externalCode][SupplierNameEnum::EXPEDIA->value] = $expediaRoom['images'];
+                    if (in_array($unifiedRoomCode, $mapper)) {
+
+                        $supplierName = array_search($unifiedRoomCode, array_diff_key($mapper, ['external_code' => '']));
+                        if (! $supplierName) {
+                            continue;
+                        }
+                        $romsImagesData[$giataCode][$externalCode][$supplierName] = $unionRoom['images'];
                         $foundInMapper = true;
-                        $icePortalRoomId = Arr::get($mapper, SupplierNameEnum::ICE_PORTAL->value);
-                        if (! $icePortalRoomId) {
-                            $expediaRoom['supplier_codes'] = $mapper;
-                            $mergedRooms[] = $expediaRoom;
-                            break;
-                        }
-
-                        $icePortalRoomKey = array_search($icePortalRoomId, array_column($icePortalRooms, 'supplier_room_id'));
-                        if (isset($icePortalRooms[$icePortalRoomKey])) {
-                            $romsImagesData[$giataCode][$externalCode][SupplierNameEnum::ICE_PORTAL->value] = $icePortalRooms[$icePortalRoomKey]['images'];
-                        }
-                        if ($icePortalRoomKey !== false) {
-                            $expediaRoom['supplier_codes'] = $mapper;
-                            $mergedRooms[] = $expediaRoom;
-                            unset($icePortalRooms[$icePortalRoomKey]);
-                        } else {
-                            $expediaRoom['supplier_codes'] = $mapper;
-                            $mergedRooms[] = $expediaRoom;
-                        }
-                        break;
                     }
                 }
                 if (! $foundInMapper) {
-                    $mergedRooms[] = $expediaRoom;
+                    $mergedRooms[] = $unionRoom;
                 }
             }
             $mergedRooms = array_merge($mergedRooms, $icePortalRooms);
