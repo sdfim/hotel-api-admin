@@ -229,7 +229,7 @@ class HotelContentApiService
                 $supplierRooms = $supplierKey !== false ? $results[$supplierKey]['rooms'] : [];
 
                 foreach ($supplierRooms as $supplierRoom) {
-                    $supplierRoomId = $supplierRoom['supplier_room_id'];
+                    $unifiedRoomCode = $supplierRoom['unified_room_code'];
                     $foundInMapper = false;
 
                     if (! isset($roomMappers[$giataCode])) {
@@ -241,7 +241,7 @@ class HotelContentApiService
                     foreach ($roomMappers[$giataCode] as $mapper) {
                         $externalCode = $mapper['external_code'];
 
-                        if (in_array($supplierRoomId, $mapper)) {
+                        if (in_array($unifiedRoomCode, $mapper)) {
                             $romsImagesData[$giataCode][$externalCode][$supplier] = $supplierRoom['images'];
                             $foundInMapper = true;
 
@@ -252,7 +252,7 @@ class HotelContentApiService
 
                                 $innerRoomId = Arr::get($mapper, $innerSupplier);
                                 if ($innerRoomId) {
-                                    $innerRoomKey = array_search($innerRoomId, array_column($innerResults, 'supplier_room_id'));
+                                    $innerRoomKey = array_search($innerRoomId, array_column($innerResults, 'unified_room_code'));
                                     if (isset($innerResults[$innerRoomKey])) {
                                         $romsImagesData[$giataCode][$externalCode][$innerSupplier] = $innerResults[$innerRoomKey]['images'];
                                     }
