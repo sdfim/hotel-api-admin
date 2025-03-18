@@ -154,6 +154,10 @@ class DetailDataTransformer
         $result['rooms'] = array_values($result['rooms']);
 
         $result['structure'] = $structureSource;
+
+        foreach ($result['rooms'] as &$room) {
+            unset($room['supplier_codes']['ujv_code']);
+        }
     }
 
     public function getPropertyImages($hotel): array
