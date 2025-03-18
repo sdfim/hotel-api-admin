@@ -27,7 +27,6 @@ use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
 use Modules\HotelContentRepository\Actions\Product\DeleteProduct;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
-use ZipArchive;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
@@ -228,24 +227,23 @@ class HotelTable extends Component implements HasForms, HasTable
                         ->label('Export Files')
                         ->icon('heroicon-o-chevron-double-down')
                         ->action(function () {
-                            /** @var ZipArchive $zip */
-                            $zip = app(ZipArchive::class);
-                            $zipFile = storage_path('app/public/files.zip');
-
-                            if ($zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-                                $directories = ['products', 'products/thumbnails', 'images'];
-                                foreach ($directories as $directory) {
-                                    $files = Storage::disk('public')->files($directory);
-                                    foreach ($files as $file) {
-                                        $zip->addFile(storage_path('app/public/'.$file), $file);
-                                    }
+                            $res = Artisan::call('files:export');
+                            if ($res > 0) {
+                                $fileUrls = '';
+                                while ($res > 0) {
+                                    $fileUrls .= \URL::to('/storage/files_'.$res.'.zip').PHP_EOL;
+                                    $res--;
                                 }
-                                $zip->close();
-
-                                return response()->download($zipFile);
+                                Notification::make()
+                                    ->title('Export Successful')
+                                    ->body('Download the file here '.$fileUrls)
+                                    ->success()
+                                    ->duration(5000)
+                                    ->send();
                             } else {
                                 Notification::make()
-                                    ->title('Failed to create archive')
+                                    ->title('Export Error')
+                                    ->body('Failed to create archive.')
                                     ->danger()
                                     ->send();
                             }
@@ -254,21 +252,35 @@ class HotelTable extends Component implements HasForms, HasTable
                         ->label('Import Files')
                         ->icon('heroicon-o-chevron-double-up')
                         ->form([
-                            FileUpload::make('zipFile')
+                            FileUpload::make('zipFiles')
                                 ->label('Select Zip File')
                                 ->disk('public')
                                 ->directory('file-uploads')
+                                ->preserveFilenames()
+                                ->multiple()
                                 ->required(),
                         ])
                         ->action(function (array $data) {
-                            $zipFile = Storage::disk('public')->path($data['zipFile']);
-                            /** @var ZipArchive $zip */
-                            $zip = app(ZipArchive::class);
+                            $files = $data['zipFiles'];
+                            $allSuccess = true;
 
-                            if ($zip->open($zipFile) === true) {
-                                $zip->extractTo(storage_path('app/public'));
-                                $zip->close();
+                            foreach ($files as $file) {
+                                $filePath = Storage::disk('public')->path($file);
+                                if (Storage::disk('public')->exists($file)) {
+                                    $res = Artisan::call('files:import', [
+                                        'file' => $filePath,
+                                    ]);
+                                    if (!$res) {
+                                        $allSuccess = false;
+                                        break;
+                                    }
+                                } else {
+                                    $allSuccess = false;
+                                    break;
+                                }
+                            }
 
+                            if ($allSuccess) {
                                 Notification::make()
                                     ->title('Files imported successfully')
                                     ->success()

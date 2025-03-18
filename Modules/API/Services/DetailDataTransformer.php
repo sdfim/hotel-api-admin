@@ -133,12 +133,12 @@ class DetailDataTransformer
         $giataId = $hotel->giata_code;
         if ($structureSource['room_images'] == SupplierNameEnum::EXPEDIA->value) {
             foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
+                $externalCode = Arr::get($room, 'supplier_codes.ujv_code', '');
                 $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::EXPEDIA->value] ?? []);
             }
         } elseif ($structureSource['room_images'] == SupplierNameEnum::ICE_PORTAL->value) {
             foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
+                $externalCode = Arr::get($room, 'supplier_codes.ujv_code', '');
                 $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::ICE_PORTAL->value] ?? []);
             }
         }
@@ -420,7 +420,7 @@ class DetailDataTransformer
                 ->mapWithKeys(function ($code) {
                     return [$code['supplier'] => $code['code']];
                 })->all();
-            $supplierCodes['external_code'] = $room->hbsi_data_mapped_name;
+            $supplierCodes['ujv_code'] = $room->hbsi_data_mapped_name;
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',

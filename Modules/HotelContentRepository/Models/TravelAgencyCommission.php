@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use App\Models\Configurations\ConfigConsortium;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,19 +33,19 @@ class TravelAgencyCommission extends Model
         'date_range_start',
         'date_range_end',
         'room_type',
-        'consortia'
+        'consortia',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     protected $casts = [
         'date_range_start' => 'date',
         'date_range_end' => 'date',
-        'consortia' => 'array'
+        'consortia' => 'array',
     ];
 
     public function commission(): BelongsTo

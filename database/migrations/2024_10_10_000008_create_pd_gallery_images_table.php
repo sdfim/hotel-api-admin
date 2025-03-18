@@ -13,7 +13,7 @@ return new class extends Migration
 
             $table->foreign('gallery_id')->references('id')->on('pd_image_galleries')->onDelete('cascade');
             $table->foreign('image_id')->references('id')->on('pd_images')->onDelete('cascade');
-            $table->unique(['gallery_id', 'image_id']);
+            $table->primary(['gallery_id', 'image_id']);
         });
     }
 

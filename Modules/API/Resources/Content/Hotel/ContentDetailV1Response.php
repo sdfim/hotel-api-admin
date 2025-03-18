@@ -285,7 +285,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "images": {},
  *               "descriptions": " Jr – 2 BD",
  *               "supplier_codes": {
- *                 "external_code": null
+ *                 "ujv_code": null
  *               }
  *             },
  *             {
@@ -297,7 +297,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "images": {},
  *               "descriptions": " 3-5 BD",
  *               "supplier_codes": {
- *                 "external_code": null
+ *                 "ujv_code": null
  *               }
  *             },
  *             {
@@ -309,7 +309,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "images": {},
  *               "descriptions": "Villa",
  *               "supplier_codes": {
- *                 "external_code": null
+ *                 "ujv_code": null
  *               }
  *             },
  *             {

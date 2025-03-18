@@ -300,7 +300,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 }
                 foreach ($supplierCodes as $supplier) {
                     $mapper[$supplier['supplier']] = $supplier['code'];
-                    $mapper['external_code'] = $room['hbsi_data_mapped_name'];
+                    $mapper['ujv_code'] = $room['hbsi_data_mapped_name'];
                 }
                 $roomMappers[$giataCode][] = $mapper;
             }
@@ -341,14 +341,14 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 }
 
                 foreach ($roomMappers[$giataCode] as $mapper) {
-                    $externalCode = $mapper['external_code'];
+                    $externalCode = $mapper['ujv_code'];
                     if (! $externalCode) {
                         continue;
                     }
 
                     if (in_array($unifiedRoomCode, $mapper)) {
 
-                        $supplierName = array_search($unifiedRoomCode, array_diff_key($mapper, ['external_code' => '']));
+                        $supplierName = array_search($unifiedRoomCode, array_diff_key($mapper, ['ujv_code' => '']));
                         if (! $supplierName) {
                             continue;
                         }
