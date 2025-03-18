@@ -32,6 +32,10 @@ class RoomResponse extends BaseResponse
 
     private float $total_net;
 
+    private float $commissionable_amount = 0;
+
+    private float $commission_amount = 0;
+
     private float $markup;
 
     private string $booking_item;
@@ -240,6 +244,26 @@ class RoomResponse extends BaseResponse
         return $this->total_tax;
     }
 
+
+    public function setCommissionAmount(float $commission_amount): void
+    {
+        $this->commission_amount = $commission_amount;
+    }
+
+    public function getCommissionAmount(): float
+    {
+        return $this->commission_amount;
+    }
+    public function getCommissionableAmount(): float
+    {
+        return $this->commissionable_amount;
+    }
+
+    public function setCommissionableAmount(float $commissionable_amount): void
+    {
+        $this->commissionable_amount = $commissionable_amount;
+    }
+
     public function setTotalFees(float $total_fees): void
     {
         $this->total_fees = $total_fees;
@@ -436,6 +460,8 @@ class RoomResponse extends BaseResponse
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
             'deposits' => $this->getDeposits(),
+            'commissionable_amount' => $this->getCommissionableAmount(),
+            'commission_amount' => $this->getCommissionAmount(),
         ];
     }
 }

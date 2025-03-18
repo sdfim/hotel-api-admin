@@ -458,7 +458,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $content = ['count' => $countResponse, 'query' => $filters, 'results' => $dataResponse];
                 $clientContent = [
                     'count' => $countClientResponse,
-                    'total_pages' => max($totalPages),
+                    'total_pages' =>count($totalPages) === 0 ? 0 :  max($totalPages),
                     'query' => $filters,
                     'results' => $enrichClientResponse,
                 ];

@@ -22,6 +22,7 @@ use Modules\HotelContentRepository\Models\Hotel;
 
 class ExpediaHotelPricingTransformer
 {
+    private array $basicHotelData;
     private ExpediaPricingRulesApplier $pricingRulesApplier;
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
@@ -163,6 +164,9 @@ class ExpediaHotelPricingTransformer
     {
         $giataId = Arr::get($propertyGroup, 'giata_id');
 
+        $basicHotelData = Arr::get($this->basicHotelData, $propertyGroup['giata_id']);
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+
         $roomGroupsResponse = RoomGroupsResponseFactory::create();
 
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
@@ -218,7 +222,7 @@ class ExpediaHotelPricingTransformer
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_net'] ?? 0.0);
         $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['markup'] ?? 0.0);
-
+        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['markup'] ?? 0.0));
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['non_refundable']);
         $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['rate_id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['cancellation_policies']);
@@ -228,6 +232,10 @@ class ExpediaHotelPricingTransformer
 
     public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup): array
     {
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
+
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+
         $rateId = Arr::get($rate, 'id', '');
         /**  enrichment Pricing Rules / Application of Pricing Rules */
         $pricingRulesApplier['total_price'] = 0.0;
@@ -235,6 +243,7 @@ class ExpediaHotelPricingTransformer
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
         $pricingRulesApplier['markup'] = 0.0;
+        $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
@@ -329,6 +338,17 @@ class ExpediaHotelPricingTransformer
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
+        /** Commission tracking data */
+        $roomResponse->setCommissionAmount($pricingRulesApplier['commission_amount']);
+
+        if($isCommissionTracking && !($pricingRulesApplier['commission_amount'] > 0))
+        {
+            $roomResponse->setMarkup(0);
+            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
+            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+        }
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - - $roomResponse->getTotalTax());
+
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setPromotions($promotions);
@@ -503,5 +523,13 @@ class ExpediaHotelPricingTransformer
             }
             $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
         }
+
+        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => [
+                    'sale_type' => $hotel->sale_type,
+                ]
+            ];
+        })->toArray();
     }
 }

@@ -76,8 +76,8 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             'total_tax' => 0,
             'total_fees' => 0,
             'total_net' => 0,
+            'commission_amount' => 0,
         ];
-
         foreach ($roomPricing['nightly'] as $night) {
             foreach ($night as $expenseItem) {
                 $totals['total_price'] += $expenseItem['value'];
@@ -100,6 +100,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         $totals['total_fees'] += (float) ($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
+        $totals['commission_amount'] += (float)($roomPricing['totals']['marketing_fee']['billable_currency']['value'] ?? 0);
 
         return $totals;
     }
