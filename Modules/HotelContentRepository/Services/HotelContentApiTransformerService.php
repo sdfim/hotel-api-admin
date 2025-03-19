@@ -153,6 +153,8 @@ class HotelContentApiTransformerService
         }
         $result['descriptions'] = $additionalDescriptions;
 
+        $result['rooms'] = array_values($result['rooms']);
+
         $result['structure'] = $structureSource;
     }
 
