@@ -7,25 +7,15 @@ use App\Repositories\ChannelRenository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
-use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\SupplierControllerInterface;
+use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Services\Suppliers\ExpediaHotelContentApiService;
-use Modules\HotelContentRepository\Services\Suppliers\IcePortalHotelContentApiService;
 
 class HotelContentApiService
 {
     public function __construct(
-        private readonly ExpediaHotelContentApiService $expediaService,
-        private readonly IcePortalHotelContentApiService $icePortalService,
         private readonly HotelContentApiTransformerService $dataTransformer,
-        private readonly ExpediaHotelController $expedia,
-        private readonly IcePortalHotelController $icePortal,
-        private readonly ExpediaHotelContentTransformer $expediaHotelContentTransformer,
-        private readonly IcePortalHotelContentTransformer $icePortalHotelContentTransformer,
     ) {}
 
     public function sortAndPaginate(array $contentResults, int $page, int $resultsPerPage): array
@@ -51,12 +41,10 @@ class HotelContentApiService
         $results = $transformedResults = [];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            [$service, $transformer] = match ($supplier) {
-                SupplierNameEnum::EXPEDIA->value => [$this->expedia, $this->expediaHotelContentTransformer],
-                SupplierNameEnum::ICE_PORTAL->value => [$this->icePortal, $this->icePortalHotelContentTransformer],
-                default => throw new \InvalidArgumentException("Unknown supplier: {$supplier}")
-            };
-
+            /** @var SupplierControllerInterface $service */
+            $service = app(SupplierControllerInterface::class, ['supplier' => $supplier]);
+            /** @var SupplierContentTransformerInterface $transformer */
+            $transformer = app(SupplierContentTransformerInterface::class, ['supplier' => $supplier]);
             $supplierResults = Arr::get($service->search($request->all()), 'results', []);
             $results = array_merge($results, $supplierResults);
             $transformedResults[$supplier] = $transformer->SupplierToContentSearchResponse($supplierResults);
@@ -80,11 +68,9 @@ class HotelContentApiService
 
         $resultsSuppliers = [];
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            $results = match ($supplier) {
-                SupplierNameEnum::EXPEDIA->value => $this->expediaService->getResults($giataCodes),
-                SupplierNameEnum::ICE_PORTAL->value => $this->icePortalService->getResults($giataCodes),
-                default => []
-            };
+            /** @var SupplierInterface $service */
+            $service = app(SupplierInterface::class, ['supplier' => $supplier]);
+            $results = $service->getResults($giataCodes);
             $resultsSuppliers[$supplier] = $results;
         }
 
