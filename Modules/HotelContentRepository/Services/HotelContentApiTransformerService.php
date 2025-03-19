@@ -155,7 +155,13 @@ class HotelContentApiTransformerService
 
         $result['rooms'] = array_values($result['rooms']);
 
+        $result['rooms'] = array_values($result['rooms']);
+
         $result['structure'] = $structureSource;
+
+        foreach ($result['rooms'] as &$room) {
+            unset($room['supplier_codes']['external_code']);
+        }
     }
 
     public function getPropertyImages($hotel): array
@@ -409,12 +415,12 @@ class HotelContentApiTransformerService
                 'content_supplier' => 'Internal Repository',
                 'unified_room_code' => $room->external_code,
                 'supplier_room_id' => $room->external_code,
+                'supplier_room_code' => $room->external_code,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
-                'supplier_room_code' => $room->external_code,
                 'attributes' => $attributes,
                 'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,

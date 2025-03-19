@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_hotel_room_gallery', function (Blueprint $table) {
             $table->foreignId('hotel_room_id')->constrained('pd_hotel_rooms')->onDelete('cascade');
             $table->foreignId('gallery_id')->constrained('pd_image_galleries')->onDelete('cascade');
-            $table->unique(['hotel_room_id', 'gallery_id']);
+            $table->primary(['hotel_room_id', 'gallery_id']);
         });
     }
 

@@ -120,29 +120,30 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         $addGallery = app(AddGallery::class);
                         $addGallery->execute($data, $this->record, $this->imageIds);
                     }),
-                Action::make('Add existing image')
-                    ->tooltip('Add existing image')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->icon('heroicon-o-link')
-                    ->iconButton()
-                    ->form([
-                        Select::make('image_ids')
-                            ->label('Images')
-                            ->required()
-                            ->allowHtml()
-                            ->searchable()
-                            ->multiple()
-                            ->options(
-                                $this->prepareSelectImages($this->getSelectImages())
-                            )
-                            ->getSearchResultsUsing(function ($search) {
-                                return $this->prepareSelectImages($this->getSelectImages($search));
-                            }),
-                    ])->action(function ($data) {
-                        /** @var AddGallery $addGallery */
-                        $addGallery = app(AddGallery::class);
-                        $addGallery->attachImages($data, $this->record, $this->imageIds);
-                    }),
+
+//                Action::make('Add existing image')
+//                    ->tooltip('Add existing image')
+//                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+//                    ->icon('heroicon-o-link')
+//                    ->iconButton()
+//                    ->form([
+//                        Select::make('image_ids')
+//                            ->label('Images')
+//                            ->required()
+//                            ->allowHtml()
+//                            ->searchable()
+//                            ->multiple()
+//                            ->options(
+//                                $this->prepareSelectImages($this->getSelectImages())
+//                            )
+//                            ->getSearchResultsUsing(function ($search) {
+//                                return $this->prepareSelectImages($this->getSelectImages($search));
+//                            }),
+//                    ])->action(function ($data) {
+//                        /** @var AddGallery $addGallery */
+//                        $addGallery = app(AddGallery::class);
+//                        $addGallery->attachImages($data, $this->record, $this->imageIds);
+//                    }),
             ])
             ->actions([
                 EditAction::make('edit')
