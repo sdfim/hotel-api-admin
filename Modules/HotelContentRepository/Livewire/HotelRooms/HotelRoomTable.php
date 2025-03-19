@@ -123,7 +123,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->native(false),
             ]),
             CustomRepeater::make('supplier_codes')
-                ->label('Suppliers Codes')
+                ->label('Supplier Codes')
                 ->schema([
                     Grid::make(2)->schema([
                         Select::make('supplier')
