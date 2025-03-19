@@ -389,12 +389,12 @@ trait HasPricingRuleFields
                                 ->multiple()
                                 ->getSearchResultsUsing(function (string $search): array {
                                     return HotelRoom::query()
-                                        ->where('hbsi_data_mapped_name', 'like', "%$search%")
+                                        ->where('external_code', 'like', "%$search%")
                                         ->orWhere('name', 'like', "%$search%")
                                         ->limit(30)
                                         ->get()
                                         ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
                                         })
                                         ->toArray();
                                 })
@@ -402,7 +402,7 @@ trait HasPricingRuleFields
                                     return HotelRoom::whereIn('id', $values)
                                         ->get()
                                         ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
                                         })
                                         ->toArray();
                                 })
@@ -414,19 +414,19 @@ trait HasPricingRuleFields
                                 ->searchable()
                                 ->getSearchResultsUsing(function (string $search): array {
                                     return HotelRoom::query()
-                                        ->where('hbsi_data_mapped_name', 'like', "%$search%")
+                                        ->where('external_code', 'like', "%$search%")
                                         ->orWhere('name', 'like', "%$search%")
                                         ->limit(30)
                                         ->get()
                                         ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
                                         })
                                         ->toArray();
                                 })
                                 ->getOptionLabelUsing(function ($value): ?string {
                                     $room = HotelRoom::find($value);
 
-                                    return $room ? "{$room->hbsi_data_mapped_name} ({$room->name})" : null;
+                                    return $room ? "{$room->external_code} ({$room->name})" : null;
                                 })
                                 ->required()
                                 ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', 'not_in'])),

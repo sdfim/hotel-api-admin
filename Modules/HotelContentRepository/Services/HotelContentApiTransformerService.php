@@ -387,7 +387,7 @@ class HotelContentApiTransformerService
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
                 return [
-                    'unified_room_code' => $relatedRoom->hbsi_data_mapped_name,
+                    'unified_room_code' => $relatedRoom->external_code,
                     'name' => $relatedRoom->name,
                 ];
             })->all();
@@ -401,18 +401,18 @@ class HotelContentApiTransformerService
                 ->mapWithKeys(function ($code) {
                     return [$code['supplier'] => $code['code']];
                 })->all();
-            $supplierCodes['external_code'] = $room->hbsi_data_mapped_name;
+            $supplierCodes['external_code'] = $room->external_code;
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',
-                'unified_room_code' => $room->hbsi_data_mapped_name,
-                'supplier_room_id' => $room->hbsi_data_mapped_name,
+                'unified_room_code' => $room->external_code,
+                'supplier_room_id' => $room->external_code,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
-                'supplier_room_code' => $room->hbsi_data_mapped_name,
+                'supplier_room_code' => $room->external_code,
                 'attributes' => $attributes,
                 'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,

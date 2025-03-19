@@ -26,7 +26,7 @@ class HotelRoom extends Model
 
     protected $fillable = [
         'hotel_id',
-        'hbsi_data_mapped_name',
+        'external_code',
         'supplier_codes',
         'name',
         'area',
@@ -77,8 +77,8 @@ class HotelRoom extends Model
     public function getFullNameAttribute()
     {
         $res = "{$this->name}";
-        if ($this->hbsi_data_mapped_name) {
-            $res .= " - {$this->hbsi_data_mapped_name}";
+        if ($this->external_code) {
+            $res .= " - {$this->external_code}";
         }
         return $res;
     }
@@ -86,7 +86,7 @@ class HotelRoom extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['hotel_id', 'hbsi_data_mapped_name', 'name', 'description'])
+            ->logOnly(['hotel_id', 'external_code', 'name', 'description'])
             ->logOnlyDirty()
             ->useLogName('hotel_room');
     }

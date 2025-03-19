@@ -187,7 +187,7 @@ class HotelContentApiService
                 }
                 foreach ($supplierCodes as $supplier) {
                     $mapper[$supplier['supplier']] = $supplier['code'];
-                    $mapper['external_code'] = $room['hbsi_data_mapped_name'];
+                    $mapper['external_code'] = $room['external_code'];
                 }
                 $roomMappers[$giataCode][] = $mapper;
             }
