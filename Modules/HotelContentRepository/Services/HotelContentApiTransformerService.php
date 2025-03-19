@@ -107,11 +107,11 @@ class HotelContentApiTransformerService
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $unifiedRoomCode = Arr::get($resultRoom, 'unified_room_code', '');
+            $unifiedRoomСode = Arr::get($resultRoom, 'unified_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($unifiedRoomCode, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($unifiedRoomСode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }
@@ -152,6 +152,8 @@ class HotelContentApiTransformerService
             $additionalDescriptions = array_merge($additionalDescriptions, Arr::get($transformedResults[$structureSource['content_source']], $hotel->giata_code.'.descriptions', []));
         }
         $result['descriptions'] = $additionalDescriptions;
+
+        $result['rooms'] = array_values($result['rooms']);
 
         $result['structure'] = $structureSource;
     }
@@ -407,12 +409,12 @@ class HotelContentApiTransformerService
                 'content_supplier' => 'Internal Repository',
                 'unified_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
+                'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
-                'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'attributes' => $attributes,
                 'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,
