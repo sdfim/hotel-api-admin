@@ -59,7 +59,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             Hidden::make('hotel_id')->default($this->hotelId),
             Grid::make(3)->schema([
                 TextInput::make('name')->label('Name')->required()->columnSpan(2),
-                TextInput::make('hbsi_data_mapped_name')->label('External Code')->columnSpan(1),
+                TextInput::make('hbsi_data_mapped_name')->label('UJV Code')->columnSpan(1),
             ]),
             Grid::make(3)->schema([
                 RichEditor::make('description')
@@ -118,10 +118,12 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 Select::make('galleries')
                     ->label('Galleries')
                     ->multiple()
-                    ->options(ImageGallery::pluck('gallery_name', 'id')),
+                    ->relationship('galleries', 'gallery_name')
+                    ->searchable()
+                    ->native(false),
             ]),
             CustomRepeater::make('supplier_codes')
-                ->label('Content Suppliers Codes')
+                ->label('Supplier Codes')
                 ->schema([
                     Grid::make(2)->schema([
                         Select::make('supplier')
@@ -140,8 +142,8 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     {
         return $table
             ->defaultPaginationPageOption(5)
-            ->query(function () {
-                $query = HotelRoom::query()->with(['hotel', 'galleries']);
+            ->query(HotelRoom::query())
+            ->modifyQueryUsing(function ($query) {
                 if ($this->hotelId !== null) {
                     $query->where('hotel_id', $this->hotelId);
                 }
@@ -150,12 +152,12 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 TextInputColumn::make('hbsi_data_mapped_name')
-                    ->label('External Code')
+                    ->label('UJV Code')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
                     ->disabled(fn () => ! Gate::allows('create', Hotel::class)),
-                TextInputColumn::make('name')
+                TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
@@ -199,15 +201,18 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 ->send();
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
-                    Action::make('add-image')
+
+                    Action::make('images')
                         ->icon('heroicon-o-gif')
                         ->label('Images')
                         ->modalHeading('Add Image')
-                        ->modalWidth('7xl')
+                        ->modalWidth('screen-2xl')
+                        ->modalSubmitAction(false)
                         ->modalContent(function ($record) {
                             return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
+
                     Action::make('add-attributes')
                         ->icon('heroicon-o-gift')
                         ->label('Ultimate Amenities')
@@ -221,6 +226,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ]);
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
+
                     Action::make('add-fee-tax')
                         ->icon('heroicon-o-banknotes')
                         ->label('Fees and Taxes')
@@ -234,6 +240,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ]);
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
+
                     Action::make('add-informational-service')
                         ->icon('heroicon-o-sparkles')
                         ->label('Hotel Service')
@@ -247,6 +254,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ]);
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
+
                 ]),
             ])
             ->bulkActions([
