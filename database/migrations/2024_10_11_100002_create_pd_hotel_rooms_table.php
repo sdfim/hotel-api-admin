@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_hotel_rooms', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('hbsi_data_mapped_name')->nullable();
+            $table->string('external_code')->nullable();
             $table->jsonb('supplier_codes')->nullable();
             $table->string('name')->nullable();
             $table->string('area')->nullable();

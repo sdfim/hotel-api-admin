@@ -655,9 +655,9 @@ class HbsiHotelPricingTransformer
         $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
                 $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
-                    if (! empty($room->hbsi_data_mapped_name)) {
+                    if (! empty($room->external_code)) {
                         return [
-                            $room->hbsi_data_mapped_name => [
+                            $room->external_code => [
                                 'description' => $room->description,
                                 'name' => $room->name,
                             ],
@@ -680,7 +680,7 @@ class HbsiHotelPricingTransformer
                         }
                         $feeTaxData['unified_room_code'] = null;
                         if ($feeTax->room_id !== null) {
-                            $feeTaxData['unified_room_code'] = $feeTax->room->hbsi_data_mapped_name;
+                            $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
                         }
 
                         return [$feeTax->id => $feeTaxData];
@@ -699,7 +699,7 @@ class HbsiHotelPricingTransformer
                 $hbsiCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
                     return $code['supplier'] === ContentSourceEnum::HBSI->value;
                 })->first()['code'] ?? null;
-                $hotelData['rooms'][$hbsiCode] = $room->hbsi_data_mapped_name;
+                $hotelData['rooms'][$hbsiCode] = $room->external_code;
             }
             $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
         }

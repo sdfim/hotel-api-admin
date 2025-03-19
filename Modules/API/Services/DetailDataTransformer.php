@@ -133,12 +133,12 @@ class DetailDataTransformer
         $giataId = $hotel->giata_code;
         if ($structureSource['room_images'] == SupplierNameEnum::EXPEDIA->value) {
             foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.ujv_code', '');
+                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
                 $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::EXPEDIA->value] ?? []);
             }
         } elseif ($structureSource['room_images'] == SupplierNameEnum::ICE_PORTAL->value) {
             foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.ujv_code', '');
+                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
                 $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::ICE_PORTAL->value] ?? []);
             }
         }
@@ -156,7 +156,7 @@ class DetailDataTransformer
         $result['structure'] = $structureSource;
 
         foreach ($result['rooms'] as &$room) {
-            unset($room['supplier_codes']['ujv_code']);
+            unset($room['supplier_codes']['external_code']);
         }
     }
 
@@ -410,7 +410,7 @@ class DetailDataTransformer
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
                 return [
-                    'unified_room_code' => $relatedRoom->hbsi_data_mapped_name,
+                    'unified_room_code' => $relatedRoom->external_code,
                     'name' => $relatedRoom->name,
                 ];
             })->all();
@@ -424,13 +424,13 @@ class DetailDataTransformer
                 ->mapWithKeys(function ($code) {
                     return [$code['supplier'] => $code['code']];
                 })->all();
-            $supplierCodes['ujv_code'] = $room->hbsi_data_mapped_name;
+            $supplierCodes['external_code'] = $room->external_code;
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',
-                'unified_room_code' => $room->hbsi_data_mapped_name,
-                'supplier_room_id' => $room->hbsi_data_mapped_name,
-                'supplier_room_code' => $room->hbsi_data_mapped_name,
+                'unified_room_code' => $room->external_code,
+                'supplier_room_id' => $room->external_code,
+                'supplier_room_code' => $room->external_code,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,

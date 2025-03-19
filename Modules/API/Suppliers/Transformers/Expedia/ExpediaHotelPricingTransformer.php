@@ -498,7 +498,7 @@ class ExpediaHotelPricingTransformer
                 $supplierCodes = json_decode($room->supplier_codes, true);
                 foreach ($supplierCodes as $supplierCode) {
                     if ($supplierCode['supplier'] === 'Expedia') {
-                        $hotelData['rooms'][$supplierCode['code']] = $room->hbsi_data_mapped_name ?? '';
+                        $hotelData['rooms'][$supplierCode['code']] = $room->external_code ?? '';
                     }
                 }
             }

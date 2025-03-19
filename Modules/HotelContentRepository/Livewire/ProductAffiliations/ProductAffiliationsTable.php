@@ -194,7 +194,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     ->getStateUsing(function ($record) {
                         return match (true) {
                             $record->rate_id !== null => $record->rate?->code,
-                            $record->room_id !== null => $record->room->hbsi_data_mapped_name,
+                            $record->room_id !== null => $record->room->external_code,
                             default => '',
                         };
                     }),
