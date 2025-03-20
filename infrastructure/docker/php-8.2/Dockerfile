@@ -4,7 +4,7 @@ FROM php:8.2-apache-bookworm as baseapache2
 
 RUN apt-get update && apt-get install -y git zip unzip libicu-dev libzip-dev && rm -rf /var/lib/apt/lists/*
 
-RUN libpng-dev libjpeg-dev libfreetype6-dev \
+RUN apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
