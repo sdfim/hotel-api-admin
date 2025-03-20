@@ -9,7 +9,7 @@ class HotelRoomDTO
 {
     public $id;
     public $hotel_id;
-    public $hbsi_data_mapped_name;
+    public $external_code;
     public $name;
     public $description;
     public $amenities;
@@ -33,7 +33,7 @@ class HotelRoomDTO
     {
         return [
             'id' => $hotelRoom->id,
-            'hbsi_data_mapped_name' => $hotelRoom->hbsi_data_mapped_name,
+            'external_code' => $hotelRoom->external_code,
             'name' => $hotelRoom->name,
             'area' => $hotelRoom->area,
             'room_views' => $hotelRoom->room_views,

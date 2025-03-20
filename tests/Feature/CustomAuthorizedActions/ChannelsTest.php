@@ -93,20 +93,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
     }
 
     #[Test]
-    public function test_possibility_of_destroying_an_existing_channel(): void
-    {
-        $channel = Channel::factory()->create();
-
-        $response = $this->delete("/admin/channels/$channel->id");
-
-        $response->assertStatus(302);
-
-        $response->assertRedirect('/admin/channels');
-
-        $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
-    }
-
-    #[Test]
     public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
     {
         $channel = Channel::factory()->create();

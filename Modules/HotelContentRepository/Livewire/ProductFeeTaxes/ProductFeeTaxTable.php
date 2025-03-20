@@ -278,7 +278,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     ->getStateUsing(function ($record) {
                         return match (true) {
                             $record->rate_id !== null => $record->rate?->code,
-                            in_array($record->room_id, $this->rateRoomIds) => $record->room->hbsi_data_mapped_name,
+                            in_array($record->room_id, $this->rateRoomIds) => $record->room->external_code,
                             default => '',
                         };
                     }),

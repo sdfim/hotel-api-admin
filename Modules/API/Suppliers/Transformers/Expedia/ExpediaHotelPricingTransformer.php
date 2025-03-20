@@ -23,7 +23,9 @@ use Modules\HotelContentRepository\Models\Hotel;
 class ExpediaHotelPricingTransformer
 {
     private ExpediaPricingRulesApplier $pricingRulesApplier;
+
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     public function __construct(
@@ -308,7 +310,7 @@ class ExpediaHotelPricingTransformer
         }
 
         $supplierRoomId = intval($roomGroup['id']) ?? null;
-        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, "$giataId.$supplierRoomId", '');
+        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, "$giataId.$supplierRoomId", $roomGroup['id']);
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
@@ -496,11 +498,14 @@ class ExpediaHotelPricingTransformer
             ];
             foreach ($hotel->rooms as $room) {
                 $supplierCodes = json_decode($room->supplier_codes, true);
-                foreach ($supplierCodes as $supplierCode) {
-                    if ($supplierCode['supplier'] === 'Expedia') {
-                        $hotelData['rooms'][$supplierCode['code']] = $room->hbsi_data_mapped_name ?? '';
+                if ($supplierCodes) {
+                    foreach ($supplierCodes as $supplierCode) {
+                        if ($supplierCode['supplier'] === 'Expedia') {
+                            $hotelData['rooms'][$supplierCode['code']] = $room->external_code ?? '';
+                        }
                     }
                 }
+
             }
             $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
         }

@@ -57,7 +57,7 @@ class HotelImagesForm extends Component implements HasForms
                 ->label('Galleries')
                 ->multiple()
                 ->searchable()
-                ->preload()
+                ->native(false)
                 ->relationship('galleries', 'gallery_name')
                 ->createOptionForm(ImageGalleriesForm::getGalleryFormComponents())
                 ->createOptionUsing(function (array $data) {

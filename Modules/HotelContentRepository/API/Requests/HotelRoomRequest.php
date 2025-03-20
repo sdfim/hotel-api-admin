@@ -33,7 +33,7 @@ class HotelRoomRequest extends ApiRequest
      *     )
      *   ),
      *   @OA\Parameter(
-     *     name="hbsi_data_mapped_name",
+     *     name="external_code",
      *     in="query",
      *     required=false,
      *     description="Filter by HBSI data mapped name",
@@ -89,10 +89,10 @@ class HotelRoomRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "name", "hbsi_data_mapped_name", "description"},
+     *       required={"hotel_id", "name", "external_code", "description"},
      *       @OA\Property(property="hotel_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Deluxe Room"),
-     *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
+     *       @OA\Property(property="external_code", type="string", example="Deluxe Room Mapped"),
      *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities."),
      *       @OA\Property(property="area", type="string", example="50"),
      *       @OA\Property(property="bed_groups", type="string", example="King Bed")
@@ -186,10 +186,10 @@ class HotelRoomRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "name", "hbsi_data_mapped_name", "description"},
+     *       required={"hotel_id", "name", "external_code", "description"},
      *       @OA\Property(property="hotel_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Deluxe Room"),
-     *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
+     *       @OA\Property(property="external_code", type="string", example="Deluxe Room Mapped"),
      *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities."),
      *       @OA\Property(property="area", type="string", example="50"),
      *       @OA\Property(property="bed_groups", type="string", example="King Bed")
@@ -383,7 +383,7 @@ class HotelRoomRequest extends ApiRequest
             'area' => 'string|max:191',
             'bed_groups' => 'string|max:191',
             'room_views' => 'string|max:191',
-            'hbsi_data_mapped_name' => 'required|string|max:255',
+            'external_code' => 'required|string|max:255',
             'description' => 'required|string',
             'supplier_codes' => 'nullable|array',
         ];

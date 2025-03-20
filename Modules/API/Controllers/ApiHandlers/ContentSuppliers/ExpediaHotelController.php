@@ -14,7 +14,7 @@ use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
 
-class ExpediaHotelController
+class ExpediaHotelController implements SupplierControllerInterface
 {
     protected float|string $current_time;
 

@@ -247,7 +247,8 @@ class VendorForm extends Component implements HasForms
                             ->label('Galleries')
                             ->multiple()
                             ->relationship('galleries', 'gallery_name')
-                            ->preload(),
+                            ->searchable()
+                            ->native(false),
                     ]),
 
                 Grid::make(6)

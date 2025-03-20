@@ -14,7 +14,7 @@ class RoomTransformer extends TransformerAbstract
             'area' => $room->area,
             'room_views' => $room->room_views,
             'bed_groups' => $room->bed_groups,
-            'hbsi_data_mapped_name' => $room->hbsi_data_mapped_name,
+            'external_code' => $room->external_code,
             'description' => $room->description,
             'galleries' => $room->galleries,
         ];

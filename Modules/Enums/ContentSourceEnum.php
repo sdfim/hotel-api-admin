@@ -6,6 +6,7 @@ enum ContentSourceEnum: string
 {
     case EXPEDIA = 'Expedia';
     case ICE_PORTAL = 'IcePortal';
+    case HBSI = 'IBS';
     case INTERNAL = 'Internal';
 
     public static function options(): array
@@ -13,6 +14,7 @@ enum ContentSourceEnum: string
         return [
             self::EXPEDIA->value => self::EXPEDIA->value,
             self::ICE_PORTAL->value => self::ICE_PORTAL->value,
+            self::HBSI->value => self::HBSI->value,
         ];
     }
 }

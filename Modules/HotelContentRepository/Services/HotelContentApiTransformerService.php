@@ -107,11 +107,11 @@ class HotelContentApiTransformerService
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $unifiedRoomСode = Arr::get($resultRoom, 'unified_room_code', '');
+            $unifiedRoomCode = Arr::get($resultRoom, 'unified_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($unifiedRoomСode, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($unifiedRoomCode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }
@@ -155,7 +155,13 @@ class HotelContentApiTransformerService
 
         $result['rooms'] = array_values($result['rooms']);
 
+        $result['rooms'] = array_values($result['rooms']);
+
         $result['structure'] = $structureSource;
+
+        foreach ($result['rooms'] as &$room) {
+            unset($room['supplier_codes']['external_code']);
+        }
     }
 
     public function getPropertyImages($hotel): array
@@ -389,7 +395,7 @@ class HotelContentApiTransformerService
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
                 return [
-                    'unified_room_code' => $relatedRoom->hbsi_data_mapped_name,
+                    'unified_room_code' => $relatedRoom->external_code,
                     'name' => $relatedRoom->name,
                 ];
             })->all();
@@ -403,13 +409,13 @@ class HotelContentApiTransformerService
                 ->mapWithKeys(function ($code) {
                     return [$code['supplier'] => $code['code']];
                 })->all();
-            $supplierCodes['external_code'] = $room->hbsi_data_mapped_name;
+            $supplierCodes['external_code'] = $room->external_code;
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',
-                'unified_room_code' => $room->hbsi_data_mapped_name,
-                'supplier_room_id' => $room->hbsi_data_mapped_name,
-                'supplier_room_code' => $room->hbsi_data_mapped_name,
+                'unified_room_code' => $room->external_code,
+                'supplier_room_id' => $room->external_code,
+                'supplier_room_code' => $room->external_code,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,

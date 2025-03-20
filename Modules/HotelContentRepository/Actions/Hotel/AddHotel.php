@@ -78,7 +78,11 @@ class AddHotel
 
         /** @var HotelForm $hotelForm */
         $hotelForm = app(HotelForm::class);
-        $address = $hotelForm->getGeocodingData($property->latitude, $property->longitude);
+        if ($property->latitude && $property->longitude) {
+            $address = $hotelForm->getGeocodingData($property->latitude, $property->longitude);
+        } else {
+            $address = [];
+        }
 
         return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes, $address) {
             $hotel = Hotel::create([
@@ -127,7 +131,11 @@ class AddHotel
                         }, Arr::get($room, 'bed_groups', []))),
                     ]);
                     $attributeIds = [];
-                    foreach ($room['amenities'] as $k => $amenity) {
+                    $amenities = Arr::get($room, 'amenities', []);
+                    foreach ($amenities as $k => $amenity) {
+                        if (! is_array($amenity)) {
+                            continue;
+                        }
                         $amenityName = Arr::get($amenity, 'name' ?? '');
                         // Check if the attribute already exists
                         $attribute = ConfigAttribute::firstOrCreate([

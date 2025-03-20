@@ -9,4 +9,5 @@ return [
     App\Providers\RolesServiceProvider::class,
     App\Providers\SupplierRepositoryServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
+    App\Providers\SupplierServiceProvider::class,
 ];

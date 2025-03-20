@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_vendor_gallery', function (Blueprint $table) {
             $table->foreignId('vendor_id')->constrained('pd_vendors')->onDelete('cascade');
             $table->foreignId('gallery_id')->constrained('pd_image_galleries')->onDelete('cascade');
-            $table->unique(['vendor_id', 'gallery_id']);
+            $table->primary(['vendor_id', 'gallery_id']);
         });
     }
 
