@@ -31,6 +31,8 @@ class HbsiHotelPricingTransformer
 
     private array $depositInformation;
 
+    private array $basicHotelData;
+
     /**
      * @var string[]
      */
@@ -205,6 +207,10 @@ class HbsiHotelPricingTransformer
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
+        $basicHotelData = Arr::get($this->basicHotelData, $propertyGroup['giata_id']);
+
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+
         $roomGroupsResponse = RoomGroupsResponseFactory::create();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
@@ -251,7 +257,7 @@ class HbsiHotelPricingTransformer
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
+        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0));
 
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
         $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
@@ -263,6 +269,11 @@ class HbsiHotelPricingTransformer
 
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $depositInformation, array $query): array
     {
+
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
+
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
@@ -436,7 +447,15 @@ class HbsiHotelPricingTransformer
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
+
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
+        if($isCommissionTracking)
+        {
+            $roomResponse->setMarkup(0);
+            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
+            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+        }
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
         $roomResponse->setCurrency($this->currency ?? 'USD');
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setNonRefundable($nonRefundable);
@@ -686,6 +705,14 @@ class HbsiHotelPricingTransformer
                         return [$feeTax->id => $feeTaxData];
                     })->toArray();
                 })->toArray(),
+            ];
+        })->toArray();
+
+        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => [
+                    'sale_type' => $hotel->sale_type,
+                ]
             ];
         })->toArray();
 

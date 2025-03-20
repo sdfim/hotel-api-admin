@@ -8,11 +8,18 @@ use App\Repositories\ChannelRenository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PricingRulesTools
 {
     public function rules(array $query, bool $is_exclude = false): array
     {
+        // standalone driver must not apply prices rules DO NOT REMOVE
+        if(isset($query["query_package"]) && $query["query_package"] === "standalone" &&  $query["supplier"] === 'Expedia')
+        {
+            return [];
+        }
+
         $type = Arr::get($query, 'type', 'hotel');
 
         $token = ChannelRenository::getTokenId(request()->bearerToken());
