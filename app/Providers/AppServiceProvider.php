@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if ($this->app->environment('local')) {
-            $this->app->register(HorizonServiceProvider::class);
+            //$this->app->register(HorizonServiceProvider::class);
         }
     }
 
