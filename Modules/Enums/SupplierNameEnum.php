@@ -8,9 +8,15 @@ enum SupplierNameEnum: string
     case HBSI = 'HBSI';
     case ICE_PORTAL = 'IcePortal';
 
-    static function getValues(): array
+    public static function getValues(): array
     {
         return [self::EXPEDIA->value, self::HBSI->value, self::ICE_PORTAL->value];
+    }
+
+    // The order is important. Expedia should be first.
+    public static function getContentSupplierValues(): array
+    {
+        return [self::EXPEDIA->value, self::ICE_PORTAL->value];
     }
 
     public static function options(): array

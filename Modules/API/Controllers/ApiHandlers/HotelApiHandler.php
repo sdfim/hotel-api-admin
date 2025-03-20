@@ -47,8 +47,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
-    // TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
-    public const TTL = 60;
+    //TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
+    public const TTL = 0.5;
 
     private const PAGINATION_TO_RESULT = true;
 
@@ -263,6 +263,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             $token = $request->bearerToken();
+
             $keyPricingSearch = $request->type.':pricingSearch:'.http_build_query(Arr::dot($this->getCacheKeyFromFilters($filters))).':'.$token;
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);

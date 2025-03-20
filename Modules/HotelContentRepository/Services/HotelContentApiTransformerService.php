@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Services;
+namespace Modules\HotelContentRepository\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -8,7 +8,7 @@ use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\Enums\SupplierNameEnum;
 
-class DetailDataTransformer
+class HotelContentApiTransformerService
 {
     public function initializeContentSource(array $giataCodes): array
     {
@@ -55,48 +55,46 @@ class DetailDataTransformer
         return $hotelResponse->toArray();
     }
 
-    public function updateContentResultWithHotelData(array &$result, $hotel, array $structureSource, array $transformedResultsIcePortal): void
+    public function updateContentResultWithHotelData(array &$result, $hotel, array $structureSource, array $transformedResults): void
     {
-        // create as Internal data by default
+        // Create as Internal data by default
         $this->updateContentResultWithInternalData($result, $hotel);
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
-        $internalPropertyDescription = array_values(array_filter($internalPropertyDescription, fn ($description) => $description !== null));
 
-        if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
-            $result['images'] = array_merge($internalPropertyImages, $result['images']);
-        } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.images', []));
-        } else {
-            $result['images'] = $internalPropertyImages;
+        // Property Images
+        $additionalImages = $internalPropertyImages;
+        if (isset($structureSource['property_images'])) {
+            $supplierImages = Arr::get($transformedResults, "{$structureSource['property_images']}.{$hotel->giata_code}.images", []);
+            $additionalImages = array_merge($internalPropertyImages, $supplierImages);
         }
+        $result['images'] = $additionalImages;
 
-        if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
-            $result['description'] = array_merge($internalPropertyDescription, $result['description']);
-        } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['description'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.description', []));
-        } else {
-            $result['description'] = $internalPropertyDescription;
+        // Content Descriptions
+        $additionalDescriptions = $internalPropertyDescription;
+        if (isset($structureSource['content_source'])) {
+            $supplierDescriptions = Arr::get($transformedResults, "{$structureSource['content_source']}.{$hotel->giata_code}.description", []);
+            $additionalDescriptions = array_merge($internalPropertyDescription, $supplierDescriptions);
         }
+        $result['description'] = $additionalDescriptions;
 
         $result['structure'] = $structureSource;
     }
 
-    public function updateResultWithHotelData(array &$result, $hotel, array $structureSource, array $resultsIcePortal, array $romsImagesData): void
+    public function updateResultWithHotelData(array &$result, $hotel, array $structureSource, array $resultsSuppliers, array $romsImagesData): void
     {
-        // create as Internal data by default
-        $this->updateResultWithInternalData($result, $hotel);
+        // Create as Internal data by default
+        $this->updateContentResultWithInternalData($result, $hotel);
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
 
         $internalRooms = $this->getHotelRooms($hotel);
-        $existingRoomCodes = [
-            SupplierNameEnum::EXPEDIA->value => [],
-            SupplierNameEnum::ICE_PORTAL->value => [],
-        ];
+        $existingRoomCodes = [];
+
         foreach ($internalRooms as $room) {
-            $existingRoomCodes[SupplierNameEnum::EXPEDIA->value][] = $room['supplier_codes'][SupplierNameEnum::EXPEDIA->value] ?? null;
-            $existingRoomCodes[SupplierNameEnum::ICE_PORTAL->value][] = $room['supplier_codes'][SupplierNameEnum::ICE_PORTAL->value] ?? null;
+            foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
+                $existingRoomCodes[$supplier][] = $room['supplier_codes'][$supplier] ?? null;
+            }
         }
 
         foreach ($internalRooms as &$room) {
@@ -109,47 +107,53 @@ class DetailDataTransformer
 
         foreach ($result['rooms'] as $key => $resultRoom) {
             $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $unifiedRoomСode = Arr::get($resultRoom, 'unified_room_code', '');
+            $unifiedRoomCode = Arr::get($resultRoom, 'unified_room_code', '');
             if (! isset($existingRoomCodes[$contentSupplier])) {
                 continue;
             }
-            if (in_array($unifiedRoomСode, $existingRoomCodes[$contentSupplier])) {
+            if (in_array($unifiedRoomCode, $existingRoomCodes[$contentSupplier])) {
                 unset($result['rooms'][$key]);
             }
         }
 
-        $transformedResultsIcePortal = [];
-        foreach ($resultsIcePortal as $item) {
-            $giataHotelCode = $item['giata_hotel_code'];
-            $transformedResultsIcePortal[$giataHotelCode] = $item;
+        $transformedResults = [];
+        foreach ($resultsSuppliers as $supplier => $items) {
+            foreach ($items as $item) {
+                $giataHotelCode = $item['giata_hotel_code'];
+                $transformedResults[$supplier][$giataHotelCode] = $item;
+            }
         }
 
-        if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
-            $result['images'] = array_merge($internalPropertyImages, $result['images']);
-        } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.images', []));
+        // Property Images
+        $additionalImages = $internalPropertyImages;
+        if (isset($structureSource['property_images'])) {
+            $additionalImages = array_merge($additionalImages, Arr::get($transformedResults[$structureSource['property_images']], $hotel->giata_code.'.images', []));
         }
+        $result['images'] = $additionalImages;
 
+        // Room Images
         $giataId = $hotel->giata_code;
-        if ($structureSource['room_images'] == SupplierNameEnum::EXPEDIA->value) {
-            foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
-                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::EXPEDIA->value] ?? []);
+        $result['rooms'] = array_map(function ($room) use ($structureSource, $romsImagesData, $giataId) {
+            $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
+            $additionalImages = [];
+            if (isset($structureSource['room_images'])) {
+                $additionalImages = $romsImagesData[$giataId][$externalCode][$structureSource['room_images']] ?? [];
             }
-        } elseif ($structureSource['room_images'] == SupplierNameEnum::ICE_PORTAL->value) {
-            foreach ($result['rooms'] as &$room) {
-                $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
-                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::ICE_PORTAL->value] ?? []);
-            }
-        }
+            $room['images'] = array_merge($room['images'], $additionalImages);
 
-        if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
-            $result['descriptions'] = array_merge($internalPropertyDescription, $result['descriptions']);
-        } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['descriptions'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.descriptions', []));
-        } else {
-            $result['descriptions'] = $internalPropertyDescription;
+            return $room;
+        }, $result['rooms']);
+
+        $result['rooms'] = array_values($result['rooms']);
+
+        // Content Descriptions
+        $additionalDescriptions = $internalPropertyDescription;
+        if (isset($structureSource['content_source'])) {
+            $additionalDescriptions = array_merge($additionalDescriptions, Arr::get($transformedResults[$structureSource['content_source']], $hotel->giata_code.'.descriptions', []));
         }
+        $result['descriptions'] = $additionalDescriptions;
+
+        $result['rooms'] = array_values($result['rooms']);
 
         $result['rooms'] = array_values($result['rooms']);
 
@@ -170,26 +174,7 @@ class DetailDataTransformer
             })->take(25)->all();
     }
 
-    public function updateResultWithInternalData(array &$result, $hotel): void
-    {
-        $result['hotel_name'] = $hotel->product->name;
-        $result['latitude'] = $hotel->product->lat;
-        $result['longitude'] = $hotel->product->lng;
-        $result['address'] = implode(', ', $hotel->address);
-        $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
-        $result['rating'] = $hotel->star_rating;
-        $result['currency'] = $hotel->product->default_currency;
-        $result['number_rooms'] = $hotel->num_rooms;
-        $result['user_rating'] = $hotel->star_rating;
-        $result['attributes'] = $this->getHotelAttributes($hotel);
-        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
-        $result['weight'] = $hotel->weight;
-        $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
-        $result['deposit_information'] = $this->getProductDepositInformation($hotel);
-        $result['drivers'] = $this->getHotelDrivers($hotel);
-    }
-
-    private function updateContentResultWithInternalData(array &$result, $hotel): void
+    public function updateContentResultWithInternalData(array &$result, $hotel): void
     {
         $result['hotel_name'] = $hotel->product->name;
         $result['latitude'] = $hotel->product->lat;

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\API\BaseController;
 use Modules\HotelContentRepository\Actions\Insurance\AddInsuranceApplication;
 use Modules\HotelContentRepository\Actions\Insurance\DeleteInsurance;
-use Modules\HotelContentRepository\Services\InsuranceService;
+use Modules\HotelContentRepository\Services\Suppliers\InsuranceService;
 use Modules\Insurance\API\Requests\InsuranceAddRequest;
 use Modules\Insurance\Models\DTOs\InsurancePlanDTO;
 use Modules\Insurance\Models\InsurancePlan;

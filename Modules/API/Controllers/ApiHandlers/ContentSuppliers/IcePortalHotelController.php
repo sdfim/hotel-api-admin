@@ -20,7 +20,7 @@ use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
 use Modules\API\Tools\Geography;
 
-class IcePortalHotelController
+class IcePortalHotelController implements SupplierControllerInterface
 {
     private const RESULT_PER_PAGE = 500;
 
