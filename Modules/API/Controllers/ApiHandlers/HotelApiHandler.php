@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HiltonHotelController;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
 use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
@@ -28,6 +29,8 @@ use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransfor
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
+use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentDetailTransformer;
+use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
 use Modules\API\Tools\PricingDtoTools;
@@ -58,12 +61,15 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly PricingDtoTools $pricingDtoTools,
         private readonly ExpediaHotelController $expedia,
         private readonly IcePortalHotelController $icePortal,
+        private readonly HiltonHotelController $hiltonHotel,
         private readonly SearchInspectorController $apiInspector,
         private readonly ExpediaHotelPricingTransformer $expediaHotelPricingTransformer,
         private readonly ExpediaHotelContentTransformer $expediaHotelContentTransformer,
         private readonly IcePortalHotelContentTransformer $icePortalHotelContentTransformer,
         private readonly IcePortalHotelContentDetailTransformer $hbsiHotelContentDetailTransformer,
         private readonly ExpediaHotelContentDetailTransformer $expediaHotelContentDetailTransformer,
+        private readonly HiltonHotelContentTransformer $hiltonHotelContentTransformer,
+        private readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
         private readonly EnrichmentWeight $propsWeight,
         private readonly PricingRulesTools $pricingRulesService,
         private readonly HbsiService $hbsiService,
@@ -107,6 +113,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
                         $supplierContent = $this->icePortal;
                         $supplierContentTransformer = $this->icePortalHotelContentTransformer;
+                    }
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HILTON) {
+                        $supplierContent = $this->hiltonHotel;
+                        $supplierContentTransformer = $this->hiltonHotelContentTransformer;
                     }
 
                     if ($supplierContent === null || $supplierContentTransformer === null) {
@@ -202,6 +212,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
                             ? $this->hbsiHotelContentDetailTransformer->HbsiToContentDetailResponse((object) $data, $request->input('property_id'), $roomTypeCodes)
+                            : [];
+                    }
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HILTON) {
+                        $data = $this->hiltonHotel->detail($request);
+                        $dataResponse[$supplierName] = $data;
+                        $clientResponse[$supplierName] = count($data) > 0
+                            ? $this->hiltonHotelContentDetailTransformer->HiltonToContentDetailResponse((object) $data->first(), $request->input('property_id'))
                             : [];
                     }
                 }

@@ -43,4 +43,10 @@ class Mapping extends Model
     {
         return $query->where('supplier', MappingSuppliersEnum::IcePortal->value);
     }
+
+    public function scopeHilton($query)
+    {
+        return $query->where('supplier', MappingSuppliersEnum::HILTON->value);
+    }
+
 }

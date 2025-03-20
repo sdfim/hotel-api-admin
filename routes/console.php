@@ -33,7 +33,9 @@ Artisan::command('obe {scenario} {action}', function () {
 
 // Expedia Content download archive, unzip, parse json, write to DB
 Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
-//Schedule::command('download-giata-data')->daily()->at('05:00');
+Schedule::command('hilton:fetch-properties', ['--limit' => 50])->cron('0 1 * * *');
+
+// Schedule::command('download-giata-data')->daily()->at('05:00');
 
 Schedule::command('purge-baskets')->cron('0 1 * * *');
 Schedule::command('purge-inspectors')->cron('0 1 * * *');

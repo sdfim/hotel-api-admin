@@ -29,5 +29,13 @@ class SuppliersSeeder extends Seeder
                 'description' => 'HBSI Supplier',
             ]
         );
+
+        Supplier::updateOrCreate(
+            ['name' => SupplierNameEnum::HILTON->value],
+            [
+                'product_type' => [TypeRequestEnum::HOTEL->value],
+                'description' => 'Hilton Supplier',
+            ]
+        );
     }
 }
