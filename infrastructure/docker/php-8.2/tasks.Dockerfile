@@ -18,7 +18,7 @@ RUN cp infrastructure/docker/php-8.2/nginx.conf /etc/nginx/sites-enabled/default
 RUN cp -r infrastructure/docker/php-8.2/cron.d /etc/
 RUN cp infrastructure/docker/php-8.2/cronenv /cronenv
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --ignore-platform-reqs --optimize-autoloader
 RUN cp .env.example .env
 RUN php artisan key:generate
 
