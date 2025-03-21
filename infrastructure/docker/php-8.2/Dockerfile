@@ -17,7 +17,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY ../../.. /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --ignore-platform-reqs --optimize-autoloader
 
 FROM node:18-bookworm as npmbuild
 
