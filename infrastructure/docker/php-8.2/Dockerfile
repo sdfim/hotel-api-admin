@@ -4,6 +4,8 @@ FROM php:8.2-apache-bookworm as baseapache2
 
 RUN apt-get update && apt-get install -y git zip unzip libicu-dev libzip-dev && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get install -y php8.2-gd
+
 RUN apt-get update && apt-get install -y libpng-dev \
     && docker-php-ext-configure gd \
     && docker-php-ext-install gd
