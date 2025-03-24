@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\MoveBookingItemCache;
 use App\Jobs\SaveBookingInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -15,9 +16,8 @@ use Modules\Enums\SupplierNameEnum;
 class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 {
     public function __construct(
-        private readonly RapidClient $rapidClient = new RapidClient(),
-    ) {
-    }
+        private readonly RapidClient $rapidClient,
+    ) {}
 
     public function addItem(array $filters, string $type = 'add_item', array $headers = []): ?array
     {
@@ -30,7 +30,9 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string) Str::uuid();
 
-        if ($type === 'change') $filters['search_id'] = $filters['change_search_id'];
+        if ($type === 'change') {
+            $filters['search_id'] = $filters['change_search_id'];
+        }
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, $type, 'price_check', 'hotel',
@@ -43,9 +45,11 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
             $content['original']['request']['params'] = $props['paramToken'];
             $content['original']['request']['path'] = $props['path'];
 
-            SaveBookingInspector::dispatch($bookingInspector, $content, []);
+            MoveBookingItemCache::dispatchSync($filters['booking_item']);
+
+            SaveBookingInspector::dispatchSync($bookingInspector, $content, []);
         } catch (RequestException $e) {
-            Log::error('ExpediaHotelBookingApiHandler | ' . $type . ' | price_check ' . $e->getResponse()->getBody());
+            Log::error('ExpediaHotelBookingApiHandler | '.$type.' | price_check '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
             $content = json_decode(''.$e->getResponse()->getBody());
 

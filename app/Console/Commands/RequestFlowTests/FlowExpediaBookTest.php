@@ -15,12 +15,15 @@ class FlowExpediaBookTest extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'flow:expedia-book-test {step?} {destination?} {supplier?}';
+
     protected $description = 'Command description';
 
     protected PendingRequest $client;
+
     protected string $url;
 
     protected ?string $destination;
+
     protected ?string $supplier;
 
     public function __construct()
@@ -36,9 +39,9 @@ class FlowExpediaBookTest extends Command
         $this->destination = $this->argument('destination');
         $this->supplier = $this->argument('supplier');
 
-        $this->destination = !$this->destination ? '508' : $this->destination;
-        $this->supplier = !$this->supplier ? 'Expedia' : $this->supplier;
-        $step = !$step ? 1 : $step;
+        $this->destination = ! $this->destination ? '508' : $this->destination;
+        $this->supplier = ! $this->supplier ? 'Expedia' : $this->supplier;
+        $step = ! $step ? 1 : $step;
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP '.$index.' of '.$step);
@@ -60,33 +63,6 @@ class FlowExpediaBookTest extends Command
         return $bookingItems[array_rand($bookingItems)];
     }
 
-    /**
-     * @param array $responseData
-     * @return string
-     */
-    private function getBookingItemTest(array $responseData): string
-    {
-        $filteredItems = [];
-        foreach ($responseData['data']['results'] as $room_groups) {
-            foreach ($room_groups['room_groups'] as $room_group) {
-                foreach ($room_group['rooms'] as $room) {
-                    foreach ($room['cancellation_policies'] as $policy) {
-                        if (isset($policy['nights']) && $policy['nights'] === '1') {
-                            $filteredItems[] = $room['booking_item'];
-                        }
-                    }
-                }
-            }
-        }
-
-//        dd($filteredItems[array_rand($filteredItems)], $filteredItems);
-
-        return $filteredItems[array_rand($filteredItems)];
-    }
-
-    /**
-     * @return void
-     */
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
@@ -124,9 +100,9 @@ class FlowExpediaBookTest extends Command
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems2['search_3'] = $bookingItem;
+
         $this->addPassengers($bookingId, $bookingItems2, $query2);
 
-        sleep(3);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 
@@ -140,8 +116,8 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays(100)->toDateString();
-        $checkout = Carbon::now()->addDays(100 + rand(2, 5))->toDateString();
+        $checkin = Carbon::now()->addDays(30)->toDateString();
+        $checkout = Carbon::now()->addDays(30 + rand(2, 5))->toDateString();
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
@@ -176,6 +152,8 @@ class FlowExpediaBookTest extends Command
             'rating' => $faker->numberBetween(4, 5),
         ];
 
+        \Log::debug('FlowExpediaBookTest makeSearchRequest', $requestData);
+
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
 
         return $response->json();
@@ -192,7 +170,7 @@ class FlowExpediaBookTest extends Command
         }
 
         $response = $this->client->post($this->url.'/api/booking/add-item', $requestData);
-        $bookingId = $response->json()['data']['booking_id'];
+        $bookingId = Arr::get($response->json(), 'data.booking_id', $bookingId);
         $this->info('booking_id = '.$bookingId);
 
         return $bookingId;
@@ -247,6 +225,8 @@ class FlowExpediaBookTest extends Command
         }
 
         $requestData['booking_id'] = $bookingId;
+
+        \Log::debug('FlowExpediaBookTest addPassengers', $requestData);
 
         $response = $this->client->post($this->url.'/api/booking/add-passengers', $requestData);
 

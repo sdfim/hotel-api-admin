@@ -24,7 +24,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
+            ->query(ApiSearchInspector::query())
+            ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('search_id')
                     ->tooltip('view Search ID data')

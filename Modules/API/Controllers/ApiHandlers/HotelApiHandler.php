@@ -37,6 +37,7 @@ use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
+
 /**
  * @OA\PathItem(
  * path="/api/content",
@@ -52,20 +53,20 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private const PAGINATION_TO_RESULT = true;
 
     public function __construct(
-        private readonly HbsiHotelPricingDto            $HbsiHotelPricingDto,
-        private readonly HbsiHotelController            $hbsi,
-        private readonly PricingDtoTools                $pricingDtoTools = new PricingDtoTools(),
-        private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
-        private readonly IcePortalHotelController       $icePortal = new IcePortalHotelController(),
-        private readonly SearchInspectorController      $apiInspector = new SearchInspectorController(),
-        private readonly ExpediaHotelPricingDto         $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
-        private readonly ExpediaHotelContentDto         $ExpediaHotelContentDto = new ExpediaHotelContentDto(),
-        private readonly IcePortalHotelContentDto       $IcePortalHotelContentDto = new IcePortalHotelContentDto(),
-        private readonly IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto(),
-        private readonly ExpediaHotelContentDetailDto   $ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto(),
-        private readonly EnrichmentWeight               $propsWeight = new EnrichmentWeight(),
-        private readonly PricingRulesTools              $pricingRulesService = new PricingRulesTools(),
-        private readonly HbsiService                    $hbsiService = new HbsiService(),
+        private readonly HbsiHotelPricingDto $HbsiHotelPricingDto,
+        private readonly HbsiHotelController $hbsi,
+        private readonly PricingDtoTools $pricingDtoTools = new PricingDtoTools,
+        private readonly ExpediaHotelController $expedia = new ExpediaHotelController,
+        private readonly IcePortalHotelController $icePortal = new IcePortalHotelController,
+        private readonly SearchInspectorController $apiInspector = new SearchInspectorController,
+        private readonly ExpediaHotelPricingDto $ExpediaHotelPricingDto = new ExpediaHotelPricingDto,
+        private readonly ExpediaHotelContentDto $ExpediaHotelContentDto = new ExpediaHotelContentDto,
+        private readonly IcePortalHotelContentDto $IcePortalHotelContentDto = new IcePortalHotelContentDto,
+        private readonly IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto,
+        private readonly ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto,
+        private readonly EnrichmentWeight $propsWeight = new EnrichmentWeight,
+        private readonly PricingRulesTools $pricingRulesService = new PricingRulesTools,
+        private readonly HbsiService $hbsiService = new HbsiService,
 
     ) {
         $this->start();
@@ -237,7 +238,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
-        Log::info('Memory usage start: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+        Log::info('Memory usage start: '.memory_get_usage() / 1024 / 1024 .' MB');
         $stp = microtime(true);
 
         try {
@@ -262,13 +263,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);
 
-
             Log::info('HotelApiHandler _ price _ preparation '.(microtime(true) - $sts).' seconds');
 
             if ($taggedCache->has($keyPricingSearch.':result')) {
                 $res = $taggedCache->get($keyPricingSearch.':result');
-            }
-            else {
+            } else {
                 $sts = microtime(true);
                 if (! isset($filters['rating'])) {
                     $filters['rating'] = GeneralConfiguration::latest()->first()->star_ratings ?? 3;
@@ -287,7 +286,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $filters['query_package'] = $filters['query_package'] ?? 'both';
 
                 Log::info('HotelApiHandler _ price _ start '.(microtime(true) - $sts).' seconds');
-
 
                 /**
                  * Fiber is used to collect all the promises first,
@@ -312,7 +310,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                      */
                     if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                         $optionsQueries = $filters['query_package'] === 'both' ? ['standalone', 'package'] : [$filters['query_package']];
-                    } else $optionsQueries = ['any'];
+                    } else {
+                        $optionsQueries = ['any'];
+                    }
 
                     $preSearchData = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::EXPEDIA => $this->expedia->preSearchData($filters, 'price'),
@@ -321,7 +321,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     };
 
                     foreach ($optionsQueries as $optionsQuery) {
-                        $fiberKey = $supplier . '_' . $optionsQuery;
+                        $fiberKey = $supplier.'_'.$optionsQuery;
 
                         $currentFilters = $filters;
                         $currentFilters['query_package'] = $optionsQuery;
@@ -367,7 +367,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 /** Running the promises asynchronously */
                 $resolvedResponses = Promise\Utils::settle($promises)->wait();
 
-                Log::info('Memory usage get promises: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+                Log::info('Memory usage get promises: '.memory_get_usage() / 1024 / 1024 .' MB');
 
                 /**
                  * As a result of this code, the $resume array will contain all values from $resolvedResponses,
@@ -380,14 +380,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $supplierName = $arrKey[0];
                     $queryPackage = $arrKey[1];
 
-                    if (count($arrKey) === 3) $resume[$supplierName][$queryPackage][] = $resolvedResponse;
-                    else $resume[$supplierName][$queryPackage] = $resolvedResponse;
+                    if (count($arrKey) === 3) {
+                        $resume[$supplierName][$queryPackage][] = $resolvedResponse;
+                    } else {
+                        $resume[$supplierName][$queryPackage] = $resolvedResponse;
+                    }
                 }
                 Log::info('HotelApiHandler _ price _ asyncResponses '.(microtime(true) - $sts).' seconds');
                 $sts = microtime(true);
 
-                Log::info('Memory usage before fibers Results processing: ' . memory_get_usage() / 1024 / 1024 . ' MB');
-                Log::info('Peak memory usage before fibers Results processing: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
+                Log::info('Memory usage before fibers Results processing: '.memory_get_usage() / 1024 / 1024 .' MB');
+                Log::info('Peak memory usage before fibers Results processing: '.memory_get_peak_usage() / 1024 / 1024 .' MB');
 
                 /** Results processing */
                 foreach ($fibers as $fiber_key => $fiber) {
@@ -405,7 +408,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             return $this->sendError($error, 'failed');
                         }
 
-                        if (!str_contains($fiber_key, SupplierNameEnum::EXPEDIA->value)) $fiber_key = $supplierName;
+                        if (! str_contains($fiber_key, SupplierNameEnum::EXPEDIA->value)) {
+                            $fiber_key = $supplierName;
+                        }
 
                         $dataResponse[$fiber_key] = $result['dataResponse'][$supplierName];
                         $clientResponse[$fiber_key] = $result['clientResponse'][$supplierName];
@@ -427,8 +432,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 Log::info('HotelApiHandler _ price _ Results processing '.(microtime(true) - $sts).' seconds');
                 $sts = microtime(true);
 
-                Log::info('Memory usage before Weighting: ' . memory_get_usage() / 1024 / 1024 . ' MB');
-                Log::info('Peak memory usage before Weighting: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
+                Log::info('Memory usage before Weighting: '.memory_get_usage() / 1024 / 1024 .' MB');
+                Log::info('Peak memory usage before Weighting: '.memory_get_peak_usage() / 1024 / 1024 .' MB');
 
                 /** Enrichment Property Weighting */
                 $enrichClientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
@@ -436,7 +441,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 Log::info('HotelApiHandler _ price _ Enrichment Property Weighting '.(microtime(true) - $sts).' seconds');
                 $sts = microtime(true);
 
-                if (!isset($filters['view_ids'])) unset($filters['ids']);
+                if (! isset($filters['view_ids'])) {
+                    unset($filters['ids']);
+                }
                 $content = ['count' => $countResponse, 'query' => $filters, 'results' => $dataResponse];
                 $clientContent = [
                     'count' => $countClientResponse,
@@ -445,31 +452,31 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     'results' => $enrichClientResponse,
                 ];
 
-                Log::info('Memory usage after Weighting: ' . memory_get_usage() / 1024 / 1024 . ' MB');
-                Log::info('Peak memory usage after Weighting: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
+                Log::info('Memory usage after Weighting: '.memory_get_usage() / 1024 / 1024 .' MB');
+                Log::info('Peak memory usage after Weighting: '.memory_get_peak_usage() / 1024 / 1024 .' MB');
 
                 /** Save data to Inspector */
                 $cacheKeys = [];
                 foreach (['dataOriginal', 'content', 'clientContent'] as $variableName) {
-                    $key = $variableName . '_' . uniqid();
+                    $key = $variableName.'_'.uniqid();
                     $cacheKeys[$variableName] = $key;
                     Cache::put($key, json_encode($$variableName), now()->addMinutes(10));
                 }
                 // this approach is more memory-efficient.
                 SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
-                Log::info('HotelApiHandler _ price _ SaveSearchInspector ' . (microtime(true) - $sts) . ' seconds');
+                Log::info('HotelApiHandler _ price _ SaveSearchInspector '.(microtime(true) - $sts).' seconds');
                 $sts = microtime(true);
 
-                Log::info('Memory usage after Save data to Inspector: ' . memory_get_usage() / 1024 / 1024 . ' MB');
-                Log::info('Peak memory usage Save data to Inspector: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
+                Log::info('Memory usage after Save data to Inspector: '.memory_get_usage() / 1024 / 1024 .' MB');
+                Log::info('Peak memory usage Save data to Inspector: '.memory_get_peak_usage() / 1024 / 1024 .' MB');
 
-                if (!empty($bookingItems)) {
+                if (! empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
                         SaveBookingItems::dispatch($items);
                     }
                 }
 
-                Log::info('HotelApiHandler _ price _ SaveBookingItems ' . (microtime(true) - $sts) . ' seconds');
+                Log::info('HotelApiHandler _ price _ SaveBookingItems '.(microtime(true) - $sts).' seconds');
 
                 if ($request->input('supplier_data') == 'true') {
                     $res = $content;
@@ -478,25 +485,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $res['search_id'] = $search_id;
-
-                $taggedCache->put($keyPricingSearch.':result', $res, now()->addMinutes(self::TTL));
-
-                // This cache is used for actions to efficiently remove the cache for booked booking_items
-                $taggedCache->put($search_id, $keyPricingSearch . ':result', now()->addMinutes(self::TTL));
-                $arr_pricing_search = $taggedCache->get('arr_pricing_search');
-                if (! is_array($arr_pricing_search)) {
-                    $arr_pricing_search = [];
-                }
-                $arr_pricing_search[] = $search_id;
-                $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(self::TTL));
             }
 
-           $res = $this->applyFilters($res);
+            $res = $this->applyFilters($res);
             Log::info('HotelApiHandler _ price _ end all time '.(microtime(true) - $stp).' seconds');
 
             if (self::PAGINATION_TO_RESULT) {
                 //                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
-                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 50), $res['query'] );
+                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 50), $res['query']);
             }
 
             return $this->sendResponse($res, 'success');
@@ -508,10 +504,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
     }
 
-    private function filterByPrice(array $target , $maxPriceFilter, $minPriceFilter): array
+    private function filterByPrice(array $target, $maxPriceFilter, $minPriceFilter): array
     {
-        return collect($target)->filter(function($hotel) use($maxPriceFilter, $minPriceFilter){
+        return collect($target)->filter(function ($hotel) use ($maxPriceFilter, $minPriceFilter) {
             $hotelMinPrice = $hotel['lowest_priced_room_group'];
+
             return ($maxPriceFilter >= $hotelMinPrice || $maxPriceFilter === null) &&
                 ($minPriceFilter <= $hotelMinPrice || $minPriceFilter === null);
         })->toArray();
@@ -524,11 +521,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $minPriceFilter = Arr::get($filters, 'min_price', null);
 
         $output = Arr::get($result, 'results.Expedia_both', []);
-        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
+        $value = $this->filterByPrice($output ?? [], $maxPriceFilter, $minPriceFilter);
         $result['results']['Expedia_both'] = $value;
 
         $output = Arr::get($result, 'results.HBSI', []);
-        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
+        $value = $this->filterByPrice($output ?? [], $maxPriceFilter, $minPriceFilter);
         $result['results']['HBSI'] = $value;
 
         return $result;
@@ -577,9 +574,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $mergedResults = array_merge($mergedResults, $supplierResults);
         }
 
-        if( Arr::get($filters, 'order') === 'cheapest_price') {
+        if (Arr::get($filters, 'order') === 'cheapest_price') {
             $mergedResults = collect($mergedResults)->sortBy('lowest_priced_room_group')->values()->toArray();
-        }else{
+        } else {
             usort($mergedResults, function ($a, $b) use ($results) {
 
                 if (Arr::has($results, 'query.latitude')) {

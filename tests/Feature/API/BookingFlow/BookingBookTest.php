@@ -5,22 +5,26 @@ namespace Tests\Feature\API\BookingFlow;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Mockery;
 use Modules\API\Suppliers\HbsiSupplier\HbsiService;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 class BookingBookTest extends TestCase
 {
-    use WithFaker, SearchMockTrait;
+    use SearchMockTrait, WithFaker;
 
     private static string $searchId;
+
     private static ?string $bookingItem = null;
+
     private static string $bookingId;
+
     private static bool $passengersAdded = false;
+
     private static int $stage = 2;
+
     private static ?array $roomCombinations = [];
 
     #[Test]
@@ -45,12 +49,11 @@ class BookingBookTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(
-            fn(AssertableJson $json) =>
-            $json->has('data')->has('success')->has('message')
+            fn (AssertableJson $json) => $json->has('data')->has('success')->has('message')
         );
 
         $responseArray = $response->json();
-        self::$searchId = Arr::get($responseArray,'data.search_id');
+        self::$searchId = Arr::get($responseArray, 'data.search_id');
         $hotels = Arr::get($responseArray, 'data.results');
         $room_combinations = Arr::get($response->json(), 'data.results.0.room_combinations');
 
@@ -65,7 +68,7 @@ class BookingBookTest extends TestCase
             foreach ($hotels as $hotel) {
                 foreach ($hotel['room_groups'] as $room_groups) {
                     foreach ($room_groups['rooms'] as $room) {
-                        if (!$room['non_refundable']) {
+                        if (! $room['non_refundable']) {
                             self::$bookingItem = $room['booking_item'];
                             break 3;
                         }
@@ -84,14 +87,14 @@ class BookingBookTest extends TestCase
     public function test_add_booking_item(): void
     {
         if (self::$stage === 2) {
-            (new HbsiService())->updateBookingItemsData(self::$bookingItem, self::$roomCombinations[self::$bookingItem]);
+            (new HbsiService)->updateBookingItemsData(self::$bookingItem, false, self::$roomCombinations[self::$bookingItem]);
         }
 
         $response = $this->request()->json('POST', route('addItem'), [
-            'booking_item' => self::$bookingItem
+            'booking_item' => self::$bookingItem,
         ]);
 
-        if (!isset($response['data'])) {
+        if (! isset($response['data'])) {
             $this->markTestSkipped('Booking ID not found in the API response.');
         }
 
@@ -123,8 +126,8 @@ class BookingBookTest extends TestCase
     public function test_book()
     {
         $response = $this->request()->json('POST', route('book'),
-                $this->requestBookData()
-            );
+            $this->requestBookData()
+        );
 
         $response->assertStatus(200);
     }
@@ -133,8 +136,8 @@ class BookingBookTest extends TestCase
     #[Depends('test_book')]
     public function test_cancel()
     {
-        $response = $this->request()->json('DELETE', route('cancelBooking'),[
-            'booking_id' => self::$bookingId
+        $response = $this->request()->json('DELETE', route('cancelBooking'), [
+            'booking_id' => self::$bookingId,
         ]);
 
         $response->assertStatus(200);
@@ -269,8 +272,8 @@ class BookingBookTest extends TestCase
                         'billing_address' => null,
                     ],
                     'booking_item' => self::$bookingItem,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

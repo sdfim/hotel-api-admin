@@ -3,6 +3,7 @@
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Exception;
@@ -31,7 +32,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         private readonly HbsiHotelBookingApiController $hbsi,
         private readonly HbsiService $hbsiService,
 
-    ) { }
+    ) {}
 
     public function addItem(Request $request, string $supplier): JsonResponse
     {
@@ -58,11 +59,11 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $this->hbsiService->updateBookingItemsData($request->booking_item);
             }
 
-            if (! ApiBookingItemRepository::isComlete($request->booking_item)) {
+            if (! ApiBookingItemRepository::isComleteCache($request->booking_item)) {
                 return $this->sendError('booking_item - this item is single');
             }
 
-            $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first()->toArray();
+            $apiBookingItem = ApiBookingItemCache::where('booking_item', $request->booking_item)->first()->toArray();
             $booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
             $filters['search_id'] = $apiBookingItem['search_id'];
 

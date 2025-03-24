@@ -123,7 +123,7 @@ class BaseBookApiController extends BaseController
         $bookingInspector = BookingRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'add_passengers', $subType, 'hotel',
         ]);
-        SaveBookingInspector::dispatch($bookingInspector, [], $res);
+        SaveBookingInspector::dispatchSync($bookingInspector, [], $res);
 
         return $res;
     }

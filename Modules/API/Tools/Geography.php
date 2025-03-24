@@ -6,12 +6,8 @@ use App\Models\Property;
 use Google\Client;
 use Google\Service\Exception;
 use Google\Service\MapsPlaces;
-use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesRequest;
-use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
 use GuzzleHttp\Psr7\Request;
-use Illuminate\Support\Str;
-use Modules\API\Requests\DestinationRequest;
 
 class Geography
 {

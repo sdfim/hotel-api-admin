@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\MoveBookingItemCache;
 use App\Jobs\SaveBookingInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -18,7 +19,11 @@ class HbsiHotelBookingApiController extends BaseHotelBookingApiController
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'add_item', $filters['rate_type'], 'hotel',
         ]);
-        SaveBookingInspector::dispatch($bookingInspector);
+        $bookingItem = $filters['booking_item'];
+
+        MoveBookingItemCache::dispatchSync($bookingItem);
+
+        SaveBookingInspector::dispatchSync($bookingInspector);
 
         return ['booking_id' => $booking_id];
     }

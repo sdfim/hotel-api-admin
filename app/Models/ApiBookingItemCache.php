@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-class ApiBookingItem extends Model
+class ApiBookingItemCache extends Model
 {
     use HasFactory;
 
-    protected $table = 'api_booking_items';
+    protected $table = 'api_booking_item_cache';
 
     protected $primaryKey = 'booking_item';
 
@@ -49,15 +49,5 @@ class ApiBookingItem extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
-    }
-
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::deleted(function ($model) {
-            Storage::delete($model->response_path);
-            Storage::delete($model->client_response_path);
-        });
     }
 }
