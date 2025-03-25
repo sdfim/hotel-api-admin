@@ -502,7 +502,7 @@ class HbsiBookApiController extends BaseBookApiController
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
-            $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
+            $this->hbsiService->updateBookingItemsData($filters['new_booking_item'], true);
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -555,7 +555,7 @@ class HbsiBookApiController extends BaseBookApiController
     {
         try {
             $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = [$hbsiHotel['supplier_id']];
+            $hotelIds = isset($hbsiHotel['supplier_id']) ? [$hbsiHotel['supplier_id']] : [];
 
             if (empty($hotelIds)) {
                 return [

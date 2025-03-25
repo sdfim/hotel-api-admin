@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\HbsiSupplier;
 
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Models\Supplier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -27,25 +28,28 @@ class HbsiService
         $this->rate_type = ItemTypeEnum::SINGLE->value;
     }
 
-    public function updateBookingItemsData(string $completeItem, array $room_combinations = []): void
+    public function updateBookingItemsData(string $completeItem, bool $isChangeBookFlow = false, array $room_combinations = []): void
     {
         if (empty($room_combinations)) {
             $room_combinations = Cache::get('room_combinations:'.$completeItem);
         }
         $completeBookingItem = [];
+
         foreach ($room_combinations as $key => $value) {
             $bookingItem = null;
             $waitTime = 0;
             $maxWaitTime = 5;
 
             while ($waitTime < $maxWaitTime) {
-                $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
+                $bookingItem = ApiBookingItemCache::where('booking_item', $value)->first();
                 if ($bookingItem) {
                     break;
                 }
                 sleep(1);
                 $waitTime++;
             }
+
+            $isChangeBookFlow ?: ApiBookingItem::insertOrIgnore($bookingItem->toArray());
 
             $booking_item_data = json_decode($bookingItem->booking_item_data, true);
             $booking_pricing_data = json_decode($bookingItem->booking_pricing_data, true);
@@ -126,13 +130,12 @@ class HbsiService
         $completeBookingItem['booking_pricing_data']['breakdown'] = json_decode(json_encode($completeBookingItem['booking_pricing_data']['breakdown']));
         $completeBookingItem['booking_pricing_data'] = json_encode($completeBookingItem['booking_pricing_data']);
 
-        ApiBookingItem::insertOrIgnore($completeBookingItem);
-
-        $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
-        $bookingParentItem->child_items = $room_combinations;
-        $bookingParentItem->update();
-
-        $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
+        $bookingItemModel = match ($isChangeBookFlow) {
+            true => ApiBookingItem::class,
+            false => ApiBookingItemCache::class,
+        };
+        $bookingItemModel::insertOrIgnore($completeBookingItem);
+        $bookingParentItem = $bookingItemModel::where('booking_item', $completeItem)->first();
         $bookingParentItem->child_items = $room_combinations;
         $bookingParentItem->update();
     }
@@ -209,6 +212,7 @@ class HbsiService
                 $input[$hk]['room_combinations'] = $finalResult;
                 foreach ($finalResult as $key => $value) {
                     $keyCache = 'room_combinations:'.$key;
+                    \Log::debug('room_combinations keyCache '.$key);
                     Cache::put($keyCache, $value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
                 }
             }

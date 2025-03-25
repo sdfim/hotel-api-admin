@@ -47,8 +47,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
-    // TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
-    public const TTL = 60;
+    //TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
+    public const TTL = 0.5;
 
     private const PAGINATION_TO_RESULT = true;
 
@@ -496,17 +496,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $res['search_id'] = $search_id;
-
-                $taggedCache->put($keyPricingSearch.':result', $res, now()->addMinutes(self::TTL));
-
-                // This cache is used for actions to efficiently remove the cache for booked booking_items
-                $taggedCache->put($search_id, $keyPricingSearch.':result', now()->addMinutes(self::TTL));
-                $arr_pricing_search = $taggedCache->get('arr_pricing_search');
-                if (! is_array($arr_pricing_search)) {
-                    $arr_pricing_search = [];
-                }
-                $arr_pricing_search[] = $search_id;
-                $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(self::TTL));
             }
 
             $res = $this->applyFilters($res);

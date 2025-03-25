@@ -237,6 +237,7 @@ class ExpediaHotelPricingTransformer
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
         $pricingRulesApplier['markup'] = 0.0;
+        $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
@@ -338,6 +339,10 @@ class ExpediaHotelPricingTransformer
         $roomResponse->setNonRefundable(! $rate['refundable']);
         $roomResponse->setAmenities($this->getAmenitiesFromRate($rate));
 
+        /** Commission tracking data */
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionAmount(Arr::get($pricingRulesApplier, 'commission_amount', 0));
+
         $roomResponse->setCurrency($this->currency);
 
         $roomResponse->setBedConfigurations(Arr::get($bedGroup, 'configuration', []));
@@ -364,8 +369,7 @@ class ExpediaHotelPricingTransformer
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),
-            'hotel_id' => $propertyGroup['giata_id'],
-            'room_id' => $roomGroup['id'],
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.Arr::get($roomGroup, 'id', 0),
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];

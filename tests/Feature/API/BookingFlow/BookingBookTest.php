@@ -117,8 +117,8 @@ class BookingBookTest extends BaseBookingFlow
                         'billing_address' => null,
                     ],
                     'booking_item' => self::$bookingItem,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }
