@@ -26,7 +26,7 @@ Artisan::command('obe {scenario} {action}', function () {
     $scenario = $this->argument('scenario');
     $action = $this->argument('action');
 
-    $client = new \Modules\API\Suppliers\HbsiSupplier\MultiRoomTesting();
+    $client = new \Modules\API\Suppliers\HbsiSupplier\MultiRoomTesting;
 
     $this->info($client->execute($scenario, $action));
 });
@@ -38,3 +38,4 @@ Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
 Schedule::command('purge-baskets')->cron('0 1 * * *');
 Schedule::command('purge-inspectors')->cron('0 1 * * *');
 Schedule::command('purge-pricing-rules')->cron('0 1 * * *');
+Schedule::command('purge-booking-item-cache')->cron('0 * * * *');

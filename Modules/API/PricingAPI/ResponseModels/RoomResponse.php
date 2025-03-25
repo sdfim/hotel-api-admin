@@ -246,7 +246,6 @@ class RoomResponse extends BaseResponse
         return $this->total_tax;
     }
 
-
     public function setCommissionAmount(float $commission_amount): void
     {
         $this->commission_amount = $commission_amount;

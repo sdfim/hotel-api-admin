@@ -102,7 +102,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
 
         if (is_array($statistics)) {
             foreach ($statistics as $stat) {
-                if (str_contains($stat['name'], 'Total number of rooms')) {
+                if (is_array($stat) && str_contains($stat['name'], 'Total number of rooms')) {
                     $totalRooms = (int) $stat['value'];
                     break;
                 }

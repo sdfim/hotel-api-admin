@@ -27,7 +27,7 @@ class ApiSearchInspectorRepository
         $bed_groups = $filters['bed_groups'] ?? ''; // expedia
         $booking_item = $filters['booking_item'];
 
-        $bookingItemData = ApiBookingItemRepository::getItemData($booking_item);
+        $bookingItemData = ApiBookingItemRepository::getItemDataCache($booking_item);
         $keyExpedia = 'Expedia_'.$bookingItemData['query_package'];
 
         $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
@@ -213,7 +213,7 @@ class ApiSearchInspectorRepository
 
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
 
-        $inspector = new ApiSearchInspector;
+        $inspector = new ApiSearchInspector();
         $inspector->search_id = $search_id;
         $inspector->type = $type;
         $inspector->search_type = $search_type;

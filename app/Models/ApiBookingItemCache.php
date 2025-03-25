@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Configurations\ConfigServiceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
-class ApiBookingItem extends Model
+class ApiBookingItemCache extends Model
 {
     use HasFactory;
 
-    protected $table = 'api_booking_items';
+    protected $table = 'api_booking_item_cache';
 
     protected $primaryKey = 'booking_item';
 
@@ -51,24 +49,5 @@ class ApiBookingItem extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
-    }
-
-    public function informationalServices(): BelongsToMany
-    {
-        return $this->belongsToMany(ConfigServiceType::class, 'booking_item_informative_service', 'booking_item', 'service_id')
-            ->withPivot(['cost', 'created_at', 'updated_at']);
-    }
-
-    /**
-     * Bootstrap the model and its traits.
-     */
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::deleted(function ($model) {
-            Storage::delete($model->response_path);
-            Storage::delete($model->client_response_path);
-        });
     }
 }

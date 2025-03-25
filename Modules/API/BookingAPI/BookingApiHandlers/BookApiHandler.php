@@ -40,7 +40,6 @@ use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
-use Modules\API\Tools\ClearSearchCacheByBookingItemsTools;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -56,8 +55,6 @@ class BookApiHandler extends BaseController
     public function __construct(
         private readonly ExpediaBookApiController $expedia,
         private readonly HbsiBookApiController $hbsi,
-        private readonly ClearSearchCacheByBookingItemsTools $searchCache,
-
     ) {}
 
     /**
@@ -99,14 +96,17 @@ class BookApiHandler extends BaseController
 
         $data = [];
         Log::debug('BookApiHandler book items: '.$items);
+
         foreach ($items as $item) {
             Log::debug('BookApiHandler book LOOP item: '.$item);
+            $type = $item->search_type;
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 $supplierName = SupplierNameEnum::from($supplier->name);
-                $data[] = match ([$supplierName, TypeRequestEnum::tryFrom($item->search_type)]) {
-                    [SupplierNameEnum::EXPEDIA, TypeRequestEnum::HOTEL] => $this->expedia->book($filters, $item),
-                    [SupplierNameEnum::HBSI, TypeRequestEnum::HOTEL] => $this->hbsi->book($filters, $item),
+
+                $data[] = match ([$supplierName, $type]) {
+                    [SupplierNameEnum::EXPEDIA, TypeRequestEnum::HOTEL->value] => $this->expedia->book($filters, $item),
+                    [SupplierNameEnum::HBSI, TypeRequestEnum::HOTEL->value] => $this->hbsi->book($filters, $item),
                     default => [],
                 };
             } catch (Exception $e) {
@@ -142,8 +142,7 @@ class BookApiHandler extends BaseController
          * This prevents the possibility of booking an already booked booking_item.
          */
         $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
-        //        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache); // Dispatch job to clear cache
-        $this->searchCache->clear($itemsToDeleteFromCache);
+        ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
         $totalTime = (microtime(true) - $sts).' seconds';
 
