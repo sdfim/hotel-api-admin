@@ -25,7 +25,6 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Intervention\Image\Laravel\Facades\Image;
@@ -40,7 +39,6 @@ use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
-use Illuminate\Support\Facades\Log;
 
 class HotelForm extends Component implements HasForms
 {
@@ -273,61 +271,18 @@ class HotelForm extends Component implements HasForms
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
-                                        ->disk('s3')
+                                        ->disk('public')
                                         ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
-                                                $disk = 's3';
-                                                $filePath = $state->store('products', $disk);
-                                                $newFilePath = 'products/' . $state->getClientOriginalName();
-                                                Storage::disk($disk)->move($filePath, $newFilePath);
-                                                Storage::disk($disk)->setVisibility($newFilePath, 'public');
+                                                $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
-                                                $originalPath = Storage::disk($disk)->url($newFilePath);
-
-                                                if (Storage::disk($disk)->exists($newFilePath)) {
-                                                    try {
-                                                        $response = Http::get($originalPath);
-
-                                                        if (!$response->successful()) {
-                                                            Notification::make()
-                                                                ->title('Failed to download image from URL')
-                                                                ->body("Response is not valid from $originalPath")
-                                                                ->danger()
-                                                                ->send();
-
-                                                            return;
-                                                        }
-
-                                                        if (!str_starts_with($response->header('Content-Type'), 'image/')) {
-                                                            Notification::make()
-                                                                ->title('Invalid Type')
-                                                                ->body("Response is not valid from $originalPath")
-                                                                ->danger()
-                                                                ->send();
-
-                                                            return;
-                                                        }
-
-                                                        $imageData = $response->body();
-
-                                                        $image = Image::read($imageData);
-                                                        $image->resize(150, 150);
-                                                        Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
-                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
-                                                    }
-                                                    catch (\Exception $e) {
-                                                        $set('product.hero_image_thumbnails', $newFilePath);
-
-                                                        Notification::make()
-                                                            ->title('Error')
-                                                            ->body($e->getMessage())
-                                                            ->danger()
-                                                            ->send();
-                                                    }
-
-
+                                                if (Storage::disk('public')->exists($originalPath)) {
+                                                    $image = Image::read(Storage::disk('public')->get($originalPath));
+                                                    $image->resize(150, 150);
+                                                    Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
+                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
                                                 }
                                             }
                                         }),
