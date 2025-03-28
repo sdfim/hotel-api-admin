@@ -39,6 +39,7 @@ use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
+use Illuminate\Support\Facades\Log;
 
 class HotelForm extends Component implements HasForms
 {
@@ -285,8 +286,11 @@ class HotelForm extends Component implements HasForms
                                                 $originalPath = Storage::disk($disk)->url($newFilePath);
 
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
+                                                    Log::debug("XXX IMAGE XXX");
                                                     try {
+                                                        Log::debug($newFilePath);
                                                         $imageStream = Storage::disk($disk)->readStream($newFilePath);
+                                                        Log::debug(empty($imageStream) ? "EMPTY" : "NOT EMPTY");
                                                         $image = Image::read($imageStream);
                                                         $image->resize(150, 150);
                                                         Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
@@ -295,12 +299,17 @@ class HotelForm extends Component implements HasForms
                                                     catch (\Exception $e) {
                                                         $set('product.hero_image_thumbnails', $newFilePath);
 
+                                                        Log::debug($e->getTraceAsString());
+                                                        Log::debug($e->getMessage());
                                                         Notification::make()
                                                             ->title('Error')
                                                             ->body($e->getMessage())
                                                             ->danger()
                                                             ->send();
                                                     }
+
+
+                                                    Log::debug("XXX IMAGE XXX");
                                                 }
                                             }
                                         }),
