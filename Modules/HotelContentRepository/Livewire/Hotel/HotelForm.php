@@ -276,23 +276,23 @@ class HotelForm extends Component implements HasForms
                                         ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
-                                            Log::channel('cloudwatch')->info("XXX IMAGE XXX");
                                             if ($state) {
                                                 $disk = 's3';
                                                 $filePath = $state->store('products', $disk);
                                                 $newFilePath = 'products/' . $state->getClientOriginalName();
-                                                Log::channel('cloudwatch')->info($newFilePath);
                                                 Storage::disk($disk)->move($filePath, $newFilePath);
                                                 Storage::disk($disk)->setVisibility($newFilePath, 'public');
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 $originalPath = Storage::disk($disk)->url($newFilePath);
-                                                Log::channel('cloudwatch')->info("Exists: ".Storage::disk($disk)->exists($newFilePath));
 
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
                                                     try {
                                                         $imageStream = Storage::disk($disk)->readStream($newFilePath);
-                                                        Log::channel('cloudwatch')->info(empty($imageStream) ? "EMPTY" : "NOT EMPTY");
-                                                        $image = Image::read($imageStream);
+
+                                                        $imageData = stream_get_contents($imageStream);
+                                                        fclose($imageStream);
+
+                                                        $image = Image::read($imageData);
                                                         $image->resize(150, 150);
                                                         Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
                                                         $set('product.hero_image_thumbnails', $thumbnailPath);
@@ -300,14 +300,16 @@ class HotelForm extends Component implements HasForms
                                                     catch (\Exception $e) {
                                                         $set('product.hero_image_thumbnails', $newFilePath);
 
-                                                        Log::channel('cloudwatch')->info($e->getTraceAsString());
-                                                        Log::channel('cloudwatch')->info($e->getMessage());
+                                                        Notification::make()
+                                                            ->title('Error')
+                                                            ->body($e->getMessage())
+                                                            ->danger()
+                                                            ->send();
                                                     }
 
 
                                                 }
                                             }
-                                            Log::channel('cloudwatch')->info("XXX IMAGE XXX");
                                         }),
                                     Hidden::make('product.hero_image_thumbnails')->dehydrated(),
                                 ]),
