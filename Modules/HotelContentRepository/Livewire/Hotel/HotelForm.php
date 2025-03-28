@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Intervention\Image\Laravel\Facades\Image;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\Enums\HotelSaleTypeEnum;
@@ -39,6 +38,8 @@ use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class HotelForm extends Component implements HasForms
 {
@@ -284,8 +285,10 @@ class HotelForm extends Component implements HasForms
 
 
                                                     try {
-                                                        $image = Image::read($fileData);
-                                                        $image->resize(150, 150);
+                                                        $manager = new ImageManager(new Driver());
+                                                        $image = $manager->read($fileData);
+                                                        $image->scale(width: 150);
+
                                                         Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
                                                         $set('product.hero_image_thumbnails', $thumbnailPath);
                                                     }
