@@ -25,6 +25,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Intervention\Image\Laravel\Facades\Image;
@@ -287,8 +288,30 @@ class HotelForm extends Component implements HasForms
 
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
                                                     try {
-                                                        $imageData = file_get_contents($originalPath);
-                                                        
+                                                        $response = Http::get($originalPath);
+
+                                                        if (!$response->successful()) {
+                                                            Notification::make()
+                                                                ->title('Failed to download image from URL')
+                                                                ->body("Response is not valid from $originalPath")
+                                                                ->danger()
+                                                                ->send();
+
+                                                            return;
+                                                        }
+
+                                                        if (!str_starts_with($response->header('Content-Type'), 'image/')) {
+                                                            Notification::make()
+                                                                ->title('Invalid Type')
+                                                                ->body("Response is not valid from $originalPath")
+                                                                ->danger()
+                                                                ->send();
+
+                                                            return;
+                                                        }
+
+                                                        $imageData = $response->body();
+
                                                         $image = Image::read($imageData);
                                                         $image->resize(150, 150);
                                                         Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
