@@ -286,7 +286,8 @@ class HotelForm extends Component implements HasForms
 
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
                                                     try {
-                                                        $image = Image::read(Storage::disk($disk)->get($newFilePath));
+                                                        $imageStream = Storage::disk($disk)->readStream($newFilePath);
+                                                        $image = Image::read($imageStream);
                                                         $image->resize(150, 150);
                                                         Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
                                                         $set('product.hero_image_thumbnails', $thumbnailPath);
