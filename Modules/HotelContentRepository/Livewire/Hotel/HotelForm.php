@@ -277,12 +277,29 @@ class HotelForm extends Component implements HasForms
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
+
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 if (Storage::disk('public')->exists($originalPath)) {
-                                                    $image = Image::read(Storage::disk('public')->get($originalPath));
-                                                    $image->resize(150, 150);
-                                                    Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
-                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    $fileData = Storage::disk('public')->get($originalPath);
+
+
+                                                    try {
+                                                        $image = Image::read($fileData);
+                                                        $image->resize(150, 150);
+                                                        Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
+                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    }
+                                                    catch (\Exception $e) {
+                                                        $set('product.hero_image_thumbnails', $originalPath);
+
+                                                        Notification::make()
+                                                            ->title('Error file size: '. strlen($fileData))
+                                                            ->body($e->getMessage(). ' - '.substr($fileData, 0, 100))
+                                                            ->danger()
+                                                            ->send();
+                                                    }
+
+
                                                 }
                                             }
                                         }),
