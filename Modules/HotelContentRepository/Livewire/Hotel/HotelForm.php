@@ -276,19 +276,20 @@ class HotelForm extends Component implements HasForms
                                         ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
+                                            Log::debug("XXX IMAGE XXX");
                                             if ($state) {
                                                 $disk = 's3';
                                                 $filePath = $state->store('products', $disk);
                                                 $newFilePath = 'products/' . $state->getClientOriginalName();
+                                                Log::info($newFilePath);
                                                 Storage::disk($disk)->move($filePath, $newFilePath);
                                                 Storage::disk($disk)->setVisibility($newFilePath, 'public');
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 $originalPath = Storage::disk($disk)->url($newFilePath);
+                                                Log::info("Exists: ".Storage::disk($disk)->exists($newFilePath));
 
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
-                                                    Log::debug("XXX IMAGE XXX");
                                                     try {
-                                                        Log::info($newFilePath);
                                                         $imageStream = Storage::disk($disk)->readStream($newFilePath);
                                                         Log::info(empty($imageStream) ? "EMPTY" : "NOT EMPTY");
                                                         $image = Image::read($imageStream);
@@ -301,17 +302,12 @@ class HotelForm extends Component implements HasForms
 
                                                         Log::info($e->getTraceAsString());
                                                         Log::info($e->getMessage());
-                                                        Notification::make()
-                                                            ->title('Error')
-                                                            ->body($e->getMessage())
-                                                            ->danger()
-                                                            ->send();
                                                     }
 
 
-                                                    Log::info("XXX IMAGE XXX");
                                                 }
                                             }
+                                            Log::info("XXX IMAGE XXX");
                                         }),
                                     Hidden::make('product.hero_image_thumbnails')->dehydrated(),
                                 ]),
