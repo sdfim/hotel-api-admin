@@ -87,7 +87,7 @@ class AddHotel
         return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes, $address) {
             $hotel = Hotel::create([
                 'giata_code' => $property->code,
-                'star_rating' => max($property->rating ?? 1, 1),
+                'star_rating' => max($property->rating ?? 5, 5),
                 'sale_type' => 'Direct Connection',
                 'num_rooms' => $numRooms,
                 'hotel_board_basis' => $mealPlansRes,

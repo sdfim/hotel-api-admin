@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Intervention\Image\Laravel\Facades\Image;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\Enums\HotelSaleTypeEnum;
@@ -39,6 +38,8 @@ use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class HotelForm extends Component implements HasForms
 {
@@ -277,12 +278,37 @@ class HotelForm extends Component implements HasForms
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
+
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 if (Storage::disk('public')->exists($originalPath)) {
-                                                    $image = Image::read(Storage::disk('public')->get($originalPath));
-                                                    $image->resize(150, 150);
-                                                    Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
-                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    $stream = Storage::disk('public')->readStream($originalPath);
+
+                                                    if ($stream === false) {
+                                                        abort(500, "Failed to read file from S3.");
+                                                    }
+
+                                                    try {
+                                                        $binaryData = stream_get_contents($stream);
+                                                        fclose($stream);
+
+                                                        $manager = new ImageManager(new Driver());
+                                                        $image = $manager->read($binaryData);
+                                                        $image->scale(width: 150);
+
+                                                        Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
+                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    }
+                                                    catch (\Exception $e) {
+                                                        $set('product.hero_image_thumbnails', $originalPath);
+
+                                                        Notification::make()
+                                                            ->title('Error uploading file')
+                                                            ->body($e->getMessage())
+                                                            ->danger()
+                                                            ->send();
+                                                    }
+
+
                                                 }
                                             }
                                         }),
