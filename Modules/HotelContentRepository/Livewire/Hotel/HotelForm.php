@@ -276,13 +276,30 @@ class HotelForm extends Component implements HasForms
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
-                                                $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
+                                                $disk = 'public';
+                                                $filePath = $state->store('products', $disk);
+                                                $newFilePath = 'products/' . $state->getClientOriginalName();
+                                                Storage::disk($disk)->move($filePath, $newFilePath);
+                                                Storage::disk($disk)->setVisibility($newFilePath, 'public');
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
-                                                if (Storage::disk('public')->exists($originalPath)) {
-                                                    $image = Image::read(Storage::disk('public')->get($originalPath));
-                                                    $image->resize(150, 150);
-                                                    Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
-                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                $originalPath = Storage::disk($disk)->url($newFilePath);
+
+                                                if (Storage::disk($disk)->exists($newFilePath)) {
+                                                    try {
+                                                        $image = Image::read(Storage::disk($disk)->get($newFilePath));
+                                                        $image->resize(150, 150);
+                                                        Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
+                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    }
+                                                    catch (\Exception $e) {
+                                                        $set('product.hero_image_thumbnails', $newFilePath);
+
+                                                        Notification::make()
+                                                            ->title('Error')
+                                                            ->body($e->getMessage())
+                                                            ->danger()
+                                                            ->send();
+                                                    }
                                                 }
                                             }
                                         }),
