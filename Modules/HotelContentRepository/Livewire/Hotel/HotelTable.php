@@ -63,6 +63,7 @@ class HotelTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 ImageColumn::make('product.hero_image_thumbnails')
+                    ->disk('s3')
                     ->size('100px'),
 
                 TextColumn::make('rooms.name')
