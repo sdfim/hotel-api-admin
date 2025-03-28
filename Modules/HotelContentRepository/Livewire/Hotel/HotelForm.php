@@ -288,9 +288,9 @@ class HotelForm extends Component implements HasForms
                                                 if (Storage::disk($disk)->exists($newFilePath)) {
                                                     Log::debug("XXX IMAGE XXX");
                                                     try {
-                                                        Log::debug($newFilePath);
+                                                        Log::info($newFilePath);
                                                         $imageStream = Storage::disk($disk)->readStream($newFilePath);
-                                                        Log::debug(empty($imageStream) ? "EMPTY" : "NOT EMPTY");
+                                                        Log::info(empty($imageStream) ? "EMPTY" : "NOT EMPTY");
                                                         $image = Image::read($imageStream);
                                                         $image->resize(150, 150);
                                                         Storage::disk($disk)->put($thumbnailPath, (string) $image->encode());
@@ -299,8 +299,8 @@ class HotelForm extends Component implements HasForms
                                                     catch (\Exception $e) {
                                                         $set('product.hero_image_thumbnails', $newFilePath);
 
-                                                        Log::debug($e->getTraceAsString());
-                                                        Log::debug($e->getMessage());
+                                                        Log::info($e->getTraceAsString());
+                                                        Log::info($e->getMessage());
                                                         Notification::make()
                                                             ->title('Error')
                                                             ->body($e->getMessage())
@@ -309,7 +309,7 @@ class HotelForm extends Component implements HasForms
                                                     }
 
 
-                                                    Log::debug("XXX IMAGE XXX");
+                                                    Log::info("XXX IMAGE XXX");
                                                 }
                                             }
                                         }),
