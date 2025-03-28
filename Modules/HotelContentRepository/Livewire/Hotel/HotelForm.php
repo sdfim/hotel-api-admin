@@ -271,12 +271,12 @@ class HotelForm extends Component implements HasForms
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
-                                        ->disk('public')
+                                        ->disk('s3')
                                         ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
-                                                $disk = 'public';
+                                                $disk = 's3';
                                                 $filePath = $state->store('products', $disk);
                                                 $newFilePath = 'products/' . $state->getClientOriginalName();
                                                 Storage::disk($disk)->move($filePath, $newFilePath);
