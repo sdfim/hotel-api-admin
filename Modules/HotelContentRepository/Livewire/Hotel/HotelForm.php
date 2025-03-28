@@ -281,12 +281,18 @@ class HotelForm extends Component implements HasForms
 
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 if (Storage::disk('public')->exists($originalPath)) {
-                                                    $fileData = Storage::disk('public')->get($originalPath);
+                                                    $stream = Storage::disk('public')->readStream($originalPath);
 
+                                                    if ($stream === false) {
+                                                        abort(500, "Failed to read file from S3.");
+                                                    }
 
                                                     try {
+                                                        $binaryData = stream_get_contents($stream);
+                                                        fclose($stream);
+
                                                         $manager = new ImageManager(new Driver());
-                                                        $image = $manager->read($fileData);
+                                                        $image = $manager->read($binaryData);
                                                         $image->scale(width: 150);
 
                                                         Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
@@ -296,8 +302,8 @@ class HotelForm extends Component implements HasForms
                                                         $set('product.hero_image_thumbnails', $originalPath);
 
                                                         Notification::make()
-                                                            ->title('Error file size: '. strlen($fileData))
-                                                            ->body($e->getMessage(). ' - '.substr($fileData, 0, 100))
+                                                            ->title('Error uploading file')
+                                                            ->body($e->getMessage())
                                                             ->danger()
                                                             ->send();
                                                     }
