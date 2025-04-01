@@ -314,6 +314,7 @@ class VendorForm extends Component implements HasForms
         $this->record->verified = $this->verified ?? true;
         $isNew = ! $this->record->exists || ! $this->record->team;
         $this->record->save();
+        $vendor = $this->record;
 
         $userIds = $this->data['user_ids'];
         if ($isNew) {
@@ -356,7 +357,7 @@ class VendorForm extends Component implements HasForms
 
         session()->flash('message', $message);
 
-        return redirect()->route('vendor-repository.index');
+        return redirect()->route('vendor-repository.edit', ['vendor_repository' => $vendor]);
     }
 
     protected function handleReverseGeocoding(array $state, callable $set): void

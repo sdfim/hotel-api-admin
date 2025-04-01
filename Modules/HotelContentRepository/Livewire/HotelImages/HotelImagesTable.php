@@ -104,7 +104,6 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 return $query;
             })
             ->defaultSort('created_at', 'desc')
-            ->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5])
             ->columns($this->viewMode === 'list' ? $this->getListViewColumns() : $this->getGridViewColumns())
             ->actions([
                 EditAction::make('edit')
@@ -118,7 +117,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->requiresConfirmation()
                     ->action(fn (Image $record) => $record->delete())
                     ->visible(fn (Image $record) => Gate::allows('delete', $record))
-                    ->after(fn (Image $record) => Storage::disk('public')->delete($record->image_url)),
+                    ->after(fn (Image $record) => Storage::delete($record->image_url)),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -155,6 +154,9 @@ class HotelImagesTable extends Component implements HasForms, HasTable
     protected function getListViewColumns(): array
     {
         return [
+            TextColumn::make('id')
+                ->sortable()
+                ->searchable(),
             ImageColumn::make('image_url')
                 ->size('100px')
                 ->getStateUsing(function ($record) {
@@ -166,7 +168,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                         return url(env('CRM_PATH_ROOM_IMAGES', '').$record->image_url);
                     }
 
-                    return $record->image_url;
+                    return Storage::url($record->image_url);
                 }),
             TextColumn::make('tag')
                 ->searchable(),
@@ -200,15 +202,15 @@ class HotelImagesTable extends Component implements HasForms, HasTable
 
                             return $record->image_url;
                         }),
-//                    TextColumn::make('tag')
-//                        ->searchable(),
-//                    TextColumn::make('alt')
-//                        ->searchable(),
-//                    TextColumn::make('section.name')
-//                        ->searchable(),
+                    //                    TextColumn::make('tag')
+                    //                        ->searchable(),
+                    //                    TextColumn::make('alt')
+                    //                        ->searchable(),
+                    //                    TextColumn::make('section.name')
+                    //                        ->searchable(),
                     TextColumn::make('galleries.gallery_name')
                         ->searchable()
-                    ->wrap(),
+                        ->wrap(),
                 ]),
         ];
     }
