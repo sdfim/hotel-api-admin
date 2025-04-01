@@ -34,4 +34,12 @@ class Channel extends Model
     {
         return $this->belongsToMany(Product::class, 'pd_product_channel');
     }
+
+    public function delete()
+    {
+        $this->name .= '_deleted_'.now()->timestamp;
+        $this->save();
+
+        return parent::delete();
+    }
 }

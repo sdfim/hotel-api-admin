@@ -37,11 +37,7 @@
 @endphp
 @extends('layouts.master')
 @section('title')
-    @if($vendor->exists)
-        {{ __('Edit Vendors') }}
-    @else
-        {{ __('Create Vendors') }}
-    @endif
+    {{ $vendor->exists ? __('Edit Vendors') : __('Create Vendors') }}
 @endsection
 @section('content')
     <div class="breadcrumb-container">

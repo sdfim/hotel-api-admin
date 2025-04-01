@@ -5,7 +5,7 @@
             'related' => [
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
-                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
+                ['title' => 'UJV Commissions Informational', 'component' => 'commissions.travel-agency-commission-table'],
                 ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
             ],
         ],
@@ -170,4 +170,8 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    @stack('scripts')
 @endsection

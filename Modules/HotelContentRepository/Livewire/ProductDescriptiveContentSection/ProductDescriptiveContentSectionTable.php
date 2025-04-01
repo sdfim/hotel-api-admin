@@ -72,7 +72,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ->label('Content')
                 ->options(ConfigDescriptiveType::get()->mapWithKeys(function ($item) {
                     if ($item->name !== $item->type) {
-                        return [$item->id => "{$item->name} ({$item->type})"];
+                        return [$item->id => "{$item->name} ({$item->type} | location: {$item->location->name})"];
                     }
 
                     return [$item->id => $item->name];
