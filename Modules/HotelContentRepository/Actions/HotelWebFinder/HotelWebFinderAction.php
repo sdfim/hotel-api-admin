@@ -19,13 +19,33 @@ class HotelWebFinderAction
 
     public function saveOrUpdate(array $data, ?int $recordId, int $hotelId): HotelWebFinder
     {
-        $startDate = Carbon::now()->addMonth()->format('Y-m-d');
-        $endDate = Carbon::parse($startDate)->addDays(7)->format('Y-m-d');
+        $startDateFormat = 'Y-m-d';
+        $endDateFormat = 'Y-m-d';
+
+        foreach ($data['units'] as $unit) {
+            if ($unit['field'] === 'search_start_travel_date_name' && ! empty($unit['type'])) {
+                $startDateFormat = $unit['type'];
+            }
+            if ($unit['field'] === 'search_end_travel_date_name' && ! empty($unit['type'])) {
+                $endDateFormat = $unit['type'];
+            }
+        }
+
+        $startDate = Carbon::now()->addMonth()->format($startDateFormat);
+        $endDate = Carbon::parse($startDate)->addDays(7)->format($endDateFormat);
+        $adults = '2';
+        $children = '0';
         $numberOfRooms = '1';
 
         $data['example'] = str_replace(
-            ['{start_date}', '{end_date}', '{number_of_rooms}'],
-            [$startDate, $endDate, $numberOfRooms],
+            [
+                '{search_adults_name}',
+                '{search_children_name}',
+                '{search_rooms_count_name}',
+                "{search_end_travel_date_name:$endDateFormat}",
+                "{search_start_travel_date_name:$startDateFormat}",
+            ],
+            [$adults, $children, $numberOfRooms, $endDate, $startDate],
             $data['finder']
         );
 
