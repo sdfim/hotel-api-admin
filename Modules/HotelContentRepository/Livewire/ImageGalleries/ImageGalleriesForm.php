@@ -210,7 +210,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             if (str_contains($image->image_url, 'http')) {
                 $url = $image->image_url;
             } else {
-                $url = Storage::disk('public')->url($image->image_url);
+                $url = Storage::url($image->image_url);
             }
 
             return [

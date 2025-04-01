@@ -83,8 +83,9 @@ class HotelImagesForm extends Component implements HasForms
                 ->imageEditor()
                 ->preserveFilenames()
                 ->directory($filePath ? 'images/'.$filePath : 'images')
-                ->disk('public')
-                ->visibility('public'),
+                ->visibility('private')
+                ->downloadable()
+                ->nullable(),
         ];
     }
 

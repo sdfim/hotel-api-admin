@@ -13,7 +13,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -21,9 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
@@ -101,7 +98,6 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->nullable(),
                     FileUpload::make('document_path')
                         ->label('Document')
-                        ->disk('public')
                         ->directory('descriptive-documentation')
                         ->visibility('private')
                         ->downloadable()
@@ -145,26 +141,6 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->form(fn ($record) => $this->schemeForm($record)),
                     DeleteAction::make()
                         ->visible(fn () => Gate::allows('create', Product::class)),
-                    Action::make('download')
-                        ->icon('heroicon-s-arrow-down-circle')
-                        ->color('success')
-                        ->label('Download Document')
-                        ->visible(fn (ProductDescriptiveContentSection $record) => ! is_null($record->document_path))
-                        ->action(function (ProductDescriptiveContentSection $record) {
-                            $filePath = $record->document_path;
-                            if (Storage::disk('public')->exists($filePath)) {
-                                return response()->download(
-                                    Storage::disk('public')->path($filePath),
-                                    basename($filePath)
-                                );
-                            }
-                            Notification::make()
-                                ->title('File not found')
-                                ->danger()
-                                ->send();
-
-                            return false;
-                        }),
                 ])->visible(fn (ProductDescriptiveContentSection $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
             )
             ->headerActions($this->getHeaderActions());
