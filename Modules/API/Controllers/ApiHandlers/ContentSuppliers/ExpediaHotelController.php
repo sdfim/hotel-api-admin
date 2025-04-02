@@ -66,8 +66,6 @@ class ExpediaHotelController
                 $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
             }
 
-            Log::info("Expedia Search Data", $filters);
-
             // Use the mappings in query logic
             $giataCodes = array_filter(array_map(function ($id) use ($mappings) {
                 return $mappings[$id] ?? null;
