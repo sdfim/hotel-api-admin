@@ -137,7 +137,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     TextInput::make('name')
                         ->label('New Name')
                         ->reactive()
-                        ->rules(['required'])
                         ->visible(fn (Get $get) => $get('action_type') !== 'delete'),
                     Select::make('old_name')
                         ->label('Current Name')
@@ -169,21 +168,18 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->options([
                             ProductFeeTaxTypeEnum::TAX->value => 'Tax',
                             ProductFeeTaxTypeEnum::FEE->value => 'Fee',
-                        ])
-                        ->rules(['required']),
+                        ]),
                     Grid::make(2)
                         ->schema([
                             Toggle::make('commissionable')
                                 ->label('Commissionable')
-                                ->inline(false)
-                                ->rules(['required']),
+                                ->inline(false),
                             Select::make('fee_category')
                                 ->label('Fee Category')
                                 ->options([
                                     'mandatory' => 'Mandatory',
                                     'optional' => 'Optional',
-                                ])
-                                ->rules(['required']),
+                                ]),
                         ])->columnSpan(1),
                 ]),
             Fieldset::make('Value Setting')
@@ -224,8 +220,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->options([
                             FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
                             FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
-                        ])
-                        ->rules(['required']),
+                        ]),
                 ]),
         ];
     }
