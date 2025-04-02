@@ -213,8 +213,6 @@ class PropertyPriceCall
                     $searchInspector['search_id'] = Str::uuid();
                     SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',
                         ['side' => 'supplier', 'message' => 'Expedia Timeout Exception  ', 'parent_search_id' => $parent_search_id]);
-
-                    return ['error' => 'Timeout Exception '];
                 } else {
                     Log::error('PropertyPriceCall | getPriceData ', [
                         'propertyChunk' => $this->propertyChunk,
