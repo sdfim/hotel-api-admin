@@ -65,7 +65,7 @@ class UsersForm extends Component implements HasForms, HasTable
                 ->formatStateUsing(fn () => Str::password(10));
         }
 
-        $externalUserRoleId = Role::where('slug', 'external-user')->first()->id;
+        $externalUserRoleId = Role::where('slug', 'external-user')->first()?->id;
 
         return $form
             ->schema([
@@ -148,7 +148,7 @@ class UsersForm extends Component implements HasForms, HasTable
         $this->record->save();
         $this->record->roles()->sync([$data['role']]);
 
-        if ($data['role'] === Role::where('slug', 'external-user')->first()->id) {
+        if ($data['role'] === Role::where('slug', 'external-user')->first()?->id) {
             $this->addUserToGroups($data['vendor_ids'], $this->record);
         }
 
