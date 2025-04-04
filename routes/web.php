@@ -3,6 +3,7 @@
 use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
@@ -16,8 +17,8 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortium
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMappingOwnerController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
@@ -63,13 +64,30 @@ use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 |
 */
 
-Route::get('/admin/', function () {
-    if (! Auth::check()) {
-        return redirect(config('app.url').'/admin/login');
+Route::fallback(function () {
+    if (! request()->is('api/*')) {
+        return redirect()->route('root');
     } else {
-        return redirect(config('app.url').'/admin/vendor-repository');
+        return response()->json(['message' => 'Not Found'], 404);
     }
-})->name('root');
+});
+
+Route::get('/admin/', fn () => Auth::check()
+    ? redirect()->route('vendor-repository.index')
+    : redirect()->route('login')
+)->name('root');
+
+Route::get('/clear-cookies-and-login', function () {
+    session()->flush();
+    Cookie::queue(Cookie::forget('XSRF-TOKEN'));
+    Cookie::queue(Cookie::forget('laravel_session'));
+    foreach (request()->cookies as $key => $value) {
+        if (str_starts_with($key, 'remember_web_')) {
+            Cookie::queue(Cookie::forget($key));
+        }
+    }
+    return redirect()->route('login');
+})->name('clear.cookies.and.login');
 
 Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.switch');
 
@@ -78,7 +96,7 @@ Route::get('team-invitations/{invitation}/accept', [TeamInvitationController::cl
     ->middleware(SelectTeamAfterAcceptMiddleware::class);
 
 Route::prefix('admin')->group(function () {
-    Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    Route::middleware(['auth', config('jetstream.auth_session'), 'verified'])->group(function () {
 
         Route::resource('teams', TeamController::class)->only(['index', 'edit']);
 

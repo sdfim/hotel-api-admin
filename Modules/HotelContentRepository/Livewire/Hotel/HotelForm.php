@@ -61,11 +61,6 @@ class HotelForm extends Component implements HasForms
 
     public string $onSaleCausation = '';
 
-    public function __construct()
-    {
-        $this->record = new Hotel;
-    }
-
     public function mount(Hotel $hotel): void
     {
         $this->record = $hotel->load('product');
@@ -272,16 +267,16 @@ class HotelForm extends Component implements HasForms
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
-                                        ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
+                                                $filamentPath = env('FILAMENT_FILESYSTEM_DISK', '') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 if (Storage::exists($originalPath)) {
                                                     $image = Image::read(Storage::get($originalPath));
                                                     $image->resize(150, 150);
-                                                    Storage::put($thumbnailPath, (string) $image->encode());
+                                                    Storage::put($filamentPath.$thumbnailPath, (string) $image->encode());
                                                     $set('product.hero_image_thumbnails', $thumbnailPath);
                                                 }
                                             }

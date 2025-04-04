@@ -14,9 +14,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\Enums\VendorTypeEnum;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class VendorTable extends Component implements HasForms, HasTable
@@ -28,13 +31,20 @@ class VendorTable extends Component implements HasForms, HasTable
     {
         return $table
             ->defaultPaginationPageOption(5)
-            ->query(Vendor::query()
-                ->when(
-                    auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
-                    fn ($q) => $q->where('id', auth()->user()->currentTeam->vendor_id)
-                )
-            )
+            ->query(Vendor::query())
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                if (! auth()->user()->hasRole(RoleSlug::ADMIN->value)) {
+                    $vendorIds = auth()->user()->allTeams()->pluck('vendor_id')->toArray();
+
+                    return $query->whereIn('id', $vendorIds);
+                }
+                return $query;
+            })
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
@@ -45,8 +55,14 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->boolean(),
+                IconColumn::make('verified')
+                    ->label('Activated')
+                    ->sortable()
+                    ->toggleable()
+                    ->boolean(),
                 TextColumn::make('address')
                     ->label('Address')
+                    ->wrap()
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
@@ -55,17 +71,11 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->getStateUsing(function ($record) {
                         return $record->products()->count();
                     })
-                    ->sortable(),
-                //                TextInputColumn::make('lat')
-                //                    ->label('Latitude')
-                //                    ->searchable()
-                //                    ->sortable()
-                //                    ->extraAttributes(['style' => 'width: 100%']),
-                //                TextInputColumn::make('lng')
-                //                    ->label('Longitude')
-                //                    ->searchable()
-                //                    ->sortable()
-                //                    ->extraAttributes(['style' => 'width: 100%']),
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query
+                            ->withCount('products')
+                            ->orderBy('products_count', $direction);
+                    }),
                 TextInputColumn::make('website')
                     ->label('Website')
                     ->searchable()
@@ -104,6 +114,34 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->visible(fn () => Gate::allows('create', Vendor::class))
                     ->iconButton(),
+            ])
+            ->filters([
+                SelectFilter::make('type')
+                    ->label('Type')
+                    ->multiple()
+                    ->options(VendorTypeEnum::getOptions())
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['values'])) {
+                            foreach ($data['values'] as $value) {
+                                $query->orWhereJsonContains('type', $value);
+                            }
+                        }
+
+                        return $query;
+                    }),
+                SelectFilter::make('independent_flag')
+                    ->label('Independent')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['value'])) {
+                            return $query->where('independent_flag', $data['value']);
+                        }
+
+                        return $query;
+                    }),
             ]);
     }
 

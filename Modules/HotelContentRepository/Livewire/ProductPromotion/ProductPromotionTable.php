@@ -106,8 +106,9 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
             Select::make('galleries')
                 ->label('Galleries')
                 ->multiple()
+                ->relationship('galleries', 'gallery_name')
                 ->searchable()
-                ->options(ImageGallery::pluck('gallery_name', 'id')),
+                ->native(false),
             Grid::make()
                 ->schema([
                     Checkbox::make('not_refundable')
@@ -146,13 +147,17 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                         'primary' => 'Hotel',
                         'warning' => 'Rate',
                     ]),
-                TextColumn::make('promotion_name')->label('Promotion Name')->searchable(),
-                TextColumn::make('rate_code')->label('Rate Code')->searchable(),
-                TextColumn::make('description')->label('Description')->searchable(),
-                TextColumn::make('validity_start')->label('Validity Start')->date(),
-                TextColumn::make('validity_end')->label('Validity End')->date(),
-                TextColumn::make('booking_start')->label('Booking Start')->date(),
-                TextColumn::make('booking_end')->label('Booking End')->date(),
+                TextColumn::make('promotion_name')->label('Promotion Name')->searchable()->wrap(),
+                TextColumn::make('rate_code')->label('Rate Code')->searchable()->wrap(),
+                TextColumn::make('description')
+                    ->label('Description')
+                    ->searchable()
+                    ->wrap()
+                    ->limit(250),
+                TextColumn::make('validity_start')->label('Validity Start')->date()->sortable(),
+                TextColumn::make('validity_end')->label('Validity End')->date()->sortable(),
+                TextColumn::make('booking_start')->label('Booking Start')->date()->sortable(),
+                TextColumn::make('booking_end')->label('Booking End')->date()->sortable(),
                 IconColumn::make('not_refundable')->label('Not Refundable'),
                 IconColumn::make('package')->label('Package'),
                 TextColumn::make('created_at')->label('Created At')->date(),

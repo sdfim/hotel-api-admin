@@ -12,9 +12,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('contactable_id');
             $table->string('contactable_type');
-            $table->string('first_name');
+            $table->string('first_name', 255);
             $table->string('last_name')->nullable();
-            $table->string('job_title')->nullable();
+            $table->string('job_title', 255)->nullable();
             $table->timestamps();
         });
     }

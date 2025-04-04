@@ -49,7 +49,7 @@ trait HasPricingRuleFields
                         ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
-                        ->helperText('Remove a rate from the search results')
+                        ->helperText('Remove a entity from the search results')
                         ->inline(false)
                         ->reactive()
                         ->afterStateUpdated(fn (Set $set, $state) => $set('price_settings_hidden', $state)),

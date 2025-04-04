@@ -2,9 +2,13 @@
 
 namespace App\Livewire\Users;
 
+use App\Actions\Jetstream\CreateTeam;
+use App\Actions\Jetstream\DeleteTeam;
+use App\Actions\Jetstream\RemoveTeamMember;
 use App\Helpers\ClassHelper;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Team;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +29,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class UsersForm extends Component implements HasForms, HasTable
 {
@@ -39,9 +44,12 @@ class UsersForm extends Component implements HasForms, HasTable
     {
         $this->record = $user;
 
+        $vendorIds = $user->allTeams()->pluck('vendor_id')->toArray() ?? [];
+
         $this->form->fill([
             ...$this->record->attributesToArray(),
             'role' => $this->record->roles()->first()?->id,
+            'vendor_ids' => $vendorIds,
         ]);
     }
 
@@ -49,13 +57,15 @@ class UsersForm extends Component implements HasForms, HasTable
     {
         $additionalFormData = [];
 
-        if (!$this->record->exists) {
+        if (! $this->record->exists) {
             $additionalFormData[] = TextInput::make('password')
                 ->required()
                 ->password()
                 ->revealable()
                 ->formatStateUsing(fn () => Str::password(10));
         }
+
+        $externalUserRoleId = Role::where('slug', 'external-user')->first()->id;
 
         return $form
             ->schema([
@@ -69,7 +79,14 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->maxLength(191),
                 Select::make('role')
                     ->options(Role::pluck('name', 'id'))
-                    ->required(),
+                    ->required()
+                    ->reactive(),
+                Select::make('vendor_ids')
+                    ->multiple()
+                    ->options(Vendor::pluck('name', 'id'))
+                    ->native(false)
+                    ->required()
+                    ->visible(fn ($get) => (int) $get('role') === $externalUserRoleId),
                 ...$additionalFormData,
             ])
             ->statePath('data')
@@ -112,7 +129,7 @@ class UsersForm extends Component implements HasForms, HasTable
                             ->options(Permission::whereDoesntHave(
                                 'users',
                                 fn ($query) => $query->where('user_id', $this->record->id)
-                            )->pluck('name', 'id'))
+                            )->pluck('name', 'id')),
                     ])
                     ->action(fn ($data) => $this->record->permissions()->attach($data['id'])),
             ]);
@@ -124,12 +141,16 @@ class UsersForm extends Component implements HasForms, HasTable
         $data = $this->form->getState();
         $this->record->fill(Arr::only($data, ['name', 'email']));
 
-        if (!$exists) {
+        if (! $exists) {
             $this->record->password = bcrypt($data['password']);
         }
 
         $this->record->save();
         $this->record->roles()->sync([$data['role']]);
+
+        if ($data['role'] === Role::where('slug', 'external-user')->first()->id) {
+            $this->addUserToGroups($data['vendor_ids'], $this->record);
+        }
 
         Notification::make()
             ->title($exists ? 'Updated successfully' : 'Created successfully')
@@ -137,6 +158,57 @@ class UsersForm extends Component implements HasForms, HasTable
             ->send();
 
         return redirect()->route('users.index');
+    }
+
+    public function addUserToGroups(array $vendorIds, User $user): void
+    {
+        $existingTeams = $user->allTeams()->pluck('vendor_id')->toArray();
+        $needToAttach = array_diff($vendorIds, $existingTeams);
+        $needToDelete = array_diff($existingTeams, $vendorIds);
+
+        foreach ($needToDelete as $vendorId) {
+            $team = Team::where('vendor_id', $vendorId)->first();
+            if ($team?->owner->id === $user->id && $team->users()->count() === 0) {
+                app(DeleteTeam::class)->delete($team);
+                $otherTeam = $user->allTeams()->first();
+                if ($otherTeam) {
+                    $user->switchTeam($otherTeam);
+                }
+            } elseif ($team?->owner->id === $user->id && $team->users()->count() !== 0) {
+                $newOwner = $team->users()->where('user_id', '!=', $user->id)->first();
+                if ($newOwner) {
+                    $team->owner()->associate($newOwner);
+                    $team->save();
+                }
+                $team->users()->detach($user->id);
+                $otherTeam = $user->allTeams()->first();
+                if ($otherTeam) {
+                    $user->switchTeam($otherTeam);
+                }
+            } else {
+                $team->users()->detach($user->id);
+            }
+        }
+
+        foreach ($needToAttach as $vendorId) {
+            $team = Team::where('vendor_id', $vendorId)->first();
+            if ($team?->exists) {
+                $team->users()->attach($user, ['role' => 'admin']);
+                $user->switchTeam($team);
+            } else {
+                $team = app(CreateTeam::class)
+                    ->create($user, [
+                        'name' => Vendor::where('id', $vendorId)->first()->name,
+                    ]);
+                $team->update(['vendor_id' => $vendorId]);
+                $user->switchTeam($team);
+            }
+        }
+
+        Notification::make()
+            ->title('User added to groups successfully')
+            ->success()
+            ->send();
     }
 
     public function render(): View

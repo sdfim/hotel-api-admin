@@ -2,13 +2,14 @@
 
 namespace Modules\HotelContentRepository\Http\Controllers;
 
+use Illuminate\Contracts\View\View;
 use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Modules\HotelContentRepository\Models\Vendor;
-use Illuminate\Contracts\View\View;
 
 class VendorController extends BaseWithPolicyController
 {
     protected static string $model = Vendor::class;
+
     protected static ?string $parameterName = 'vendor_repository';
 
     private array $message = ['edit' => 'Edit', 'create' => 'Create'];
@@ -28,8 +29,9 @@ class VendorController extends BaseWithPolicyController
 
     public function create(): View
     {
-        $vendor = new Vendor();
+        $vendor = new Vendor;
         $text = $this->message;
-        return view('dashboard.hotel_repository.vendors.form', compact('vendor','text'));
+
+        return view('dashboard.hotel_repository.vendors.form', compact('vendor', 'text'));
     }
 }

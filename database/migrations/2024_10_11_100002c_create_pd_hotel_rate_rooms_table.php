@@ -8,18 +8,16 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pd_hotel_web_finder_units', function (Blueprint $table) {
+        Schema::create('pd_hotel_rate_rooms', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('web_finder_id');
-            $table->string('field');
-            $table->string('value');
-            $table->string('type')->nullable();
+            $table->foreignId('hotel_rate_id')->constrained('pd_hotel_rates')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('pd_hotel_rooms')->onDelete('cascade');
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('pd_hotel_web_finder_units');
+        Schema::dropIfExists('pd_hotel_rate_rooms');
     }
 };

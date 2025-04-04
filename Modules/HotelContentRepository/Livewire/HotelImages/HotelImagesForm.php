@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -45,14 +46,17 @@ class HotelImagesForm extends Component implements HasForms
     public static function getFormComponents(?string $filePath = ''): array
     {
         return [
-            TextInput::make('tag')
-                ->label('Tag')
-                ->required()
-                ->maxLength(191),
-            Select::make('section_id')
-                ->label('Section')
-                ->required()
-                ->options(ImageSection::pluck('name', 'id')),
+            Grid::make()
+                ->schema([
+                    TextInput::make('tag')
+                        ->label('Tag')
+                        ->required()
+                        ->maxLength(191),
+                    Select::make('section_id')
+                        ->label('Section')
+                        ->required()
+                        ->options(ImageSection::pluck('name', 'id')),
+                ]),
             Select::make('galleries')
                 ->label('Galleries')
                 ->multiple()
@@ -71,12 +75,24 @@ class HotelImagesForm extends Component implements HasForms
 
                     return $image->id;
                 }),
-            TextInput::make('weight')
-                ->label('Weight')
-                ->formatStateUsing(fn (?Image $record) => $record?->exists ? $record->weight : '500'),
-            TextInput::make('alt')
-                ->label('Alt')
-                ->maxLength(191),
+
+            Grid::make()
+                ->schema([
+                    TextInput::make('weight')
+                        ->label('Weight')
+                        ->formatStateUsing(fn (?Image $record) => $record?->exists ? $record->weight : '500'),
+                    TextInput::make('alt')
+                        ->label('Alt')
+                        ->maxLength(191),
+                    Select::make('source')
+                        ->label('Source')
+                        ->options(Image::distinct()->pluck('source', 'source'))
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('source', $state)),
+
+                ]),
+
             FileUpload::make('image_url')
                 ->label('Image')
                 ->image()
@@ -84,7 +100,26 @@ class HotelImagesForm extends Component implements HasForms
                 ->preserveFilenames()
                 ->directory($filePath ? 'images/'.$filePath : 'images')
                 ->visibility('private')
-                ->downloadable(),
+                ->downloadable()
+                ->nullable()
+                ->visible(fn ($get) => $get('source') === 'own'),
+
+            Grid::make(3)
+                ->schema([
+                    TextInput::make('base_url')
+                        ->label('Base URL')
+                        ->formatStateUsing(fn () => config('image_sources.sources.crm'))
+                        ->disabled()
+                        ->columnSpan(1)
+                        ->visible(fn ($get) => $get('source') === 'crm'),
+                    TextInput::make('image_url_txt')
+                        ->label('Image URL')
+                        ->required()
+                        ->columnSpan(fn ($get) => $get('source') === 'crm' ? 2 : 3)
+                        ->formatStateUsing(fn ($record) => $record ? $record->image_url : '')
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('image_url', $state)),
+                ])
+                ->visible(fn ($get) => $get('source') !== 'own'),
         ];
     }
 

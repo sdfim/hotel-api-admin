@@ -14,16 +14,18 @@ class CheckChannelNotDeleted
      */
     public function handle(Request $request, Closure $next)
     {
-        $accessToken = $request->header('Authorization');
+        if ($request->is('api/*')) {
+            $accessToken = $request->header('Authorization');
 
-        if (str_starts_with($accessToken, 'Bearer ')) {
-            $accessToken = substr($accessToken, 7);
-        }
+            if (str_starts_with($accessToken, 'Bearer ')) {
+                $accessToken = substr($accessToken, 7);
+            }
 
-        $channel = Channel::withTrashed()->where('access_token', 'like', '%'.$accessToken)->first();
+            $channel = Channel::withTrashed()->where('access_token', 'like', '%'.$accessToken)->first();
 
-        if ($channel && $channel->trashed()) {
-            return response()->json(['error' => 'Channel is deleted'], 403);
+            if ($channel && $channel->trashed()) {
+                return response()->json(['error' => 'Channel is deleted'], 403);
+            }
         }
 
         return $next($request);

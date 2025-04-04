@@ -162,7 +162,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
         }, $categories);
 
         $columns = [
-            TextColumn::make('first_name')->label('First Name'),
+            TextColumn::make('first_name')->label('First Name')->wrap(),
             TextColumn::make('last_name')->label('Last Name'),
             TextColumn::make('job_title')->label('Job Title')->wrap(),
             TextColumn::make('job_title')

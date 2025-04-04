@@ -14,6 +14,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Artisan;
@@ -49,7 +50,8 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->when(
                         auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
                         fn ($q) => $q->whereHas('product', function (Builder $query) {
-                            $query->where('vendor_id', auth()->user()->currentTeam->vendor_id);
+                            $vendorIds = auth()->user()->allTeams()->pluck('vendor_id')->toArray();
+                            $query->whereIn('vendor_id', $vendorIds);
                         })
                     );
 
@@ -63,17 +65,15 @@ class HotelTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 ImageColumn::make('product.hero_image_thumbnails')
-                    ->disk('s3')
                     ->size('100px'),
-
-                TextColumn::make('rooms.name')
-                    ->searchable()
-                    ->wrap()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('product.verified')
                     ->label('Verified')
-                    ->sortable()
+                    ->toggleable()
+                    ->boolean(),
+
+                IconColumn::make('product.onSale')
+                    ->label('onSale')
                     ->toggleable()
                     ->boolean(),
 
@@ -271,7 +271,7 @@ class HotelTable extends Component implements HasForms, HasTable
                                     $res = Artisan::call('files:import', [
                                         'file' => $filePath,
                                     ]);
-                                    if (!$res) {
+                                    if (! $res) {
                                         $allSuccess = false;
                                         break;
                                     }
@@ -298,6 +298,57 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-circle-stack')
                     ->iconButton()
                     ->visible(! $this->vendor?->id),
+            ])
+            ->filters([
+                SelectFilter::make('product.verified')
+                    ->label('Verified')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['value'])) {
+                            return $query->whereHas('product', function (Builder $query) use ($data) {
+                                $query->where('verified', $data['value']);
+                            });
+                        }
+                        return $query;
+                    }),
+                SelectFilter::make('product.onSale')
+                    ->label('onSale')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['value'])) {
+                            return $query->whereHas('product', function (Builder $query) use ($data) {
+                                $query->where('onSale', $data['value']);
+                            });
+                        }
+                        return $query;
+                    }),
+                SelectFilter::make('star_rating')
+                    ->label('Star Rating')
+                    ->multiple()
+                    ->options([
+                        '1-2' => '1-2 Stars',
+                        '3-3.5' => '3-3.5 Stars',
+                        '3.5-4' => '3.5-4 Stars',
+                        '4-4.5' => '4-4.5 Stars',
+                        '4.5-5' => '4.5-5 Stars',
+                        '5-5.5' => '5-5.5 Stars',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['values'])) {
+                            foreach ($data['values'] as $value) {
+                                [$min, $max] = explode('-', $value);
+                                $query->orWhereBetween('star_rating', [(int) $min, (int) $max]);
+                            }
+                        }
+
+                        return $query;
+                    }),
             ]);
     }
 

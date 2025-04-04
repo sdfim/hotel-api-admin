@@ -48,7 +48,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public int $productId;
+    public Product $product;
 
     public ?int $rateId = null;
 
@@ -60,11 +60,11 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
 
     public function mount(Product $product, ?int $rateId = null, ?int $roomId = null)
     {
-        $this->productId = $product->id;
+        $this->product = $product;
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Add On or Informational Service for '.$product->name;
         if ($this->rateId) {
@@ -80,7 +80,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     public function schemeForm(): array
     {
         return [
-            Hidden::make('product_id')->default($this->productId),
+            Hidden::make('product_id')->default($this->product->id),
             Hidden::make('rate_id')->default($this->rateId),
             Hidden::make('room_id')->default($this->roomId),
 
@@ -246,7 +246,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
             ->emptyStateDescription('Create an Add On or Informational Service to get started.')
             ->query(
                 ProductInformativeService::query()
-                    ->where('product_id', $this->productId)
+                    ->where('product_id', $this->product->id)
             )
             ->modifyQueryUsing(function (Builder $query) {
                 if ($this->rateId) {
@@ -273,8 +273,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $record->rate_id !== null => 'Rate',
-                            $this->productId && $record->room_id !== null => 'Room',
+                            $this->product->id && $record->rate_id !== null => 'Rate',
+                            $this->product->id && $record->room_id !== null => 'Room',
                             default => 'Hotel',
                         };
                     })
@@ -293,8 +293,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             default => '',
                         };
                     }),
-                TextColumn::make('name')->label('Name')->searchable(),
-                TextColumn::make('service.name')->label('Service Type')->searchable(),
+                TextColumn::make('name')->label('Name')->searchable()->wrap()->sortable(),
+                TextColumn::make('service.name')->label('Service Type')->searchable()->sortable(),
                 TextColumn::make('cost')->label('Total Rack')->searchable(),
                 TextColumn::make('currency')->label('Currency')->searchable(),
                 TextColumn::make('service_time')->label('Service Time')->searchable(),
@@ -342,6 +342,11 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->form($this->schemeForm())
+                    ->fillForm(function () {
+                        return [
+                            'currency' => $this->product->default_currency,
+                        ];
+                    })
                     ->modalWidth('6xl')
                     ->createAnother(false)
                     ->action(function ($data) {

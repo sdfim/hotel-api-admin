@@ -23,20 +23,22 @@ trait ByCurrentTeam
 
     private function canByTeam(string $name, User $user, ?Model $model = null): bool
     {
-        if (!$model) {
+        if (! $model) {
             return $this->can($name, $user);
         }
 
-        if ($user->hasRole(RoleSlug::ADMIN->value)) return true;
+        if ($user->hasRole(RoleSlug::ADMIN->value)) {
+            return true;
+        }
 
         if ($this->withTeam($name, $user)) {
-            if (!empty($this->withRelation)) {
+            if (! empty($this->withRelation)) {
                 return $model->{$this->withRelation}()
-                    ->where('vendor_id', $user->currentTeam->vendor_id)
+                    ->whereIn('vendor_id', $user->allTeams()->pluck('vendor_id')->toArray())
                     ->exists();
             }
 
-            return $model->vendor_id == $user->currentTeam->vendor_id;
+            return in_array($model->vendor_id, $user->allTeams()->pluck('vendor_id')->toArray());
         }
 
         $permission = $this->getPrefix().'.'.$name;

@@ -24,7 +24,7 @@ trait PdGridTrait
     {
         foreach ($record->product->descriptiveContentsSection as $section) {
             if ($section->descriptiveType->name === 'Note' || $section->descriptiveType->name === 'Notes') {
-                return $section->value;
+                return $section?->value ?? '';
             }
         }
 

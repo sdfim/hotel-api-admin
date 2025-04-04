@@ -125,17 +125,16 @@ trait DepositFieldTrait
                         return [
                             'supplier_id' => 'Supplier ID',
                             'channel_id' => 'Channel ID',
-                            //                            'property' => 'Property',
                             'destination' => 'Destination',
                             'travel_date' => 'Travel date',
                             'booking_date' => 'Booking date',
+                            'date_of_stay' => 'Date of stay',
                             'total_guests' => 'Total guests',
                             'days_until_departure' => 'Days until departure',
                             'nights' => 'Nights',
                             'rating' => 'Rating',
                             'number_of_rooms' => 'Number of rooms',
                             'meal_plan' => 'Meal plan / Board basis',
-                            //                                'room_code' => 'Room code',
                             'room_name' => 'Room name',
                             'room_type' => 'Room type',
                         ];
@@ -154,7 +153,7 @@ trait DepositFieldTrait
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
                         ],
-                        'property', 'destination', 'room_type', 'room_code', 'room_name', 'rate_code' => [
+                        'destination', 'room_type', 'room_code', 'room_name', 'rate_code' => [
                             'in' => 'In List',
                             '!in' => 'Not In List',
                             '=' => 'Equals',
@@ -188,61 +187,6 @@ trait DepositFieldTrait
                                 ->options(Channel::all()->pluck('name', 'id'))
                                 ->required(),
                         ],
-                        'property' => [
-                            Select::make('value')
-                                ->label('Property')
-                                ->searchable()
-                                ->multiple()
-                                ->getSearchResultsUsing(function (string $search): ?array {
-                                    $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
-                                    $result = Property::select(
-                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
-                                        ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                        ->limit(100);
-
-                                    return $result->pluck('full_name', 'code')
-                                        ->mapWithKeys(function ($full_name, $code) {
-                                            return [$code => $full_name.' ('.$code.')'];
-                                        })
-                                        ->toArray() ?? [];
-                                })
-                                ->getOptionLabelsUsing(function (array $values): ?array {
-                                    $properties = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                                        ->whereIn('code', $values)
-                                        ->get()
-                                        ->mapWithKeys(function ($property) {
-                                            return [$property->code => $property->full_name.' ('.$property->code.')'];
-                                        })
-                                        ->toArray();
-
-                                    return $properties;
-                                })
-                                ->required()
-                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
-
-                            Select::make('value_from')
-                                ->label('Property')
-                                ->searchable()
-                                ->getSearchResultsUsing(function (string $search): ?array {
-                                    $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
-                                    $result = Property::select(
-                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name, code'))
-                                        ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                        ->limit(100);
-
-                                    return $result->pluck('full_name', 'code')->toArray() ?? [];
-                                })
-                                ->getOptionLabelUsing(function ($value): ?string {
-                                    $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name'))
-                                        ->where('code', $value)
-                                        ->first();
-
-                                    return $property ? $property->full_name : null;
-                                })
-                                ->required()
-                                ->dehydrated()
-                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
-                        ],
                         'destination' => [
                             Select::make('value')
                                 ->label('Destination')
@@ -268,6 +212,7 @@ trait DepositFieldTrait
 
                                     return $properties;
                                 })
+                                ->native(false)
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
 
@@ -288,6 +233,7 @@ trait DepositFieldTrait
 
                                     return $result->full_name ?? '';
                                 })
+                                ->native(false)
                                 ->required()
                                 ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
                         ],
@@ -333,6 +279,28 @@ trait DepositFieldTrait
                                         ->required(fn (Get $get): bool => $get('compare') === 'between')
                                         ->disabled(fn (Get $get): bool => $get('compare') !== 'between')
                                         ->readonly(fn (Get $get): bool => $get('compare') === 'between'),
+                                ])
+                                ->columns(2),
+                        ],
+                        'date_of_stay' => [
+                            Grid::make()
+                                ->schema([
+                                    DateTimePicker::make('value_from')
+                                        ->label('Date of stay from')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('d-m-Y')
+                                        ->required(),
+                                    DateTimePicker::make('value_to')
+                                        ->label('Date of stay to')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('d-m-Y')
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],

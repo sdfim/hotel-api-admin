@@ -51,7 +51,7 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Consortia Amenities for '.$product->name;
         if ($this->rateId) {

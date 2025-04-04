@@ -106,11 +106,12 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->createOptionForm(AttributesForm::getSchema())
                     ->createOptionUsing(function (array $data) {
                         $data['default_value'] = '';
-                        ConfigAttribute::create($data);
+                        $attribute = ConfigAttribute::create($data);
                         Notification::make()
                             ->title('Attributes created successfully')
                             ->success()
                             ->send();
+                        return $attribute->id;
                     })
                     ->searchable()
                     ->multiple()

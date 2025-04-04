@@ -17,3 +17,5 @@
 
     <x-filament-actions::modals/>
 </div>
+
+@include('livewire.image-galleries.swiper-script')

@@ -70,12 +70,6 @@
                 ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
-//        'UJV Commission' => [
-//            'tab_name' => 'travel-agency-commission',
-//            'related' => [
-//                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
-//            ],
-//        ],
         'Galleries' => [
             'tab_name' => 'images-gallery',
             'related' => [

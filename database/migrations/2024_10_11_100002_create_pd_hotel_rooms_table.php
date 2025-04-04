@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
         });
