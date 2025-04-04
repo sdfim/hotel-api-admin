@@ -57,6 +57,33 @@
         $canView(Commission::class);
 @endphp
 
+@php
+    $configurationLinks = collect([
+        ['route' => 'general_configuration', 'text' => 'General', 'model' => GeneralConfiguration::class],
+        ['route' => 'channels.index', 'text' => 'Channels', 'model' => Channel::class],
+        ['route' => 'suppliers.index', 'text' => 'Suppliers', 'model' => Supplier::class],
+        ['route' => 'configurations.attributes.index', 'text' => 'Attributes', 'model' => ConfigAttribute::class],
+        ['route' => 'configurations.amenities.index', 'text' => 'Amenities', 'model' => ConfigAmenity::class],
+        ['route' => 'configurations.consortia.index', 'text' => 'Consortia', 'model' => ConfigConsortium::class],
+        ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
+        ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
+        ['route' => 'configurations.service-types.index', 'text' => 'Service Types', 'model' => ConfigServiceType::class],
+        ['route' => 'configurations.chains.index', 'text' => 'Chains', 'model' => ConfigChain::class],
+        ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
+        ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
+        ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
+    ]);
+
+    $fixedLinks = $configurationLinks->filter(function ($link) {
+        return in_array($link['text'], ['General', 'Channels']);
+    });
+
+    $sortedLinks = $configurationLinks->filter(function ($link) {
+        return !in_array($link['text'], ['General', 'Channels']);
+    })->sortBy('text');
+
+    $configurationLinks = $fixedLinks->merge($sortedLinks);
+@endphp
     <!-- ========== Left Sidebar Start ========== -->
 <div
     class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
@@ -75,99 +102,19 @@
                             <span data-key="t-configuration">Configuration</span>
                         </a>
                         <ul>
-                            @if($canView(GeneralConfiguration::class))
-                                <li>
-                                    <a href="{{ Route('general_configuration') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">General
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(Channel::class))
-                                <li>
-                                    <a href="{{ Route('channels.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">Channels
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(Supplier::class))
-                                <li>
-                                    <a href="{{ Route('suppliers.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">Suppliers
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigAttribute::class))
-                                <li>
-                                    <a href="{{ route('configurations.attributes.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Attributes </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigAmenity::class))
-                                <li>
-                                    <a href="{{ route('configurations.amenities.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Amenities </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigConsortium::class))
-                                <li>
-                                    <a href="{{ route('configurations.consortia.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Consortia </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigDescriptiveType::class))
-                                <li>
-                                    <a href="{{ route('configurations.descriptive-types.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Descriptive Types </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigJobDescription::class))
-                                <li>
-                                    <a href="{{ route('configurations.job-descriptions.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Departments </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigServiceType::class))
-                                <li>
-                                    <a href="{{ route('configurations.service-types.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Service Types </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigChain::class))
-                                <li>
-                                    <a href="{{ route('configurations.chains.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Chains </a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigInsuranceDocumentationType::class))
-                                <li>
-                                    <a href="{{ route('configurations.insurance-documentation-types.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Insurance Documentation Types </a>
-                                </li>
-                            @endif
-                            @if($canView(KeyMappingOwner::class))
-                                <li>
-                                    <a href="{{ route('configurations.external-identifiers.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >External Identifiers </a>
-                                </li>
-                            @endif
-                            @if($canView(Commission::class))
-                                <li>
-                                    <a href="{{ route('configurations.commissions.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Commissions </a>
-                                </li>
-                            @endif
+                            @foreach($configurationLinks as $link)
+                                @if($canView($link['model']))
+                                    <li>
+                                        <a href="{{ route($link['route']) }}"
+                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                            {{ $link['text'] }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
                         </ul>
                     </li>
+
                 @endif
                 @if($canView(User::class) || $canView(Role::class) || $canView(Permission::class))
                     <li>
