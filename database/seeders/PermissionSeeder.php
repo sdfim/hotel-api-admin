@@ -80,6 +80,17 @@ class PermissionSeeder extends Seeder
                 name: Str::replace(['-', '_'], ' ', Str::ucfirst($permission)),
             );
         }
+
+        // Always create these specific permissions if they do not exist
+        Permission::firstOrCreate(
+            ['slug' => 'admin'],
+            ['name' => 'Admin']
+        );
+
+        Permission::firstOrCreate(
+            ['slug' => 'user'],
+            ['name' => 'User']
+        );
     }
 
     private function createIfNotExists(string $slug, string $name): void
