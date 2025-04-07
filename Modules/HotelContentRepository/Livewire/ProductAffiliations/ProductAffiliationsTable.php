@@ -172,6 +172,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()
                     ->where('product_id', $this->productId)
             )
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

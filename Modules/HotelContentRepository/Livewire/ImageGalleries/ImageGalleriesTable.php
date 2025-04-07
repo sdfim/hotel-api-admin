@@ -59,6 +59,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
             ->defaultSort('created_at', 'desc')
             ->recordUrl(fn (ImageGallery $record): ?string => Gate::allows('update', $record) ? route('image-galleries.edit', $record) : null
             )
+            ->deferLoading()
             ->columns([
                 ImageColumn::make('images.image_url')
                     ->size('70px')

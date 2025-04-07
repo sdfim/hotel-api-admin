@@ -103,6 +103,7 @@ class ProductCancellationPolicyTable extends Component implements HasForms, HasT
                     ->searchable()
                     ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
             ])
+            ->deferLoading()
             ->actions([
                 ActionGroup::make([
                     EditAction::make()

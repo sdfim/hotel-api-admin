@@ -51,6 +51,7 @@ class HotelRateTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
 
                 TextInputColumn::make('code')

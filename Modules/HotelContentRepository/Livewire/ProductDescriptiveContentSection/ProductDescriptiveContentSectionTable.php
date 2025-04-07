@@ -113,6 +113,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ProductDescriptiveContentSection::query()
                     ->where('product_id', $this->productId)->where('rate_id', $this->rateId)
             )
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

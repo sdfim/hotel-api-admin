@@ -111,6 +111,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ->title('Attributes created successfully')
                             ->success()
                             ->send();
+
                         return $attribute->id;
                     })
                     ->searchable()
@@ -151,6 +152,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
                 TextInputColumn::make('external_code')
                     ->label('UJV Code')

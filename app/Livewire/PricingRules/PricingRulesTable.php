@@ -97,6 +97,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

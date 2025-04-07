@@ -67,6 +67,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                     $query->whereNull('rate_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

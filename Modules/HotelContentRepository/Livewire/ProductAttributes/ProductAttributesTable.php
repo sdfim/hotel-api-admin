@@ -91,6 +91,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             ->query(
                 ProductAttribute::where('product_id', $this->productId)
             )
+            ->deferLoading()
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name'),
                 TextColumn::make('category.name')

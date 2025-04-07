@@ -136,6 +136,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                     $query->whereNull('rate_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

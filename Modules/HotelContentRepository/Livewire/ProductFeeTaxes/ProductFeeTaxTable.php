@@ -251,6 +251,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     $query->whereNull('rate_id')->whereNull('room_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
