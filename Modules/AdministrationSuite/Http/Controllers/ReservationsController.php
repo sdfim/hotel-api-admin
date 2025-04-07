@@ -32,7 +32,9 @@ class ReservationsController extends BaseWithPolicyController
     public function show(string $id): View
     {
         $text = $this->message;
-        $reservation = Reservation::with(['channel'])->findOrFail($id);
+        $reservation = Reservation::with(['channel' => function ($query) {
+            $query->withTrashed();
+        }])->find($id);
 
         return view('dashboard.reservations.show', compact('reservation', 'text'));
     }
