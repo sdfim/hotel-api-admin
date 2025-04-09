@@ -350,6 +350,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->modalWidth('6xl')
                     ->createAnother(false)
                     ->action(function ($data) {
+                        $data['product_id'] = $this->product->id;
                         /** @var AddProductInformativeService $addProductInformativeService */
                         $addProductInformativeService = app(AddProductInformativeService::class);
                         $addProductInformativeService->createWithDynamicColumns($data);
