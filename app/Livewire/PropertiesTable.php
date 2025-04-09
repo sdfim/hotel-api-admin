@@ -140,8 +140,8 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     TextInput::make('longitude')
                         ->label('Longitude')
                         ->numeric()
-                        ->minValue(-90)
-                        ->maxValue(90)
+                        ->minValue(-180)
+                        ->maxValue(180)
                         ->disabled(!$isEditable),
 
                     TextInput::make('mapper_phone_number')
