@@ -50,11 +50,15 @@ class UsersTable extends Component implements HasForms, HasTable
                     ->getStateUsing(fn (User $record) => $record->hasRole(RoleSlug::EXTERNAL_USER->value) ? $record->allTeams()->pluck('name')->join(', ') : 'All'),
 
                 TextColumn::make('currentTeam.name')
-                    ->label('Vendor (Current Team)'),
+                    ->label('Current Team')
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true),
 
                 IconColumn::make('owner_team')
                     ->label('Owner')
                     ->boolean()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true)
                     ->getStateUsing(fn (User $record) => $record->currentTeam?->owner()->is($record)),
 
             ])

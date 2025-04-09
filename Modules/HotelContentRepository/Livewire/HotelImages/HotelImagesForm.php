@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\Enums\ImageSourceEnum;
 use Modules\HotelContentRepository\Actions\Image\AddImage;
 use Modules\HotelContentRepository\Actions\Image\EditImage;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
@@ -86,7 +87,7 @@ class HotelImagesForm extends Component implements HasForms
                         ->maxLength(191),
                     Select::make('source')
                         ->label('Source')
-                        ->options(Image::distinct()->pluck('source', 'source'))
+                        ->options(ImageSourceEnum::getOptions())
                         ->required()
                         ->reactive()
                         ->afterStateUpdated(fn ($state, callable $set) => $set('source', $state)),
