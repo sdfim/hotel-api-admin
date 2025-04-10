@@ -36,16 +36,18 @@ class HotelWebFinderAction
         $adults = '2';
         $children = '0';
         $numberOfRooms = '1';
+        $nights = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
 
         $data['example'] = str_replace(
             [
                 '{search_adults_name}',
                 '{search_children_name}',
                 '{search_rooms_count_name}',
+                '{search_nights_name}',
                 "{search_end_travel_date_name:$endDateFormat}",
                 "{search_start_travel_date_name:$startDateFormat}",
             ],
-            [$adults, $children, $numberOfRooms, $endDate, $startDate],
+            [$adults, $children, $numberOfRooms, $nights, $endDate, $startDate],
             $data['finder']
         );
 

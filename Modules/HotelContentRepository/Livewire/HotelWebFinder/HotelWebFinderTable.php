@@ -251,7 +251,11 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         if (! empty($this->units)) {
             $step = 0;
             foreach ($this->units as $unit) {
-                $finder .= ($step > 0 ? '&' : '').$unit['value'].'={'.$unit['field'].(! empty($unit['type']) ? ':'.$unit['type'] : '').'}';
+                if ($unit['field'] === 'search_property_identifier_name') {
+                    $finder .= ($step > 0 ? '&' : '').$unit['value'].'='.$unit['type'];
+                } else {
+                    $finder .= ($step > 0 ? '&' : '').$unit['value'].'={'.$unit['field'].(! empty($unit['type']) ? ':'.$unit['type'] : '').'}';
+                }
                 $step++;
             }
         } else {
