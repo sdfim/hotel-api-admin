@@ -62,12 +62,18 @@ class UpdatePricingRule extends Component implements HasForms
 
         $this->record->update($data);
 
+        $conditions = $data['conditions'] ?? [];
+        $this->record->conditions()->delete();
+        $this->record->conditions()->createMany($conditions);
+
         Notification::make()
             ->title('Updated successfully')
             ->success()
             ->send();
 
-        return redirect()->route('pricing-rules.index');
+        return redirect()->route('pricing-rules.edit', [
+            'pricing_rule' => $this->record,
+        ]);
     }
 
     public function render(): View

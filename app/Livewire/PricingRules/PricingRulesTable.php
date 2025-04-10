@@ -157,13 +157,13 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     )
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
-                    ->label('Travel Start Date')
+                    ->label('Rule Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('rule_expiration_date')
-                    ->label('Travel End Date')
+                    ->label('Rule End Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()

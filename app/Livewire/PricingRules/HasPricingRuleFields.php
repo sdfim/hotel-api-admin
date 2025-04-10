@@ -440,14 +440,14 @@ trait HasPricingRuleFields
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
+                                        ->displayFormat('m/d/Y')
                                         ->required(),
                                     DateTimePicker::make('value_to')
                                         ->label('Travel date to')
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
+                                        ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between')
                                         ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between'),
@@ -462,14 +462,14 @@ trait HasPricingRuleFields
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
+                                        ->displayFormat('m/d/Y')
                                         ->required(),
                                     DateTimePicker::make('value_to')
                                         ->label('Booking date to')
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
+                                        ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between')
                                         ->disabled(fn (Get $get): bool => $get('compare') !== 'between')
                                         ->readonly(fn (Get $get): bool => $get('compare') === 'between'),

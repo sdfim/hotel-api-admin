@@ -95,7 +95,9 @@ class CreatePricingRule extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->back();
+        return redirect()->route('pricing-rules.edit', [
+            'pricing_rule' => $record,
+        ]);
     }
 
     public function render(): View
