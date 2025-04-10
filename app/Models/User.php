@@ -21,10 +21,10 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use HasRolesAndPermissions;
     use HasTeams;
-    use Notifiable;
-    use TwoFactorAuthenticatable;
     use LogsActivity;
+    use Notifiable;
     use SoftDeletes;
+    use TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.

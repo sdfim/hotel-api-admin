@@ -14,16 +14,19 @@ class ChannelSeeder extends Seeder
     public function run(): void
     {
         if (! Channel::first()) {
-            if (Auth::attempt(['email' => 'admin@ujv.com', 'password' => 'C5EV0gEU9OnlS5r'])) {
-                $user = Auth::user();
-                $data = [];
-                $data['name'] = 'Test Channel';
-                $data['description'] = 'Test Channel Description';
-                $token = $user->createToken($data['name']);
-                $data['token_id'] = $token->accessToken->id;
-                $data['access_token'] = $token->plainTextToken;
-                Channel::create($data);
-            }
+            $data = [];
+            $data['name'] = 'Test Channel';
+            $data['description'] = 'Test Channel Description';
+
+            // Create the channel
+            $channel = Channel::create($data);
+
+            // Generate a token for the channel
+            $token = $channel->createToken($data['name']);
+            $channel->update([
+                'token_id' => $token->accessToken->id,
+                'access_token' => $token->plainTextToken,
+            ]);
         }
     }
 }
