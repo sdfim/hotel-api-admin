@@ -296,6 +296,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                 TextColumn::make('name')->label('Name')->searchable()->wrap()->sortable(),
                 TextColumn::make('service.name')->label('Service Type')->searchable()->sortable(),
                 TextColumn::make('cost')->label('Total Rack')->searchable(),
+                TextColumn::make('total_net')->label('Total Net')->searchable(),
                 TextColumn::make('currency')->label('Currency')->searchable(),
                 TextColumn::make('service_time')->label('Service Time')->searchable(),
                 IconColumn::make('show_service_on_pdf')->label('Show on PDF')->boolean(),
