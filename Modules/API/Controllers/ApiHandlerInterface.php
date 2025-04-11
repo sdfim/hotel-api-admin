@@ -4,6 +4,7 @@ namespace Modules\API\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 interface ApiHandlerInterface
 {
@@ -11,5 +12,5 @@ interface ApiHandlerInterface
 
     public function detail(Request $request): JsonResponse;
 
-    public function price(Request $request, array $suppliers): JsonResponse;
+    public function price(Request $request, array $suppliers): JsonResponse|StreamedJsonResponse;
 }

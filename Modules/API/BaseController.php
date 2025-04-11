@@ -4,6 +4,7 @@ namespace Modules\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 /**
  * @OA\Info(
@@ -51,7 +52,7 @@ class BaseController extends Controller
     /**
      * success response method.
      */
-    public function sendResponse(array $result, ?string $message = null, ?int $code = 200): JsonResponse
+    public function sendResponse(array $result, ?string $message = null, ?int $code = 200, ?bool $stream = false): JsonResponse|StreamedJsonResponse
     {
         $response = [
             'success' => true,
@@ -64,6 +65,11 @@ class BaseController extends Controller
 
         if ($message) {
             $response['message'] = $message;
+        }
+
+        if ($stream)
+        {
+            return response()->streamJson($response, $code);
         }
 
         return response()->json($response, $code);

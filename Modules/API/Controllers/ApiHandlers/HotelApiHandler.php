@@ -36,6 +36,7 @@ use Modules\Enums\SupplierNameEnum;
 use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 use Throwable;
 
 /**
@@ -241,7 +242,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     /**
      * @throws Throwable
      */
-    public function price(Request $request, array $suppliers): JsonResponse
+    public function price(Request $request, array $suppliers): JsonResponse|StreamedJsonResponse
     {
         Log::info('Memory usage start: '.memory_get_usage() / 1024 / 1024 .' MB');
         $stp = microtime(true);
