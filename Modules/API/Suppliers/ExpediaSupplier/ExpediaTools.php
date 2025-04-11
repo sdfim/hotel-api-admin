@@ -8,7 +8,7 @@ use App\Models\Channel;
 use App\Models\Reservation;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +21,7 @@ class ExpediaTools
     {
         try {
             $token = request()->bearerToken() ?? env('TEST_TOKEN', null);
-            $token_id = ChannelRenository::getTokenId($token);
+            $token_id = ChannelRepository::getTokenId($token);
             $channel_id = Channel::where('token_id', $token_id)->first()?->id;
 
             $apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first();

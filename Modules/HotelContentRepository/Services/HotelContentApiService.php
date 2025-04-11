@@ -3,7 +3,7 @@
 namespace Modules\HotelContentRepository\Services;
 
 use App\Models\GeneralConfiguration;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -116,7 +116,7 @@ class HotelContentApiService
         $token = request()->bearerToken();
         $hotelsNotWhiteList = [];
         if ($token) {
-            $channelId = ChannelRenository::getTokenId($token);
+            $channelId = ChannelRepository::getTokenId($token);
             $hotelsNotWhiteList = Hotel::with('product.channels')
                 ->whereIn('giata_code', $giataCodes)
                 ->whereDoesntHave('product.channels', function ($query) use ($channelId) {
