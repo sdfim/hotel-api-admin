@@ -169,6 +169,15 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->createAnother(false)
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->action(function (array $data) {
+                        $existingHotel = Hotel::where('giata_code', $data['giata_code'])->first();
+                        if ($existingHotel) {
+                            Notification::make()
+                                ->title("Hotel with GIATA code already exists ({$existingHotel->product->name} | {$existingHotel->product->vendor->name})")
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
                         $this->saveHotelWithGiataCode($data);
                     })
                     ->modalHeading('Add Hotel with GIATA Code')
@@ -312,6 +321,7 @@ class HotelTable extends Component implements HasForms, HasTable
                                 $query->where('verified', $data['value']);
                             });
                         }
+
                         return $query;
                     }),
                 SelectFilter::make('product.onSale')
@@ -326,6 +336,7 @@ class HotelTable extends Component implements HasForms, HasTable
                                 $query->where('onSale', $data['value']);
                             });
                         }
+
                         return $query;
                     }),
                 SelectFilter::make('star_rating')

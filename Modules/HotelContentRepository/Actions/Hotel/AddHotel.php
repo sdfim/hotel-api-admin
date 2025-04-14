@@ -43,93 +43,95 @@ class AddHotel
         $hashMapperExpedia = $mappingCacheService->getMappingsExpediaHashMap();
         $reversedHashMap = array_flip($hashMapperExpedia);
         $expediaCode = $reversedHashMap[$property->code] ?? null;
+
         $roomsData = [];
         $attributes = [];
         $numRooms = 0;
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
+
         if ($expediaCode) {
             $expediaData = DB::connection('mysql_cache')
                 ->table('expedia_content_slave')
                 ->select('rooms', 'statistics', 'all_inclusive', 'amenities')
                 ->where('expedia_property_id', $expediaCode)
                 ->first();
+
             $expediaData = (array) $expediaData;
-            if (empty($expediaData)) {
-                Notification::make()
-                    ->title('Rooms not found')
-                    ->danger()
-                    ->send();
-            } else {
+            if (! empty($expediaData)) {
                 $roomsData = json_decode(Arr::get($expediaData, 'rooms', '[]'), true);
                 $statistics = json_decode(Arr::get($expediaData, 'statistics', '{}'), true);
                 $attributes = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
                 $numRooms = Arr::get($statistics, '52.value', 0);
                 $allInclusive = json_decode(Arr::get($expediaData, 'all_inclusive', '{}'), true);
                 $mealPlans = MealPlansEnum::values();
-                $mealPlansRes = array_filter($allInclusive, function ($value) use ($mealPlans) {
-                    return in_array($value, $mealPlans);
-                });
-                $mealPlansRes = array_values($mealPlansRes);
-                if (empty($mealPlansRes)) {
-                    $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
-                }
+                $mealPlansRes = array_filter($allInclusive, fn ($value) => in_array($value, $mealPlans));
+                $mealPlansRes = array_values($mealPlansRes) ?: [MealPlansEnum::NO_MEAL_PLAN->value];
+            } else {
+                Notification::make()
+                    ->title('Rooms not found')
+                    ->danger()
+                    ->send();
             }
         }
 
         /** @var HotelForm $hotelForm */
         $hotelForm = app(HotelForm::class);
-        if ($property->latitude && $property->longitude) {
-            $address = $hotelForm->getGeocodingData($property->latitude, $property->longitude);
-        } else {
-            $address = [];
-        }
+        $address = $property->latitude && $property->longitude
+            ? $hotelForm->getGeocodingData($property->latitude, $property->longitude)
+            : [];
 
         return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes, $address) {
-            $hotel = Hotel::create([
-                'giata_code' => $property->code,
-                'star_rating' => max($property->rating ?? 5, 5),
-                'sale_type' => 'Direct Connection',
-                'num_rooms' => $numRooms,
-                'hotel_board_basis' => $mealPlansRes,
-                'room_images_source_id' => $source_id,
-                'address' => [
-                    'line_1' => Arr::get($address, 'line_1', null) ?? $property->mapper_address ?? '',
-                    'city' => Arr::get($address, 'city', null) ?? $property->city ?? '',
-                    'country_code' => Arr::get($address, 'country_code', null) ?? $property->address->CountryName ?? '',
-                    'state_province_name' => Arr::get($address, 'line_1', null) ?? $property->address->AddressLine ?? '',
-                ],
-            ]);
+            $hotel = Hotel::updateOrCreate(
+                ['giata_code' => $property->code],
+                [
+                    'star_rating' => max($property->rating ?? 1, 1),
+                    'sale_type' => 'Direct Connection',
+                    'num_rooms' => $numRooms,
+                    'hotel_board_basis' => $mealPlansRes,
+                    'room_images_source_id' => $source_id,
+                    'address' => [
+                        'line_1' => Arr::get($address, 'line_1', null) ?? $property->mapper_address ?? '',
+                        'city' => Arr::get($address, 'city', null) ?? $property->city ?? '',
+                        'country_code' => Arr::get($address, 'country_code', null) ?? $property->address->CountryName ?? '',
+                        'state_province_name' => Arr::get($address, 'state_province_name', null) ?? $property->address->AddressLine ?? '',
+                    ],
+                ]
+            );
 
-            $product = $hotel->product()->create([
-                'name' => $property->name,
-                'vendor_id' => $vendorId,
-                'product_type' => 'hotel',
-                'default_currency' => 'USD',
-                'verified' => false,
-                'content_source_id' => $source_id,
-                'property_images_source_id' => $source_id,
-                'lat' => $property->latitude,
-                'lng' => $property->longitude,
-            ]);
+            $product = $hotel->product()->updateOrCreate(
+                ['vendor_id' => $vendorId],
+                [
+                    'name' => $property->name,
+                    'product_type' => 'hotel',
+                    'default_currency' => 'USD',
+                    'verified' => false,
+                    'content_source_id' => $source_id,
+                    'property_images_source_id' => $source_id,
+                    'lat' => $property->latitude,
+                    'lng' => $property->longitude,
+                ]
+            );
 
             if (! empty($roomsData)) {
                 foreach ($roomsData as $room) {
                     $description = Arr::get($room, 'descriptions.overview');
                     $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
-                    $hotelRoom = $hotel->rooms()->create([
-                        'name' => Arr::get($room, 'name'),
-                        'description' => $descriptionAfterLayout,
-                        'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']]),
-                        'area' => Arr::get($room, 'area.square_feet', 0),
-                        'room_views' => array_values(array_map(function ($view) {
-                            return $view['name'];
-                        }, Arr::get($room, 'views', []))),
-                        'bed_groups' => array_merge(...array_map(function ($group) {
-                            return array_map(function ($config) {
-                                return $config['quantity'].' '.$config['size'].' Beds';
-                            }, $group['configuration']);
-                        }, Arr::get($room, 'bed_groups', []))),
-                    ]);
+
+                    $hotelRoom = $hotel->rooms()->updateOrCreate(
+                        ['name' => Arr::get($room, 'name')],
+                        [
+                            'description' => $descriptionAfterLayout,
+                            'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']]),
+                            'area' => Arr::get($room, 'area.square_feet', 0),
+                            'room_views' => array_values(array_map(function ($view) {
+                                return $view['name'];
+                            }, Arr::get($room, 'views', []))),
+                            'bed_groups' => array_merge(...array_map(function ($group) {
+                                return array_map(function ($config) {
+                                    return $config['quantity'].' '.$config['size'].' Beds';
+                                }, $group['configuration']);
+                            }, Arr::get($room, 'bed_groups', []))),
+                        ]);
                     $attributeIds = [];
                     $amenities = Arr::get($room, 'amenities', []);
                     foreach ($amenities as $k => $amenity) {
