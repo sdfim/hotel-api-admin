@@ -1,6 +1,7 @@
 <?php
 
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
+use Modules\API\Channels\routes\ChannelsApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
 use Modules\API\ContentRepositoryAPI\routes\ContentRepositoryApiRoutes;
 use Modules\API\ContentRepositoryAPI\routes\InformativeServicesApiRoutes;
@@ -32,3 +33,5 @@ ContentRepositoryApiRoutes::routes();
 InsuranceApiRoutes::routes();
 
 InformativeServicesApiRoutes::routes();
+
+ChannelsApiRoutes::routes();

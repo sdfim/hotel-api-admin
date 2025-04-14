@@ -4,7 +4,7 @@ namespace Modules\API\Tools;
 
 use App\Models\Channel;
 use App\Models\PricingRule;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -22,7 +22,7 @@ class PricingRulesTools
 
         $type = Arr::get($query, 'type', 'hotel');
 
-        $token = ChannelRenository::getTokenId(request()->bearerToken());
+        $token = ChannelRepository::getTokenId(request()->bearerToken());
         $channelId = Channel::where('token_id', $token)->first()->id;
 
         /** @var GeneralTools $generalTools */

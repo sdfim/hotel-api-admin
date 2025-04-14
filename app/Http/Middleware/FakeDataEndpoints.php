@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +14,7 @@ class FakeDataEndpoints
     public function handle(Request $request, Closure $next): mixed
     {
         $token = $request->bearerToken();
-        $channelName = ChannelRenository::getTokenName($token);
+        $channelName = ChannelRepository::getTokenName($token);
 
         if ($channelName === 'FakeChannel') {
             $path = $request->path();

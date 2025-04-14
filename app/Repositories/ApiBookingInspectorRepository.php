@@ -191,7 +191,7 @@ class ApiBookingInspectorRepository
 
     public static function getBookedBookingIdsByChannel(int $supplier_id = 2): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
         $inspectors = ApiBookingInspector::where('token_id', $token_id)
             ->where(function ($query) use ($supplier_id) {
@@ -443,7 +443,7 @@ class ApiBookingInspectorRepository
          */
         [$booking_id, $query, $supplier_id, $type, $subType, $search_type] = $input;
 
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
         $search_id = $query['search_id'] ?? (
             $booking_item
