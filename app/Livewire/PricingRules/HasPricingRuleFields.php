@@ -471,8 +471,8 @@ trait HasPricingRuleFields
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->disabled(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->readonly(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
