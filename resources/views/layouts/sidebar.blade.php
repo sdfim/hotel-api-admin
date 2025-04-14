@@ -26,6 +26,7 @@
     use Modules\Insurance\Models\InsuranceRateTier;
     use Modules\Insurance\Models\InsurancePlan;
     use App\Models\Configurations\ConfigAttribute;
+    use App\Models\Configurations\ConfigAttributeCategory;
     use App\Models\Configurations\ConfigAmenity;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
@@ -46,6 +47,7 @@
         $canView(Channel::class) ||
         $canView(Supplier::class) ||
         $canView(ConfigAttribute::class) ||
+        $canView(ConfigAttributeCategory::class) ||
         $canView(ConfigAmenity::class) ||
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
@@ -63,6 +65,7 @@
         ['route' => 'channels.index', 'text' => 'Channels', 'model' => Channel::class],
         ['route' => 'suppliers.index', 'text' => 'Suppliers', 'model' => Supplier::class],
         ['route' => 'configurations.attributes.index', 'text' => 'Attributes', 'model' => ConfigAttribute::class],
+        ['route' => 'configurations.attribute-categories.index', 'text' => 'Attribute Categories', 'model' => ConfigAttributeCategory::class],
         ['route' => 'configurations.amenities.index', 'text' => 'Amenities', 'model' => ConfigAmenity::class],
         ['route' => 'configurations.consortia.index', 'text' => 'Consortia', 'model' => ConfigConsortium::class],
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],

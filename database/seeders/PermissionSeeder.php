@@ -36,6 +36,7 @@ class PermissionSeeder extends Seeder
         'insurance_rate_tier',
         'insurance_type',
         'config_attribute',
+        'config_attribute_category',
         'config_consortium',
         'config_descriptive_type',
         'config_job_description',

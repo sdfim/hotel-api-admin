@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Configurations\ConfigAmenity;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\Configurations\ConfigChain;
 use App\Models\Configurations\ConfigConsortium;
 use App\Models\Configurations\ConfigDescriptiveType;
@@ -11,10 +12,10 @@ use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
-use App\Models\IcePortalProperty;
 use App\Models\InformationalService;
 use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
+use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
@@ -77,6 +78,7 @@ class PermissionServiceProvider extends ServiceProvider
         InsuranceRateTier::class => InsuranceRateTierPolicy::class,
         InsurancePlan::class => InsurancePlanPolicy::class,
         ConfigAttribute::class => ConfigAttributePolicy::class,
+        ConfigAttributeCategory::class => ConfigAttributeCategoryPolicy::class,
         ConfigAmenity::class => ConfigAmenityPolicy::class,
         ConfigConsortium::class => ConfigConsortiumPolicy::class,
         ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
