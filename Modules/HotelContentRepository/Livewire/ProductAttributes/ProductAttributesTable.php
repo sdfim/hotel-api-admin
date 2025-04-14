@@ -93,8 +93,11 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             )
             ->deferLoading()
             ->columns([
-                TextColumn::make('attribute.name')->label('Attribute Name'),
+                TextColumn::make('attribute.name')
+                    ->label('Attribute Name')
+                    ->searchable(),
                 TextColumn::make('category.name')
+                    ->searchable()
                     ->label('Category Name')
                     ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
             ])
