@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\DummyHealthController;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\Report\routes\ReportApiRoutes;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +25,5 @@ PricingApiRoutes::routes();
 BookingApiRoutes::routes();
 
 ReportApiRoutes::routes();
+
+Route::middleware('auth:sanctum')->get('/v1/dummy-health', [DummyHealthController::class, 'check']);
