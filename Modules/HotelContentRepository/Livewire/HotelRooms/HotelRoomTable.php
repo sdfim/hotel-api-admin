@@ -96,6 +96,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             $hotelId = $get('hotel_id');
 
                             return HotelRoom::where('hotel_id', $hotelId)
+                                ->orderBy('name')
                                 ->pluck('name', 'id');
                         }),
                 ])->columnSpan(1),
@@ -116,7 +117,9 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     })
                     ->searchable()
                     ->multiple()
-                    ->options(ConfigAttribute::pluck('name', 'id')),
+                    ->native(false)
+                    ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id')),
+
                 Select::make('galleries')
                     ->label('Galleries')
                     ->multiple()

@@ -94,7 +94,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->columnSpan(2),
                             Select::make('service_id')
                                 ->label('Service Type')
-                                ->options(ConfigServiceType::all()->pluck('name', 'id')->toArray())
+                                ->options(ConfigServiceType::all()->sortBy('name')->pluck('name', 'id')->toArray())
                                 ->createOptionForm(ServiceTypesForm::getSchema())
                                 ->createOptionUsing(function (array $data) {
                                     if (! isset($data['cost'])) {

@@ -43,7 +43,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             Hidden::make('product_id')->default($this->productId),
             Select::make('config_attribute_id')
                 ->label('Attribute')
-                ->options(ConfigAttribute::all()->pluck('name', 'id'))
+                ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id'))
                 ->createOptionForm(AttributesForm::getSchema())
                 ->createOptionUsing(function (array $data) {
                     $data['default_value'] = '';
@@ -62,6 +62,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 ->label('Category')
                 ->options(
                     ConfigAttributeCategory::all()
+                        ->sortBy('name')
                         ->mapWithKeys(function ($item) {
                             $formattedName = ucwords(str_replace('_', ' ', $item->name));
 

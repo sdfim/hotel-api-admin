@@ -99,7 +99,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                 ->schema([
                                     Select::make('amenity_id')
                                         ->label('Amenity')
-                                        ->options(ConfigAmenity::pluck('name', 'id'))
+                                        ->options(ConfigAmenity::all()->sortBy('name')->pluck('name', 'id'))
                                         ->createOptionForm(AmenitiesForm::getSchema())
                                         ->createOptionUsing(function (array $data) {
                                             /** @var CreateConfigAmenity $createConfigAmenity */
@@ -119,7 +119,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                     Select::make('consortia')
                                         ->label('Consortia')
                                         ->multiple()
-                                        ->options(ConfigConsortium::pluck('name', 'name'))
+                                        ->options(ConfigConsortium::all()->sortBy('name')->pluck('name', 'name'))
                                         ->required()
                                         ->columnSpan(2),
                                     Select::make('is_paid')

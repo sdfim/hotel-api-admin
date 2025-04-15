@@ -75,7 +75,7 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
                 ->schema([
                     Select::make('consortia_id')
                         ->label('Consortia')
-                        ->options(ConfigConsortium::pluck('name', 'id'))
+                        ->options(ConfigConsortium::all()->sortBy('name')->pluck('name', 'id'))
                         ->createOptionForm(ConsortiaForm::getSchema())
                         ->createOptionUsing(function (array $data) {
                             /** @var CreateConfigConsortium $createConfigConsortium */

@@ -404,7 +404,7 @@ class HotelForm extends Component implements HasForms
                                     Select::make('channels')
                                         ->label('Channels')
                                         ->multiple()
-                                        ->options(Channel::pluck('name', 'id')),
+                                        ->options(Channel::all()->sortBy('name')->pluck('name', 'id')),
 
                                     Section::make('Drivers')
                                         ->schema($toggles)
@@ -524,7 +524,7 @@ class HotelForm extends Component implements HasForms
                         $query->where('name', auth()->user()->currentTeam->name);
                     }
 
-                    return $query->pluck('name', 'id')->toArray();
+                    return $query->orderBy('name')->pluck('name', 'id')->toArray();
                 })
                 ->dehydrated()
                 ->required()
