@@ -351,33 +351,8 @@ class PricingRulesTools
             ->where(function (Builder $q) use ($query) {
                 $q->where('rule_start_date', '<=', $query['checkin'])
                     ->where('rule_expiration_date', '>=', $query['checkout']);
-            })->get()->toArray();
-    }
+            })
 
-    function getRawSql($query): string
-    {
-        $sql = $query->toSql();
-        $bindings = $query->getBindings();
-        $pdo = $query->getConnection()->getPdo(); // Get PDO instance for proper quoting
-
-        foreach ($bindings as $binding) {
-            // Quote bindings correctly based on type
-            if (is_string($binding)) {
-                $binding = $pdo->quote($binding);
-            } elseif (is_bool($binding)) {
-                $binding = $binding ? '1' : '0'; // Adjust for your DB if needed (e.g., TRUE/FALSE)
-            } elseif (is_null($binding)) {
-                $binding = 'NULL';
-            }
-            // Numbers (int/float) usually don't need quoting
-
-            // Find the first occurrence of '?' and replace it
-            $pos = strpos($sql, '?');
-            if ($pos !== false) {
-                $sql = substr_replace($sql, $binding, $pos, 1);
-            }
-        }
-
-        return $sql;
+            ->get()->toArray();
     }
 }
