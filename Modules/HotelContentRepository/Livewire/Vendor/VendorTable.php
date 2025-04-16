@@ -3,7 +3,6 @@
 namespace Modules\HotelContentRepository\Livewire\Vendor;
 
 use App\Helpers\ClassHelper;
-use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\CreateAction;
@@ -33,11 +32,12 @@ class VendorTable extends Component implements HasForms, HasTable
             ->defaultPaginationPageOption(5)
             ->query(Vendor::query())
             ->modifyQueryUsing(function (Builder $query): Builder {
-                if (! auth()->user()->hasRole(RoleSlug::ADMIN->value)) {
+                if (! Gate::allows('view', Vendor::class)) {
                     $vendorIds = auth()->user()->allTeams()->pluck('vendor_id')->toArray();
 
                     return $query->whereIn('id', $vendorIds);
                 }
+
                 return $query;
             })
             ->columns([

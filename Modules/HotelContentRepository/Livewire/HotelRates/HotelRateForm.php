@@ -14,6 +14,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -91,7 +92,8 @@ class HotelRateForm extends Component implements HasForms
                                         $this->form->fill($this->data);
                                     })
                                     ->button()
-                                    ->extraAttributes(['class' => 'h-10 text-right']),
+                                    ->extraAttributes(['class' => 'h-10 text-right'])
+                                    ->visible(Gate::allows('create', Hotel::class)),
                             ])
                                 ->extraAttributes(['class' => 'flex justify-end']),
                         ])

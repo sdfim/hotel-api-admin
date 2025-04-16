@@ -76,7 +76,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     Select::make('document_type_id')
                         ->label('Type Document')
                         ->reactive()
-                        ->createOptionForm(app(InsuranceDocumentationTypesForm::class)->getSchema())
+                        ->createOptionForm(Gate::allows('create', ConfigInsuranceDocumentationType::class) ? app(InsuranceDocumentationTypesForm::class)->getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             ConfigInsuranceDocumentationType::create($data);
                             Notification::make()

@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
@@ -44,7 +45,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             Select::make('config_attribute_id')
                 ->label('Attribute')
                 ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id'))
-                ->createOptionForm(AttributesForm::getSchema())
+                ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
                     $data['default_value'] = '';
                     /** @var CreateConfigAttribute $createConfigAttribute */
@@ -69,11 +70,12 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                             return [$item->id => $formattedName];
                         })
                 )
-                ->createOptionForm([
-                    TextInput::make('name')
-                        ->label('Category Name')
-                        ->required(),
-                ])
+                ->createOptionForm(Gate::allows('create', ConfigAttributeCategory::class) ?
+                    [
+                        TextInput::make('name')
+                            ->label('Category Name')
+                            ->required(),
+                    ] : [])
                 ->createOptionUsing(function (array $data) {
                     $category = ConfigAttributeCategory::create($data);
                     Notification::make()

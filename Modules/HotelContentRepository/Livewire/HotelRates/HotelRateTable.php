@@ -102,7 +102,7 @@ class HotelRateTable extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->tooltip('Edit Rate')
                     ->url(fn ($record) => route('hotel-rates.edit', ['hotel_rate' => $record->id, 'hotelId' => $record->hotel_id]))
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    ->visible(fn () => Gate::allows('update', Hotel::class)),
                 Action::make('duplicate')
                     ->label('')
                     ->iconButton()

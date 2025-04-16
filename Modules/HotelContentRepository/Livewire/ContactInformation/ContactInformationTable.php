@@ -23,6 +23,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContactInformationDepartmentEnum;
@@ -30,6 +31,7 @@ use Modules\HotelContentRepository\Actions\ContactInformation\AddContactInformat
 use Modules\HotelContentRepository\Actions\ContactInformation\EditContactInformation;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\ContactInformation;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -78,7 +80,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->required()
                         ->multiple()
                         ->options(ConfigJobDescription::pluck('name', 'id'))
-                        ->createOptionForm(JobDescriptionsForm::getSchema())
+                        ->createOptionForm(Gate::allows('create', ConfigJobDescription::class) ? JobDescriptionsForm::getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             /** @var CreateConfigJobDescription $actionDescription */
                             $actionDescription = app(CreateConfigJobDescription::class);
@@ -231,10 +233,12 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         /** @var EditContactInformation $editContactInformation */
                         $editContactInformation = app(EditContactInformation::class);
                         $editContactInformation->execute($data, $record, $this->contactableType);
-                    }),
+                    })
+                    ->visible(Gate::allows('create', Hotel::class)),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ])
             ->headerActions([
                 CreateAction::make('addContact')
@@ -260,7 +264,8 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Contact Information')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(Gate::allows('create', Hotel::class)),
                 CreateAction::make('copyEmails')
                     ->label('Copy Emails')
                     ->modalWidth('sm')
@@ -289,7 +294,8 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->tooltip('Copy Emails to Clipboard')
                     ->icon('heroicon-o-clipboard')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
 

@@ -78,7 +78,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                     return [$item->id => $item->name];
                 }))
                 ->required()
-                ->createOptionForm(DescriptiveTypesForm::getSchema())
+                ->createOptionForm(Gate::allows('create', ConfigDescriptiveType::class) ? DescriptiveTypesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
                     ConfigDescriptiveType::create($data);
                     Notification::make()
@@ -149,7 +149,8 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ActionGroup::make([
                     EditAction::make()
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
-                        ->form(fn ($record) => $this->schemeForm($record)),
+                        ->form(fn ($record) => $this->schemeForm($record))
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                     DeleteAction::make()
                         ->visible(fn () => Gate::allows('create', Product::class)),
                 ])->visible(fn (ProductDescriptiveContentSection $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),

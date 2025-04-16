@@ -11,6 +11,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -19,6 +20,7 @@ use Modules\HotelContentRepository\Actions\Image\AddImage;
 use Modules\HotelContentRepository\Actions\Image\EditImage;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\ImageSection;
 
 class HotelImagesForm extends Component implements HasForms
@@ -64,7 +66,7 @@ class HotelImagesForm extends Component implements HasForms
                 ->searchable()
                 ->native(false)
                 ->relationship('galleries', 'gallery_name')
-                ->createOptionForm(ImageGalleriesForm::getGalleryFormComponents())
+                ->createOptionForm(Gate::allows('create', ImageGallery::class) ? ImageGalleriesForm::getGalleryFormComponents() : [])
                 ->createOptionUsing(function (array $data) {
                     /** @var AddImage $addImage */
                     $addImage = app(AddImage::class);

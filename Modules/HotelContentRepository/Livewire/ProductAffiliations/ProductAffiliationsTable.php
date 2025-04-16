@@ -100,7 +100,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                     Select::make('amenity_id')
                                         ->label('Amenity')
                                         ->options(ConfigAmenity::all()->sortBy('name')->pluck('name', 'id'))
-                                        ->createOptionForm(AmenitiesForm::getSchema())
+                                        ->createOptionForm(Gate::allows('create', ConfigAmenity::class) ? AmenitiesForm::getSchema() : [])
                                         ->createOptionUsing(function (array $data) {
                                             /** @var CreateConfigAmenity $createConfigAmenity */
                                             $createConfigAmenity = app(CreateConfigAmenity::class);
@@ -233,9 +233,11 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                             if (isset($data['amenities'])) {
                                 $record->amenities()->sync($data['amenities']);
                             }
-                        }),
+                        })
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                     DeleteAction::make()
-                        ->label('Delete'),
+                        ->label('Delete')
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                 ])->visible(fn (ProductAffiliation $record): bool => ($this->rateId && $this->rateId === $record->rate_id)
                     || ($this->roomId && $this->roomId === $record->room_id)
                     || (! $this->rateId && ! $this->roomId && $record->room_id === null && $record->rate_id === null)

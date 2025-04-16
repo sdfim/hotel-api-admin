@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\CommissionValueTypeEnum;
@@ -49,7 +50,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
             Select::make('commission_id')
                 ->relationship('commission', 'name')
                 ->label('Commission Name')
-                ->createOptionForm(CommissionForm::getSchema())
+                ->createOptionForm(Gate::allows('create', Commission::class) ? CommissionForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
                     $commission = Commission::create($data);
                     Notification::make()

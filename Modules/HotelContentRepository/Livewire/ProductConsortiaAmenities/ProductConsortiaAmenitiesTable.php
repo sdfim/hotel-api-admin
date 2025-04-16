@@ -21,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
@@ -76,7 +77,7 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
                     Select::make('consortia_id')
                         ->label('Consortia')
                         ->options(ConfigConsortium::all()->sortBy('name')->pluck('name', 'id'))
-                        ->createOptionForm(ConsortiaForm::getSchema())
+                        ->createOptionForm(Gate::allows('create', ConfigConsortium::class) ? ConsortiaForm::getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             /** @var CreateConfigConsortium $createConfigConsortium */
                             $createConfigConsortium = app(CreateConfigConsortium::class);
