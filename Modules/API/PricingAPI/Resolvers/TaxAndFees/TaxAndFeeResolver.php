@@ -63,13 +63,11 @@ class TaxAndFeeResolver
         return $transformedTaxes;
     }
 
-    public function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy, $checkinInput, $checkoutInput, $repoTaxFeesInput): void
+    public function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $checkinInput, $checkoutInput, $repoTaxFeesInput): void
     {
         $repoTaxFees = Arr::get($repoTaxFeesInput, $giataCode, []);
 
-        // Calculate the number of nights and the number of passengers
         $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
-        $numberOfPassengers = $rateOccupancy ? array_sum(explode('-', $rateOccupancy)) : 1;
 
         $checkin = Carbon::parse($checkinInput);
         $checkout = Carbon::parse($checkoutInput);

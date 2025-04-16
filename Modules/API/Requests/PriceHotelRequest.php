@@ -2,6 +2,7 @@
 
 namespace Modules\API\Requests;
 
+use App\Models\Configurations\ConfigConsortium;
 use App\Models\Supplier;
 use Modules\API\Validate\ApiRequest;
 
@@ -130,6 +131,8 @@ class PriceHotelRequest extends ApiRequest
             'radius' => 'required_without_all:giata_ids,destination,place|numeric|between:1,1000',
 
             'query_package' => 'string|in:both,standalone,package',
+
+            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
 
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',

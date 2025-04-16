@@ -15,14 +15,13 @@ use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\Expedia\PolicyCode;
-use Modules\API\Tools\PricingDtoTools;
+use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
+use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Models\Hotel;
 
-class ExpediaHotelPricingTransformer
+class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 {
-    private array $basicHotelData;
     private ExpediaPricingRulesApplier $pricingRulesApplier;
 
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
@@ -30,68 +29,35 @@ class ExpediaHotelPricingTransformer
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     public function __construct(
-        private readonly PricingDtoTools $pricingDtoTools,
-        private array $bookingItems = [],
         private array $roomCombinations = [],
         private array $occupancy = [],
         private array $ratings = [],
-        private array $giata = [],
-        private string $search_id = '',
+        private array $basicHotelData = [],
         private string $currency = 'USD',
-        private string $destinationData = '',
         private string $query_package = '',
         private string $supplier_id = '',
-        private array $exclusionRates = [],
-        private array $unifiedRoomCodes = [],
     ) {}
 
     public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules): array
     {
-        $this->exclusionRates = $this->pricingDtoTools->extractExclusionRates($pricingExclusionRules);
+        $giataIds = array_map(fn ($item) => $item['giata_id'], $supplierResponse);
 
-        $this->search_id = $search_id;
+        $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
+        $this->fetchSupplierRepositoryData($giataIds);
+
         $this->occupancy = $query['occupancy'];
         $this->query_package = $query['query_package'];
-        $this->bookingItems = [];
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()?->id;
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
-        $giataIds = array_map(function ($item) {
-            return $item['giata_id'];
-        }, $supplierResponse);
-
-        $this->fetchSupplierRepositoryData($giataIds);
-
-        $propertyIds = array_map(function ($item) {
-            return $item['property_id'];
-        }, $supplierResponse);
-
-        $this->ratings = ExpediaContent::whereIn('property_id', $propertyIds)
-            ->select(['property_id', 'rating'])
-            ->get()
-            ->keyBy('property_id')
-            ->toArray();
-
-        $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->destinationData = $this->pricingDtoTools->getDestinationData($query) ?? '';
+        $propertyIds = array_map(fn ($item) => $item['property_id'], $supplierResponse);
+        $this->ratings = ExpediaContent::whereIn('property_id', $propertyIds)->pluck('rating', 'property_id')->toArray();
 
         $hotelResponse = [];
-        $logSetHotelResponse = [];
-
         foreach ($supplierResponse as $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
-            $st = microtime(true);
-            $logSetHotelResponse[] = [
-                'giata_id' => Arr::get($propertyGroup, 'giata_id'),
-                'time' => microtime(true) - $st,
-            ];
         }
-
-        Log::info('ExpediaHotelPricingTransformer | setHotelResponse ', [
-            'count' => count($supplierResponse),
-            'time' => array_sum(array_column($logSetHotelResponse, 'time')),
-            'logSetHotelResponse' => $logSetHotelResponse]);
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
@@ -319,7 +285,7 @@ class ExpediaHotelPricingTransformer
         }
 
         $supplierRoomId = intval($roomGroup['id']) ?? null;
-        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, "$giataId.$supplierRoomId", $roomGroup['id']);
+        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value], "$giataId.$supplierRoomId", $roomGroup['id']) ?? '';
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
@@ -508,37 +474,5 @@ class ExpediaHotelPricingTransformer
         }
 
         return $promotions;
-    }
-
-    private function fetchSupplierRepositoryData(array $giataIds): void
-    {
-        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
-        $this->unifiedRoomCodes = [];
-        foreach ($supplierRepositoryData as $hotel) {
-            $hotelData = [
-                'hotel_code' => $hotel->giata_code,
-                'rooms' => [],
-            ];
-            foreach ($hotel->rooms as $room) {
-                $supplierCodes = json_decode($room->supplier_codes, true);
-                if ($supplierCodes) {
-                    foreach ($supplierCodes as $supplierCode) {
-                        if ($supplierCode['supplier'] === 'Expedia') {
-                            $hotelData['rooms'][$supplierCode['code']] = $room->external_code ?? '';
-                        }
-                    }
-                }
-
-            }
-            $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
-        }
-
-        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => [
-                    'sale_type' => $hotel->sale_type,
-                ]
-            ];
-        })->toArray();
     }
 }

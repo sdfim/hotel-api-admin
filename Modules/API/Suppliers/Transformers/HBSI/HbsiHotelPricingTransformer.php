@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\Resolvers\TaxAndFees\TaxAndFeeResolver;
+use Modules\API\PricingAPI\Resolvers\UltimateAmenities\UltimateAmenityResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
@@ -17,21 +18,14 @@ use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
-use Modules\API\Tools\PricingDtoTools;
+use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
 use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Models\Hotel;
 
-class HbsiHotelPricingTransformer
+class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 {
     private HbsiPricingRulesApplier $pricingRulesApplier;
-
-    private array $mapperSupplierRepository;
-
-    private array $depositInformation;
-
-    private array $basicHotelData;
 
     /**
      * @var string[]
@@ -53,9 +47,6 @@ class HbsiHotelPricingTransformer
         'service charge',
     ];
 
-    /**
-     * @var string[]
-     */
     private array $taxes = [
         'assessment/license tax',
         'bed tax',
@@ -92,42 +83,26 @@ class HbsiHotelPricingTransformer
     ];
 
     public function __construct(
-        private readonly PricingDtoTools $pricingDtoTools,
         private readonly TaxAndFeeResolver $taxAndFeeResolver,
-        private array $bookingItems = [],
+        private readonly UltimateAmenityResolver $ultimateAmenityResolver,
         private array $meal_plans_available = [],
         private array $roomCombinations = [],
-        private array $giata = [],
+        private array $basicHotelData = [],
         private string $rate_type = '',
-        private string $destinationData = '',
-        private string $search_id = '',
         private string $currency = '',
         private int $supplier_id = 0,
-        private array $exclusionRates = [],
-        private array $repoTaxFees = [],
-        private array $unifiedRoomCodes = [],
-        private string $checkin = '',
-        private string $checkout = '',
     ) {}
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
     {
-        $this->exclusionRates = $this->pricingDtoTools->extractExclusionRates($pricingExclusionRules);
+        $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
         $this->fetchSupplierRepositoryData($giataIds);
 
-        $this->search_id = $search_id;
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $this->bookingItems = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
-
-        $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->destinationData = $this->pricingDtoTools->getDestinationData($query);
-
-        $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
-        $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
@@ -278,7 +253,7 @@ class HbsiHotelPricingTransformer
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
-        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, "$giataCode.$roomType", '');
+        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes[ContentSourceEnum::HBSI->value], "$giataCode.$roomType", '');
 
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
@@ -315,6 +290,7 @@ class HbsiHotelPricingTransformer
         //        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
         $rateOccupancy = $adults.'-'.$children.'-'.$infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
+        $numberOfPassengers = $adults + $children + $infants;
 
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
@@ -328,7 +304,7 @@ class HbsiHotelPricingTransformer
         $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
         $rateToApply['rateOccupancy'] = $rateOccupancy;
         $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates']);
-        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $rateOccupancy, $this->checkin, $this->checkout, $this->repoTaxFees);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees);
 
         $rateToApply['transformedRates'] = $transformedRates;
 
@@ -444,9 +420,16 @@ class HbsiHotelPricingTransformer
         }
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($ratePlanCode);
-        $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
+
+        $roomUltimateAmenities = $this->ultimateAmenityResolver->resolve(
+            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query);
+        $feesUltimateAmenities = $this->ultimateAmenityResolver->getFeesUltimateAmenities(
+            $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
+        $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
+
+        $roomResponse->setTotalPrice($pricingRulesApplier['total_price'] + $totalFeesUltimateAmenities);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
-        $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
+        $roomResponse->setTotalFees($pricingRulesApplier['total_fees'] + $totalFeesUltimateAmenities);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
@@ -468,11 +451,16 @@ class HbsiHotelPricingTransformer
             $this->meal_plans_available[] = $mealPlanName;
         }
 
+        $roomResponse->setAmenities($roomUltimateAmenities);
+
         if (env('USE_REPO_TAX_FEES', false)) {
-            $roomResponse->setBreakdown($this->taxAndFeeResolver->getTransformedBreakdown($rateToApply['transformedRates'], $this->fees));
+            $breakdown = $this->taxAndFeeResolver->getTransformedBreakdown($rateToApply['transformedRates'], $this->fees);
         } else {
-            $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
+            $breakdown = $this->getBreakdown($rateToApply);
         }
+
+        $breakdown['fees'] = array_merge($breakdown['fees'], array_values($feesUltimateAmenities));
+        $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
@@ -602,74 +590,5 @@ class HbsiHotelPricingTransformer
             'fees' => $fees,
 
         ];
-    }
-
-    private function fetchSupplierRepositoryData(array $giataIds): void
-    {
-        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
-
-        $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [$hotel->giata_code => $hotel->product?->depositInformations];
-        })->toArray();
-
-        $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
-                    if (! empty($room->external_code)) {
-                        return [
-                            $room->external_code => [
-                                'description' => $room->description,
-                                'name' => $room->name,
-                            ],
-                        ];
-                    }
-
-                    return [];
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->repoTaxFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product->feeTaxes->groupBy('action_type')->map(function ($group) {
-                    return $group->mapWithKeys(function ($feeTax) {
-                        $feeTaxData = $feeTax->toArray();
-                        $feeTaxData['rate_code'] = null;
-                        if ($feeTax->rate_id !== null) {
-                            $feeTaxData['rate_code'] = $feeTax->rate->code;
-                        }
-                        $feeTaxData['unified_room_code'] = null;
-                        if ($feeTax->room_id !== null) {
-                            $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
-                        }
-
-                        return [$feeTax->id => $feeTaxData];
-                    })->toArray();
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => [
-                    'sale_type' => $hotel->sale_type,
-                ]
-            ];
-        })->toArray();
-
-        $this->unifiedRoomCodes = [];
-        foreach ($supplierRepositoryData as $hotel) {
-            $hotelData = [
-                'hotel_code' => $hotel->giata_code,
-                'rooms' => [],
-            ];
-            foreach ($hotel->rooms as $room) {
-                $hbsiCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::HBSI->value;
-                })->first()['code'] ?? null;
-                $hotelData['rooms'][$hbsiCode] = $room->external_code;
-            }
-            $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
-        }
     }
 }
