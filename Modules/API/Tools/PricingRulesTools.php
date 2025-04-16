@@ -62,7 +62,37 @@ class PricingRulesTools
         return PricingRule::with(['conditions'])
 //            ->where('product_type', $type)
             ->where('is_exclude_action', $is_exclude)
+            //Exclusive rules
+            ->where(function ( $q) use ($channelId){
+                $q->whereHas('conditions', function ( $q) use ($channelId){
+                    $q->where(function ( $q) use ($channelId) {
+                        $q->where('field', 'channel_id')
+                            ->where('compare', '=')
+                            ->where('value_from', $channelId);
+                    })
+                    ->orWhere(function ( $q) use ($channelId) {
+                        $q->where('field', 'channel_id')
+                            ->where('compare', '!=')
+                            ->whereNot('value_from', $channelId);
+                    })
+                    ->orWhere(function ( $q) use ($channelId) {
+                        $q->where('field', 'channel_id')
+                            ->where('compare', 'in')
+                            ->whereRaw('FIND_IN_SET(?, value)', [$channelId]);
+                    })
+                    ->orWhere(function ( $q) use ($channelId) {
+                        $q->where('field', 'channel_id')
+                            ->where('compare', 'not_in')
+                            ->whereRaw('NOT FIND_IN_SET(?, value)', [$channelId]);
+                    });
+                });
 
+                // to include pricing rules that does not have filter by channel
+                $q->orWhereDoesntHave('conditions', function ($query) {
+                    $query->where('field', 'channel_id');
+                });
+            })
+            // Inclusive rules
             ->whereHas('conditions', function (Builder $q) use (
                 $channelId,
                 $destination,
@@ -74,30 +104,6 @@ class PricingRulesTools
                 $rating,
                 $numberOfRooms
             ) {
-                $q->where(function (Builder $q) use ($channelId) {
-                    $q->whereNot('field', 'channel_id')
-                        ->orWhere(function (Builder $q) use ($channelId) {
-                            $q->where('field', 'channel_id')
-                                ->where('compare', '=')
-                                ->where('value_from', $channelId);
-                        })
-                        ->orWhere(function (Builder $q) use ($channelId) {
-                            $q->where('field', 'channel_id')
-                                ->where('compare', '!=')
-                                ->whereNot('value_from', $channelId);
-                        })
-                        ->orWhere(function (Builder $q) use ($channelId) {
-                            $q->where('field', 'channel_id')
-                                ->where('compare', 'in')
-                                ->whereRaw('FIND_IN_SET(?, value)', [$channelId]);
-                        })
-                        ->orWhere(function (Builder $q) use ($channelId) {
-                            $q->where('field', 'channel_id')
-                                ->where('compare', 'not_in')
-                                ->whereRaw('NOT FIND_IN_SET(?, value)', [$channelId]);
-                        });
-                });
-
                 if ($destination) {
                     $q->where(function (Builder $q) use ($destination) {
                         $q->whereNot('field', 'destination')
