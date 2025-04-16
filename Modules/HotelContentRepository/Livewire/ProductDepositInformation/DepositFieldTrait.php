@@ -20,6 +20,8 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Facades\DB;
 use Modules\Enums\ProductApplyTypeEnum;
+use Modules\Enums\ProductManipulablePriceTypeEnum;
+use Modules\Enums\ProductPriceValueTypeEnum;
 
 trait DepositFieldTrait
 {
@@ -63,15 +65,12 @@ trait DepositFieldTrait
                             }
                             $component->state($formattedDate);
                         }),
-                    //                ])
-                    //                ->columns(4),
-                    //            Fieldset::make('Settings')
-                    //                ->schema([
+
                     Select::make('manipulable_price_type')
                         ->label('Manipulable Price Type')
                         ->options([
-                            'total_price' => 'Total Price',
-                            'net_price' => 'Net Price',
+                            ProductManipulablePriceTypeEnum::TOTAL_PRICE->value => 'Total Price',
+                            ProductManipulablePriceTypeEnum::NET_PRICE->value => 'Net Price',
                         ])
                         ->required(),
                     TextInput::make('price_value')
@@ -81,15 +80,15 @@ trait DepositFieldTrait
                         ->suffixIcon(function (Get $get) {
                             return match ($get('price_value_type')) {
                                 null, '' => false,
-                                'fixed_value' => 'heroicon-o-banknotes',
-                                'percentage' => 'heroicon-o-receipt-percent',
+                                ProductPriceValueTypeEnum::FIXED_VALUE->value => 'heroicon-o-banknotes',
+                                ProductPriceValueTypeEnum::PERCENTAGE->value => 'heroicon-o-receipt-percent',
                             };
                         }),
                     Select::make('price_value_type')
                         ->label('Price Value Type')
                         ->options([
-                            'fixed_value' => 'Fixed Value',
-                            'percentage' => 'Percentage',
+                            ProductPriceValueTypeEnum::FIXED_VALUE->value => 'Fixed Value',
+                            ProductPriceValueTypeEnum::PERCENTAGE->value => 'Percentage',
                         ])
                         ->live()
                         ->required()
