@@ -172,7 +172,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     Grid::make(2)
                         ->schema([
                             Toggle::make('commissionable')
-                                ->label('Commissionable')
+                                ->label('Commissionable to TA')
                                 ->inline(false),
                             Select::make('fee_category')
                                 ->label('Fee Category')
