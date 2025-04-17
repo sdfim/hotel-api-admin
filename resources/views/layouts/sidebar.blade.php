@@ -1,4 +1,5 @@
 @php
+    use App\Models\Configurations\ConfigRoomBedType;
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Support\Facades\Auth;
     use App\Models\GeneralConfiguration;
@@ -57,6 +58,7 @@
         $canView(ConfigInsuranceDocumentationType::class);
         $canView(KeyMappingOwner::class);
         $canView(Commission::class);
+        $canView(ConfigRoomBedType::class);
 @endphp
 
 @php
@@ -75,6 +77,7 @@
         ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
+        ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
     ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {

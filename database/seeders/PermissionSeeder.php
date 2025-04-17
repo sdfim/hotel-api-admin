@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
         'config_job_description',
         'config_service_type',
         'config_chain',
+        'config_room_bed_type',
         'config_insurance_documentation_type',
         'image_gallery',
         'hotel_image',

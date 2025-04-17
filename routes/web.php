@@ -19,6 +19,7 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiv
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMappingOwnerController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigRoomBedTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
@@ -154,6 +155,7 @@ Route::prefix('admin')->group(function () {
             Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
             Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('room-bed-types', ConfigRoomBedTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
             Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);

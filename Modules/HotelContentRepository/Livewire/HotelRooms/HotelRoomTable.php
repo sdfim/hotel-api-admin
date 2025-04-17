@@ -5,7 +5,10 @@ namespace Modules\HotelContentRepository\Livewire\HotelRooms;
 use App\Helpers\ClassHelper;
 use App\Livewire\Components\CustomRepeater;
 use App\Livewire\Configurations\Attributes\AttributesForm;
+use App\Livewire\Configurations\RoomBedTypes\RoomBedTypeForm;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigRoomBedType;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
@@ -88,7 +91,22 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 Grid::make(1)->schema([
                     TextInput::make('area')->label('Area, square feet'),
                     TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
-                    TagsInput::make('bed_groups')->label('Bed Types')->placeholder('Enter Bed Types'),
+                    Select::make('bed_groups')
+                        ->label('Bed Types')
+                        ->multiple()
+                        ->searchable()
+                        ->native(false)
+                        ->createOptionForm(Gate::allows('create', ConfigRoomBedType::class) ? RoomBedTypeForm::getSchema() : [])
+                        ->createOptionUsing(function (array $data) {
+                            $bedType = ConfigRoomBedType::create($data);
+                            Notification::make()
+                                ->title('Bed Type created successfully')
+                                ->success()
+                                ->send();
+
+                            return $bedType->id;
+                        })
+                        ->options(ConfigRoomBedType::pluck('name', 'name')),
                     Select::make('related_rooms')
                         ->label('Connecting Room Types')
                         ->multiple()
@@ -104,7 +122,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             Grid::make(1)->schema([
                 Select::make('attributes')
                     ->label('Attributes')
-                    ->createOptionForm(AttributesForm::getSchema())
+                    ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
                     ->createOptionUsing(function (array $data) {
                         $data['default_value'] = '';
                         $attribute = ConfigAttribute::create($data);
@@ -162,13 +180,13 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
-                    ->disabled(fn () => ! Gate::allows('create', Hotel::class)),
+                    ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
-                    ->disabled(fn () => ! Gate::allows('create', Hotel::class)),
+                    ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
                 TextColumn::make('supplier_codes')
                     ->label('Supplier Codes')
                     ->formatStateUsing(function ($state) {
@@ -187,6 +205,11 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->modalWidth('7xl')
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->form($this->schemeForm())
+                        ->modalFooterActions(function ($livewire, $action) {
+                            return Gate::allows('create', Hotel::class)
+                                ? [$action->getModalSubmitAction(), $action->getModalCancelAction()]
+                                : [$action->getModalCancelAction()];
+                        })
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
                             $data['galleries'] = $record->galleries->pluck('id')->toArray();
@@ -206,7 +229,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 ->success()
                                 ->send();
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('images')
                         ->icon('heroicon-o-gif')
@@ -217,7 +240,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->modalContent(function ($record) {
                             return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-attributes')
                         ->icon('heroicon-o-gift')
@@ -231,7 +254,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-fee-tax')
                         ->icon('heroicon-o-banknotes')
@@ -245,7 +268,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-informational-service')
                         ->icon('heroicon-o-sparkles')
@@ -259,13 +282,13 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                 ]),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    ->visible(fn () => Gate::allows('update', Hotel::class)),
             ])
             ->headerActions([
                 CreateAction::make()
