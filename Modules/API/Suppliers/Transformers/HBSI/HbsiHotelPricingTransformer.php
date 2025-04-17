@@ -422,7 +422,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
         $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
 
-        $roomResponse->setTotalPrice($pricingRulesApplier['total_price'] + $totalFeesUltimateAmenities);
+        $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees'] + $totalFeesUltimateAmenities);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);

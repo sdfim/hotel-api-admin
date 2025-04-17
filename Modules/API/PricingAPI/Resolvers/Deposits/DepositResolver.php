@@ -17,30 +17,34 @@ class DepositResolver
 
     public static function getRateLevel(RoomResponse $roomResponse, array $depositInformation, array $query, $giataId): array
     {
+        if (empty($depositInformation)) {
+            return [];
+        }
+
         $productId = Arr::get($depositInformation, '0.product_id');
         $rates = self::getRatesByProductId($productId);
 
         $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId);
+        $activeDepositInformationRateLevel = $activeDepositInformation['rate']->isNotEmpty()
+            ? $activeDepositInformation['rate']
+            : $activeDepositInformation['hotel'];
 
         $calculatedDeposits = [];
-        foreach ($activeDepositInformation as $depositInfo) {
-            // RateLevel and HotelLevel
+        foreach ($activeDepositInformationRateLevel as $depositInfo) {
             $rateId = Arr::get($depositInfo, 'rate_id');
             $level = $rateId ? 'rate' : 'hotel';
-            if ($rateId && Arr::get($rates, $rateId, '') !== $roomResponse->getRatePlanCode()) {
-                continue;
-            }
             $baseAmount = self::getBaseAmount($roomResponse, $depositInfo);
             $calculatedDeposits[] = [
                 'name' => $depositInfo['name'],
                 'level' => $level,
                 'base_price_type' => $depositInfo['manipulable_price_type'],
                 'price_value' => $depositInfo['price_value'],
+                'price_value_type' => $depositInfo['price_value_type'],
+                'compare' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'compare'),
                 'interval' => [
                     'from' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_from'),
                     'to' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_to'),
                 ],
-                'price_value_type' => $depositInfo['price_value_type'],
                 'base_price_amount' => $baseAmount,
                 'total_deposit' => self::calculate($depositInfo, $baseAmount, self::getMultiplier($depositInfo, $query)),
             ];
@@ -51,20 +55,22 @@ class DepositResolver
 
     public static function getHotelLevel(array $depositInformation, array $query, $giataId): array
     {
+        if (empty($depositInformation)) {
+            return [];
+        }
+
         $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId);
+        $activeDepositInformationHotelLevel = $activeDepositInformation['hotel'];
 
         $calculatedDeposits = [];
-        foreach ($activeDepositInformation as $depositInfo) {
-            // only HotelLevel
-            $rateId = Arr::get($depositInfo, 'rate_id');
-            if ($rateId) {
-                continue;
-            }
+        foreach ($activeDepositInformationHotelLevel as $depositInfo) {
             $calculatedDeposits[] = [
                 'name' => Arr::get($depositInfo, 'name'),
                 'level' => 'hotel',
                 'base_price_type' => $depositInfo['manipulable_price_type'],
                 'price_value' => $depositInfo['price_value'],
+                'price_value_type' => $depositInfo['price_value_type'],
+                'compare' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'compare'),
                 'interval' => [
                     'from' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_from'),
                     'to' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_to'),
@@ -75,7 +81,7 @@ class DepositResolver
         return $calculatedDeposits;
     }
 
-    private static function getCachedFilteredDepositInformation(array $depositInformation, array $query, $giataId): Collection
+    private static function getCachedFilteredDepositInformation(array $depositInformation, array $query, $giataId): array
     {
         $cacheKey = "filtered_deposit_information_{$giataId}";
 
@@ -84,14 +90,15 @@ class DepositResolver
         });
     }
 
-    private static function getFilteredDepositInformation(array $depositInformation, array $query): Collection
+    private static function getFilteredDepositInformation(array $depositInformation, array $query): array
     {
-        $activeDepositInformation = self::filterActiveDeposit(collect($depositInformation));
+        $hotelLevel = self::filterPeriodDeposit(collect($depositInformation), $query);
+        $rateLevel = self::filterPeriodDeposit(collect($depositInformation), $query, 'rate');
 
-        $hotelLevel = self::filterPeriodDeposit($activeDepositInformation, $query);
-        $rateLevel = self::filterPeriodDeposit($activeDepositInformation, $query, 'rate');
-
-        return collect(array_merge($hotelLevel->toArray(), $rateLevel->toArray()));
+        return [
+            'hotel' => $hotelLevel,
+            'rate' => $rateLevel,
+        ];
     }
 
     private static function getRatesByProductId(int $productId): array
@@ -139,16 +146,6 @@ class DepositResolver
         };
     }
 
-    private static function filterActiveDeposit(Collection $depositInformation): Collection
-    {
-        return collect($depositInformation)->filter(function ($item) {
-            $from = Carbon::parse($item['start_date']);
-            $to = Carbon::parse($item['expiration_date']);
-
-            return Carbon::now()->endOfDay()->isAfter($from) && $to->isAfter(Carbon::now()->startOfDay());
-        });
-    }
-
     private static function filterPeriodDeposit(Collection $depositInformation, array $query, string $level = 'hotel'): Collection
     {
         $checkin = Carbon::parse($query['checkin']);
@@ -160,8 +157,19 @@ class DepositResolver
             $from = Carbon::parse($condition['value_from'] ?? Carbon::now());
             $to = Carbon::parse($condition['value_to'] ?? Carbon::now()->addYears(1000));
 
-            return ($from <= $checkout && $to >= $checkin)
+            return (($from <= $checkout && $to >= $checkin)
+                || ($condition['compare'] === '=' && ($from <= $checkout && $from >= $checkin)))
                     && (($level === 'hotel') ? $item['rate_id'] === null : $item['rate_id'] !== null);
+        });
+
+        // Add filter for booking_date to ensure the current date is within the interval
+        $filtered = $filtered->filter(function ($item) {
+            $condition = collect($item['conditions'])->firstWhere('field', 'booking_date');
+            $from = Carbon::parse($condition['value_from'] ?? Carbon::now());
+            $to = Carbon::parse($condition['value_to'] ?? Carbon::now()->addYears(1000));
+            $currentDate = Carbon::now();
+
+            return $from <= $currentDate && $to >= $currentDate;
         });
 
         // Retain only intervals that are not nested within other intervals
@@ -176,7 +184,8 @@ class DepositResolver
                 $existingTo = Carbon::parse($existingCondition['value_to'] ?? Carbon::now()->addYears(1000));
 
                 // Check if the current interval ($from, $to) is fully nested within another interval
-                return $from >= $existingFrom && $to <= $existingTo && ($from != $existingFrom || $to != $existingTo);
+                return ($from >= $existingFrom && $to <= $existingTo && ($from != $existingFrom || $to != $existingTo))
+                    && ($existingCondition['compare'] !== '=');
             });
         });
     }
