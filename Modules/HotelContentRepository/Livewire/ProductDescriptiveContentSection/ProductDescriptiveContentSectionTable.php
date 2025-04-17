@@ -111,7 +111,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
         return $table
             ->query(
                 ProductDescriptiveContentSection::query()
-                    ->where('product_id', $this->productId)->where('rate_id', $this->rateId)
+                    ->where('product_id', $this->productId)
             )
             ->deferLoading()
             ->columns([
