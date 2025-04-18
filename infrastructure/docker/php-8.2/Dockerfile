@@ -19,8 +19,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install OpCache
-RUN pecl install opcache \
-    && docker-php-ext-enable opcache
+RUN docker-php-ext-enable opcache
 
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod rewrite headers

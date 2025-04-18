@@ -66,6 +66,7 @@ use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/phpinfo', fn () => phpinfo());
 
 Route::fallback(function () {
     if (! request()->is('api/*')) {
