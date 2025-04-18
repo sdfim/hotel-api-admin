@@ -146,7 +146,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->native(false),
             ]),
             CustomRepeater::make('supplier_codes')
-                ->label('Supplier Codes')
+                ->label('Supplier Room Codes')
                 ->schema([
                     Grid::make(2)->schema([
                         Select::make('supplier')
@@ -188,7 +188,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['style' => 'width: 100%'])
                     ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
                 TextColumn::make('supplier_codes')
-                    ->label('Supplier Codes')
+                    ->label('Supplier Room Codes')
                     ->formatStateUsing(function ($state) {
                         return implode('<br>', array_map(function ($code) {
                             return $code['supplier'].': '.$code['code'];
