@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire\Configurations\RoomBedTypes;
+namespace App\Livewire\Configurations\ContactInformationDepartments;
 
 use App\Helpers\ClassHelper;
-use App\Models\Configurations\ConfigRoomBedType;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class RoomBedTypeTable extends Component implements HasForms, HasTable
+class ContactInformationDepartmentTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -27,20 +27,19 @@ class RoomBedTypeTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ConfigRoomBedType::query())
+            ->query(ConfigContactInformationDepartment::query())
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
+                TextColumn::make('name')->label('Name')->searchable()->sortable(),
             ])
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->url(fn (ConfigRoomBedType $record): string => route('configurations.room-bed-types.edit', $record))
-                        ->visible(fn (ConfigRoomBedType $record) => Gate::allows('update', $record)),
+                        ->url(fn (ConfigContactInformationDepartment $record): string => route('configurations.contact-information-departments.edit', $record))
+                        ->visible(fn (ConfigContactInformationDepartment $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (ConfigRoomBedType $record) => $record->delete())
-                        ->visible(fn (ConfigRoomBedType $record) => Gate::allows('delete', $record)),
+                        ->action(fn (ConfigContactInformationDepartment $record) => $record->delete())
+                        ->visible(fn (ConfigContactInformationDepartment $record) => Gate::allows('delete', $record)),
                 ]),
             ])
             ->headerActions([
@@ -48,13 +47,13 @@ class RoomBedTypeTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
-                    ->url(fn (): string => route('configurations.room-bed-types.create'))
-                    ->visible(fn () => Gate::allows('create', ConfigRoomBedType::class)),
+                    ->url(fn (): string => route('configurations.contact-information-departments.create'))
+                    ->visible(fn () => Gate::allows('create', ConfigContactInformationDepartment::class)),
             ]);
     }
 
     public function render(): View
     {
-        return view('livewire.configurations.room-bed-types.room-bed-type-table');
+        return view('livewire.configurations.contact-information-departments.contact-information-department-table');
     }
 }

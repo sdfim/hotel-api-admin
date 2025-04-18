@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
             ConfigRoomBedTypeSeeder::class,
+            ConfigContactInformationDepartmentSeeder::class,
 
             InsuranceVendorSeeder::class,
             InsuranceRestrictionTypeSeeder::class,

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire\Configurations\RoomBedTypes;
+namespace App\Livewire\Configurations\ContactInformationDepartments;
 
-use App\Models\Configurations\ConfigRoomBedType;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -13,17 +13,17 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
-class RoomBedTypeForm extends Component implements HasForms
+class ContactInformationDepartmentForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?array $data = [];
 
-    public ConfigRoomBedType $record;
+    public ConfigContactInformationDepartment $record;
 
-    public function mount(ConfigRoomBedType $configRoomBedType): void
+    public function mount(ConfigContactInformationDepartment $configContactInformationDepartment): void
     {
-        $this->record = $configRoomBedType;
+        $this->record = $configContactInformationDepartment;
 
         $this->form->fill($this->record->attributesToArray());
     }
@@ -57,11 +57,11 @@ class RoomBedTypeForm extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('configurations.room-bed-types.index');
+        return redirect()->route('configurations.contact-information-departments.index');
     }
 
     public function render(): View
     {
-        return view('livewire.configurations.room-bed-types.room-bed-type-form');
+        return view('livewire.configurations.contact-information-departments.contact-information-department-form');
     }
 }

@@ -35,6 +35,7 @@
     use App\Models\Configurations\ConfigServiceType;
     use App\Models\Configurations\ConfigChain;
     use App\Models\Configurations\ConfigInsuranceDocumentationType;
+    use App\Models\Configurations\ConfigContactInformationDepartment;
     use Modules\HotelContentRepository\Models\KeyMappingOwner;
     use Modules\HotelContentRepository\Models\Commission;
     use Modules\HotelContentRepository\Models\ImageGallery;
@@ -56,6 +57,7 @@
         $canView(ConfigServiceType::class) ||
         $canView(ConfigChain::class);
         $canView(ConfigInsuranceDocumentationType::class);
+        $canView(ConfigContactInformationDepartment::class);
         $canView(KeyMappingOwner::class);
         $canView(Commission::class);
         $canView(ConfigRoomBedType::class);
@@ -78,6 +80,7 @@
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
+        ['route' => 'configurations.contact-information-departments.index', 'text' => 'UJV Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {

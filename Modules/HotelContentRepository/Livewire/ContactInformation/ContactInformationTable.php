@@ -2,9 +2,12 @@
 
 namespace Modules\HotelContentRepository\Livewire\ContactInformation;
 
+use App\Actions\ConfigContactInformationDepartment\CreateConfigContactInformationDepartment;
 use App\Actions\ConfigJobDescription\CreateConfigJobDescription;
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\ContactInformationDepartments\ContactInformationDepartmentForm;
 use App\Livewire\Configurations\JobDescriptions\JobDescriptionsForm;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -13,7 +16,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -132,10 +134,23 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                                 ->placeholder('Email*'),
                             Select::make('departments')
                                 ->hiddenLabel()
-                                ->rules(['required'])
                                 ->placeholder('Select UJV Department*')
+                                ->searchable()
+                                ->native(false)
                                 ->multiple()
-                                ->options(ContactInformationDepartmentEnum::options())
+                                ->options(ConfigContactInformationDepartment::pluck('name', 'name'))
+                                ->createOptionForm(Gate::allows('create', ConfigContactInformationDepartment::class) ? ContactInformationDepartmentForm::getSchema() : [])
+                                ->createOptionUsing(function (array $data) {
+                                    /** @var CreateConfigContactInformationDepartment $action */
+                                    $action = app(CreateConfigContactInformationDepartment::class);
+                                    $department = $action->create($data);
+                                    Notification::make()
+                                        ->title('Department created successfully')
+                                        ->success()
+                                        ->send();
+
+                                    return $department->name;
+                                })
                                 ->columnSpan(2),
                         ]),
                 ]),
@@ -157,7 +172,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
-        $categories = ContactInformationDepartmentEnum::values();
+        $categories = ConfigContactInformationDepartment::pluck('name')->toArray();
 
         $emailColumns = array_map(function ($category) {
             return $this->createEmailColumn($category);

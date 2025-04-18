@@ -10,11 +10,12 @@ use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeCategoryController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigContactInformationDepartmentController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
@@ -88,6 +89,7 @@ Route::get('/clear-cookies-and-login', function () {
             Cookie::queue(Cookie::forget($key));
         }
     }
+
     return redirect()->route('login');
 })->name('clear.cookies.and.login');
 
@@ -156,6 +158,7 @@ Route::prefix('admin')->group(function () {
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
             Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('room-bed-types', ConfigRoomBedTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('contact-information-departments', ConfigContactInformationDepartmentController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
             Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);

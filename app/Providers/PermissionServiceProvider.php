@@ -7,6 +7,7 @@ use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\Configurations\ConfigChain;
 use App\Models\Configurations\ConfigConsortium;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
@@ -20,6 +21,7 @@ use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
+use App\Policies\Configurations\ConfigContactInformationDepartmentPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigInsuranceDocumentationTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
@@ -89,6 +91,7 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigChain::class => ConfigChainPolicy::class,
         ConfigInsuranceDocumentationType::class => ConfigInsuranceDocumentationTypePolicy::class,
         ConfigRoomBedType::class => ConfigRoomBedTypePolicy::class,
+        ConfigContactInformationDepartment::class => ConfigContactInformationDepartmentPolicy::class,
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
         Commission::class => CommissionPolicy::class,
         InformationalService::class => InformationalServicePolicy::class,
