@@ -304,7 +304,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('apply_type')->label('Apply Type')->sortable(),
                 IconColumn::make('commissionable')
-                    ->label('Commissionable')
+                    ->label('Commissionable to TA')
                     ->boolean(),
 
                 TextColumn::make('fee_category')->label('Fee Category'),
