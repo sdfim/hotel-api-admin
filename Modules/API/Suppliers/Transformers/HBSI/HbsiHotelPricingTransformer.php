@@ -124,7 +124,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
-        $hotelResponse->setDepositInformation(DepositResolver::getHotelLevel(Arr::get($this->depositInformation, $propertyGroup['giata_id'], []), $query, $propertyGroup['giata_id']));
+        $rating = $this->giata[$propertyGroup['giata_id']]['rating'] ?? 0;
+        $hotelResponse->setDepositInformation(DepositResolver::getHotelLevel(Arr::get($this->depositInformation, $propertyGroup['giata_id'], []), $query, $propertyGroup['giata_id'], $rating));
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -483,7 +484,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'created_at' => Carbon::now(),
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
-        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId));
+        $rating =  $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }

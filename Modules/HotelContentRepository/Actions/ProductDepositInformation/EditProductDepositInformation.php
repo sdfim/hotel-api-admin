@@ -20,6 +20,12 @@ class EditProductDepositInformation
         $productDepositInformation->update($data);
 
         if (isset($data['conditions'])) {
+            $existingConditionIds = $productDepositInformation->conditions()->pluck('id')->toArray();
+            $newConditionIds = array_filter(array_column($data['conditions'], 'id'));
+
+            $conditionsToDelete = array_diff($existingConditionIds, $newConditionIds);
+            $productDepositInformation->conditions()->whereIn('id', $conditionsToDelete)->delete();
+
             foreach ($data['conditions'] as $condition) {
                 if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
                     $condition['value_from'] = null;

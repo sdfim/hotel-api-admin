@@ -247,7 +247,6 @@ trait DepositFieldTrait
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
                                         ->required(fn (Get $get): bool => $get('compare') !== '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') === '<')
                                         ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Travel date to')
@@ -256,7 +255,6 @@ trait DepositFieldTrait
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' || $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
@@ -271,7 +269,6 @@ trait DepositFieldTrait
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
                                         ->required(fn (Get $get): bool => $get('compare') !== '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') === '<')
                                         ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Booking date to')
@@ -280,7 +277,6 @@ trait DepositFieldTrait
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' || $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
@@ -294,16 +290,16 @@ trait DepositFieldTrait
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Date of stay to')
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
@@ -313,13 +309,13 @@ trait DepositFieldTrait
                                     TextInput::make('value_from')
                                         ->label('Total guests from')
                                         ->numeric()
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     TextInput::make('value_to')
                                         ->label('Total guests to')
                                         ->numeric()
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
@@ -329,13 +325,13 @@ trait DepositFieldTrait
                                     TextInput::make('value_from')
                                         ->label('Days until departure from')
                                         ->numeric()
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     TextInput::make('value_to')
                                         ->label('Days until departure to')
                                         ->numeric()
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
@@ -345,13 +341,13 @@ trait DepositFieldTrait
                                     TextInput::make('value_from')
                                         ->label('Nights from')
                                         ->numeric()
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     TextInput::make('value_to')
                                         ->label('Nights to')
                                         ->numeric()
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
@@ -363,15 +359,15 @@ trait DepositFieldTrait
                                         ->numeric()
                                         ->minValue(fn (): float => 1.0)
                                         ->maxValue(fn (): float => 5.5)
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     TextInput::make('value_to')
                                         ->label('Rating to')
                                         ->numeric()
                                         ->minValue(fn (): float => 1.0)
                                         ->maxValue(fn (): float => 5.5)
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
@@ -381,13 +377,13 @@ trait DepositFieldTrait
                                     TextInput::make('value_from')
                                         ->label('Number of rooms from')
                                         ->numeric()
-                                        ->required(),
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     TextInput::make('value_to')
                                         ->label('Number of rooms to')
                                         ->numeric()
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],

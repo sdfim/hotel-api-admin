@@ -73,10 +73,13 @@ class BaseHotelPricingTransformer
 
         $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
-                $hotel->giata_code => $hotel->product?->depositInformations->map(function ($depositInformation) {
+                $hotel->giata_code => $hotel->product?->depositInformations->map(function ($depositInformation) use ($hotel) {
                     return array_merge(
                         $depositInformation->toArray(),
-                        ['conditions' => $depositInformation->conditions->toArray()]
+                        [
+                            'conditions' => $depositInformation->conditions->toArray(),
+                            'hotel' => $hotel,
+                        ]
                     );
                 })->toArray(),
             ];
