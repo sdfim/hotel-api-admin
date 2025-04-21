@@ -175,7 +175,7 @@ class ApiSearchInspectorRepository
          */
         [$search_id, $request, $suppliers, $type, $search_type] = $input;
 
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
         $inspector = new ApiSearchInspector;
         $inspector->search_id = $search_id;
