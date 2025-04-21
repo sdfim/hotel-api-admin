@@ -26,4 +26,4 @@ BookingApiRoutes::routes();
 
 ReportApiRoutes::routes();
 
-Route::middleware('auth:sanctum')->get('/v1/dummy-health', [DummyHealthController::class, 'check']);
+Route::middleware('auth:sanctum')->get('/v1/test-connection', [DummyHealthController::class, 'check']);

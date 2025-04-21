@@ -74,12 +74,17 @@ class ReportsApiHandler extends BaseController
      */
     protected function applyDateFilters(Builder $query, Request $request): void
     {
-        $query->when($request->get('from'), function ($query, $from) {
-            $query->where('created_at', '>=', Carbon::parse($from)->startOfDay()->setTimezone('EST'));
+        
+        $adminTimezone = 'America/New_York';
+
+        $query->when($request->get('from'), function ($query, $from) use ($adminTimezone) {
+            $fromDateUTC = Carbon::parse($from, $adminTimezone)->startOfDay()->timezone('UTC');
+            $query->where('created_at', '>=', $fromDateUTC);
         });
 
-        $query->when($request->get('to'), function ($query, $to) {
-            $query->where('created_at', '<=', Carbon::parse($to)->endOfDay()->setTimezone('EST'));
+        $query->when($request->get('to'), function ($query, $to) use ($adminTimezone) {
+            $toDateUTC = Carbon::parse($to, $adminTimezone)->endOfDay()->timezone('UTC');
+            $query->where('created_at', '<=', $toDateUTC);
         });
     }
 
