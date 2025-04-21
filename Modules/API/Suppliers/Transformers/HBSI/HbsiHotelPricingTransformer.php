@@ -481,8 +481,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now(),
-            'hotel_id' => $propertyGroup['giata_id'] ?? 0,
-            'room_id' => $rate['id'] ?? $roomType ?? 0,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
         $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId));
 

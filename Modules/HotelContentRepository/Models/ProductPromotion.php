@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Enums\ProductPromotionWebsiteVisibilityEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,17 +42,19 @@ class ProductPromotion extends Model
         'max_night_stay',
         'not_refundable',
         'package',
+        'website_visibility',
     ];
 
     protected $casts = [
         'not_refundable' => 'boolean',
         'package' => 'boolean',
+        'website_visibility' => ProductPromotionWebsiteVisibilityEnum::class,
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function product(): BelongsTo

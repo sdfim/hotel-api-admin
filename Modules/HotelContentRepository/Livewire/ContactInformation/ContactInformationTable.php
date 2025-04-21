@@ -125,6 +125,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
             CustomRepeater::make('emails')
                 ->label('Emails')
+                ->defaultItems(0)
                 ->schema([
                     Grid::make(3)
                         ->schema([

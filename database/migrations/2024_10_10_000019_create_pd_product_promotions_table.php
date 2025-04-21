@@ -25,6 +25,9 @@ return new class extends Migration
             $table->text('exclusions')->nullable();
             $table->boolean('not_refundable')->default(false);
             $table->boolean('package')->default(false);
+            $table->string('website_visibility', 50)
+                ->default('no_visible')
+                ->comment('Visibility of the promotion on websites: no_visible, visible_all, visible_ujv, visible_luxuria');
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
