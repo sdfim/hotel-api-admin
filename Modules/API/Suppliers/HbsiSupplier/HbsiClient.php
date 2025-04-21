@@ -136,7 +136,7 @@ class HbsiClient
         $end = microtime(true);
         $duration = $end - $start;
 
-        if (! isset($result['value'])) {
+        if (! isset($result)) {
             Log::error('HBSIHotelApiHandler Timeout Exception after '.$duration.' seconds');
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
@@ -146,7 +146,7 @@ class HbsiClient
             return ['error' => 'Timeout Exception after '.$duration.' seconds'];
         }
 
-        $body = $result['value']->getBody()->getContents();
+        $body = $result->getBody()->getContents();
 
         return $this->processXmlBody($body, $bodyQuery);
     }

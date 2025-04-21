@@ -17,15 +17,10 @@ class HbsiHotelController
 
     private const PAGE = 1;
 
-    /**
-     * @param HbsiClient $hbsiClient
-     * @param Geography $geography
-     */
     public function __construct(
-        private readonly HbsiClient $hbsiClient = new HbsiClient(),
-        private readonly Geography $geography = new Geography(),
-    ) {
-    }
+        private readonly HbsiClient $hbsiClient,
+        private readonly Geography $geography,
+    ) {}
 
     public function preSearchData(array &$filters): ?array
     {
@@ -50,7 +45,6 @@ class HbsiHotelController
             $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
             $endTime = microtime(true) - $coordinateTime;
             Log::info('HbsiHotelController | preSearchData | minMaxCoordinate '.$endTime.' seconds');
-
 
             $filters['latitude'] = $geoLocation['latitude'];
             $filters['longitude'] = $geoLocation['longitude'];

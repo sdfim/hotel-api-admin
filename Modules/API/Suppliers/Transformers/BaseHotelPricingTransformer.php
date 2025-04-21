@@ -3,12 +3,14 @@
 namespace Modules\API\Suppliers\Transformers;
 
 use AllowDynamicProperties;
+use Fiber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\Hotel;
+use React\Promise\Promise;
 
 #[AllowDynamicProperties]
 class BaseHotelPricingTransformer
@@ -21,11 +23,15 @@ class BaseHotelPricingTransformer
      * across all instances and subclasses to avoid redundant processing
      * when working with the same dataset.
      *
+     * @param  string  $searchId  Unique identifier for the search.
      * @param  array  $giataIds  Array of Giata IDs to fetch data for.
+     * @param  bool  $isFiber  Indicates if the method is called within a Fiber context.
+     *
+     * @throws \Throwable
      */
-    public function fetchSupplierRepositoryData(array $giataIds): void
+    public function fetchSupplierRepositoryData(string $searchId, array $giataIds, bool $isFiber = false): void
     {
-        $cacheKey = 'supplier_data_'.md5(implode(',', $giataIds));
+        $cacheKey = 'supplier_data_'.$searchId;
 
         // Check if data is already cached
         $cachedData = Cache::get($cacheKey);
@@ -33,13 +39,31 @@ class BaseHotelPricingTransformer
             $this->setPropertiesFromCache($cachedData);
 
             logger('Using cached supplier data', [
-                'giataIds' => $giataIds,
+                'searchId' => $searchId,
                 'cacheKey' => $cacheKey,
             ]);
 
             return;
         }
 
+        if ($isFiber) {
+            // Create a promise for fetching data
+            $promise = new Promise(function () use ($giataIds) {
+                return $this->processSupplierData($giataIds);
+            });
+
+            // Suspend the fiber and wait for the promise to resolve
+            $cachedData = Fiber::suspend($promise);
+        } else {
+            // Fetch and process data
+            $cachedData = $this->processSupplierData($giataIds);
+        }
+
+        Cache::put($cacheKey, $cachedData, now()->addMinutes(self::CACHE_TTL_MINUTES));
+    }
+
+    private function processSupplierData(array $giataIds): array
+    {
         // Fetch and process data
         $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
 
@@ -146,15 +170,13 @@ class BaseHotelPricingTransformer
             $this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value][$hotel->giata_code] = $expediaHotelData['rooms'];
         }
 
-        // Cache the processed data
-        $cachedData = [
+        return [
             'ultimateAmenities' => $this->ultimateAmenities,
             'depositInformation' => $this->depositInformation,
             'mapperSupplierRepository' => $this->mapperSupplierRepository,
             'repoTaxFees' => $this->repoTaxFees,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
         ];
-        Cache::put($cacheKey, $cachedData, now()->addMinutes(self::CACHE_TTL_MINUTES));
     }
 
     private function setPropertiesFromCache(array $cachedData): void

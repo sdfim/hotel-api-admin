@@ -196,16 +196,16 @@ class PropertyPriceCall
         }
 
         $responses = Fiber::suspend($promises);
+        $dataResponses = [];
 
         try {
             foreach ($responses as $response) {
-                if ($response['state'] === 'fulfilled') {
-                    $data = $response['value']->getBody()->getContents();
-                    $responses = array_merge($responses, json_decode($data, true));
-                }
-                elseif (!isset($response['value'])) {
-                    Log::error("Expedia Response", [
-                        'state'  => Arr::get($response, 'state'),
+                if ($response->getReasonPhrase() === 'OK') {
+                    $data = $response->getBody()->getContents();
+                    $dataResponses = array_merge($dataResponses, json_decode($data, true));
+                } elseif (! isset($response)) {
+                    Log::error('Expedia Response', [
+                        'state' => Arr::get($response, 'state'),
                         'reason' => Arr::get($response, 'reason'),
                     ]);
                     Log::error('Expedia Timeout Exception');
@@ -247,8 +247,8 @@ class PropertyPriceCall
         }
 
         $res = [];
-        if (! empty($responses)) {
-            foreach ($responses as $response) {
+        if (! empty($dataResponses)) {
+            foreach ($dataResponses as $response) {
                 if (isset($response['property_id'])) {
                     $res[$response['property_id']] = $response;
                 }

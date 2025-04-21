@@ -96,7 +96,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
     {
         $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
-        $this->fetchSupplierRepositoryData($giataIds);
+        $this->fetchSupplierRepositoryData($search_id, $giataIds);
 
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -249,7 +249,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
-        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes[ContentSourceEnum::HBSI->value], "$giataCode.$roomType", '');
+        $hbsiUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HBSI->value, []);
+        $unifiedRoomCode = Arr::get($hbsiUnifiedRoomCodes, "$giataCode.$roomType", '');
 
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {

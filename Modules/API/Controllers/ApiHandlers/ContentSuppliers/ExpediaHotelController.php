@@ -43,8 +43,8 @@ class ExpediaHotelController implements SupplierControllerInterface
         try {
             $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $expedia = new ExpediaContent;
-            $geography = new Geography;
+            $expedia = new ExpediaContent();
+            $geography = new Geography();
 
             // $filters['ids'] - array of Expedia property ids
             // $filters['giata_ids'] - array of Giata ids
@@ -141,6 +141,7 @@ class ExpediaHotelController implements SupplierControllerInterface
         Log::info('ExpediaHotelApiHandler | preSearchData | mysql query '.$endTime.' seconds');
 
         return [
+            'giata_ids' => array_values($giataCodes),
             'ids' => $ids ?? 0,
             'results' => $results,
             'filters' => $filters ?? null,
