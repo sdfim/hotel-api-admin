@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\CustomAuthorizedActions\Configurations;
+namespace Tests\Feature\CustomAuthorizedActions\Configurations;
 
 use App\Livewire\Configurations\Commission\CommissionForm;
 use App\Livewire\Configurations\Commission\CommissionTable;
