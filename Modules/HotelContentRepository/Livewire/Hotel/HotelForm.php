@@ -274,7 +274,6 @@ class HotelForm extends Component implements HasForms
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
                                                 $filamentPath = env('FILAMENT_FILESYSTEM_DISK', '') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
-
                                                 $publicPath = Storage::url($originalPath);
 
                                                 if (Storage::exists($originalPath)) {
