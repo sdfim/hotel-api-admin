@@ -264,7 +264,7 @@ class HotelForm extends Component implements HasForms
                                         }),
                                     TextInput::make('product.website')->url()->label('Website')->maxLength(191),
                                     FileUpload::make('product.hero_image')
-                                        //->image()
+                                        ->image()
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
