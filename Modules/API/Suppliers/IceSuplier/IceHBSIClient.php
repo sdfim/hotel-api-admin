@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\IceSuplier;
 
+use App\Jobs\SendEmailCredentialsAlert;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
@@ -72,7 +73,12 @@ class IceHBSIClient
             return $this->token;
         }
 
-        throw new Exception('Unable to retrieve token');
+        $errorData = $response->json();
+        $errorString = json_encode($errorData) ?: 'Unable to retrieve token';
+
+        SendEmailCredentialsAlert::dispatch('iceportal', $errorString);
+
+        throw new Exception($errorString);
     }
 
     public function get(string $endpoint, array $query = []): PromiseInterface|Response
