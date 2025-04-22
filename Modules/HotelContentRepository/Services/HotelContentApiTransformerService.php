@@ -325,15 +325,24 @@ class HotelContentApiTransformerService
 
     private function getUltimateAmenities($hotel): array
     {
+        $requestConsortiaAffiliation = request()->input('consortia_affiliation', null);
+
         $amenities = $hotel->product->affiliations
             ->filter(function ($affiliation) {
                 return $affiliation->room_id === null;
             })
-            ->map(function ($affiliation) {
+            ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
+                    return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
+                });
+            })
+            ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
                 return [
                     'start_date' => $affiliation->start_date,
                     'end_date' => $affiliation->end_date,
-                    'amenities' => $affiliation->amenities->map(function ($amenity) {
+                    'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
+                        return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                    })->map(function ($amenity) {
                         return [
                             'name' => $amenity->amenity->name,
                             'consortia' => $amenity->consortia,
@@ -343,7 +352,8 @@ class HotelContentApiTransformerService
                             'min_night_stay' => $amenity->min_night_stay,
                             'max_night_stay' => $amenity->max_night_stay,
                         ];
-                    })->all(),
+                    })
+                        ->all(),
                 ];
             })
             ->all();
@@ -363,6 +373,8 @@ class HotelContentApiTransformerService
 
     public function getHotelRooms($hotel): array
     {
+        $requestConsortiaAffiliation = request()->input('consortia_affiliation', null);
+
         $rooms = [];
         foreach ($hotel->rooms as $room) {
             $attributes = $room->attributes->map(function ($attribute) {
@@ -374,23 +386,30 @@ class HotelContentApiTransformerService
 
             $ultimateAmenities = [];
             if ($room->affiliations) {
-                $ultimateAmenities = $room->affiliations->map(function ($affiliation) {
-                    return [
-                        'start_date' => $affiliation->start_date,
-                        'end_date' => $affiliation->end_date,
-                        'amenities' => $affiliation->amenities->map(function ($amenity) {
-                            return [
-                                'name' => $amenity->amenity->name,
-                                'consortia' => $amenity->consortia,
-                                'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
-                                'price' => $amenity->price,
-                                'apply_type' => $amenity->apply_type,
-                                'min_night_stay' => $amenity->min_night_stay,
-                                'max_night_stay' => $amenity->max_night_stay,
-                            ];
-                        })->all(),
-                    ];
-                })->all();
+                $ultimateAmenities = $room->affiliations->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                    return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
+                        return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
+                    });
+                })
+                    ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
+                        return [
+                            'start_date' => $affiliation->start_date,
+                            'end_date' => $affiliation->end_date,
+                            'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
+                                return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                            })->map(function ($amenity) {
+                                return [
+                                    'name' => $amenity->amenity->name,
+                                    'consortia' => $amenity->consortia,
+                                    'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                                    'price' => $amenity->price,
+                                    'apply_type' => $amenity->apply_type,
+                                    'min_night_stay' => $amenity->min_night_stay,
+                                    'max_night_stay' => $amenity->max_night_stay,
+                                ];
+                            })->all(),
+                        ];
+                    })->all();
             }
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
