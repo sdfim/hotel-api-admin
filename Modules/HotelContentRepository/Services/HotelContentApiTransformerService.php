@@ -341,7 +341,7 @@ class HotelContentApiTransformerService
                     'start_date' => $affiliation->start_date,
                     'end_date' => $affiliation->end_date,
                     'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
-                        return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                        return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
                     })->map(function ($amenity) {
                         return [
                             'name' => $amenity->amenity->name,
@@ -386,17 +386,18 @@ class HotelContentApiTransformerService
 
             $ultimateAmenities = [];
             if ($room->affiliations) {
-                $ultimateAmenities = $room->affiliations->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
-                    return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
-                        return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
-                    });
-                })
+                $ultimateAmenities = $room->affiliations
+                    ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                        return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
+                            return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
+                        });
+                    })
                     ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
                         return [
                             'start_date' => $affiliation->start_date,
                             'end_date' => $affiliation->end_date,
                             'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
-                                return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                                return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
                             })->map(function ($amenity) {
                                 return [
                                     'name' => $amenity->amenity->name,

@@ -18,7 +18,14 @@ class UltimateAmenityResolver
             }
         }
 
-        return $validUltimateAmenities;
+        $requestConsortiaAffiliation = Arr::get($query, 'consortia_affiliation');
+
+        $validUltimateAmenities = collect($validUltimateAmenities)
+            ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($affiliation, 'consortia', []));
+            })->toArray();
+
+        return array_values($validUltimateAmenities);
     }
 
     private function filterUltimateAmenity(array $ultimateAmenity, array $query, RoomResponse $roomResponse): bool
@@ -62,9 +69,9 @@ class UltimateAmenityResolver
                 };
 
                 return [
-                    'type' => 'fee',
+                    'type' => 'amenity',
                     'amount' => $amount,
-                    'title' => 'Paid Amenity',
+                    'title' => $item['name'],
                 ];
             })
             ->toArray();
