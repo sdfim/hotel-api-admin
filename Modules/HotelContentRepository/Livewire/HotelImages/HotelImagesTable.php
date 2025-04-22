@@ -168,7 +168,12 @@ class HotelImagesTable extends Component implements HasForms, HasTable
             ->filters([
                 SelectFilter::make('source')
                     ->label('Source')
-                    ->options(Image::distinct()->pluck('source', 'source')->toArray()),
+                    ->options(
+                        Image::distinct()
+                            ->whereNotNull('source')
+                            ->pluck('source', 'source')
+                            ->toArray()
+                    ),
                 SelectFilter::make('section_id')
                     ->label('Section')
                     ->options(ImageSection::pluck('name', 'id')->toArray()),
