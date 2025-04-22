@@ -25,6 +25,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Intervention\Image\Laravel\Facades\Image;
@@ -263,7 +264,7 @@ class HotelForm extends Component implements HasForms
                                         }),
                                     TextInput::make('product.website')->url()->label('Website')->maxLength(191),
                                     FileUpload::make('product.hero_image')
-                                        ->image()
+                                        //->image()
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
@@ -273,8 +274,14 @@ class HotelForm extends Component implements HasForms
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
                                                 $filamentPath = env('FILAMENT_FILESYSTEM_DISK', '') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
+
+                                                $publicPath = Storage::url($originalPath);
+
                                                 if (Storage::exists($originalPath)) {
-                                                    $image = Image::read(Storage::get($originalPath));
+                                                    $response = Http::get($publicPath)->body();
+                                                    $imageData = $response;
+
+                                                    $image = Image::read($imageData);
                                                     $image->resize(150, 150);
                                                     Storage::put($filamentPath.$thumbnailPath, (string) $image->encode());
                                                     $set('product.hero_image_thumbnails', $thumbnailPath);
