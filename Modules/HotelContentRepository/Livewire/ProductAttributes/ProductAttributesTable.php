@@ -44,6 +44,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             Hidden::make('product_id')->default($this->productId),
             Select::make('config_attribute_id')
                 ->label('Attribute')
+                ->searchable()
                 ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id'))
                 ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
@@ -61,6 +62,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 ->required(),
             Select::make('config_attribute_category_id')
                 ->label('Category')
+                ->searchable()
                 ->options(
                     ConfigAttributeCategory::all()
                         ->sortBy('name')
