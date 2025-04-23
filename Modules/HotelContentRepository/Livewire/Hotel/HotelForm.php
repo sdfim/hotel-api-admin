@@ -277,7 +277,9 @@ class HotelForm extends Component implements HasForms
                                                 $publicPath = Storage::url($originalPath);
 
                                                 if (Storage::exists($originalPath)) {
-                                                    $imageData = Http::get($publicPath)->body();
+                                                    $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
+                                                    ? Http::get($publicPath)->body()
+                                                    : Image::read(Storage::get($originalPath));
 
                                                     $image = Image::read($imageData);
                                                     $image->resize(150, 150);
