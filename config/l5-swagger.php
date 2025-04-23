@@ -31,6 +31,7 @@ return [
             'routes' => [
                 'api' => 'admin/api/doc-content-repository',
                 'docs' => 'docs-cr',
+                'oauth2_callback' => 'sr/oauth2-callback',
             ],
             'paths' => [
                 'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),

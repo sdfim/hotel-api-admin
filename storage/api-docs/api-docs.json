@@ -1663,7 +1663,17 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "example": "45422295,21569211"
+                            "example": "26319691,21569211"
+                        }
+                    },
+                    {
+                        "name": "consortia_affiliation",
+                        "in": "query",
+                        "description": "Filter by Consortia",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Virtuoso"
                         }
                     },
                     {
@@ -1823,6 +1833,12 @@
                                 "$ref": "#/components/schemas/PricingSearchRequest"
                             },
                             "examples": {
+                                "PricingSearchWtithFilterAmenities": {
+                                    "$ref": "#/components/examples/PricingSearchWtithFilterAmenities"
+                                },
+                                "PricingSearchWtithoutFilterAmenities": {
+                                    "$ref": "#/components/examples/PricingSearchWtithoutFilterAmenities"
+                                },
                                 "PricingSearchRequestPlace": {
                                     "$ref": "#/components/examples/PricingSearchRequestPlace"
                                 },
@@ -1932,6 +1948,12 @@
                                 ]
                             },
                             "examples": {
+                                "ContentSearchWithoutFilterAmenities": {
+                                    "$ref": "#/components/examples/ContentSearchWithoutFilterAmenities"
+                                },
+                                "ContentSearchWithFilterAmenities": {
+                                    "$ref": "#/components/examples/ContentSearchWithFilterAmenities"
+                                },
                                 "ContentSearchRequestGooglePlace": {
                                     "$ref": "#/components/examples/ContentSearchRequestGooglePlace"
                                 },
@@ -8293,6 +8315,27 @@
                     "results_per_page": 20
                 }
             },
+            "ContentSearchWithoutFilterAmenities": {
+                "summary": "Content Search without Filter Amenities",
+                "value": {
+                    "type": "hotel",
+                    "supplier": "HBSI",
+                    "giata_ids": [
+                        26319691
+                    ]
+                }
+            },
+            "ContentSearchWithFilterAmenities": {
+                "summary": "Content Search with Filter Amenities",
+                "value": {
+                    "type": "hotel",
+                    "supplier": "HBSI",
+                    "giata_ids": [
+                        26319691
+                    ],
+                    "consortia_affiliation": "Virtuoso"
+                }
+            },
             "ContentSearchResponse": {
                 "summary": "Content Search Response",
                 "value": {
@@ -9965,6 +10008,41 @@
                     ],
                     "page": 1,
                     "results_per_page": 20
+                }
+            },
+            "PricingSearchWtithoutFilterAmenities": {
+                "summary": "Pricing Search without filter amenities",
+                "value": {
+                    "type": "hotel",
+                    "supplier": "HBSI",
+                    "checkin": "2025-08-22",
+                    "checkout": "2025-08-24",
+                    "giata_ids": [
+                        26319691
+                    ],
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchWtithFilterAmenities": {
+                "summary": "Pricing Search with filter amenities",
+                "value": {
+                    "type": "hotel",
+                    "supplier": "HBSI",
+                    "checkin": "2025-08-22",
+                    "checkout": "2025-08-24",
+                    "giata_ids": [
+                        26319691
+                    ],
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "consortia_affiliation": "Virtuoso"
                 }
             },
             "PricingSearchResponseNewYork": {

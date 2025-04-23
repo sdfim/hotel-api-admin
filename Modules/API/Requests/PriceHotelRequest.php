@@ -22,6 +22,8 @@ class PriceHotelRequest extends ApiRequest
      *     @OA\JsonContent(
      *       ref="#/components/schemas/PricingSearchRequest",
      *       examples={
+     *           "Search with Filter Amenities": @OA\Schema(ref="#/components/examples/PricingSearchWtithFilterAmenities", example="PricingSearchWtithFilterAmenities"),
+     *           "Search without Filter Amenities": @OA\Schema(ref="#/components/examples/PricingSearchWtithoutFilterAmenities", example="PricingSearchWtithoutFilterAmenities"),
      *           "GIATA Place Eiffel Tower": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlace", example="PricingSearchRequestPlace"),
      *           "GIATA Place Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlaceCancun", example="PricingSearchRequestPlaceCancun"),
      *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),

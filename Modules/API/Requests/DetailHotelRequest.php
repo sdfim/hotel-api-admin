@@ -101,9 +101,19 @@ class DetailHotelRequest extends ApiRequest
      *       description="Giata IDs of the properties to get details for (e.g., 98736411, 12345678).",
      *       @OA\Schema(
      *         type="string",
-     *         example="45422295,21569211"
+     *         example="26319691,21569211"
      *       )
      *     ),
+     *     @OA\Parameter(
+     *        name="consortia_affiliation",
+     *        in="query",
+     *        required=false,
+     *        description="Filter by Consortia",
+     *        @OA\Schema(
+     *          type="string",
+     *          example="Virtuoso"
+     *        )
+     *      ),
      *   @OA\Parameter(
      *      name="room_type_codes",
      *      in="query",

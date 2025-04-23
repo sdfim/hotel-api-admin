@@ -341,7 +341,31 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "results_per_page": 20
  *        }
  * )
+ * @OA\Examples(
+ *      example="ContentSearchWithoutFilterAmenities",
+ *      summary="Content Search without Filter Amenities",
+ *      value=
+ *         {
+ *             "type": "hotel",
+ *             "supplier":"HBSI",
+ *             "giata_ids": {
+ *                  26319691
+ *              },
+ *         }
+ *  )
+ *
+ * @OA\Examples(
+ *       example="ContentSearchWithFilterAmenities",
+ *       summary="Content Search with Filter Amenities",
+ *       value=
+ *          {
+ *              "type": "hotel",
+ *              "supplier":"HBSI",
+ *              "giata_ids": {
+ *                   26319691
+ *               },
+ *              "consortia_affiliation": "Virtuoso",
+ *          }
+ *   )
  */
-class ContentSearchRequest
-{
-}
+class ContentSearchRequest {}
