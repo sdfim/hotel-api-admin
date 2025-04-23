@@ -2,20 +2,40 @@
 
 namespace Modules\API\Suppliers\Transformers;
 
-use AllowDynamicProperties;
-use Fiber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use React\Promise\Promise;
 
-#[AllowDynamicProperties]
 class BaseHotelPricingTransformer
 {
     private const CACHE_TTL_MINUTES = 1;
+
+    protected array $ultimateAmenities = [];
+
+    protected array $depositInformation = [];
+
+    protected array $mapperSupplierRepository = [];
+
+    protected array $repoTaxFees = [];
+
+    protected array $unifiedRoomCodes = [];
+
+    protected string $search_id = '';
+
+    protected array $bookingItems = [];
+
+    protected string $checkin = '';
+
+    protected string $checkout = '';
+
+    protected string $destinationData = '';
+
+    protected array $giata = [];
+
+    protected array $exclusionRates = [];
 
     /**
      * Fetches and processes supplier repository data.
@@ -25,11 +45,8 @@ class BaseHotelPricingTransformer
      *
      * @param  string  $searchId  Unique identifier for the search.
      * @param  array  $giataIds  Array of Giata IDs to fetch data for.
-     * @param  bool  $isFiber  Indicates if the method is called within a Fiber context.
-     *
-     * @throws \Throwable
      */
-    public function fetchSupplierRepositoryData(string $searchId, array $giataIds, bool $isFiber = false): void
+    public function fetchSupplierRepositoryData(string $searchId, array $giataIds): void
     {
         $cacheKey = 'supplier_data_'.$searchId;
 
@@ -46,18 +63,8 @@ class BaseHotelPricingTransformer
             return;
         }
 
-        if ($isFiber) {
-            // Create a promise for fetching data
-            $promise = new Promise(function () use ($giataIds) {
-                return $this->processSupplierData($giataIds);
-            });
-
-            // Suspend the fiber and wait for the promise to resolve
-            $cachedData = Fiber::suspend($promise);
-        } else {
-            // Fetch and process data
-            $cachedData = $this->processSupplierData($giataIds);
-        }
+        // Fetch and process data
+        $cachedData = $this->processSupplierData($giataIds);
 
         Cache::put($cacheKey, $cachedData, now()->addMinutes(self::CACHE_TTL_MINUTES));
     }

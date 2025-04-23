@@ -103,16 +103,8 @@ class HbsiClient
         $original = ['HBSI' => ['request' => $bodyQuery]];
 
         try {
-            /*
-            // Imitation error 500
-            throw new \GuzzleHttp\Exception\ServerException(
-                "Server error",
-                new \GuzzleHttp\Psr7\Request('POST', 'test'),
-                new \GuzzleHttp\Psr7\Response(500)
-            );
-            */
-
-            $result = Fiber::suspend($promise);
+            // Use an array to wrap the single chunk as a complex promise for FiberManager
+            $result = Fiber::suspend([$promise])[0];
         } catch (ConnectException $e) {
             // Timeout
             Log::error('Connection timeout: '.$e->getMessage());
