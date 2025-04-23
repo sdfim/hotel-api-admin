@@ -12,81 +12,76 @@
         }
     </style>
     <div class="col-span-12 xl:col-span-6">
-        <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0 flex">
                 <x-button-back route="{{ redirect()->getUrlGenerator()->previous() }}" text="Back"/>
                 <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100 ml-4">Search Inspector</h6>
             </div>
             <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                 <div class="relative overflow-x-auto">
-                    <div class="row">
-                        <div class="col-lg-12 margin-tb">
-                            <div class="mt-2">
-                                <strong>Search ID:</strong>
-                                {{ $inspector->search_id }}
-                            </div>
-                            <div class="mt-2">
-                                <strong>Search Type:</strong>
-                                {{ $inspector->type }}
-                            </div>
-                            <div class="mt-2">
-                                <strong>Supplier:</strong>
-                                @php
-                                    $suppliers_name_string = \App\Models\Supplier::whereIn('id', explode(',', $inspector->suppliers))->pluck('name')->implode(', ');
-                                @endphp
-                                {{ $suppliers_name_string }}
-                            </div>
-                            <div class="mt-2">
-                                <strong>Channel:</strong>
-                                {{ $inspector->token->name }}
-                            </div>
-                            <div class="mt-2">
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
-                                        data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
-                                </button>
 
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
-                                        id="loadRQ">Download Original Request and Response as JSON
-                                </button>
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
-                                        id="loadResponse">Download Response as JSON
-                                </button>
+                    <div class="col-lg-12 margin-tb">
+                        <div class="mt-2">
+                            <strong>Search ID:</strong>
+                            {{ $inspector->search_id }}
+                        </div>
+                        <div class="mt-2">
+                            <strong>Search Type:</strong>
+                            {{ $inspector->type }}
+                        </div>
+                        <div class="mt-2">
+                            <strong>Supplier:</strong>
+                            @php
+                                $suppliers_name_string = \App\Models\Supplier::whereIn('id', explode(',', $inspector->suppliers))->pluck('name')->implode(', ');
+                            @endphp
+                            {{ $suppliers_name_string }}
+                        </div>
+                        <div class="mt-2">
+                            <strong>Channel:</strong>
+                            {{ $inspector->token->name }}
+                        </div>
+                        <div class="mt-6">
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+                                    data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
+                            </button>
 
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
-                                        id="downLoadRawRequest">Download Raw Request
-                                </button>
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                    id="loadRQ"><i class="fas fa-download"></i> Original RQ and RS as JSON
+                            </button>
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                    id="loadResponse"><i class="fas fa-download"></i> RS as JSON
+                            </button>
 
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
-                                        id="downloadRawResponse">Download Raw Response
-                                </button>
-                            </div>
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                    id="downLoadRawRequest"><i class="fas fa-download"></i> Raw Request
+                            </button>
+
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                    id="downloadRawResponse"><i class="fas fa-download"></i> Raw Response
+                            </button>
                         </div>
                     </div>
-                    <div class="mt-10 sm:mt-0">
-
-                    </div>
-                    <x-section-border/>
                 </div>
-                <div class="nav-tabs border-tab">
+
+                <div class="nav-tabs border-tab mt-12">
                     <ul class="flex flex-wrap w-full text-sm font-medium text-center text-gray-500 border-b border-gray-100 nav dark:border-gray-700 dark:text-gray-400">
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-origin"
-                               class="inline-block px-4 py-3 rounded-md active">Original Request and Response</a>
+                               class="inline-block px-5 py-3 rounded-md active">Original Request and Response</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-response"
-                               class="inline-block px-4 py-3 rounded-md dark:hover:text-white">Supplier Response</a>
+                               class="inline-block px-5 py-3 rounded-md dark:hover:text-white">Supplier Response</a>
                         </li>
                         @if($inspector->client_response_path)
                             <li>
                                 <a href="javascript:void(0);" data-tw-toggle="tab"
                                    data-tw-target="tab-pills-client-response"
-                                   class="inline-block px-4 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
+                                   class="inline-block px-5 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
                             </li>
                         @endif
                     </ul>
@@ -132,7 +127,7 @@
                             @php
                                 $path = str_replace('json', 'original.json', $inspector->response_path);
                                 $file_original = Storage::get($path);
-                                if($file_original == ''){
+                                if($file_original == '') {
                                     $file_original = json_encode([]);
                                 }
                                 $file_size_bytes = Storage::size($path);
@@ -233,8 +228,8 @@
                 </div>
             </div>
         </div>
-    </div>
 @endsection
+
 @section('scripts')
     <script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
 
@@ -322,17 +317,17 @@
             }
         });
 
-        document.getElementById('loadResponse').addEventListener('click', function() {
+        document.getElementById('loadResponse').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "rs.json");
         });
-        document.getElementById('loadRQ').addEventListener('click', function() {
+        document.getElementById('loadRQ').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_original) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "rq.json");
         });
 
-        document.getElementById('downLoadRawRequest').addEventListener('click', function() {
-            Object.keys(fileOriginal).forEach(function(key) {
+        document.getElementById('downLoadRawRequest').addEventListener('click', function () {
+            Object.keys(fileOriginal).forEach(function (key) {
                 if (fileOriginal[key].request) {
                     var blob = new Blob([fileOriginal[key].request], {type: "application/plain;charset=utf-8"});
                     saveAs(blob, `request_${key}_${formattedDate}_{{$inspector->search_id}}.txt`);
@@ -340,8 +335,8 @@
             });
         });
 
-        document.getElementById('downloadRawResponse').addEventListener('click', function() {
-            Object.keys(fileOriginal).forEach(function(key) {
+        document.getElementById('downloadRawResponse').addEventListener('click', function () {
+            Object.keys(fileOriginal).forEach(function (key) {
                 if (fileOriginal[key].response) {
                     var blob = new Blob([fileOriginal[key].response], {type: "application/plain;charset=utf-8"});
                     saveAs(blob, `response_${key}_${formattedDate}_{{$inspector->search_id}}.txt`);

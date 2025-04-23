@@ -40,36 +40,8 @@ class SearchInspectorController extends BaseInspectorController
                 }
             }
 
-            if (is_string($content)) {
-                // Split the original string into two parts (HBSI and Expedia)
-                $parts = explode('"Expedia_', $content, 2);
-                // Perform replacements only on the second part  (Expedia) if it exists
-                if (isset($parts[1])) {
-                    $parts[1] = str_replace('\"', '"', $parts[1]);
-                    $parts[1] = str_replace('\\\\"', '\"', $parts[1]);
-                    $parts[1] = str_replace('"{', '{', $parts[1]);
-                    $parts[1] = str_replace('}"', '}', $parts[1]);
-                }
-                // Concatenate the parts back together
-                if (isset($parts[1])) $content = $parts[0] . '"Expedia_' . ($parts[1] ?? '');
-                else $content = $parts[0];
-            }
-
-            if (is_string($original)) {
-                // Split the original string into two parts (HBSI and Expedia)
-                $parts = explode('"Expedia_', $original, 2);
-                // Perform replacements only on the second part  (Expedia) if it exists
-                if (isset($parts[1])) {
-                    $parts[1] = str_replace('\"', '"', $parts[1]);
-                    $parts[1] = str_replace('\\\\"', '\"', $parts[1]);
-                    $parts[1] = str_replace('"{', '{', $parts[1]);
-                    $parts[1] = str_replace('}"', '}', $parts[1]);
-                }
-                // Concatenate the parts back together
-                if (isset($parts[1])) $original = $parts[0] . '"Expedia_' . ($parts[1] ?? '');
-                else $original = $parts[0];
-            }
-
+            $content = $this->processString($content);
+            $original = $this->processString($original);
             $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
 
             $generalPath = self::PATH_INSPECTORS.'search_inspector/'.date('Y-m-d').'/'.$inspector['type'].'_'.$inspector['search_id'];
@@ -113,5 +85,29 @@ class SearchInspectorController extends BaseInspectorController
 
             return false;
         }
+    }
+
+    private function processString($input): string
+    {
+        if (!is_string($input)) {
+            return $input;
+        }
+
+        // Split the string into parts based on Expedia_ and HBSI
+        $expediaParts = explode('"Expedia_', $input);
+        $result = $expediaParts[0]; // Start with the first part before any Expedia_ block
+
+        for ($i = 1; $i < count($expediaParts); $i++) {
+            // Check if the current part contains HBSI
+            $subParts = explode('"HBSI', $expediaParts[$i], 2);
+
+            // Apply replacements only to the Expedia_ part before HBSI
+            $subParts[0] = str_replace(['\"', '\\\\"', '"{', '}"'], ['"', '\"', '{', '}'], $subParts[0]);
+
+            // Reconstruct the part
+            $result .= '"Expedia_' . implode('"HBSI', $subParts);
+        }
+
+        return $result;
     }
 }
