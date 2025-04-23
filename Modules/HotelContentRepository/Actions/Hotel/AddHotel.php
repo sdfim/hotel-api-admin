@@ -52,7 +52,7 @@ class AddHotel
         if ($expediaCode) {
             $expediaData = DB::connection('mysql_cache')
                 ->table('expedia_content_slave')
-                ->select('rooms', 'statistics', 'all_inclusive', 'amenities')
+                ->select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes')
                 ->where('expedia_property_id', $expediaCode)
                 ->first();
 
@@ -60,7 +60,27 @@ class AddHotel
             if (! empty($expediaData)) {
                 $roomsData = json_decode(Arr::get($expediaData, 'rooms', '[]'), true);
                 $statistics = json_decode(Arr::get($expediaData, 'statistics', '{}'), true);
-                $attributes = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
+
+                $attributesP1 = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
+                $attributesP2 = Arr::get(json_decode(Arr::get($expediaData, 'attributes', '{}'), true), 'general', []);
+                $attributesP3 = json_decode(Arr::get($expediaData, 'themes', '{}'), true);
+                $attributes = array_merge($attributesP1, $attributesP2, $attributesP3);
+                $attributes = collect($attributes)
+                    ->filter(function ($value) {
+                        return is_array($value) && ! empty($value['name']) && ! str_contains($value['name'], 'COVID-19');
+                    })
+                    ->flatMap(function ($value) {
+                        $result = [$value];
+                        if (str_contains($value['name'], 'Family')) {
+                            $newValue['name'] = 'Family Friendly';
+                            $result[] = $newValue;
+                        }
+
+                        return $result;
+                    })
+                    ->values()
+                    ->all();
+
                 $numRooms = Arr::get($statistics, '52.value', 0);
                 $allInclusive = json_decode(Arr::get($expediaData, 'all_inclusive', '{}'), true);
                 $mealPlans = MealPlansEnum::values();
@@ -170,7 +190,28 @@ class AddHotel
                     'config_attribute_category_id' => $category->id,
                 ];
             }
-            ProductAttribute::upsert($attributesData, ['product_id', 'config_attribute_id', 'config_attribute_category_id']);
+
+            $existingAttributes = ProductAttribute::whereIn('product_id', array_column($attributesData, 'product_id'))
+                ->whereIn('config_attribute_id', array_column($attributesData, 'config_attribute_id'))
+                ->whereIn('config_attribute_category_id', array_column($attributesData, 'config_attribute_category_id'))
+                ->get(['product_id', 'config_attribute_id', 'config_attribute_category_id'])
+                ->toArray();
+
+            $filteredAttributesData = array_filter($attributesData, function ($item) use ($existingAttributes) {
+                foreach ($existingAttributes as $existing) {
+                    if (
+                        $existing['product_id'] === $item['product_id'] &&
+                        $existing['config_attribute_id'] === $item['config_attribute_id'] &&
+                        $existing['config_attribute_category_id'] === $item['config_attribute_category_id']
+                    ) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            ProductAttribute::upsert($filteredAttributesData, ['product_id', 'config_attribute_id', 'config_attribute_category_id']);
 
             return $hotel;
         });

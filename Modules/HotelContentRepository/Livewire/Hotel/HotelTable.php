@@ -108,11 +108,13 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->sortable(),
 
                 TextColumn::make('star_rating')
+                    ->label('Star')
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
 
                 TextColumn::make('num_rooms')
+                    ->label('Rooms')
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
