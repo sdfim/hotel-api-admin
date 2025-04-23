@@ -3,7 +3,7 @@
 namespace Tests\Feature\API\Local\Content;
 
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\Feature\API\ApiTestCase;
+use Tests\Feature\API\Local\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class HotelContentSearchTest extends ApiTestCase

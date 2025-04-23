@@ -31,9 +31,9 @@ class ApiBookingsMetadataRepository
 
         return $search ?
             [
-                'type'      => 'hotel',
-                'supplier'  => $search->supplier->name,
-                'token_id'  => null,
+                'type' => 'hotel',
+                'supplier' => $search->supplier->name,
+                'token_id' => null,
             ] :
             [];
     }

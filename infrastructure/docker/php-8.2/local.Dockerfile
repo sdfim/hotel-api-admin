@@ -9,6 +9,13 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Install Imagick
+RUN apt-get update \
+    && apt-get install -y imagemagick imagemagick-dev libwebp-dev \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./infrastructure/docker/php-8.2/ssl /opt/docker/etc/nginx/ssl/
 COPY ./infrastructure/docker/php-8.2/vhost.ssl.conf /opt/docker/etc/nginx/

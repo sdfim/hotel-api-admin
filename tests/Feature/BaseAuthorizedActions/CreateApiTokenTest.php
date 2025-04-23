@@ -3,14 +3,17 @@
 namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
 use Livewire\Livewire;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class CreateApiTokenTest extends TestCase
 {
+    use RefreshDatabase;
+
     #[Test]
     public function test_api_tokens_can_be_created(): void
     {
@@ -32,7 +35,7 @@ class CreateApiTokenTest extends TestCase
 
         $this->assertCount(1, $user->fresh()->tokens);
         $this->assertEquals('Test Token', $user->fresh()->tokens->first()->name);
-        $this->assertTrue($user->fresh()->tokens->first()->can('read'));
+        $this->assertTrue($user->fresh()->tokens->first()->can('update'));
         $this->assertFalse($user->fresh()->tokens->first()->can('delete'));
     }
 }

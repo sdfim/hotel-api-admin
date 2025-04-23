@@ -9,9 +9,6 @@ use Modules\API\Validate\ApiRequest;
 class BookingAddPassengersHotelRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    /**
      * @OA\Post(
      *   tags={"Booking API | Basket"},
      *   path="/api/booking/add-passengers",
@@ -77,16 +74,7 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [

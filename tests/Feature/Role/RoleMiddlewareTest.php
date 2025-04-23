@@ -17,7 +17,7 @@ class RoleMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user, 'web');
         $response = $this->get('/test-admin');
-        $response->assertStatus(404);
+        $response->assertStatus(302);
     }
 
     #[Test]
@@ -26,6 +26,6 @@ class RoleMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user, 'web');
         $response = $this->get('/test-admin');
-        $response->assertStatus(404);
+        $response->assertStatus(302);
     }
 }

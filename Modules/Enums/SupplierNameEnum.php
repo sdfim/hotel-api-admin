@@ -4,12 +4,40 @@ namespace Modules\Enums;
 
 enum SupplierNameEnum: string
 {
-    static function getValues()
+    case EXPEDIA = 'Expedia';
+    case HBSI = 'HBSI';
+    case ICE_PORTAL = 'IcePortal';
+
+    public static function getValues(): array
     {
         return [self::EXPEDIA->value, self::HBSI->value, self::ICE_PORTAL->value];
     }
 
-    case EXPEDIA = 'Expedia';
-    case HBSI = 'HBSI';
-    case ICE_PORTAL = 'IcePortal';
+    // The order is important. Expedia should be first.
+    public static function getContentSupplierValues(): array
+    {
+        return [self::EXPEDIA->value, self::ICE_PORTAL->value];
+    }
+
+    public static function options(): array
+    {
+        return [
+            self::EXPEDIA->value => self::EXPEDIA->value,
+            self::ICE_PORTAL->value => self::ICE_PORTAL->value,
+            self::HBSI->value => self::HBSI->value,
+        ];
+    }
+
+    public static function optionsDriver(): array
+    {
+        return [
+            self::EXPEDIA->value => self::EXPEDIA->value,
+            self::HBSI->value => self::HBSI->value,
+        ];
+    }
+
+    public static function getValuesDriver(): array
+    {
+        return [self::EXPEDIA->value, self::HBSI->value];
+    }
 }

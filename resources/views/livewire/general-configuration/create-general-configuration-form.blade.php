@@ -1,19 +1,35 @@
+@php use App\Models\GeneralConfiguration; @endphp
+
 <div>
-    <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: rgb(81, 86, 190);">
-        {{ __('Clear Search Cache') }}
-    </x-button>
+    @canany(['update', 'create'], GeneralConfiguration::class)
+        <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: rgb(81, 86, 190);">
+            {{ __('Clear Search Cache') }}
+        </x-button>
+    @endcan
 
     <form wire:submit="save">
         {{ $this->form }}
 
         @if ($create)
-            <x-button class="mt-4">
-                {{ __('Update') }}
-            </x-button>
+            @can('update', GeneralConfiguration::class)
+                <x-button class="mt-4">
+                    {{ __('Update') }}
+                </x-button>
+            @else
+                <x-button class="mt-4" disabled>
+                    {{ __('Update') }}
+                </x-button>
+            @endcan
         @else
-            <x-button class="mt-4">
-                {{ __('Create') }}
-            </x-button>
+            @can('create', GeneralConfiguration::class)
+                <x-button class="mt-4">
+                    {{ __('Create') }}
+                </x-button>
+            @else
+                <x-button class="mt-4" disabled>
+                    {{ __('Create') }}
+                </x-button>
+            @endcan
         @endif
     </form>
 

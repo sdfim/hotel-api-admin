@@ -3,8 +3,7 @@
 namespace Tests\Feature\API\Local\Pricing;
 
 use Illuminate\Support\Carbon;
-use Tests\Feature\API\ApiTestCase;
-use PHPUnit\Framework\Attributes\Test;
+use Tests\Feature\API\Local\ApiTestCase;
 
 class HotelPricingSearchTest extends ApiTestCase
 {

@@ -8,6 +8,8 @@ class RoomResponse extends BaseResponse
 
     private array $capacity = [];
 
+    private string $unified_room_code;
+
     private bool $distribution = false;
 
     private string $giata_room_code;
@@ -35,6 +37,7 @@ class RoomResponse extends BaseResponse
     private float $commissionable_amount = 0;
 
     private float $commission_amount = 0;
+
     private float $markup;
 
     private string $booking_item;
@@ -71,26 +74,38 @@ class RoomResponse extends BaseResponse
 
     private string $query_package;
 
-    /**
-     * @param string $query_package
-     * @return void
-     */
+    private ?array $deposits = [];
+
+    public function setDeposits(array $deposits): void
+    {
+        $this->deposits = $deposits;
+    }
+
+    public function getDeposits(): array
+    {
+        return $this->deposits;
+    }
+
     public function setQueryPackage(string $query_package): void
     {
         $this->query_package = $query_package;
     }
 
-    /**
-     * @return string
-     */
     public function getQueryPackage(): string
     {
         return $this->query_package;
     }
 
-    /**
-     * @param string $room_description
-     */
+    public function getUnifiedRoomCode(): string
+    {
+        return $this->unified_room_code;
+    }
+
+    public function setUnifiedRoomCode(string $unified_room_code): void
+    {
+        $this->unified_room_code = $unified_room_code;
+    }
+
     public function setRoomDescription(string $room_description): void
     {
         $this->room_description = $room_description;
@@ -230,7 +245,6 @@ class RoomResponse extends BaseResponse
     {
         return $this->total_tax;
     }
-
 
     public function setCommissionAmount(float $commission_amount): void
     {
@@ -381,17 +395,11 @@ class RoomResponse extends BaseResponse
         $this->penalty_date = $penalty_date;
     }
 
-    /**
-     * @return array
-     */
     public function getPromotions(): array
     {
         return $this->promotions;
     }
 
-    /**
-     * @param array $promotions
-     */
     public function setPromotions(array $promotions): void
     {
         $this->promotions = $promotions;
@@ -402,33 +410,21 @@ class RoomResponse extends BaseResponse
         return $this->capacity;
     }
 
-    /**
-     * @param array $capacity
-     */
     public function setCapacity(array $capacity): void
     {
         $this->capacity = $capacity;
     }
 
-    /**
-     * @return array
-     */
     public function getAmenities(): array
     {
         return $this->amenities;
     }
 
-    /**
-     * @param array $amenities
-     */
     public function setAmenities(array $amenities): void
     {
         $this->amenities = $amenities;
     }
 
-    /**
-     * @return bool
-     */
     public function isDistribution(): bool
     {
         return $this->distribution;
@@ -449,6 +445,7 @@ class RoomResponse extends BaseResponse
         return [
             'amenities' => $this->getAmenities(),
             'capacity' => $this->getCapacity(),
+            'unified_room_code' => $this->getUnifiedRoomCode(),
             'giata_room_code' => $this->getGiataRoomCode(),
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),
@@ -479,6 +476,7 @@ class RoomResponse extends BaseResponse
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
+            'deposits' => $this->getDeposits(),
             'commissionable_amount' => $this->getCommissionableAmount(),
             'commission_amount' => $this->getCommissionAmount(),
         ];

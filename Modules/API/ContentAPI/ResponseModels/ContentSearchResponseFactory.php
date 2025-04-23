@@ -6,21 +6,27 @@ class ContentSearchResponseFactory
 {
     public static function create(): ContentSearchResponse
     {
-        $contentSearchResponse = new ContentSearchResponse();
+        /** @var ContentSearchResponse $contentSearchResponse */
+        $contentSearchResponse = app(ContentSearchResponse::class);
 
         $contentSearchResponse->setGiataHotelCode(0);
         $contentSearchResponse->setImages([]);
         $contentSearchResponse->setDescription([]);
+        $contentSearchResponse->setNearestAirports([]);
         $contentSearchResponse->setHotelName('');
-        $contentSearchResponse->setDistance('');
         $contentSearchResponse->setLatitude('');
         $contentSearchResponse->setLongitude('');
         $contentSearchResponse->setRating('');
+        $contentSearchResponse->setCurrency('');
+        $contentSearchResponse->setNumberRooms(0);
         $contentSearchResponse->setAmenities([]);
+        $contentSearchResponse->setUltimateAmenities([]);
         $contentSearchResponse->setGiataDestination('');
         $contentSearchResponse->setUserRating('');
-        $contentSearchResponse->setImportantInformation([]);
-        $contentSearchResponse->setSupplierInformation([]);
+        $contentSearchResponse->setWeight(0);
+        $contentSearchResponse->setDepositInformation([]);
+        $contentSearchResponse->setCancellationPolicies([]);
+        $contentSearchResponse->setDrivers([]);
 
         return $contentSearchResponse;
     }

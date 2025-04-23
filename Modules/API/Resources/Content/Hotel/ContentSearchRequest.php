@@ -56,6 +56,72 @@ namespace Modules\API\Resources\Content\Hotel;
  *   ),
  *
  * @OA\Schema(
+ *      schema="ContentSearchRequestGooglePlace",
+ *      title="Content Search Request Google Place",
+ *      description="Schema Content Search Request Google Place",
+ *      type="object",
+ *      required={"query"},
+ *
+ *      @OA\Property(
+ *        property="type",
+ *        type="string",
+ *        description="Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+ *        example="hotel"
+ *      ),
+ *      @OA\Property(
+ *        property="place",
+ *        type="string",
+ *        description="Google Place key.",
+ *        example="ChIJ21P2rgUrTI8Ris1fYjy3Ms4"
+ *      ),
+ *     @OA\Property(
+ *         property="session",
+ *         type="string",
+ *         description="session",
+ *         example="123"
+ *      ),
+ *     @OA\Property(
+ *         property="radius",
+ *         type="integer",
+ *         description="radius",
+ *         example=10
+ *       ),
+ *      @OA\Property(
+ *        property="rating",
+ *        type="integer",
+ *        description="Rating of the hotel.",
+ *        example=4
+ *      ),
+ *      @OA\Property(
+ *        property="page",
+ *        type="integer",
+ *        description="Page number.",
+ *        example=1
+ *      ),
+ *      @OA\Property(
+ *        property="results_per_page",
+ *        type="integer",
+ *        description="Number of results per page.",
+ *        example=250
+ *      )
+ *    ),
+ *
+ * @OA\Examples(
+ *        example="ContentSearchRequestGooglePlace",
+ *        summary="Content Search by Google Place (Cancun)",
+ *        value=
+ *           {
+ *               "type": "hotel",
+ *               "place": "ChIJ21P2rgUrTI8Ris1fYjy3Ms4",
+ *               "session": "123",
+ *               "radius": 10,
+ *               "rating": 4,
+ *               "page": 1,
+ *               "results_per_page": 20
+ *           }
+ *    ),
+ *
+ * @OA\Schema(
  *   schema="ContentSearchRequestDestination",
  *   title="Content Search Request Destination",
  *   description="Schema Content Search Request Destination",
@@ -72,7 +138,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     property="destination",
  *     type="integer",
  *     description="Destination ID.",
- *     example=1175
+ *     example=508
  *   ),
  *   @OA\Property(
  *     property="rating",
@@ -100,7 +166,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     value=
  *        {
  *            "type": "hotel",
- *            "destination": 1175,
+ *            "destination": 508,
  *            "rating": 2,
  *            "page": 1,
  *            "results_per_page": 20
@@ -164,9 +230,8 @@ namespace Modules\API\Resources\Content\Hotel;
  *     value=
  *        {
  *            "type": "hotel",
- *            "hotel_name": "Sheraton",
  *            "supplier": "Expedia",
- *            "destination": 961,
+ *            "destination": 508,
  *            "rating": 3.5,
  *            "page": 1,
  *            "results_per_page": 20
@@ -191,14 +256,14 @@ namespace Modules\API\Resources\Content\Hotel;
  *      type="number",
  *      format="float",
  *      description="Latitude of the center point.",
- *      example=40.7480
+ *      example=21.13
  *    ),
  *    @OA\Property(
  *      property="longitude",
  *      type="number",
  *      format="float",
  *      description="Longitude of the center point.",
- *      example=-73.991
+ *      example=-86.81
  *    ),
  *    @OA\Property(
  *      property="radius",
@@ -233,8 +298,8 @@ namespace Modules\API\Resources\Content\Hotel;
  *     value=
  *        {
  *            "type": "hotel",
- *            "latitude": 40.7480,
- *            "longitude": -73.991,
+ *            "latitude": 21.13,
+ *            "longitude": -86.81,
  *            "radius": 20,
  *            "rating": 1,
  *            "page": 1,

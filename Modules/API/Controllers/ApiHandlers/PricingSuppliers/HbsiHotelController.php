@@ -17,15 +17,10 @@ class HbsiHotelController
 
     private const PAGE = 1;
 
-    /**
-     * @param HbsiClient $hbsiClient
-     * @param Geography $geography
-     */
     public function __construct(
-        private readonly HbsiClient $hbsiClient = new HbsiClient(),
-        private readonly Geography $geography = new Geography(),
-    ) {
-    }
+        private readonly HbsiClient $hbsiClient,
+        private readonly Geography $geography,
+    ) {}
 
     public function preSearchData(array &$filters): ?array
     {
@@ -41,12 +36,23 @@ class HbsiHotelController
         } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
         } elseif (isset($filters['session'])) {
+            $geoLocationTime = microtime(true);
             $geoLocation = $this->geography->getPlaceDetailById($filters['place'], $filters['session']);
+            $endTime = microtime(true) - $geoLocationTime;
+            Log::info('HbsiHotelController | preSearchData | geoLocation '.$endTime.' seconds');
+
+            $coordinateTime = microtime(true);
             $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
+            $endTime = microtime(true) - $coordinateTime;
+            Log::info('HbsiHotelController | preSearchData | minMaxCoordinate '.$endTime.' seconds');
+
             $filters['latitude'] = $geoLocation['latitude'];
             $filters['longitude'] = $geoLocation['longitude'];
 
+            $idsTime = microtime(true);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
+            $endTime = microtime(true) - $idsTime;
+            Log::info('HbsiHotelController | preSearchData | ids '.$endTime.' seconds');
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);

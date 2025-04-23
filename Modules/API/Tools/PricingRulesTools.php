@@ -23,6 +23,7 @@ class PricingRulesTools
         $type = Arr::get($query, 'type', 'hotel');
 
         $token = ChannelRepository::getTokenId(request()->bearerToken());
+
         $channelId = Channel::where('token_id', $token)->first()->id;
 
         /** @var GeneralTools $generalTools */

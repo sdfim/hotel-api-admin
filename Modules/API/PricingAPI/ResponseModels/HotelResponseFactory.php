@@ -6,7 +6,8 @@ class HotelResponseFactory
 {
     public static function create(): HotelResponse
     {
-        $hotelResponse = new HotelResponse();
+        /** @var HotelResponse $hotelResponse */
+        $hotelResponse = app(HotelResponse::class);
 
         $hotelResponse->setDistanceFromSearchLocation(0);
         $hotelResponse->setGiataHotelId(0);
@@ -24,6 +25,7 @@ class HotelResponseFactory
         $hotelResponse->setRefundableRates('');
         $hotelResponse->setRoomGroups([]);
         $hotelResponse->setRoomCombinations([]);
+        $hotelResponse->setSupplierInformation([]);
 
         return $hotelResponse;
     }

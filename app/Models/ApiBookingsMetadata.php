@@ -64,11 +64,17 @@ class ApiBookingsMetadata extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function hotel(): ?HasOneThrough
+    public function hotel(): HasOneThrough
     {
-        if (!in_array($this->supplier->name, [SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value]))
-        {
-            return null;
+        if (! in_array($this->supplier->name, [SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value])) {
+            return $this->hasOneThrough(
+                Property::class,
+                Mapping::class,
+                'supplier_id',
+                'code',
+                'hotel_supplier_id',
+                'giata_id'
+            )->whereRaw('1 = 0'); // Always false condition to return an empty relationship
         }
 
         return $this->hasOneThrough(

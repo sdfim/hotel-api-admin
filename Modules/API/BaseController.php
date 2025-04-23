@@ -4,10 +4,11 @@ namespace Modules\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 /**
  * @OA\Info(
- *    title="UJV API Documentation",
+ *    title="UJV Main API Documentation",
  *    version="1.0.0"
  * )
  *
@@ -34,6 +35,10 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
  * @OA\Tag(
+ *       name="Booking API | Insurance and Informational Services",
+ *       description="API Endpoints for Insurance and Informational Services"
+ *  ),
+ * @OA\Tag(
  *   name="Booking API | Booking",
  *   description="API Endpoints of Booking (reservation)"
  * ),
@@ -47,7 +52,7 @@ class BaseController extends Controller
     /**
      * success response method.
      */
-    public function sendResponse(array $result, ?string $message = null): JsonResponse
+    public function sendResponse(array $result, ?string $message = null, ?int $code = 200, ?bool $stream = false): JsonResponse|StreamedJsonResponse
     {
         $response = [
             'success' => true,
@@ -62,7 +67,12 @@ class BaseController extends Controller
             $response['message'] = $message;
         }
 
-        return response()->json($response);
+        if ($stream)
+        {
+            return response()->streamJson($response, $code);
+        }
+
+        return response()->json($response, $code);
     }
 
     /**
@@ -71,9 +81,9 @@ class BaseController extends Controller
     public function sendError($error, string $errorMessages = '', int $code = 400, array $data = []): JsonResponse
     {
         $response = [
-            'data'    => $data,
+            'data' => $data,
             'success' => false,
-            'error'   => $error,
+            'error' => $error,
         ];
 
         if (! empty($errorMessages)) {
@@ -81,5 +91,18 @@ class BaseController extends Controller
         }
 
         return response()->json($response, $code);
+    }
+
+    protected function filter($query, $model)
+    {
+        $filterableFields = $model::getFilterableFields();
+
+        foreach ($filterableFields as $field) {
+            if (request()->has($field)) {
+                $query->where($field, 'like', '%'.request()->input($field).'%');
+            }
+        }
+
+        return $query;
     }
 }

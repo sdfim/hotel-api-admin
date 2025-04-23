@@ -1,4 +1,15 @@
 @import "tailwind.css";
+@import 'swiper/css/bundle';
+/*@import "supplier-repository.css";*/
+
+.swiper {
+    width: 80%;
+    height: 400px;
+}
+
+.swiper-slide img {
+    height: auto;
+}
 
 [x-cloak] {
     display: none !important;
@@ -50,4 +61,8 @@
     display: flex;
     justify-content: space-between;
     padding: 0 .3rem;
+}
+
+.fi-btn-label {
+    text-transform: capitalize;
 }

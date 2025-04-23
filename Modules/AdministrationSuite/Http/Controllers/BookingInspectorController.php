@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\ApiBookingInspector;
 use Illuminate\View\View;
 
-class BookingInspectorController extends Controller
+class BookingInspectorController extends BaseWithPolicyController
 {
+    protected static string $model = ApiBookingInspector::class;
+
     private array $message = ['show' => 'Show Response'];
 
     /**

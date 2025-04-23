@@ -15,6 +15,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -27,7 +28,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
+            ->query(Reservation::query()->whereNull('canceled_at'))
+            ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('reservation_contains')
                     ->searchable(isIndividual: true)
@@ -119,7 +121,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
                         })
                         ->icon('heroicon-s-x-circle')
-                        ->color('danger'),
+                        ->color('danger')
+                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record)),
                 ])->color('gray'),
             ]);
     }

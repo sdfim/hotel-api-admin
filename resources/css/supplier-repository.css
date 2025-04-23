@@ -1,0 +1,631 @@
+:root {
+    --white-color: #ffffff;
+    --tab-buttom-color: #fafafa;
+    --buttom-color: #8770ff;
+
+    --background-main-color: #f8f8f8;
+    --background-item-color: #fdfdfd;
+    --background-heder-item-color: #ded9d2;
+
+    --font-color: #545961;
+
+    --red-color: #ee6a64;
+    --green-color: #87e291;
+    --purple-color: #866ffd;
+    --grey-color: #797979;
+    --grey-lite-color: #e0dad3;
+
+    --primary-50: 235, 235, 255;
+    --primary-100: 199, 199, 254;
+    --primary-200: 138, 138, 253;
+    --primary-300: 77, 77, 252;
+    --primary-400: 36, 36, 251;
+    --primary-500: 11, 11, 245;
+    --primary-600: 134, 111, 253; /* #866ffd */
+    --primary-700: 83, 83, 180;
+    --primary-800: 64, 64, 146;
+    --primary-900: 53, 53, 120;
+    --primary-950: 26, 26, 69;
+}
+
+.choices__list--multiple .choices__item {
+    font-size: 0.85rem;
+    line-height: 0.9rem;
+    padding: .45rem .5rem;
+}
+
+.pd-history-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pd-history-button svg {
+    width: 24px;
+    height: 24px;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.pd-history-button:hover svg {
+    color: #0056b3;
+}
+
+
+
+.pd-grid table {
+    max-height: 65vh;
+    overflow-y: auto;
+    display: block;
+}
+
+.pd-grid table thead tr {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.pd-grid table thead th span{
+    min-width: 70px;
+    word-break: break-word;
+    white-space: normal;
+
+}
+
+.border-r {
+    border: none !important;
+}
+
+.border-b {
+    background-color: var(--grey-lite-color);
+}
+
+.page-content {
+    --tw-bg-opacity: 1;
+    background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+}
+
+.navbar-brand {
+    background-color: #f0ffff00;
+    --tw-bg-opacity: 1;
+}
+
+.footer {
+    background-color: #f0ffff00;
+    --tw-bg-opacity: 1;
+}
+thead .bg-gray-50{
+    background-color: var(--grey-lite-color);
+}
+
+.fi-btn-label {
+    text-transform: capitalize;
+}
+
+.fi-ta-content {
+    margin: 24px;
+    outline: 1px solid var(--grey-lite-color);
+    border-radius: 2px;
+}
+
+.rounded-xl {
+    border-radius: 5px;
+    border: 1px solid #e5e7eb;
+}
+.hotel-form-container .rounded-xl {
+    border-radius: 0; /* Reset the border-radius */
+    border: none; /* Reset the border */
+}
+
+.hotel-form-container .fi-tabs.flex {
+    display: none;
+}
+
+.hotel-form-container .ring-gray-950\/5 {
+    --tw-ring-color: #FFFFFF00 !important;
+}
+
+.hotel-form-container .fi-input-wrp {
+    border-radius: 2px !important; /* Применяет радиус */
+    line-height: 2.5rem !important; /* Для высоты строки */
+}
+
+.hotel-form-container .fi-input-wrp:hover {
+    outline: 2px solid var(--purple-color) !important;
+    outline-offset: 0;
+}
+
+.hotel-form-container .fi-input-wrp:hover:after {
+    outline: 2px solid var(--font-color) !important;
+    outline-offset: 0;
+}
+
+.hotel-form-container .fi-input-wrp:focus {
+    outline: 2px solid var(--font-color) !important;
+    outline-offset: 0;
+}
+
+.hotel-form-container .fi-input,
+.hotel-form-container .fi-select-input {
+    line-height: 2.5rem !important; /* Для высоты строки */
+}
+
+.hotel-form-container .choices__inner {
+    min-height: 55px !important;
+    border-radius: 2px !important;
+    display: flex;
+    align-items: center;
+}
+
+.hotel-form-container .fi-select-input:focus {
+    outline: 2px solid var(--font-color) !important;
+    border-radius: 2px !important;
+    outline-offset: 0;
+}
+
+.fi-select-input option:first-child {
+    color: gray;
+}
+
+.fi-select-input option:disabled {
+    color: gray;
+}
+
+.choices .choices__input.choices__input--cloned {
+    padding-left: 10px!important;
+}
+
+.choices__list--multiple:not(:empty) {
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+
+.hotel-form-container {
+    position: relative;
+    background-color: var(--white-color);
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+}
+
+.hotel-form-container .choices__list--multiple .choices__item {
+    font-size: .85rem;
+    font-weight: 500;
+    gap: .35rem;
+    line-height: 1rem;
+    padding: .7rem .8rem;
+}
+
+.large-button {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.sr_tab-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sr_tab-list {
+    background-color: var(--white-color);
+    display: flex;
+    flex-wrap: wrap;
+    grid: auto-flow / repeat(auto-fill, minmax(100px, 1fr));
+    overflow-x: auto;
+    scrollbar-width: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.7rem;
+    margin: 60px 0 5px;
+    justify-content: flex-start;
+    gap: 5px;
+}
+.sr_tab-list::-webkit-scrollbar {
+    display: none;
+}
+
+.sr_tab-item {
+    list-style: none;
+    flex-shrink: 0;
+}
+
+.sr_tab-link {
+    display: block;
+    padding: 0.75rem 1.1rem;
+    border-radius: 8px;
+    border: #e5e7eb 1px solid;
+    background-color: var(--tab-buttom-color);
+    color: #333;
+    font-size: 0.8rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.sr_tab-link:hover {
+    background-color: #e0e0e0; /* цвет при наведении */
+}
+
+.sr_tab-link.sr_active {
+    background-color: var(--purple-color);
+    color: #fff;
+    font-weight: bold;
+}
+
+.sr_tab-content {
+    width: 100%;
+    /*padding-top: 1rem;*/
+}
+
+.sr_tab-panel[x-show="true"] {
+    display: block;
+}
+
+.save-button {
+    display: block;
+    padding: 0.75rem 1.1rem;
+    border-radius: 0;
+    border: #e5e7eb 1px solid;
+    background-color: var(--purple-color);
+    color: #fff;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    text-transform: uppercase;
+    justify-content: flex-end !important;
+}
+
+.save-button:hover {
+    background-color: var(--purple-color) !important;
+    color: #dedddd;
+}
+
+/* breadcrumbs */
+.breadcrumb-container {
+    margin-bottom: 20px;
+    font-size: 14px; /* Размер шрифта для хлебных крошек */
+}
+
+.breadcrumb {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    list-style: none;
+}
+
+.breadcrumb-item {
+    color: #6c757d; /* Цвет текста по умолчанию */
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-item a {
+    text-decoration: none; /* Убираем подчеркивание */
+    color: var(--purple-color); /* Цвет ссылки (фиолетовый) */
+    transition: color 0.3s;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--purple-color) /* Цвет при наведении */
+}
+
+.breadcrumb-item::after {
+    content: "›"; /* Разделитель */
+    color: #6c757d;
+    padding: 0 8px;
+}
+
+.breadcrumb-item:last-child {
+    color: var(--purple-color); /* Цвет текущей страницы */
+    font-weight: bold;
+}
+
+.breadcrumb-item:last-child::after {
+    content: ""; /* Убираем разделитель у последнего элемента */
+}
+
+
+/* toggle button */
+.hotel-form-toggle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.hotel-form-toggle-container .delete-icon {
+    width: 24px; /* Adjust the size as needed */
+    height: 24px; /* Adjust the size as needed */
+    stroke: var(--red-color); /* Set the color to red */
+    margin-left: 7px; /* Add some space between the label and the icon */
+    vertical-align: middle; /* Align the icon with the text */
+    cursor: pointer;
+}
+
+.hotel-form-toggle-container .left-block {
+    display: flex;
+    align-items: center;
+}
+
+.hotel-form-toggle-container .right-block {
+    display: flex;
+    align-items: center;
+}
+
+.hotel-form-toggle-label {
+    margin-right: 10px;
+    font-size: 14px; /* Размер текста */
+    color: #333; /* Цвет текста */
+}
+
+.hotel-form-toggle-button {
+    position: relative;
+    display: inline-block;
+    width: 60px; /* Ширина тумблера */
+    height: 32px; /* Высота тумблера */
+}
+
+.hotel-form-toggle-button input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.hotel-form-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e5e5; /* Серый фон для неактивного состояния */
+    transition: background-color 0.4s;
+    border-radius: 25px; /* Закругленные края */
+}
+
+.hotel-form-slider:before {
+    position: absolute;
+    content: "";
+    height: 25px; /* Размер круга */
+    width: 25px;
+    left: 4px; /* Расстояние от левого края */
+    bottom: 3.5px; /* Центрирование круга */
+    background-color: var(--red-color); /* Красный круг в неактивном состоянии */
+    transition: transform 0.4s, background-color 0.4s;
+    border-radius: 50%;
+}
+
+.hotel-form-toggle-button input:checked + .hotel-form-slider {
+    background-color: #d9f7dc; /* Зеленый фон для активного состояния */
+}
+
+.hotel-form-toggle-button input:checked + .hotel-form-slider:before {
+    transform: translateX(27px); /* Смещение круга вправо */
+    background-color: var(--green-color) /* Зеленый круг в активном состоянии */
+}
+
+/* Basic Modal Styles */
+.hotel-modal-header.wm-800{
+    max-width: 800px;
+}
+.hotel-modal-header-simple.wm-1400{
+    max-width: 1400px;
+}
+.hotel-modal-header-simple.wm-1200{
+    max-width: 1200px;
+}
+.hotel-modal-header-simple.wm-1000{
+    max-width: 1000px;
+}
+.hotel-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Modal Content */
+.hotel-modal-header {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+/* Modal Content */
+.hotel-modal-header-simple {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Modal Title */
+.hotel-modal-header h4 {
+    font-size: 18px; /* Размер шрифта */
+    font-weight: 600; /* Полужирный шрифт */
+    color: #333333; /* Темно-серый цвет */
+    margin-bottom: 8px; /* Отступ снизу */
+}
+
+/* Описание модального окна */
+.hotel-modal-header p {
+    font-size: 14px; /* Размер текста */
+    color: #555555; /* Средне-серый цвет */
+    margin-bottom: 16px; /* Отступ снизу */
+}
+
+/* Buttons */
+.hotel-modal-header button {
+    padding: 10px 16px; /* Отступы */
+    font-size: 14px; /* Размер текста */
+    font-weight: 500; /* Полужирный шрифт */
+    border-radius: 8px; /* Закругленные углы */
+    cursor: pointer; /* Указатель при наведении */
+    transition: all 0.2s ease-in-out; /* Плавный переход */
+}
+
+/* Confirm Button Style */
+.hotel-modal-header .confirm-button {
+    background-color: var(--red-color);
+    color: white;
+}
+
+/* Cancel Button Style */
+.hotel-modal-header button:last-child {
+    background-color: var(--background-main-color);
+    margin-left: 10px;
+}
+
+.hotel-modal-header button:last-child:hover {
+    background-color: #e5e7eb; /* Темнее при наведении */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#trix-toolbar-mountedTableActionsData\.0\.description {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--background-main-color);
+}
+
+/* Custom slider */
+.slider-container {
+    width: 100%;
+    max-width: 600px; /* Ограничиваем максимальную ширину */
+    margin: 0 auto; /* Центрируем слайдер */
+    padding: 20px 0;
+    position: relative;
+}
+
+.slider {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    aspect-ratio: 16/9; /* Задаём пропорции слайдера */
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    min-width: 100%;
+    position: relative;
+    height: 100%;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Сохраняем пропорции изображения */
+    pointer-events: none;
+}
+
+/* Navigation Arrows */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    z-index: 2;
+}
+
+.nav-arrow:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.nav-arrow.left {
+    left: 10px;
+}
+
+.nav-arrow.right {
+    right: 10px;
+}
+
+/* Navigation Dots */
+.navigation {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.3s;
+}
+
+.nav-dot.active,
+.nav-dot:hover {
+    background: white;
+}
+
+@media (max-width: 640px) {
+    .nav-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .nav-dot {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+

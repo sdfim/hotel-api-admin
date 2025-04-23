@@ -28,12 +28,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
-use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
-use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelPricingDto;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookingRetrieveBookingTransformer;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelBookTransformer;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 
@@ -45,8 +44,8 @@ class ExpediaBookApiController extends BaseBookApiController
 
     public function __construct(
         private readonly RapidClient $rapidClient,
-        private readonly ExpediaHotelBookDto $expediaBookDto,
-        private readonly ExpediaHotelPricingDto $ExpediaHotelPricingDto,
+        private readonly ExpediaHotelBookTransformer $expediaBookDto,
+        private readonly ExpediaHotelPricingTransformer $ExpediaHotelPricingDto,
         private readonly PricingRulesTools $pricingRulesService,
         private readonly ExpediaHotelBookingApiController $expediaHotelBookingApiController,
     ) {
@@ -282,12 +281,12 @@ class ExpediaBookApiController extends BaseBookApiController
             'supplier_error' => false,
         ];
 
-        Log::info("BOOK ACTION - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+        Log::info("BOOK ACTION - EXPEDIA - $booking_id", ['filters' => $filters]); // $booking_id
 
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
         if (! $passengers) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Passengers not found.', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Passengers not found.', 'filters' => $filters]); // $booking_id
 
             return [
                 'error' => 'Passengers not found.',
@@ -375,15 +374,15 @@ class ExpediaBookApiController extends BaseBookApiController
             SaveBookingInspector::dispatchSync($inspectorBook, $content, $clientResponse);
 
         } catch (ConnectException $e) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
 
             $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout', $originalRQ);
         } catch (ServerException $e) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
 
             $this->handleException($e, $inspectorBook, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
 
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
 
@@ -392,13 +391,13 @@ class ExpediaBookApiController extends BaseBookApiController
                 'supplier_error' => true,
             ];
         } catch (Exception $e) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
 
             $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
         if (empty($content)) {
-            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Empty content', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Empty content', 'filters' => $filters]); // $booking_id
 
             return [];
         }
@@ -502,7 +501,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
-        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
 
         if ($isSync) {
             SaveBookingInspector::dispatchSync($bookingInspector, $dataResponse, $clientDataResponse);
@@ -541,7 +540,7 @@ class ExpediaBookApiController extends BaseBookApiController
         // Delete item DELETE method query
         $props = $this->getPathParamsFromLink($linkDeleteItem);
         $path = $props['path'];
-        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters, $supplierId));
+        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
 
         $bodyArr = [
             'itinerary_id' => $itineraryId,

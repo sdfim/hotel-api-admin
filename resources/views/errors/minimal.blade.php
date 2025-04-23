@@ -521,6 +521,9 @@
                 @yield('message')
             </div>
         </div>
+        <div class="flex justify-center ml-4 mt-8 text-lg text-gray-500 uppercase tracking-wider">
+            @yield('login')
+        </div>
     </div>
 </div>
 </body>

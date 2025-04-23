@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\View\View;
 
-class ReservationsController extends Controller
+class ReservationsController extends BaseWithPolicyController
 {
+    protected static string $model = Reservation::class;
+
     /**
      * @var array|string[]
      */
@@ -30,7 +32,9 @@ class ReservationsController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $reservation = Reservation::with(['channel'])->findOrFail($id);
+        $reservation = Reservation::with(['channel' => function ($query) {
+            $query->withTrashed();
+        }])->find($id);
 
         return view('dashboard.reservations.show', compact('reservation', 'text'));
     }

@@ -15,6 +15,9 @@
     <!-- Styles -->
     @filamentStyles
     @vite(['resources/css/app.css'])
+    @if (request()->is('*-repository*') || request()->is('*-grid*') || request()->is('*insurance*') || request()->is('*activities*') || request()->is('*hotel-rates*'))
+        @vite(['resources/css/supplier-repository.css'])
+    @endif
     @include('layouts.head-css')
 </head>
 
@@ -26,7 +29,7 @@
 @include('layouts.sidebar')
 
 <div class="main-content">
-    <div class="page-content dark:bg-zinc-700 min-h-screen">
+    <div class="page-content dark:bg-zinc-800 min-h-screen">
         @if (session('success'))
             <x-flash-message :message="session('success')"/>
         @endif

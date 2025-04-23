@@ -3,6 +3,7 @@
 namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
@@ -12,6 +13,8 @@ use PHPUnit\Framework\Attributes\Test;
 
 class ApiTokenPermissionsTest extends TestCase
 {
+    use RefreshDatabase;
+
     #[Test]
     public function test_api_token_permissions_can_be_updated(): void
     {

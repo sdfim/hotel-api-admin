@@ -5,14 +5,11 @@ namespace App\Livewire\Inspectors;
 use App\Models\ApiBookingItem;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -25,7 +22,8 @@ class BookingItemsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiBookingItem::where('rate_type', 'complete')->orderBy('created_at', 'DESC'))
+            ->query(ApiBookingItem::query())
+            ->defaultSort('created_at', 'DESC')
             ->columns([
                 TextColumn::make('created_at')
                     ->toggleable()
@@ -39,13 +37,17 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                     ->icon(fn (ApiBookingItem $record): string => match ($record->search->search_type) {
                         'hotel' => 'heroicon-o-home',
                         'flight' => 'heroicon-o-airplane',
-                        default => 'heroicon-o-search',
+                        'tour' => 'heroicon-o-globe-alt',
+                        'transfer' => 'heroicon-o-map-pin',
+                        default => 'heroicon-o-academic-cap',
                     })
                     ->toggleable()
                     ->size(TextColumn\TextColumnSize::Large)
                     ->color(fn (string $state): string => match ($state) {
                         'hotel' => 'grey',
                         'flight' => 'success',
+                        'tour' => 'warning',
+                        'transfer' => 'danger',
                         default => 'info',
                     })
                     ->searchable(isIndividual: true),
@@ -71,16 +73,6 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                     ->label('Pricing data')
                     ->view('dashboard.booking-items.column.booking-pricing-data'),
 
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    BulkAction::make('delete')
-                        ->requiresConfirmation()
-                        ->action(fn (Collection $records) => $records->each->delete()),
-                    BulkAction::make('forceDelete')
-                        ->requiresConfirmation()
-                        ->action(fn (Collection $records) => $records->each->forceDelete()),
-                ]),
             ]);
     }
 

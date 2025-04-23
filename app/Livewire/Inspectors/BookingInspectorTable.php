@@ -12,8 +12,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -21,7 +19,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -113,16 +110,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 //                        ->label('View response')
                 //                        ->color('info')
                 //                ])
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    BulkAction::make('delete')
-                        ->requiresConfirmation()
-                        ->action(fn (Collection $records) => $records->each->delete()),
-                    BulkAction::make('forceDelete')
-                        ->requiresConfirmation()
-                        ->action(fn (Collection $records) => $records->each->forceDelete()),
-                ]),
             ])
             ->filters([
                 Filter::make('created_at')

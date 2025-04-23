@@ -35,6 +35,11 @@ class ApiBookingInspector extends Model
         'request',
         'response_path',
         'client_response_path',
+        'addons_meta'
+    ];
+
+    protected $casts = [
+        'addons_meta' => 'array',
     ];
 
     public function token(): BelongsTo

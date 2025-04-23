@@ -1,0 +1,49 @@
+<?php
+
+namespace Modules\HotelContentRepository\API\Controllers;
+
+use Illuminate\Http\Response;
+use Modules\HotelContentRepository\API\Requests\KeyMappingOwnerRequest;
+use Modules\HotelContentRepository\Models\KeyMappingOwner;
+
+class KeyMappingOwnerController extends BaseController
+{
+    public function index()
+    {
+        $query = KeyMappingOwner::query();
+        $query = $this->filter($query, KeyMappingOwner::class);
+        $keyMappingOwners = $query->get();
+
+        return $this->sendResponse($keyMappingOwners->toArray(), 'index success');
+    }
+
+    public function store(KeyMappingOwnerRequest $request)
+    {
+        $keyMappingOwner = KeyMappingOwner::create($request->validated());
+
+        return $this->sendResponse($keyMappingOwner->toArray(), 'create success', Response::HTTP_CREATED);
+    }
+
+    public function show($id)
+    {
+        $keyMappingOwner = KeyMappingOwner::findOrFail($id);
+
+        return $this->sendResponse($keyMappingOwner->toArray(), 'show success');
+    }
+
+    public function update(KeyMappingOwnerRequest $request, $id)
+    {
+        $keyMappingOwner = KeyMappingOwner::findOrFail($id);
+        $keyMappingOwner->update($request->validated());
+
+        return $this->sendResponse($keyMappingOwner->toArray(), 'update success');
+    }
+
+    public function destroy($id)
+    {
+        $keyMappingOwner = KeyMappingOwner::findOrFail($id);
+        $keyMappingOwner->delete();
+
+        return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
+    }
+}

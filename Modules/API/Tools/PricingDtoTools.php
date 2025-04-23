@@ -8,8 +8,8 @@ use App\Models\Property;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class PricingDtoTools {
-
+class PricingDtoTools
+{
     public function getGiataProperties(array $query, array $giataIds): array
     {
         $latitude = Arr::get($query, 'latitude', 0);
@@ -20,7 +20,7 @@ class PricingDtoTools {
                 ->select('code', 'city', 'rating', 'name')
                 ->get()
                 ->keyBy('code')
-                ->map(function($item) {
+                ->map(function ($item) {
                     return [
                         'city' => $item->city,
                         'rating' => $item->rating,
@@ -33,7 +33,7 @@ class PricingDtoTools {
                 ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
                 ->get()
                 ->keyBy('code')
-                ->map(function($item) {
+                ->map(function ($item) {
                     return [
                         'city' => $item->city,
                         'distance' => $item->distance,
@@ -76,13 +76,13 @@ class PricingDtoTools {
         foreach ($allHotels as $hotel) {
             $giataHotelId = $hotel['giata_hotel_id'];
 
-            if (!isset($result[$giataHotelId])) {
+            if (! isset($result[$giataHotelId])) {
                 $result[$giataHotelId] = $hotel;
                 $result[$giataHotelId]['room_groups'] = [];
             } else {
                 // Объединяем room_combinations, сохраняя структуру
                 foreach ($hotel['room_combinations'] as $key => $combination) {
-                    if (!isset($result[$giataHotelId]['room_combinations'][$key])) {
+                    if (! isset($result[$giataHotelId]['room_combinations'][$key])) {
                         $result[$giataHotelId]['room_combinations'][$key] = $combination;
                     } else {
                         $result[$giataHotelId]['room_combinations'][$key] = array_merge(
@@ -99,14 +99,14 @@ class PricingDtoTools {
                 // Обновляем другие поля, если необходимо
                 $fieldsToUpdate = ['distance', 'rating', 'hotel_name', 'board_basis', 'supplier', 'supplier_hotel_id', 'destination', 'meal_plans_available', 'pay_at_hotel_available', 'pay_now_available'];
                 foreach ($fieldsToUpdate as $field) {
-                    if (isset($hotel[$field]) && (!isset($result[$giataHotelId][$field]) || $hotel[$field] < $result[$giataHotelId][$field])) {
+                    if (isset($hotel[$field]) && (! isset($result[$giataHotelId][$field]) || $hotel[$field] < $result[$giataHotelId][$field])) {
                         $result[$giataHotelId][$field] = $hotel[$field];
                     }
                 }
             }
 
             // Обновляем lowest_priced_room_group
-            if (!isset($result[$giataHotelId]['lowest_priced_room_group']) || $hotel['lowest_priced_room_group'] < $result[$giataHotelId]['lowest_priced_room_group']) {
+            if (! isset($result[$giataHotelId]['lowest_priced_room_group']) || $hotel['lowest_priced_room_group'] < $result[$giataHotelId]['lowest_priced_room_group']) {
                 $result[$giataHotelId]['lowest_priced_room_group'] = $hotel['lowest_priced_room_group'];
             }
 
@@ -134,7 +134,7 @@ class PricingDtoTools {
         // Финальная обработка
         foreach ($result as &$hotel) {
             // Сортируем room_groups по total_net
-            usort($hotel['room_groups'], function($a, $b) {
+            usort($hotel['room_groups'], function ($a, $b) {
                 return $a['total_net'] <=> $b['total_net'];
             });
         }
@@ -149,6 +149,7 @@ class PricingDtoTools {
                 return $group;
             }
         }
+
         return null;
     }
 
@@ -164,6 +165,28 @@ class PricingDtoTools {
             explode(',', $existingRates),
             explode(',', $newRates)
         ));
+
         return implode(',', $mergedRates);
+    }
+
+    public function extractExclusionRates(array $pricingExclusionRules): array
+    {
+        $exclusionRates = [];
+
+        foreach ($pricingExclusionRules as $rule) {
+            foreach ($rule['conditions'] as $condition) {
+                if ($condition['field'] === 'rate_code') {
+                    if (! empty($condition['value'])) {
+                        $values = explode('; ', $condition['value']);
+                        $exclusionRates = array_merge($exclusionRates, $values);
+                    }
+                    if (! empty($condition['value_from'])) {
+                        $exclusionRates[] = $condition['value_from'];
+                    }
+                }
+            }
+        }
+
+        return array_unique($exclusionRates);
     }
 }

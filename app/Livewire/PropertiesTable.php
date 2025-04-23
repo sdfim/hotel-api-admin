@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Helpers\Strings;
 use App\Models\GiataGeography;
 use App\Models\Property;
+use App\Models\PropertyLocation;
 use Exception;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -24,12 +25,13 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\SupplierNameEnum;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use stdClass;
-
-// use Modules\API\Suppliers\Enums\PropertiesSourceEnum; // TODO: This is not being found, unclear why.
 
 class PropertiesTable extends Component implements HasForms, HasTable
 {
@@ -38,7 +40,34 @@ class PropertiesTable extends Component implements HasForms, HasTable
 
     private static function getCityById($city_id)
     {
-        return GiataGeography::query()->where('city_id', '=', (int)$city_id)->first();
+        return GiataGeography::query()->where('city_id', '=', (int) $city_id)->first();
+    }
+
+    public function query(): Builder
+    {
+        $query = Property::query();
+
+        if (request()->has('polygon')) {
+            $coordinates = explode(';', request('polygon'));
+            $polygon = array_chunk($coordinates, 2);
+
+            if ($polygon[0] !== $polygon[count($polygon) - 1]) {
+                $polygon[] = $polygon[0];
+            }
+
+            //            $polygonWKT = 'POLYGON(('.implode(',', array_map(fn ($point) => implode(' ', $point), $polygon)).'))';
+            //            $query->whereRaw('ST_Contains(ST_GeomFromText(?), POINT(longitude, latitude))', [
+            //                $polygonWKT,
+            //            ]);
+
+            $polygonWKT = 'POLYGON(('.implode(',', array_map(fn ($point) => "{$point[1]} {$point[0]}", $polygon)).'))';
+            $query->whereHas('location', function ($query) use ($polygonWKT) {
+                $query->whereRaw('ST_Within(location, ST_GeomFromText(?, 4326))', [$polygonWKT]);
+            });
+
+        }
+
+        return $query;
     }
 
     private static function getMapSchema(): array
@@ -53,22 +82,22 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         ->schema([
                             Select::make('supplier')
                                 ->label('Supplier')
-                                ->options(fn() => array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
-                                ->default(fn($record) => $record?->supplier)
+                                ->options(fn () => array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                                ->default(fn ($record) => $record?->supplier)
                                 ->required()
                                 ->distinct(),
 
                             TextInput::make('supplier_id')
                                 ->label('Supplier ID')
-                                ->default(fn($record) => $record?->supplier_id)
+                                ->default(fn ($record) => $record?->supplier_id)
                                 ->required(),
 
                             Hidden::make('match_percentage')
-                                ->default(fn($record) => $record?->match_percentage ?? 100),
+                                ->default(fn ($record) => $record?->match_percentage ?? 100),
                         ])
-                        ->default(fn($record) => $record->mappings->toArray())
+                        ->default(fn ($record) => $record->mappings->toArray())
                         ->addActionLabel('Add a Mapping'),
-                ])
+                ]),
         ];
     }
 
@@ -80,23 +109,23 @@ class PropertiesTable extends Component implements HasForms, HasTable
 
                     TextInput::make('code')
                         ->label('Code')
-                        ->disabled(!$isEditable)
+                        ->disabled(! $isEditable)
                         ->required(),
 
                     TextInput::make('name')
                         ->label('Name')
-                        ->disabled(!$isEditable)
+                        ->disabled(! $isEditable)
                         ->required(),
 
                     Select::make('city_id')
                         ->label('City')
                         ->searchable()
-                        ->getSearchResultsUsing(fn(string $search) => GiataGeography::query()
+                        ->getSearchResultsUsing(fn (string $search) => GiataGeography::query()
                             ->where('city_name', 'like', "%{$search}%")
                             ->orderBy('city_name')
                             ->pluck('city_name', 'city_id')
                             ->toArray())
-                        ->getOptionLabelUsing(fn($value) => PropertiesTable::getCityById($value)->city_name)
+                        ->getOptionLabelUsing(fn ($value) => PropertiesTable::getCityById($value)->city_name)
                         ->reactive()
                         ->afterStateUpdated(function ($set, $state) {
                             $city = PropertiesTable::getCityById($state);
@@ -104,7 +133,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                             $set('locale_id', $city->locale_id);
                             $set('locale', $city->locale_name);
                         })
-                        ->disabled(!$isEditable)
+                        ->disabled(! $isEditable)
                         ->required(),
 
                     Hidden::make('locale_id')
@@ -117,25 +146,25 @@ class PropertiesTable extends Component implements HasForms, HasTable
 
                     TextInput::make('mapper_address')
                         ->label('Address')
-                        ->disabled(!$isEditable)
+                        ->disabled(! $isEditable)
                         ->required(),
 
                     TextInput::make('mapper_postal_code')
                         ->label('Postal Code')
                         ->numeric()
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
 
                     TextInput::make('rating')
                         ->label('Rating')
                         ->numeric()
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
 
                     TextInput::make('latitude')
                         ->label('Latitude')
                         ->numeric()
                         ->minValue(-90)
                         ->maxValue(90)
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
 
                     TextInput::make('longitude')
                         ->label('Longitude')
@@ -146,18 +175,18 @@ class PropertiesTable extends Component implements HasForms, HasTable
 
                     TextInput::make('mapper_phone_number')
                         ->label('Phone')
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
 
                     TextInput::make('url')
                         ->label('URL')
-                        ->default(fn($record) => $record->url[0] ?? '')
+                        ->default(fn ($record) => $record->url[0] ?? '')
                         ->afterStateHydrated(function (TextInput $component, $state) {
                             $component->state($state[0] ?? '');
                         })
                         ->afterStateUpdated(function ($state, $set) {
                             $set('url', [$state]);
                         })
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
                 ]),
         ];
     }
@@ -165,8 +194,9 @@ class PropertiesTable extends Component implements HasForms, HasTable
     private static function preparePropertyData(array $data)
     {
         $data['property_auto_updates'] = 0;
-        $data['city_id'] = (int)$data['city_id'];
+        $data['city_id'] = (int) $data['city_id'];
         $data['city'] = PropertiesTable::getCityById($data['city_id'])->city_name;
+
         return $data;
     }
 
@@ -175,28 +205,29 @@ class PropertiesTable extends Component implements HasForms, HasTable
         $data = PropertiesTable::preparePropertyData($data);
         // $data['source'] = PropertiesSourceEnum::Custom->value;
         $city = PropertiesTable::getCityById($data['city_id']);
-        $data['cross_references'] = new stdClass(); // Empty Object
+        $data['cross_references'] = new stdClass; // Empty Object
         $data['address'] = [
-            "UseType" => "7",
-            "CityName" => $city->city_name,
-            "PostalCode" => $data['mapper_postal_code'],
+            'UseType' => '7',
+            'CityName' => $city->city_name,
+            'PostalCode' => $data['mapper_postal_code'],
             // "StreetNmbr": "1", // TODO
             // "AddressLine": "Vicinale Santa Chiara", // TODO
-            "CountryName" => $city->country_code,
-            "FormattedInd" => "true"
+            'CountryName' => $city->country_code,
+            'FormattedInd' => 'true',
         ];
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['last_updated'] = date('Y-m-d H:i:s');
         $data['phone'] = [
-            "PhoneNumber" => $data['mapper_phone_number'],
-            "PhoneTechType" => "1"
+            'PhoneNumber' => $data['mapper_phone_number'],
+            'PhoneTechType' => '1',
         ];
         $data['position'] = [
             'Latitude' => $data['latitude'],
             'Longitude' => $data['longitude'],
-            'PositionAccuracy' => 1
+            'PositionAccuracy' => 1,
         ];
         $data['source'] = 'Custom';
+
         // $data['source'] = PropertiesSourceEnum::Custom->value; // TODO: This is failing, see import.
         return $data;
     }
@@ -218,10 +249,16 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->label('Create')
                     ->modalHeading('Create new property')
-                    ->form(fn() => PropertiesTable::getFormSchema(true))
-                    ->mutateFormDataUsing(fn(array $data) => PropertiesTable::createProperty($data))
+                    ->form(fn () => PropertiesTable::getFormSchema())
+                    ->mutateFormDataUsing(fn (array $data) => PropertiesTable::createProperty($data))
+                    ->visible(fn () => Gate::allows('create', Property::class)),
+                ExportAction::make()->exports([
+                    ExcelExport::make('table')
+                        ->fromTable()
+                        ->withFilename('properties_export_'.now()->format('Y_m_d_H_i_s').'.xlsx'),
+                ]),
             ])
-            ->query(Property::query())
+            ->query($this->query())
             ->columns([
                 TextColumn::make('code')
                     ->sortable()
@@ -230,6 +267,10 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         return $query
                             ->where('code', $search);
                     }, isIndividual: true),
+                TextColumn::make('city_id')
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
                 ViewColumn::make('name')
                     ->toggleable()
                     ->sortable()
@@ -237,6 +278,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         isIndividual: true,
                         query: function (Builder $query, string $search): Builder {
                             $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+
                             return $query->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)");
                         }
                     )
@@ -279,14 +321,16 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     Action::make('map')
                         ->label('Mappings')
                         ->icon('heroicon-m-link')
-                        ->modalHeading(fn(Property $record) => 'Property Mapping - ' . $record->code . ' ' . $record->name)
-                        ->form(fn() => PropertiesTable::getMapSchema()),
+                        ->modalHeading(fn (Property $record) => 'Property Mapping - '.$record->code.' '.$record->name)
+                        ->form(fn () => PropertiesTable::getMapSchema())
+                        ->visible(fn (Property $record) => Gate::allows('update', $record)),
                     EditAction::make('edit')
                         ->modalHeading('Property Details - Edit')
-                        ->form(fn() => PropertiesTable::getFormSchema(true))
-                        ->action(fn($record, $data) => PropertiesTable::updateProperty($record, $data)),
+                        ->form(fn () => PropertiesTable::getFormSchema(true))
+                        ->action(fn ($record, $data) => PropertiesTable::updateProperty($record, $data))
+                        ->visible(fn (Property $record) => Gate::allows('update', $record)),
                     ViewAction::make('view')
-                        ->form(fn() => PropertiesTable::getFormSchema(false))
+                        ->form(fn () => PropertiesTable::getFormSchema(false))
                         ->modalHeading('Property Details - View'),
                 ]),
             ]);

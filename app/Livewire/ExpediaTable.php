@@ -4,19 +4,18 @@ namespace App\Livewire;
 
 use App\Models\ExpediaContent;
 use Exception;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\View;
 use Livewire\Component;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class ExpediaTable extends Component implements HasForms, HasTable
 {
@@ -30,7 +29,8 @@ class ExpediaTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10])
-            ->query(ExpediaContent::query()->orderBy('rating', 'desc'))
+            ->query(ExpediaContent::query())
+            ->defaultSort('rating', 'desc')
             ->columns([
                 TextColumn::make('property_id')
                     ->sortable()
@@ -72,20 +72,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->view('dashboard.expedia.column.address-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-                //                ViewColumn::make('mapperGiataExpedia.giata_id')
-                //                    ->label('Giata id')
-                //                    ->view('dashboard.expedia.column.giata_id')
-                //                    ->searchable(isIndividual: true),
-                //                TextColumn::make('mapperGiataExpedia.step')
-                //                    ->searchable(isIndividual: true)
-                //                    ->label(new HtmlString('Strategy<br> Mapper'))
-                //                    ->badge()
-                //                    ->color(fn(string $state): string => match ($state) {
-                //                        '1', '2', '10' => 'success',
-                //                        '3', '4', '5', '6', '7' => 'info',
-                //                        default => 'gray',
-                //                    })
-                //                    ->toggleable(),
                 TextColumn::make('is_active')
                     ->searchable(isIndividual: true)
                     ->label('Active')
@@ -99,24 +85,12 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->view('dashboard.expedia.column.add-giata')
                     ->toggleable(),
             ])
-            ->filters([
-                //                Filter::make('is_empty')
-                //                    ->form([
-                //                        Checkbox::make('is_empty')
-                //                            ->label('Without Giata ID')
-                //                    ])
-                //                    ->query(function (Builder $query, array $data): Builder {
-                //                        if ($data['is_empty']) {
-                //                            return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
-                //                                $query->whereNotNull('giata_id');
-                //                            });
-                //                        } else return $query;
-                //                    })->indicateUsing(function (array $data): ?string {
-                //                        if (!$data['is_empty']) {
-                //                            return null;
-                //                        }
-                //                        return 'Without Giata ID';
-                //                    })
+            ->headerActions([
+                ExportAction::make()->exports([
+                    ExcelExport::make('table')
+                        ->fromTable()
+                        ->withFilename('properties_export_'.now()->format('Y_m_d_H_i_s').'.xlsx'),
+                ]),
             ]);
     }
 

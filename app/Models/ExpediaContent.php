@@ -96,7 +96,6 @@ class ExpediaContent extends Model
         return $this->hasMany(Mapping::class, 'supplier_id', 'property_id')->expedia();
     }
 
-
     public function expediaSlave(): HasOne
     {
         return $this->hasOne(ExpediaContentSlave::class, 'expedia_property_id', 'property_id');

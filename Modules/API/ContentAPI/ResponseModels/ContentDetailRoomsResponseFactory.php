@@ -6,14 +6,21 @@ class ContentDetailRoomsResponseFactory
 {
     public static function create(): ContentDetailRoomsResponse
     {
-        $contentDetailRoomsResponse = new ContentDetailRoomsResponse();
+        /** @var ContentDetailRoomsResponse $contentDetailRoomsResponse */
+        $contentDetailRoomsResponse = app(ContentDetailRoomsResponse::class);
 
+        $contentDetailRoomsResponse->setContentSupplier('');
+        $contentDetailRoomsResponse->setUnifiedRoomCode('');
         $contentDetailRoomsResponse->setSupplierRoomId(0);
         $contentDetailRoomsResponse->setSupplierRoomName('');
         $contentDetailRoomsResponse->setSupplierRoomCode('');
         $contentDetailRoomsResponse->setAmenities([]);
+        $contentDetailRoomsResponse->setUltimateAmenities([]);
         $contentDetailRoomsResponse->setImages([]);
         $contentDetailRoomsResponse->setDescriptions('');
+        $contentDetailRoomsResponse->setContentSupplier('');
+        $contentDetailRoomsResponse->setRelatedRooms([]);
+        $contentDetailRoomsResponse->setSupplierCodes([]);
 
         return $contentDetailRoomsResponse;
     }
