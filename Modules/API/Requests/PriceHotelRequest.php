@@ -2,10 +2,8 @@
 
 namespace Modules\API\Requests;
 
+use App\Models\Configurations\ConfigConsortium;
 use App\Models\Supplier;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class PriceHotelRequest extends ApiRequest
@@ -73,16 +71,6 @@ class PriceHotelRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $validCurrencies = [
@@ -113,12 +101,12 @@ class PriceHotelRequest extends ApiRequest
                 ];
             } elseif (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) {
                 return [
-                        'occupancy.'.$key.'.children_ages' => ['required',
-                            function ($attribute, $value, $fail) {
-                                $fail('The number of children must equal the number of records of their age children_ages.');
-                            },
-                        ],
-                    ];
+                    'occupancy.'.$key.'.children_ages' => ['required',
+                        function ($attribute, $value, $fail) {
+                            $fail('The number of children must equal the number of records of their age children_ages.');
+                        },
+                    ],
+                ];
             }
         }
 
@@ -127,7 +115,7 @@ class PriceHotelRequest extends ApiRequest
             'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
             'hotel_name' => 'nullable|string',
             'supplier' => 'string',
-            'checkin' => 'required|date_format:Y-m-d|after:'.Carbon::yesterday()->subDay()->format('Y-m-d'),
+            'checkin' => 'required|date_format:Y-m-d|after:yesterday',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
 
             'giata_ids' => 'required_without_all:latitude,longitude,destination,place|array',
@@ -143,6 +131,8 @@ class PriceHotelRequest extends ApiRequest
             'radius' => 'required_without_all:giata_ids,destination,place|numeric|between:1,1000',
 
             'query_package' => 'string|in:both,standalone,package',
+
+            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
 
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',

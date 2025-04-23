@@ -12,8 +12,6 @@ class ContentDetailResponse
 
     private string $hotel_name;
 
-    private string $distance;
-
     private string $latitude;
 
     private string $longitude;
@@ -42,16 +40,88 @@ class ContentDetailResponse
 
     private string $address;
 
-    private array $supplier_information = [];
+    private array $deposit_information;
 
-    public function setSupplierInformation(array $supplier_information): void
+    private array $cancellation_policies;
+
+    private array $drivers;
+
+    private array $ultimate_amenities;
+
+    private array $nearest_airports;
+
+    private string $currency;
+
+    private string $number_rooms;
+
+    public function setCurrency(string $currency): void
     {
-        $this->supplier_information = $supplier_information;
+        $this->currency = $currency;
     }
 
-    public function getSupplierInformation(): array
+    public function getCurrency(): string
     {
-        return $this->supplier_information;
+        return $this->currency;
+    }
+
+    public function setNumberRooms(string $number_rooms): void
+    {
+        $this->number_rooms = $number_rooms;
+    }
+
+    public function getNumberRooms(): string
+    {
+        return $this->number_rooms;
+    }
+
+    public function setNearestAirports(array $nearest_airports): void
+    {
+        $this->nearest_airports = $nearest_airports;
+    }
+
+    public function getNearestAirports(): array
+    {
+        return $this->nearest_airports;
+    }
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
+
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
+    }
+
+    public function setDepositInformation(array $deposit_information): void
+    {
+        $this->deposit_information = $deposit_information;
+    }
+
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
     }
 
     public function setAddress(string $address): void
@@ -194,16 +264,6 @@ class ContentDetailResponse
         return $this->latitude;
     }
 
-    public function setDistance(string $distance): void
-    {
-        $this->distance = $distance;
-    }
-
-    public function getDistance(): string
-    {
-        return $this->distance;
-    }
-
     public function setHotelName(string $hotel_name): void
     {
         $this->hotel_name = $hotel_name;
@@ -249,24 +309,23 @@ class ContentDetailResponse
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
             'images' => $this->getImages(),
-            'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),
-            'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => $this->getAmenities(),
+            'currency' => $this->getCurrency(),
+            'number_rooms' => $this->getNumberRooms(),
+            'nearest_airports' => $this->getNearestAirports(),
+            'attributes' => $this->getAmenities(),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
-            'special_instructions' => $this->getSpecialInstructions(),
-            'check_in_time' => $this->getCheckInTime(),
-            'check_out_time' => $this->getCheckOutTime(),
-            'hotel_fees' => $this->getHotelFees(),
-            'policies' => $this->getPolicies(),
             'descriptions' => $this->getDescriptions(),
+            'deposit_information' => $this->getDepositInformation(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
             'address' => $this->getAddress(),
             'rooms' => $this->getRooms(),
-            'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

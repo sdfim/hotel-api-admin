@@ -15,7 +15,7 @@ use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -24,9 +24,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
-use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
-use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookingRetrieveBookingTransformer;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\API\Tools\PricingRulesTools;
@@ -55,11 +55,11 @@ class HbsiBookApiController extends BaseBookApiController
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
     public function __construct(
-        private readonly HbsiClient $hbsiClient,
-        private readonly HbsiHotelBookDto $hbsiHotelBookDto,
-        private readonly HbsiHotelPricingDto $HbsiHotelPricingDto,
-        private readonly HbsiService $hbsiService,
-        private readonly PricingRulesTools $pricingRulesService,
+        private readonly HbsiClient                  $hbsiClient,
+        private readonly HbsiHotelBookTransformer    $hbsiHotelBookDto,
+        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingDto,
+        private readonly HbsiService                 $hbsiService,
+        private readonly PricingRulesTools           $pricingRulesService,
     ) {}
 
     /**
@@ -71,12 +71,12 @@ class HbsiBookApiController extends BaseBookApiController
         $filters['search_id'] = $bookingInspector->search_id;
         $filters['booking_item'] = $bookingInspector->booking_item;
 
-        Log::info("BOOK ACTION - HBSI - $booking_id", ['filters' => $filters]); //$booking_id
+        Log::info("BOOK ACTION - HBSI - $booking_id", ['filters' => $filters]); // $booking_id
 
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
         if (! $passengers) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]); // $booking_id
 
             return [
                 'error' => 'Passengers not found.',
@@ -87,7 +87,7 @@ class HbsiBookApiController extends BaseBookApiController
             $dataPassengers = json_decode($passengersArr['request'], true);
         }
         if (! isset($filters['credit_cards'])) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Credit card not found', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Credit card not found', 'filters' => $filters]); // $booking_id
 
             return [
                 'error' => 'Credit card not found.',
@@ -103,13 +103,13 @@ class HbsiBookApiController extends BaseBookApiController
         $error = true;
         try {
             Log::info('HbsiBookApiController | book | '.json_encode($filters));
-            Log::info("BOOK ACTION - REQUEST TO HBSI START - HBSI - $booking_id", ['filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - REQUEST TO HBSI START - HBSI - $booking_id", ['filters' => $filters]); // $booking_id
             $sts = microtime(true);
             $xmlPriceData = $this->hbsiClient->handleBook($filters, $inspectorBook);
-            Log::info("BOOK ACTION - REQUEST TO HBSI FINISH - HBSI - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - REQUEST TO HBSI FINISH - HBSI - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
 
             if (isset($xmlPriceData['error'])) {
-                Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $xmlPriceData['error'], 'filters' => $filters]); //$booking_id
+                Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $xmlPriceData['error'], 'filters' => $filters]); // $booking_id
 
                 return [
                     'error' => $xmlPriceData['error'],
@@ -149,7 +149,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
         } catch (RequestException $e) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
             Log::error('HbsiBookApiController | book | RequestException '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
 
@@ -162,7 +162,7 @@ class HbsiBookApiController extends BaseBookApiController
                 'supplier' => SupplierNameEnum::HBSI->value,
             ];
         } catch (\Exception $e) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
             Log::error('HbsiBookApiController | book | Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
@@ -183,7 +183,7 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         if (! $dataResponse) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]); // $booking_id
 
             return [];
         }
@@ -251,7 +251,7 @@ class HbsiBookApiController extends BaseBookApiController
             'response' => $xmlPriceData['response']->asXML(),
         ];
 
-        $clientDataResponse = $dataResponse['Errors'] ?? HbsiHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = $dataResponse['Errors'] ?? HbsiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientDataResponse);
 
@@ -357,7 +357,7 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function listBookings(): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
             ->where('supplier_id', $supplierId)

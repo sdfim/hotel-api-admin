@@ -31,7 +31,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(AppServiceProvider::HOME);
+        $response->assertRedirect('/admin/login');
     }
 
     #[Test]

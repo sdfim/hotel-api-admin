@@ -43,12 +43,19 @@ class CreateChannelsForm extends Component implements HasForms
     public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-        $token = auth()->user()->createToken($data['name']);
-        $data['token_id'] = $token->accessToken->id;
-        $data['access_token'] = $token->plainTextToken;
-        $record = Channel::create($data);
+        $channel = Channel::create([
+            'name' => $data['name'],
+            'description' => $data['description'],
+            'user_id' => auth()->user()->id,
+        ]);
 
-        $this->form->model($record)->saveRelationships();
+        $token = $channel->createToken($data['name']);
+        $channel->update([
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
+        ]);
+
+        $this->form->model($channel)->saveRelationships();
 
         Notification::make()
             ->title('Created successfully')

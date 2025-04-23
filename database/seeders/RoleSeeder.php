@@ -2,24 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Models\Enums\RoleSlug;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class RoleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $manager = new Role();
-        $manager->name = 'Admin';
-        $manager->slug = 'admin';
-        $manager->save();
-
-        $developer = new Role();
-        $developer->name = 'User';
-        $developer->slug = 'user';
-        $developer->save();
+        foreach (RoleSlug::cases() as $roleSlug) {
+            Role::firstOrCreate(
+                ['slug' => $roleSlug->value],
+                ['name' => Str::title(str_replace('-', ' ', $roleSlug->value))]
+            );
+        }
     }
 }

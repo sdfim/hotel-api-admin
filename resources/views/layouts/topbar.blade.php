@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between w-full">
         <div class="topbar-brand flex items-center">
             <div
-                class="navbar-brand flex items-center justify-between shrink px-5 h-[70px] border-r bg-slate-50 border-r-gray-50 dark:border-zinc-700 dark:bg-zinc-800">
+                class="navbar-brand flex items-center justify-between shrink px-5 h-[50px] border-r bg-slate-50 border-r-gray-50 dark:border-zinc-700 dark:bg-zinc-800">
                 <a href="#" class="flex items-center font-bold text-lg  dark:text-white">
                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                          class="ltr:mr-2 rtl:ml-2 inline-block mt-1 h-6"/>
@@ -12,7 +12,7 @@
                 </a>
             </div>
             <button type="button"
-                    class="text-gray-600 dark:text-white h-[70px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 vertical-menu-btn"
+                    class="text-gray-600 dark:text-white h-[50px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 vertical-menu-btn"
                     id="vertical-menu-btn">
                 <i class="fa fa-fw fa-bars"></i>
             </button>
@@ -21,7 +21,7 @@
             <div>
                 <div class="dropdown relative sm:hidden block">
                     <button type="button"
-                            class="text-xl px-4 h-[70px] text-gray-600 dark:text-gray-100 dropdown-toggle"
+                            class="text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 dropdown-toggle"
                             data-dropdown-toggle="navNotifications">
                         <i data-feather="search" class="h-5 w-5"></i>
                     </button>
@@ -46,7 +46,7 @@
             </div>
 
             <div class="dropdown relative language hidden sm:block">
-                <button class="btn border-0 py-0 dropdown-toggle px-4 h-[70px]" type="button" aria-expanded="false"
+                <button class="btn border-0 py-0 dropdown-toggle px-4 h-[50px]" type="button" aria-expanded="false"
                         data-dropdown-toggle="navNotifications">
                     <img src="{{ URL::asset('build/images/flags/us.jpg') }}" alt="" class="h-4"
                          id="header-lang-img">
@@ -85,133 +85,15 @@
 
             <div>
                 <button type="button"
-                        class="light-dark-mode text-xl px-4 h-[70px] text-gray-600 dark:text-gray-100 hidden sm:block ">
+                        class="light-dark-mode text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 hidden sm:block ">
                     <i data-feather="moon" class="h-5 w-5 block dark:hidden"></i>
                     <i data-feather="sun" class="h-5 w-5 hidden dark:block"></i>
             </div>
-            <!-- <div>
-                <div class="dropdown relative ">
-                    <div class="relative">
-                        <button type="button"
-                            class="btn border-0 h-[70px] dropdown-toggle px-4 text-gray-500 dark:text-gray-100"
-                            aria-expanded="false" data-dropdown-toggle="notification">
-                            <i data-feather="bell" class="h-5 w-5"></i>
-                        </button>
-                        <span
-                            class="absolute text-xs px-1.5 bg-red-500 text-white font-medium rounded-full left-6 top-2.5">5</span>
-                    </div>
-                    <div class="dropdown-menu absolute z-50 hidden w-80 list-none rounded bg-white shadow dark:bg-zinc-800 "
-                        id="notification">
-                        <div class="border border-gray-50 dark:border-gray-700 rounded"
-                            aria-labelledby="notification">
-                            <div class="grid grid-cols-12 p-4">
-                                <div class="col-span-6">
-                                    <h6 class="m-0 text-gray-700 dark:text-gray-100"> Notifications </h6>
-                                </div>
-                                <div class="col-span-6 justify-self-end">
-                                    <a href="#!" class="text-xs underline dark:text-gray-400"> Unread (3)</a>
-                                </div>
-                            </div>
-                            <div class="max-h-56" data-simplebar>
-                                <div>
-                                    <a href="#!" class="text-reset notification-item">
-                                        <div class="flex px-4 py-2 hover:bg-gray-50/50 dark:hover:bg-zinc-700/50">
-                                            <div class="flex-shrink-0 ltr:mr-3 rtl:ml-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
-                                                    class="rounded-full h-8 w-8" alt="user-pic">
-                                            </div>
-                                            <div class="flex-grow">
-                                                <h6 class="mb-1 text-gray-700 dark:text-gray-100">James Lemire</h6>
-                                                <div class="text-13 text-gray-600">
-                                                    <p class="mb-1 dark:text-gray-400">It will seem like simplified
-                                                        English.</p>
-                                                    <p class="mb-0"><i
-                                                            class="mdi mdi-clock-outline dark:text-gray-400"></i>
-                                                        <span>1 hour ago</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#!" class="text-reset notification-item">
-                                        <div class="flex px-4 py-2 hover:bg-gray-50/50 dark:hover:bg-zinc-700/50">
-                                            <div class="flex-shrink-0 ltr:mr-3 rtl:ml-3">
-                                                <div class="h-8 w-8 bg-violet-500 rounded-full text-center">
-                                                    <i class="bx bx-cart text-xl leading-relaxed text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow">
-                                                <h6 class="mb-1 text-gray-700 dark:text-gray-100">Your order is placed
-                                                </h6>
-                                                <div class="text-13 text-gray-600">
-                                                    <p class="mb-1 dark:text-gray-400">If several languages coalesce
-                                                        the grammar</p>
-                                                    <p class="mb-0"><i
-                                                            class="mdi mdi-clock-outline dark:text-gray-400"></i>
-                                                        <span>3 min ago</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#!" class="text-reset notification-item">
-                                        <div class="flex px-4 py-2 hover:bg-gray-50/50 dark:hover:bg-zinc-700/50">
-                                            <div class="flex-shrink-0 ltr:mr-3 rtl:ml-3">
-                                                <div class="h-8 w-8 bg-green-500 rounded-full text-center">
-                                                    <i
-                                                        class="bx bx-badge-check text-xl leading-relaxed text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow">
-                                                <h6 class="mb-1 text-gray-700 dark:text-gray-100">Your item is shipped
-                                                </h6>
-                                                <div class="text-13 text-gray-600">
-                                                    <p class="mb-1 dark:text-gray-400">If several languages coalesce
-                                                        the grammar</p>
-                                                    <p class="mb-0"><i
-                                                            class="mdi mdi-clock-outline dark:text-gray-400"></i>
-                                                        <span>3 min ago</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#!" class="text-reset notification-item">
-                                        <div class="flex px-4 py-2 hover:bg-gray-50/50 dark:hover:bg-zinc-700/50">
-                                            <div class="flex-shrink-0 ltr:mr-3 rtl:ml-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-6.jpg') }}"
-                                                    class="rounded-full h-8 w-8" alt="user-pic">
-                                            </div>
-                                            <div class="flex-grow">
-                                                <h6 class="mb-1 text-gray-700 dark:text-gray-100">Salena Layfield</h6>
-                                                <div class="text-13 text-gray-600">
-                                                    <p class="mb-1 dark:text-gray-400">As a skeptical Cambridge friend
-                                                        of mine occidental.</p>
-                                                    <p class="mb-0"><i
-                                                            class="mdi mdi-clock-outline dark:text-gray-400"></i>
-                                                        <span>1 hour ago</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="p-1 border-t grid border-gray-50 dark:border-zinc-600 justify-items-center">
-                                <a class="btn border-0 text-violet-500" href="javascript:void(0)">
-                                    <i class="mdi mdi-arrow-right-circle mr-1"></i> <span>View More..</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
 
             <div>
                 <div class="dropdown relative ltr:mr-4 rtl:ml-4">
                     <button type="button"
-                            class="flex items-center px-4 py-5 border-x border-gray-50 bg-gray-50/30 dropdown-toggle dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100"
+                            class="flex items-center px-4 py-5 border-x border-gray-50 bg-gray-50/30 dropdown-toggle dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-100"
                             id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="true">
                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
@@ -236,11 +118,16 @@
                                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                                     <x-responsive-nav-link href="{{ route('api-tokens.index') }}"
                                                            :active="request()->routeIs('api-tokens.index')">
-                                        <i
-                                            class="mdi mdi-key-variant text-16 align-middle mr-1"></i>{{ __('API Tokens') }}
+                                        <i class="mdi mdi-key-variant text-16 align-middle mr-1"></i>{{ __('API Tokens') }}
                                     </x-responsive-nav-link>
                                 @endif
                             </div>
+{{--                            <div class="dropdown-item dark:text-gray-100">--}}
+{{--                                <x-responsive-nav-link href="{{ route('teams.show', ['team' => Auth::user()->currentTeam->id]) }}"--}}
+{{--                                                       :active="request()->routeIs('teams.show')">--}}
+{{--                                    <i class="mdi mdi-account-group text-16 align-middle mr-1"></i>{{ __('Team') }}--}}
+{{--                                </x-responsive-nav-link>--}}
+{{--                            </div>--}}
                             <hr class="border-gray-50 dark:border-gray-700">
                             <div class="dropdown-item dark:text-gray-100">
                                 <x-responsive-nav-link href="javascript:void();"
@@ -255,6 +142,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </nav>

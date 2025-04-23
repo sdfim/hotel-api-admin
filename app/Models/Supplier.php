@@ -17,16 +17,16 @@ class Supplier extends Model
         'id',
         'name',
         'description',
+        'product_type',
+    ];
+
+    protected $casts = [
+        'product_type' => 'array',
     ];
 
     public function pricingRules(): HasMany
     {
         return $this->hasMany(PricingRule::class);
-    }
-
-    public static function getExpediaId(): ?int
-    {
-        return Supplier::where('name', 'Expedia')->first()?->id;
     }
 
     public static function getSupplierId(string $supplierName): ?int

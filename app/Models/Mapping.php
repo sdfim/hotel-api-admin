@@ -11,13 +11,14 @@ class Mapping extends Model
     use HasFactory;
 
     protected $connection;
+
     protected $table = 'mappings';
 
     protected $fillable = [
-      'giata_id',
-      'supplier',
-      'supplier_id',
-      'match_percentage'
+        'giata_id',
+        'supplier',
+        'supplier_id',
+        'match_percentage',
     ];
 
     public function __construct(array $attributes = [])

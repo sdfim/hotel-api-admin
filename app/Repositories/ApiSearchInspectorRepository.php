@@ -136,6 +136,42 @@ class ApiSearchInspectorRepository
         ];
     }
 
+    public static function getTotalOccupancy(array $occupancy): int
+    {
+        $numberOfChildren = 0;
+        $numberOfAdults = 0;
+
+        foreach ($occupancy as $room) {
+            if (! empty($room['children_ages'])) {
+                $numberOfChildren += count($room['children_ages']);
+            }
+
+            $numberOfAdults += $room['adults'];
+        }
+
+        return $numberOfChildren + $numberOfAdults;
+    }
+
+    public static function getOccupancyBreakdown(array $occupancy): array
+    {
+        $breakdown = [
+            'children' => 0,
+            'adults' => 0,
+        ];
+
+        foreach ($occupancy as $room) {
+            if (! empty($room['children_ages'])) {
+                $breakdown['children'] += count($room['children_ages']);
+            }
+
+            $breakdown['adults'] += $room['adults'] ?? 0;
+        }
+
+        $breakdown['total'] = $breakdown['children'] + $breakdown['adults'];
+
+        return $breakdown;
+    }
+
     public function getTotalOccupancyAttribute(): int
     {
         $occupancy = $this->request['occupancy'] ?? [];
@@ -175,9 +211,9 @@ class ApiSearchInspectorRepository
          */
         [$search_id, $request, $suppliers, $type, $search_type] = $input;
 
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
-        $inspector = new ApiSearchInspector;
+        $inspector = new ApiSearchInspector();
         $inspector->search_id = $search_id;
         $inspector->type = $type;
         $inspector->search_type = $search_type;

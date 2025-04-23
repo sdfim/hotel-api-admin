@@ -3,6 +3,7 @@
 namespace App\Livewire\Channels;
 
 use App\Models\Channel;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -13,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -25,7 +27,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Channel::query())
+            ->query($this->getChannelQuery())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -33,6 +35,8 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('access_token')
                     ->sortable(),
+                TextColumn::make('user.name')
+                    ->label('Creator'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -47,12 +51,26 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn (Channel $record): string => route('channels.edit', $record)),
+                        ->url(fn (Channel $record): string => route('channels.edit', $record))
+                        ->visible(fn (Channel $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (Channel $record) => $record->delete()),
+                        ->action(fn (Channel $record) => $record->delete())
+                        ->visible(fn (Channel $record) => Gate::allows('delete', $record)),
                 ]),
             ]);
+    }
+
+    private function getChannelQuery()
+    {
+        $user = auth()->user();
+
+        return Channel::query()
+            ->when(! $user->hasRole(RoleSlug::ADMIN->value), function ($query) use ($user) {
+                return $query->whereHas(
+                    'token', fn ($query) => $query->where('tokenable_id', $user->id),
+                );
+            });
     }
 
     public function render(): View

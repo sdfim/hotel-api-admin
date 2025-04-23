@@ -1,6 +1,8 @@
 @if($getRecord()->search->request)
     @php
         $str = '';
+        $str0 = '';
+        $str1 = '';
 
         if ($getRecord()->search->search_type === 'hotel') {
 

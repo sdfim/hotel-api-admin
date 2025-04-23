@@ -66,7 +66,7 @@ class IceHBSIClient
             'client_secret' => $this->clientSecret,
             'grant_type' => 'client_credentials',
         ]);
-    
+
         if ($response->successful()) {
             $this->token = $response->json()['access_token'];
             Cache::put('ice_portal_token', $this->token, self::ONE_DAY_IN_SECONDS);

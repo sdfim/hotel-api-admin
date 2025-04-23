@@ -20,13 +20,18 @@ class UpdatePricingRule extends Component implements HasForms
     public ?array $data = [];
 
     public PricingRule $record;
+    public bool $isSrCreator = false;
 
     public function mount(PricingRule $pricingRule): void
     {
         $this->record = $pricingRule;
+        $this->isSrCreator = $this->record->is_sr_creator;
         $this->record->rule_start_date = optional($pricingRule->rule_start_date)->format('Y-m-d');
         $this->record->rule_expiration_date = optional($pricingRule->rule_expiration_date)->format('Y-m-d');
-        $this->form->fill($this->record->attributesToArray());
+        $data = $this->record->attributesToArray();
+        $data['conditions'] = $this->record->conditions->toArray();
+
+        $this->form->fill($data);
     }
 
     public function form(Form $form): Form
@@ -38,7 +43,7 @@ class UpdatePricingRule extends Component implements HasForms
                 'xl' => 3,
                 '2xl' => 3,
             ])
-            ->schema($this->pricingRuleFields())
+            ->schema($this->pricingRuleFields('edit'))
             ->statePath('data')
             ->model($this->record);
     }
@@ -57,12 +62,18 @@ class UpdatePricingRule extends Component implements HasForms
 
         $this->record->update($data);
 
+        $conditions = $data['conditions'] ?? [];
+        $this->record->conditions()->delete();
+        $this->record->conditions()->createMany($conditions);
+
         Notification::make()
             ->title('Updated successfully')
             ->success()
             ->send();
 
-        return redirect()->route('pricing-rules.index');
+        return redirect()->route('pricing-rules.edit', [
+            'pricing_rule' => $this->record,
+        ]);
     }
 
     public function render(): View

@@ -3,6 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use App\Models\Supplier;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\Enums\TypeRequestEnum;
 
 class CreateSuppliersForm extends Component implements HasForms
 {
@@ -32,6 +34,14 @@ class CreateSuppliersForm extends Component implements HasForms
                     ->unique()
                     ->required()
                     ->maxLength(191),
+                Select::make('product_type')
+                    ->options(
+                        collect(TypeRequestEnum::cases())
+                            ->mapWithKeys(fn ($enum) => [$enum->value => ucfirst($enum->value)])
+                            ->toArray()
+                    )
+                    ->multiple()
+                    ->required(),
                 TextInput::make('description')
                     ->required()
                     ->maxLength(191),

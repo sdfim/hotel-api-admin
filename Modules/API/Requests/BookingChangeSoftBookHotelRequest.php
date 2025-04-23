@@ -118,16 +118,7 @@ class BookingChangeSoftBookHotelRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [

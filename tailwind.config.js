@@ -20,6 +20,20 @@ export default {
         './vendor/filament/**/*.blade.php',
     ],
     important: false,
+    safelist: [
+        'bg-red-100',
+        'bg-red-200',
+        'bg-red-300',
+        'bg-red-400',
+        'bg-red-500',
+        'bg-red-600',
+        'bg-lime-100',
+        'bg-lime-200',
+        'bg-lime-300',
+        'bg-lime-400',
+        'bg-lime-500',
+        'bg-lime-600',
+    ],
     theme: {
         screens: {
             xs: "100%",
@@ -38,6 +52,13 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            spacing: {
+                '0.5': '0.125rem',
+                6: '1.5rem',
+                7: '1.75rem',
+                8: '2rem',
+                15: '3.75rem',
             },
             fontSize: {
                 '10': '0.625rem',
@@ -89,6 +110,18 @@ export default {
                     800: '#176344',
                     900: '#0F422D',
                 },
+                lime: {
+                    50: '#e5f9e0',
+                    100: '#d9f7dc',
+                    200: '#aadf8a',
+                    300: '#7fca62',
+                    400: '#56b542',
+                    500: '#389f2e',
+                    600: '#87e291',
+                    700: '#2cf290',
+                    800: '#227721',
+                    900: '#1a6319',
+                },
                 sky: {
                     50: '#D2E9FB',
                     100: '#BEDFF9',
@@ -115,7 +148,7 @@ export default {
                 },
                 red: {
                     50: '#FEDCDB',
-                    100: '#FEC6C4',
+                    100: '#e5e5e5',
                     200: '#FEB8B6',
                     300: '#FE8D8A',
                     400: '#FD706D',

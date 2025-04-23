@@ -3,10 +3,13 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\PricingRule;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class PricingRulesController extends Controller
+class PricingRulesController extends BaseWithPolicyController
 {
+    protected static string $model = PricingRule::class;
+
     private array $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
 
     /**
@@ -20,11 +23,15 @@ class PricingRulesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $text = $this->message;
+        $isSrCreator = $request->input('sr', false);
+        $giataCodeProperty = $request->input('gc', null);
+        $rateCode = $request->input('rc', null);
+        if(!$giataCodeProperty) $isSrCreator = false;
 
-        return view('dashboard.pricing-rules.create', compact('text'));
+        return view('dashboard.pricing-rules.create', compact('text', 'isSrCreator', 'giataCodeProperty', 'rateCode'));
     }
 
     /**
@@ -49,6 +56,11 @@ class PricingRulesController extends Controller
 
         $pricingRule = PricingRule::findOrFail($id);
 
-        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text'));
+        $giataId = $pricingRule->conditions->filter(function ($condition) {
+            return $condition->field === 'property';
+        })->first()?->value_from;
+        $isSrCreator = request()->input('sr', false);
+
+        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text', 'giataId', 'isSrCreator'));
     }
 }

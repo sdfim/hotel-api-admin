@@ -10,7 +10,9 @@ use Tests\TestCase;
 
 class ExceptionsReportChartControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, AuthenticatesUser;
+    use AuthenticatesUser;
+    use RefreshDatabase;
+    use WithFaker;
 
     #[Test]
     public function test_exceptions_report_chart_controller_is_opening(): void

@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -49,10 +50,12 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (PropertyWeighting $record): string => route('property-weighting.show', $record)),
                     EditAction::make()
-                        ->url(fn (PropertyWeighting $record): string => route('property-weighting.edit', $record)),
+                        ->url(fn (PropertyWeighting $record): string => route('property-weighting.edit', $record))
+                        ->visible(fn (PropertyWeighting $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (PropertyWeighting $record) => $record->delete()),
+                        ->action(fn (PropertyWeighting $record) => $record->delete())
+                        ->visible(fn (PropertyWeighting $record): bool => Gate::allows('delete', $record)),
                 ]),
             ]);
     }

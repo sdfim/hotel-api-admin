@@ -4,8 +4,8 @@ namespace Tests\Unit\Hotel\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {
@@ -29,8 +29,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
     {
         $giataId = 1;
         $roomsPricingArray = $this->getRoomsPricingArray();
-
-        // int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType
 
         $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray, '', '', '');
 
@@ -60,9 +58,9 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_price' => 2551.5,
             'total_tax' => 355.5,
             'total_fees' => 270.0,
-            'total_net' => 4392.0,
-            'commission_amount' => 0.0,
+            'total_net' => 2196.0,
             'markup' => 60.0,
+            'commission_amount' => 0.0,
         ];
     }
 

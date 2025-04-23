@@ -105,15 +105,14 @@ class FlowHbsiBookTest extends Command
         $this->warn('addPassengers group for search_3');
         $this->addPassengers($bookingId, $bookingItems2, $this->query);
 
-        sleep(3);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem['booking_item']);
 
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        $this->warn('BOOK '.$bookingId);
-        $this->book($bookingId, $bookingItems);
+        //        $this->warn('BOOK '.$bookingId);
+        //        $this->book($bookingId, $bookingItems);
     }
 
     private function getBookingItem(array $responseData): ?array
@@ -135,12 +134,12 @@ class FlowHbsiBookTest extends Command
                 $ro = 1;
                 foreach ($hotel['room_groups'] as $room_groups) {
                     foreach ($room_groups['rooms'] as $room) {
-                        //                        if (! $room['non_refundable']) {
-                        $booking_item = $room['booking_item'];
-                        $rate_ordinal = $ro;
-                        $ro++;
-                        break 3;
-                        //                        }
+                        if (! $room['non_refundable']) {
+                            $booking_item = $room['booking_item'];
+                            $rate_ordinal = $ro;
+                            $ro++;
+                            break 3;
+                        }
                     }
                 }
             }

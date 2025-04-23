@@ -14,7 +14,7 @@ use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
 
-class ExpediaHotelController
+class ExpediaHotelController implements SupplierControllerInterface
 {
     protected float|string $current_time;
 
@@ -43,8 +43,8 @@ class ExpediaHotelController
         try {
             $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $expedia = new ExpediaContent;
-            $geography = new Geography;
+            $expedia = new ExpediaContent();
+            $geography = new Geography();
 
             // $filters['ids'] - array of Expedia property ids
             // $filters['giata_ids'] - array of Giata ids
@@ -61,7 +61,7 @@ class ExpediaHotelController
                 $filters['longitude'] = $geoLocation['longitude'];
 
                 $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
-            }else {
+            } else {
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
                 $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
             }
@@ -76,8 +76,6 @@ class ExpediaHotelController
 
             $searchBuilder = new HotelSearchBuilder($query);
             $queryBuilder = $searchBuilder->applyFilters($filters);
-
-            $mainDB = config('database.connections.mysql.database');
 
             $selectFields = [
                 'expedia_content_main.*',
@@ -96,6 +94,7 @@ class ExpediaHotelController
                     'expedia_content_slave.checkout as checkout',
                     'expedia_content_slave.fees as fees',
                     'expedia_content_slave.policies as policies',
+                    'expedia_content_slave.statistics as statistics',
                 ];
                 $selectFields = array_merge($selectFields, $additionalFields);
             }
@@ -136,9 +135,13 @@ class ExpediaHotelController
         }
 
         $endTime = microtime(true) - $timeStart;
+        $finalMemoryUsage = memory_get_usage();
+        $finalMemoryUsageMB = $finalMemoryUsage / 1024 / 1024;
+        Log::info('Final memory usage: '.$finalMemoryUsageMB.' MB');
         Log::info('ExpediaHotelApiHandler | preSearchData | mysql query '.$endTime.' seconds');
 
         return [
+            'giata_ids' => array_values($giataCodes),
             'ids' => $ids ?? 0,
             'results' => $results,
             'filters' => $filters ?? null,

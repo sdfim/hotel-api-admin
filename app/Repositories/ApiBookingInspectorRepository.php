@@ -191,7 +191,7 @@ class ApiBookingInspectorRepository
 
     public static function getBookedBookingIdsByChannel(int $supplier_id = 2): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
         $inspectors = ApiBookingInspector::where('token_id', $token_id)
             ->where(function ($query) use ($supplier_id) {
@@ -365,6 +365,70 @@ class ApiBookingInspectorRepository
             ->first();
     }
 
+    public static function hasAttachService(string $booking_item, array $service): bool
+    {
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'service_attach')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get();
+
+        foreach ($inspector as $item) {
+            $addons_meta = $item->addons_meta;
+            if ($addons_meta['type'] === 'informational_services') {
+                foreach ($addons_meta['attributes'] as $attribute) {
+                    if ($attribute['id'] === $service['id'] && $attribute['message'] === 'The service is attached') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function hasDetachService(string $booking_item, array $service): bool
+    {
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'service_detach')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get();
+
+        foreach ($inspector as $item) {
+            $addons_meta = $item->addons_meta;
+            if ($addons_meta['type'] === 'informational_services') {
+                foreach ($addons_meta['attributes'] as $attribute) {
+                    if ($attribute['id'] === $service['id'] && $attribute['message'] === 'The service is detached') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function getParams($request, $bookingItem = null): array
+    {
+        $bookingItem = $bookingItem ?? $request->input('booking_item');
+        $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
+
+        if (! $apiBookingInspectorItem) {
+            return [null, null, null, null];
+        }
+
+        $searchId = $apiBookingInspectorItem?->search_id;
+        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
+
+        $bookingId = $apiBookingInspectorItem?->booking_id;
+
+        $filters = $request->all();
+        $filters['search_id'] = $searchId;
+
+        $supplierId = Supplier::where('name', (string) $apiSearchInspectorItem['supplier'])->first()->id;
+
+        return [$bookingId, $filters, $supplierId, $apiBookingInspectorItem];
+    }
+
     public static function newBookingInspector(array $input): array
     {
         /**
@@ -379,7 +443,7 @@ class ApiBookingInspectorRepository
          */
         [$booking_id, $query, $supplier_id, $type, $subType, $search_type] = $input;
 
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
         $search_id = $query['search_id'] ?? (
             $booking_item
@@ -403,5 +467,13 @@ class ApiBookingInspectorRepository
         \Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
 
         return $inspector->toArray();
+    }
+
+    public static function isBookingItemInCart(string $bookingItem): ?ApiBookingInspector
+    {
+        return ApiBookingInspector::where('type', 'add_item')
+            ->where('booking_item', $bookingItem)
+            ->where('status', 'success')
+            ->first();
     }
 }

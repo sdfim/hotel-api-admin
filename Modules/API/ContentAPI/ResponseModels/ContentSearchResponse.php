@@ -8,14 +8,9 @@ class ContentSearchResponse
 
     private array $images;
 
-    /**
-     * @var string
-     */
     private array $description;
 
     private string $hotel_name;
-
-    private string $distance;
 
     private string $latitude;
 
@@ -31,16 +26,100 @@ class ContentSearchResponse
 
     private array $important_information;
 
-    private array $supplier_information;
+    private int $weight;
 
-    public function setSupplierInformation(array $supplier_information): void
+    private array $deposit_information;
+
+    private array $cancellation_policies;
+
+    private array $drivers;
+
+    private array $ultimate_amenities;
+
+    private array $nearest_airports;
+
+    private string $currency;
+
+    private string $number_rooms;
+
+    public function setCurrency(string $currency): void
     {
-        $this->supplier_information = $supplier_information;
+        $this->currency = $currency;
     }
 
-    public function getSupplierInformation(): array
+    public function getCurrency(): string
     {
-        return $this->supplier_information;
+        return $this->currency;
+    }
+
+    public function setNumberRooms(string $number_rooms): void
+    {
+        $this->number_rooms = $number_rooms;
+    }
+
+    public function getNumberRooms(): string
+    {
+        return $this->number_rooms;
+    }
+
+    public function setNearestAirports(array $nearest_airports): void
+    {
+        $this->nearest_airports = $nearest_airports;
+    }
+
+    public function getNearestAirports(): array
+    {
+        return $this->nearest_airports;
+    }
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
+
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
+    }
+
+    public function setDepositInformation(array $deposit_information): void
+    {
+        $this->deposit_information = $deposit_information;
+    }
+
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
+    }
+
+    public function setWeight(int $weight): void
+    {
+        $this->weight = $weight;
+    }
+
+    public function getWeight(): int
+    {
+        return $this->weight;
     }
 
     public function getImportantInformation(): array
@@ -113,16 +192,6 @@ class ContentSearchResponse
         return $this->latitude;
     }
 
-    public function setDistance(string $distance): void
-    {
-        $this->distance = $distance;
-    }
-
-    public function getDistance(): string
-    {
-        return $this->distance;
-    }
-
     public function setHotelName(string $hotel_name): void
     {
         $this->hotel_name = $hotel_name;
@@ -167,18 +236,23 @@ class ContentSearchResponse
     {
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
+            'weight' => $this->getWeight(),
             'images' => $this->getImages(),
-            'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),
-            'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => array_values($this->getAmenities()),
+            'currency' => $this->getCurrency(),
+            'number_rooms' => $this->getNumberRooms(),
+            'nearest_airports' => $this->getNearestAirports(),
+            'description' => $this->getDescription(),
+            'deposit_information' => $this->getDepositInformation(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
+            'attributes' => array_values($this->getAmenities()),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
-            'important_information' => $this->getImportantInformation(),
-            'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

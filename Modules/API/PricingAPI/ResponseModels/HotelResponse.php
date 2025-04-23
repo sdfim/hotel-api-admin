@@ -34,7 +34,21 @@ class HotelResponse extends BaseResponse
 
     private array $room_combinations = [];
 
+    private array $deposit_information = [];
+
     private string $rating;
+
+    private array $supplier_information;
+
+    public function setSupplierInformation(array $supplier_information): void
+    {
+        $this->supplier_information = $supplier_information;
+    }
+
+    public function getSupplierInformation(): array
+    {
+        return $this->supplier_information;
+    }
 
     public function setRating(string $rating): void
     {
@@ -112,6 +126,16 @@ class HotelResponse extends BaseResponse
     public function setDestination(string $destination): void
     {
         $this->destination = $destination;
+    }
+
+    public function setDepositInformation(array $depositInformation): void
+    {
+        $this->deposit_information = $depositInformation;
+    }
+
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
     }
 
     public function getDestination(): string
@@ -218,6 +242,8 @@ class HotelResponse extends BaseResponse
             'refundable_rates' => $this->getRefundableRates(),
             'room_groups' => $this->getRoomGroups(),
             'room_combinations' => $this->getRoomCombinations(),
+            'supplier_information' => $this->getSupplierInformation(),
+            'deposit_information' => $this->getDepositInformation(),
         ];
     }
 

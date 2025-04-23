@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -37,7 +38,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
 
     public function mount(?GeneralConfiguration $general_configuration): void
     {
-        if (!empty($general_configuration->toArray())) {
+        if (! empty($general_configuration->toArray())) {
             $this->record = $general_configuration;
             $this->form->fill($this->record->attributesToArray());
         } else {
@@ -58,8 +59,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                 TextInput::make('time_supplier_requests')
                     ->label('Supplier requests timeout, seconds')
                     ->numeric()
-                    ->minValue(fn(): int => 3)
-                    ->maxValue(fn(): int => 120)
+                    ->minValue(fn (): int => 3)
+                    ->maxValue(fn (): int => 120)
                     ->required(),
                 Select::make('currently_suppliers')
                     ->label('Include these suppliers in the search (PricingApi)')
@@ -69,8 +70,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                 TextInput::make('time_reservations_kept')
                     ->label('Length of Time Reservations are kept offloading, days')
                     ->numeric()
-                    ->minValue(fn(): int => 7)
-                    ->maxValue(fn(): int => 365)
+                    ->minValue(fn (): int => 7)
+                    ->maxValue(fn (): int => 365)
                     ->required(),
                 Select::make('content_supplier')
                     ->label('Include this supplier in your search as a content supplier (ContentApi)')
@@ -79,34 +80,35 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
                     ->numeric()
-                    ->minValue(fn(): int => 60)
-                    ->maxValue(fn(): int => 365)
+                    ->minValue(fn (): int => 60)
+                    ->maxValue(fn (): int => 365)
                     ->required(),
                 TextInput::make('star_ratings')
                     ->label('What star ratings to be searched for on the system, 0 ... 5.5')
                     ->numeric()
                     ->step(0.5)
-                    ->minValue(fn(): int => 0.0)
-                    ->maxValue(fn(): int => 5.5)
+                    ->minValue(fn (): float => 0.0)
+                    ->maxValue(fn (): float => 5.5)
                     ->required(),
                 TextInput::make('stop_bookings')
                     ->label('Stop bookings within a number of hours from time of search execution, hours')
                     ->numeric()
-                    ->minValue(fn(): int => 1)
-                    ->maxValue(fn(): int => 365 * 24)
+                    ->minValue(fn (): int => 1)
+                    ->maxValue(fn (): int => 365 * 24)
                     ->required(),
             ])
             ->statePath('data')
-            ->model($this->getDynamicModel());
+            ->model($this->getDynamicModel())
+            ->disabled(! Gate::allows('update', GeneralConfiguration::class));
     }
 
     public function save(): Redirector|RedirectResponse
     {
-        $request = (object)$this->form->getState();
+        $request = (object) $this->form->getState();
         $general_configuration = GeneralConfiguration::get();
 
         if (count($general_configuration) === 0) {
-            $general_configuration_row = new GeneralConfiguration();
+            $general_configuration_row = new GeneralConfiguration;
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;

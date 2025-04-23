@@ -212,7 +212,7 @@ class HbsiService
                 $input[$hk]['room_combinations'] = $finalResult;
                 foreach ($finalResult as $key => $value) {
                     $keyCache = 'room_combinations:'.$key;
-                    \Log::debug('room_combinations keyCache '.$key);
+//                    \Log::debug('room_combinations keyCache '.$key);
                     Cache::put($keyCache, $value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
                 }
             }

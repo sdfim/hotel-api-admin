@@ -30,11 +30,7 @@ class Authenticate extends Middleware
                     'message' => 'UnAuthenticated',
                 ], 401));
         } else {
-            $response = redirect('/');
+            redirect()->route('root')->send();
         }
-
-        $response->send();
-
-        parent::unauthenticated($request, $guards);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 trait BaseTrait
 {
     protected array $current_time;
+    protected float $st;
 
     private function executionTime(string $type): float
     {
@@ -12,5 +13,13 @@ trait BaseTrait
         $this->current_time[$type] = microtime(true);
 
         return $execution_time;
+    }
+
+    private function runtime(): float
+    {
+        $et = microtime(true) - $this->st;
+        $this->st = microtime(true);
+
+        return $et;
     }
 }

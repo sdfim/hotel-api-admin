@@ -2,10 +2,13 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
+use App\Models\ApiExceptionReport;
 use Illuminate\View\View;
 
-class ExceptionsReportChartController extends Controller
+class ExceptionsReportChartController extends BaseWithPolicyController
 {
+    protected static string $model = ApiExceptionReport::class;
+
     /**
      * Display a listing of the resource.
      */

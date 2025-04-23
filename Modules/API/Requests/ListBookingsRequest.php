@@ -8,9 +8,6 @@ use Modules\API\Validate\ApiRequest;
 class ListBookingsRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    /**
      * @OA\Get(
      *   tags={"Booking API | Booking"},
      *   path="/api/booking/list-bookings",
@@ -71,10 +68,6 @@ class ListBookingsRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
 
     public function rules(): array
     {
