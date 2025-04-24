@@ -70,12 +70,9 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ]),
             Select::make('descriptive_type_id')
                 ->label('Content')
+                ->searchable()
                 ->options(ConfigDescriptiveType::orderBy('name')->get()->mapWithKeys(function ($item) {
-                    if ($item->name !== $item->type) {
-                        return [$item->id => "{$item->name} ({$item->type} | location: {$item->location->name})"];
-                    }
-
-                    return [$item->id => $item->name];
+                    return [$item->id => "{$item->name} ({$item->type} | location: {$item->location->name})"];
                 }))
                 ->required()
                 ->createOptionForm(Gate::allows('create', ConfigDescriptiveType::class) ? DescriptiveTypesForm::getSchema() : [])
