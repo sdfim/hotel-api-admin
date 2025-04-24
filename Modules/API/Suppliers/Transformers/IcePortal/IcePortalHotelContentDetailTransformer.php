@@ -7,7 +7,7 @@ namespace Modules\API\Suppliers\Transformers\IcePortal;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
-use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
+use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
 use Modules\Enums\SupplierNameEnum;
 
 class IcePortalHotelContentDetailTransformer
@@ -102,22 +102,27 @@ class IcePortalHotelContentDetailTransformer
         $roomImages = $result['roomImages'];
         $roomAmenities = $result['roomAmenities'];
         $roomAmenitiesGeneral = $result['roomAmenitiesGeneral'];
-        $hotelAmenities = $result['hotelAmenities'];
+        $hotelAmenities = array_map(function ($amenity) {
+            return [
+                'name' => $amenity,
+                'category' => 'general',
+            ];
+        }, array_unique($result['hotelAmenities']));
 
-        $address = Arr::get($supplierResponse, 'address.addressLine1', '').', '.
-            Arr::get($supplierResponse, 'address.city', '').' - '.
-            Arr::get($supplierResponse, 'address.postalCode', '');
+        $address = Arr::get($supplierResponse, 'addressLine1', '').', '.
+            Arr::get($supplierResponse, 'city', '').' - '.
+            Arr::get($supplierResponse, 'postalCode', '');
 
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setDescription(Arr::get($supplierResponse, 'description', ''));
         $hotelResponse->setHotelName(Arr::get($supplierResponse, 'name', ''));
-        $hotelResponse->setLatitude(Arr::get($supplierResponse, 'address.latitude', ''));
-        $hotelResponse->setLongitude(Arr::get($supplierResponse, 'address.longitude', ''));
+        $hotelResponse->setLatitude(Arr::get($supplierResponse, 'latitude', ''));
+        $hotelResponse->setLongitude(Arr::get($supplierResponse, 'longitude', ''));
         $hotelResponse->setRating($rating);
-        $hotelResponse->setAmenities(array_unique($hotelAmenities));
-        $hotelResponse->setGiataDestination(Arr::get($supplierResponse, 'address.city', ''));
+        $hotelResponse->setAmenities($hotelAmenities);
+        $hotelResponse->setGiataDestination(Arr::get($supplierResponse, 'city', ''));
         $hotelResponse->setUserRating($rating);
         $hotelResponse->setSpecialInstructions(Arr::get($supplierResponse, 'room', []));
 
