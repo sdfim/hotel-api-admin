@@ -197,10 +197,10 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                 ->schema([
                     Grid::make(4)
                         ->schema([
-                            Checkbox::make('show_service_on_pdf')
-                                ->label('Show Service on PDF'),
-                            Checkbox::make('show_service_data_on_pdf')
-                                ->label('Show Service Date on PDF'),
+//                            Checkbox::make('show_service_on_pdf')
+//                                ->label('Show Service on PDF'),
+//                            Checkbox::make('show_service_data_on_pdf')
+//                                ->label('Show Service Date on PDF'),
                             Checkbox::make('auto_book')
                                 ->label('Mandatory'),
                             Checkbox::make('commissionable')
@@ -301,8 +301,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                 TextColumn::make('total_net')->label('Total Net')->searchable(),
                 TextColumn::make('currency')->label('Currency')->searchable(),
                 TextColumn::make('service_time')->label('Service Time')->searchable(),
-                IconColumn::make('show_service_on_pdf')->label('Show on PDF')->boolean(),
-                IconColumn::make('show_service_data_on_pdf')->label('Show Data on PDF')->boolean(),
+//                IconColumn::make('show_service_on_pdf')->label('Show on PDF')->boolean(),
+//                IconColumn::make('show_service_data_on_pdf')->label('Show Data on PDF')->boolean(),
                 IconColumn::make('commissionable')->label('Commissionable')->boolean(),
                 IconColumn::make('auto_book')->label('Mandatory')->boolean(),
             ])
