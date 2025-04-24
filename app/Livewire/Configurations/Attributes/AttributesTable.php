@@ -31,7 +31,8 @@ class AttributesTable extends Component implements HasForms, HasTable
             ->query(ConfigAttribute::query())
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
             ])
             ->actions([
                 //                ActionGroup::make([
