@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ProductApplyTypeEnum;
+use Modules\Enums\ProductServiceApplyTypeEnum;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\AddProductInformativeService;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\EditProductInformativeService;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
@@ -117,10 +118,10 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             Select::make('apply_type')
                                 ->label('Apply Type')
                                 ->options([
-                                    ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
-                                    ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
-                                    ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
-                                    ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                                    ProductServiceApplyTypeEnum::PER_SERVICE->value => 'Per Service',
+                                    ProductServiceApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                                    ProductServiceApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                                    ProductServiceApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                                 ])
                                 ->reactive()
                                 ->rules(['required']),
