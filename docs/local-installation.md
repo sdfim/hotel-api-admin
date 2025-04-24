@@ -23,8 +23,8 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Add this record to your `/etc/hosts` file 
   * `127.0.0.1 obe.travelagentadmin.test`
 * Run the following Commands
-* Run `docker-compose -f docker-compose.local.yml up -d`
-* Run `docker-compose ps` to check if all containers are up
+* Run `docker compose -f docker-compose.local.yml up -d`
+* Run `docker compose ps` to check if all containers are up
 * Run `docker exec -it booking-engine bash` to enter the instance.
 * Run `composer install`
 * Run `php artisan key:generate`
