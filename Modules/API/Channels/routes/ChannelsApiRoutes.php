@@ -16,6 +16,7 @@ class ChannelsApiRoutes
             Route::post('/', [ChannelsApiHandler::class, 'add'])->name('add');
             Route::get('/{channel_id}', [ChannelsApiHandler::class, 'get'])->name('get');
             Route::put('/{channel_id}', [ChannelsApiHandler::class, 'edit'])->name('edit');
+            Route::post('/{channel_id}/refresh-token', [ChannelsApiHandler::class, 'refreshToken'])->name('refreshToken');
             Route::delete('/{channel_id}', [ChannelsApiHandler::class, 'delete'])->name('delete');
         });
     }

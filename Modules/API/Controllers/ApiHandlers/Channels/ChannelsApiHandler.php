@@ -124,4 +124,18 @@ class ChannelsApiHandler extends BaseController
             return $this->sendError('Channel not found', ResponseAlias::HTTP_NOT_FOUND);
         }
     }
+
+    public function refreshToken(int $channelId): JsonResponse // Assuming ID comes from route
+    {
+        try {
+            return $this->sendResponse(
+                $this->transformItem(
+                    $this->channelRepository->refreshToken($channelId)
+                ),
+                'Channel created successfully'
+            );
+        } catch (\Throwable $e) {
+            return $this->sendError('Error refreshing token: '.$e->getMessage(), ResponseAlias::HTTP_NOT_FOUND);
+        }
+    }
 }

@@ -43,5 +43,17 @@ class ChannelRepository extends AbstractCRUDRepository
         return parent::update($data);
     }
 
+    public function refreshToken(int $id): Model
+    {
+        $channel = Channel::where('id', $id)->first();
 
+        if(!$channel) throw new \Exception('Channel not found');
+
+        $name = Request()->get('name');
+        $token = auth()->user()->createToken($channel->name);
+
+        $channel->access_token = $token->plainTextToken;
+        $channel->save();
+        return $channel;
+    }
 }
