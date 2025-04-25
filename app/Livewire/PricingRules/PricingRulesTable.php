@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Product;
+use Modules\Enums\ProductApplyTypeEnum;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
 {
@@ -116,8 +117,9 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ]),
                 TextColumn::make('name')
                     ->searchable()
+                    ->wrap()
                     ->toggleable(),
-                TextInputColumn::make('weight')
+                TextColumn::make('weight')
                     ->searchable()
                     ->toggleable()
                     ->extraAttributes(['style' => 'max-width: 100px;']),
@@ -133,6 +135,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('conditions')
                     ->label('Property')
                     ->html()
+                    ->wrap()
                     ->formatStateUsing(function ($state) {
                         $state = trim($state, " \t\n\r\0\x0B\"");
                         $state = '['.$state.']';
@@ -176,16 +179,61 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('manipulable_price_type')
                     ->label('Price Type')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            'total_price' => 'Total Price',
+                            'net_price' => 'Net Price',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('price_value_type')
                     ->label('Value Type')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            'fixed_value' => 'Fixed Value',
+                            'percentage' => 'Percentage',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('price_value')
                     ->label('Value')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : $state
+                    )
+                    ->icon(function ($record) {
+                        return $record?->is_exclude_action
+                            ? false
+                            : match ($record->price_value_type) {
+                                null, '' => false,
+                                'fixed_value' => 'heroicon-o-banknotes',
+                                'percentage' => 'heroicon-o-receipt-percent',
+                                'exclude_action' => 'heroicon-o-banknotes',
+                                default => '',
+                            };
+                    }),
                 TextColumn::make('price_value_target')
                     ->label('Value Target')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                            'not_applicable' => 'N/A',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

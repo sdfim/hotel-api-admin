@@ -19,7 +19,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\HotelRoom;
@@ -41,7 +40,7 @@ trait HasPricingRuleFields
                     TextInput::make('name')
                         ->label('Rule name')
                         ->maxLength(191)
-                        ->unique(ignoreRecord: true)
+//                        ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('weight')
                         ->label('Priority Weighting')
@@ -51,7 +50,7 @@ trait HasPricingRuleFields
                         ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
-                        ->helperText('Remove a entity from the search results')
+                        ->helperText('Remove a rate from the search results')
                         ->inline(false)
                         ->reactive()
                         ->afterStateUpdated(fn (Set $set, $state) => $set('price_settings_hidden', $state)),
@@ -80,65 +79,6 @@ trait HasPricingRuleFields
                             }
                             $component->state($formattedDate);
                         }),
-                    Placeholder::make('travel_dates_explanation')
-                        ->label('')
-                        ->columnSpan(5)
-                        ->content(fn () => new HtmlString(<<<HTML
-        <button type="button" onclick="toggleCollapse()">
-            <span id="toggleIcon">▼</span> IMPORTANT: Rules dates explanation
-        </button>
-        <div id="collapseContent" style="display: none;">
-            When doing a search, the users will need to select a start and an Travel End Date.
-            This rule will only apply if the "Rule Start Date" is contained within the travel dates selected by the user.
-            If the "Rule Expiration Date" is provided, it must also be contained within the travel dates selected by the user.
-            If the "Rule Expiration Date" is not provided, a default date of 01-01-2100 will be applied.<br>
-            <br>
-            For example, consider the following scenario:<br>
-            Assume that you select Jan 15, $currentYear as the "Rule Start Date" and Jan 20, $currentYear
-            as the "Rule Expiration Date" (if provided)<br>
-            <ul class="list-disc pl-6">
-                <li class="mb-2">
-                    User selects Jan 10, $currentYear as the Travel Start Date <br>
-                    User selects Jan 14, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 12, $currentYear as the Travel Start Date <br>
-                    User selects Jan 18, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 18, $currentYear as the Travel Start Date <br>
-                    User selects Jan 24, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 15, $currentYear as the Travel Start Date <br>
-                    User selects Jan 18, $currentYear as the Travel End Date <br>
-                    Will this rule apply? YES
-                </li>
-                <li class="mb-2">
-                    User selects Jan 17, $currentYear as the Travel Start Date <br>
-                    User selects Jan 20, $currentYear as the Travel End Date <br>
-                    Will this rule apply? YES
-                </li>
-            </ul>
-        </div>
-        <script>
-            function toggleCollapse() {
-                var content = document.getElementById('collapseContent');
-                var icon = document.getElementById('toggleIcon');
-                if (content.style.display === 'none') {
-                    content.style.display = 'block';
-                    icon.textContent = '▲';
-                } else {
-                    content.style.display = 'none';
-                    icon.textContent = '▼';
-                }
-            }
-        </script>
-    HTML
-                        )),
                 ])
                 ->columns(5),
 
@@ -210,6 +150,7 @@ trait HasPricingRuleFields
                             'channel_id' => 'Channel ID',
                             'property' => 'Property',
                             'destination' => 'Destination',
+                            'date_of_stay' => 'Date of stay',
                             'travel_date' => 'Travel date',
                             'booking_date' => 'Booking date',
                             'total_guests' => 'Total guests',
@@ -439,42 +380,67 @@ trait HasPricingRuleFields
                                 ->schema([
                                     DateTimePicker::make('value_from')
                                         ->label('Travel date from')
+                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') !== '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') === '<')
                                         ->visible(fn (Get $get): bool => $get('compare') !== '<'),
 
                                     DateTimePicker::make('value_to')
                                         ->label('Travel date to')
+                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' && $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
+
+                        'date_of_stay' => [
+                            Grid::make()
+                                ->schema([
+                                    DateTimePicker::make('value_from')
+                                        ->label('Date of stay from')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
+
+                                    DateTimePicker::make('value_to')
+                                        ->label('Date of stay to')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
+                                ])
+                                ->columns(2),
+                        ],
+
                         'booking_date' => [
                             Grid::make()
                                 ->schema([
                                     DateTimePicker::make('value_from')
                                         ->label('Booking date from')
+                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') !== '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') === '<')
                                         ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Booking date to')
+                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' && $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),

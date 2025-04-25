@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Property;
 use App\Models\PricingRule;
+use App\Models\Property;
 use Illuminate\Database\Seeder;
 use Modules\API\Tools\PricingRulesDataGenerationTools;
 
@@ -14,7 +14,7 @@ class PricingRuleSeeder extends Seeder
      */
     public function run(): void
     {
-        $giataIds = Property::where('city_id', 1175)->limit(2000)->pluck('code');
+        $giataIds = Property::where('city_id', 515)->limit(15)->pluck('code');
 
         $pricingRulesTools = new PricingRulesDataGenerationTools();
 

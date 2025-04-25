@@ -20,6 +20,7 @@ class UpdatePricingRule extends Component implements HasForms
     public ?array $data = [];
 
     public PricingRule $record;
+
     public bool $isSrCreator = false;
 
     public function mount(PricingRule $pricingRule): void
