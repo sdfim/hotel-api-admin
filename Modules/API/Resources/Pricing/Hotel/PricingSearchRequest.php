@@ -104,9 +104,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *        value=
  *    {
  *        "type": "hotel",
- *        "checkin": "2024-05-11",
- *        "checkout": "2024-05-20",
- *        "place": "4b2afe6684dd81a6f73527468e05e7a6",
+ *        "checkin": "2025-05-11",
+ *        "checkout": "2025-05-20",
+ *        "place": "ChIJG7c0MthPr4YRRxWMBYt7HME",
+ *        "session": "84add8c4-a514-4152-9bf1-483120d88da0",
+ *        "radius": 5,
  *        "rating": 4.5,
  *        "occupancy": {
  *            {
