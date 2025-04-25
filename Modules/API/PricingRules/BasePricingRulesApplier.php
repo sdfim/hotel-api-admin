@@ -132,38 +132,41 @@ class BasePricingRulesApplier
         };
     }
 
-    protected function applyPricingRulesLogic(array $pricingRule): void
+    protected function applyPricingRulesLogic(array $pricingRules): void
     {
-        $priceValueType = (string) $pricingRule['price_value_type'];
-        $fixedValue = (float) $pricingRule['price_value'];
-        $manipulablePriceType = (string) $pricingRule['manipulable_price_type'];
-        $priceValueTarget = (string) $pricingRule['price_value_target'];
-        $totalPropertyName = match ($manipulablePriceType) {
-            'net_price' => 'totalNet',
-            default => 'totalPrice',
-        };
+        foreach ($pricingRules as $pricingRule)
+        {
+            $priceValueType = (string) $pricingRule['price_value_type'];
+            $fixedValue = (float) $pricingRule['price_value'];
+            $manipulablePriceType = (string) $pricingRule['manipulable_price_type'];
+            $priceValueTarget = (string) $pricingRule['price_value_target'];
+            $totalPropertyName = match ($manipulablePriceType) {
+                'net_price' => 'totalNet',
+                default => 'totalPrice',
+            };
 
-        $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
+            $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
 
-        $this->markup += match ($priceValueTarget) {
-            'per_person' => match ($priceValueType) {
-                'percentage' => $this->totalNumberOfGuests * $percentageValue,
-                'fixed_value' => $this->totalNumberOfGuests * $fixedValue
-            },
-            'per_room' => match ($priceValueType) {
-                'percentage' => $percentageValue * $this->numberOfRooms,
-                'fixed_value' => $fixedValue * $this->numberOfRooms
-            },
-            'per_night' => match ($priceValueType) {
-                'percentage' => $this->numberOfNights * $percentageValue,
-                'fixed_value' => $this->numberOfNights * $fixedValue
-            },
-            'not_applicable' => match ($priceValueType) {
-                'percentage' => $percentageValue,
-                'fixed_value' => $fixedValue
-            },
-            'default' => 0
-        };
+            $this->markup += match ($priceValueTarget) {
+                'per_person' => match ($priceValueType) {
+                    'percentage' => $this->totalNumberOfGuests * $percentageValue,
+                    'fixed_value' => $this->totalNumberOfGuests * $fixedValue
+                },
+                'per_room' => match ($priceValueType) {
+                    'percentage' => $percentageValue * $this->numberOfRooms,
+                    'fixed_value' => $fixedValue * $this->numberOfRooms
+                },
+                'per_night' => match ($priceValueType) {
+                    'percentage' => $this->numberOfNights * $percentageValue,
+                    'fixed_value' => $this->numberOfNights * $fixedValue
+                },
+                'not_applicable' => match ($priceValueType) {
+                    'percentage' => $percentageValue,
+                    'fixed_value' => $fixedValue
+                },
+                'default' => 0
+            };
+        }
     }
 
     protected function totalNumberOfGuestsInRoom(array $room): int

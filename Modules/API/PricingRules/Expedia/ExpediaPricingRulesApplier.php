@@ -55,7 +55,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
 
         if (! empty($validPricingRules)) {
             usort($validPricingRules, fn ($a, $b) => $b['weight'] <=> $a['weight']);
-            $this->applyPricingRulesLogic($validPricingRules[0]);
+            $this->applyPricingRulesLogic($validPricingRules);
         }
 
         return $this->totals($b2b);
