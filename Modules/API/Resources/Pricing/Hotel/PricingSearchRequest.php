@@ -62,6 +62,12 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     description="Rating of the hotel (e.g., '4.5').",
  *     type="number",
  *     enum={1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5},
+ *   ), 
+ *   @OA\Property(
+ *      property="consortia_affiliation",
+ *      type="string",
+ *      description="Consortium affiliation name.",
+ *      example="Virtuoso"
  *   ),
  *   @OA\Property(
  *     property="occupancy",
@@ -108,6 +114,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *        "checkout": "2025-05-20",
  *        "place": "ChIJG7c0MthPr4YRRxWMBYt7HME",
  *        "session": "84add8c4-a514-4152-9bf1-483120d88da0",
+ *        "consortia_affiliation": "Virtuoso",
  *        "radius": 5,
  *        "rating": 4.5,
  *        "occupancy": {
@@ -130,6 +137,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *       "checkout": "2024-05-20",
  *       "place": "9bb07983384eb956ae88e154b99b51a1",
  *       "rating": 4.5,
+ *       "consortia_affiliation": "Virtuoso",
  *       "occupancy": {
  *           {
  *              "adults": 2
@@ -149,6 +157,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     "checkout": "2024-05-05",
  *     "destination": 302,
  *     "rating": 4,
+ *     "consortia_affiliation": "Virtuoso",
  *     "occupancy": {
  *         {
  *            "adults": 2,
@@ -175,6 +184,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *      "checkout": "2024-05-20",
  *      "destination": 961,
  *      "rating": 4.5,
+ *      "consortia_affiliation": "Virtuoso",
  *      "occupancy": {
  *          {
  *             "adults": 2,
@@ -200,6 +210,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *       "checkout": "2024-05-20",
  *       "destination": 508,
  *       "rating": 4.5,
+ *       "consortia_affiliation": "Virtuoso",
  *       "occupancy": {
  *           {
  *              "adults": 2
@@ -221,6 +232,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *   "checkout": "2024-06-21",
  *   "destination": 951,
  *   "rating": 4.5,
+ *   "consortia_affiliation": "Virtuoso",
  *   "occupancy": {
  *     {
  *       "adults": 2,

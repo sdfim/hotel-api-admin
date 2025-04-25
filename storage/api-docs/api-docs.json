@@ -5103,6 +5103,11 @@
                         "type": "integer",
                         "example": 4
                     },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "type": "string",
+                        "example": "Virtuoso"
+                    },
                     "page": {
                         "description": "Page number.",
                         "type": "integer",
@@ -5148,6 +5153,11 @@
                         "type": "integer",
                         "example": 4
                     },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "type": "string",
+                        "example": "Virtuoso"
+                    },
                     "page": {
                         "description": "Page number.",
                         "type": "integer",
@@ -5182,6 +5192,11 @@
                         "description": "Rating of the hotel.",
                         "type": "integer",
                         "example": 2
+                    },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "type": "string",
+                        "example": "Virtuoso"
                     },
                     "page": {
                         "description": "Page number.",
@@ -5227,6 +5242,11 @@
                         "description": "Rating of the hotel.",
                         "type": "integer",
                         "example": 3.5
+                    },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "type": "string",
+                        "example": "Virtuoso"
                     },
                     "page": {
                         "description": "Page number.",
@@ -5277,6 +5297,11 @@
                         "description": "Rating of the hotel.",
                         "type": "integer",
                         "example": 1
+                    },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "type": "string",
+                        "example": "Virtuoso"
                     },
                     "page": {
                         "description": "Page number.",
@@ -5546,6 +5571,11 @@
                             5,
                             5.5
                         ]
+                    },
+                    "consortia_affiliation": {
+                        "description": "Consortium affiliation name.",
+                        "type": "string",
+                        "example": "Virtuoso"
                     },
                     "occupancy": {
                         "description": "Occupancy of the hotel",
@@ -8210,6 +8240,7 @@
                     "place": "9bb07983384eb956ae88e154b99b51a1",
                     "rating": 4,
                     "page": 1,
+                    "consortia_affiliation": "Virtuoso",
                     "results_per_page": 20
                 }
             },
@@ -8221,6 +8252,7 @@
                     "session": "123",
                     "radius": 10,
                     "rating": 4,
+                    "consortia_affiliation": "Virtuoso",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -8231,6 +8263,7 @@
                     "type": "hotel",
                     "destination": 508,
                     "rating": 2,
+                    "consortia_affiliation": "Virtuoso",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -8242,6 +8275,7 @@
                     "supplier": "Expedia",
                     "destination": 508,
                     "rating": 3.5,
+                    "consortia_affiliation": "Virtuoso",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -8254,6 +8288,7 @@
                     "longitude": -86.81,
                     "radius": 20,
                     "rating": 1,
+                    "consortia_affiliation": "Virtuoso",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -9806,6 +9841,7 @@
                     "checkout": "2025-05-20",
                     "place": "ChIJG7c0MthPr4YRRxWMBYt7HME",
                     "session": "84add8c4-a514-4152-9bf1-483120d88da0",
+                    "consortia_affiliation": "Virtuoso",
                     "radius": 5,
                     "rating": 4.5,
                     "occupancy": [
@@ -9828,6 +9864,7 @@
                     "checkout": "2024-05-20",
                     "place": "9bb07983384eb956ae88e154b99b51a1",
                     "rating": 4.5,
+                    "consortia_affiliation": "Virtuoso",
                     "occupancy": [
                         {
                             "adults": 2
@@ -9845,6 +9882,7 @@
                     "checkout": "2024-05-05",
                     "destination": 302,
                     "rating": 4,
+                    "consortia_affiliation": "Virtuoso",
                     "occupancy": [
                         {
                             "adults": 2,
@@ -9869,6 +9907,7 @@
                     "checkout": "2024-05-20",
                     "destination": 961,
                     "rating": 4.5,
+                    "consortia_affiliation": "Virtuoso",
                     "occupancy": [
                         {
                             "adults": 2,
@@ -9892,6 +9931,7 @@
                     "checkout": "2024-05-20",
                     "destination": 508,
                     "rating": 4.5,
+                    "consortia_affiliation": "Virtuoso",
                     "occupancy": [
                         {
                             "adults": 2
@@ -9911,6 +9951,7 @@
                     "checkout": "2024-06-21",
                     "destination": 951,
                     "rating": 4.5,
+                    "consortia_affiliation": "Virtuoso",
                     "occupancy": [
                         {
                             "adults": 2,
