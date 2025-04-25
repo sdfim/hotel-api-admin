@@ -437,7 +437,6 @@ trait HasPricingRuleFields
                                 ->schema([
                                     DateTimePicker::make('value_from')
                                         ->label('Travel date from')
-                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
@@ -447,12 +446,11 @@ trait HasPricingRuleFields
 
                                     DateTimePicker::make('value_to')
                                         ->label('Travel date to')
-                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' || $get('compare') !== '<')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' && $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
@@ -462,7 +460,6 @@ trait HasPricingRuleFields
                                 ->schema([
                                     DateTimePicker::make('value_from')
                                         ->label('Booking date from')
-                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
@@ -471,12 +468,11 @@ trait HasPricingRuleFields
                                         ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Booking date to')
-                                        ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('m/d/Y')
                                         ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' || $get('compare') !== '<')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between' && $get('compare') !== '<')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
