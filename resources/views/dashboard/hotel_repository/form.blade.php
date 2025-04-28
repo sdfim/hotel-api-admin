@@ -15,15 +15,15 @@
         ],
         'Rooms' => [
             'tab_name' => 'rooms',
-             'related' => [
+            'related' => [
                 ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
-             ],
+            ],
         ],
         'Rates' => [
             'tab_name' => 'rates',
-             'related' => [
+            'related' => [
                 ['title' => 'Rates', 'component' => 'hotels.hotel-rate-table'],
-             ],
+            ],
         ],
         'Attributes' => [
             'tab_name' => 'attributes',
