@@ -46,6 +46,8 @@ trait HasPricingRuleFields
                     TextInput::make('weight')
                         ->label('Priority Weighting')
                         ->numeric()
+                        ->required()
+                        ->default(0)
                         ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
