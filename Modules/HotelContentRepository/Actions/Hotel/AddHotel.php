@@ -182,27 +182,27 @@ class AddHotel
                 ]);
                 $attribute = ConfigAttribute::firstOrCreate([
                     'name' => $attributeName,
-                    'default_value' => $attributeName.' hotel',
+                    'default_value' => $attributeName . ' hotel',
                 ]);
+
+                $attribute->categories()->syncWithoutDetaching([$category->id]);
+
                 $attributesData[] = [
                     'product_id' => $product->id,
                     'config_attribute_id' => $attribute->id,
-                    'config_attribute_category_id' => $category->id,
                 ];
             }
 
             $existingAttributes = ProductAttribute::whereIn('product_id', array_column($attributesData, 'product_id'))
                 ->whereIn('config_attribute_id', array_column($attributesData, 'config_attribute_id'))
-                ->whereIn('config_attribute_category_id', array_column($attributesData, 'config_attribute_category_id'))
-                ->get(['product_id', 'config_attribute_id', 'config_attribute_category_id'])
+                ->get(['product_id', 'config_attribute_id'])
                 ->toArray();
 
             $filteredAttributesData = array_filter($attributesData, function ($item) use ($existingAttributes) {
                 foreach ($existingAttributes as $existing) {
                     if (
                         $existing['product_id'] === $item['product_id'] &&
-                        $existing['config_attribute_id'] === $item['config_attribute_id'] &&
-                        $existing['config_attribute_category_id'] === $item['config_attribute_category_id']
+                        $existing['config_attribute_id'] === $item['config_attribute_id']
                     ) {
                         return false;
                     }
@@ -211,7 +211,7 @@ class AddHotel
                 return true;
             });
 
-            ProductAttribute::upsert($filteredAttributesData, ['product_id', 'config_attribute_id', 'config_attribute_category_id']);
+            ProductAttribute::upsert($filteredAttributesData, ['product_id', 'config_attribute_id']);
 
             return $hotel;
         });

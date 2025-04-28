@@ -12,7 +12,6 @@ return new class extends Migration
             $table->unsignedBigInteger('id', true);
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('config_attribute_id');
-            $table->unsignedBigInteger('config_attribute_category_id')->nullable();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
             $table->foreign('config_attribute_id')->references('id')->on('config_attributes')->onDelete('cascade');

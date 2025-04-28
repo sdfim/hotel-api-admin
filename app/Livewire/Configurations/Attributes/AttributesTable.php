@@ -33,6 +33,12 @@ class AttributesTable extends Component implements HasForms, HasTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('categories.name')
+                    ->label('Categories')
+                    ->searchable()
+                    ->formatStateUsing(function ($state, $record) {
+                        return $record->categories->pluck('name')->map(fn($name) => \Illuminate\Support\Str::of($name)->replace('_', ' ')->title())->join(', ');
+                    }),
             ])
             ->actions([
                 //                ActionGroup::make([

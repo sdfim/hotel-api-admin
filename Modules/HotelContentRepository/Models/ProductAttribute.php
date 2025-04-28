@@ -28,7 +28,6 @@ class ProductAttribute extends Model
     protected $fillable = [
         'product_id',
         'config_attribute_id',
-        'config_attribute_category_id',
     ];
 
     protected $hidden = [
@@ -45,11 +44,6 @@ class ProductAttribute extends Model
     public function attribute(): BelongsTo
     {
         return $this->belongsTo(ConfigAttribute::class, 'config_attribute_id');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(ConfigAttributeCategory::class, 'config_attribute_category_id');
     }
 
     public function getActivitylogOptions(): LogOptions

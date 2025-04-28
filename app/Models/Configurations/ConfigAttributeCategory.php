@@ -18,4 +18,14 @@ class ConfigAttributeCategory extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ConfigAttribute::class,
+            'config_attribute_category_pivot', // Pivot table name
+            'config_attribute_category_id',   // Foreign key in the pivot table
+            'config_attribute_id'             // Related foreign key in the pivot table
+        );
+    }
 }
