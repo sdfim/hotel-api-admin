@@ -1570,6 +1570,26 @@
                         }
                     },
                     {
+                        "name": "consortia_affiliation",
+                        "in": "query",
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Virtuoso"
+                        }
+                    },
+                    {
+                        "name": "supplier_data",
+                        "in": "query",
+                        "description": "Get Supplier Data",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": "true"
+                        }
+                    },
+                    {
                         "name": "room_type_codes",
                         "in": "query",
                         "description": "Array of room type codes. (e.g., ['ODK'])",
@@ -1664,6 +1684,26 @@
                         "schema": {
                             "type": "string",
                             "example": "45422295,21569211"
+                        }
+                    },
+                    {
+                        "name": "consortia_affiliation",
+                        "in": "query",
+                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Virtuoso"
+                        }
+                    },
+                    {
+                        "name": "supplier_data",
+                        "in": "query",
+                        "description": "Get Supplier Data",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": "true"
                         }
                     },
                     {
