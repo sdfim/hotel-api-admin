@@ -37,6 +37,10 @@ class BaseHotelPricingTransformer
 
     protected array $exclusionRates = [];
 
+    protected array $exclusionRoomNames = [];
+
+    protected array $exclusionRoomTypes = [];
+
     /**
      * Fetches and processes supplier repository data.
      * Uses Cache to store the processed data, ensuring it is shared
@@ -210,6 +214,8 @@ class BaseHotelPricingTransformer
             $this->destinationData = $cachedData['destinationData'];
             $this->giata = $cachedData['giata'];
             $this->exclusionRates = $cachedData['exclusionRates'];
+            $this->exclusionRoomNames = $cachedData['exclusionRoomNames'];
+            $this->exclusionRoomTypes = $cachedData['exclusionRoomTypes'];
             $this->search_id = $search_id;
 
             return;
@@ -220,13 +226,17 @@ class BaseHotelPricingTransformer
         $pricingDtoTools = app(PricingDtoTools::class);
         $this->destinationData = $pricingDtoTools->getDestinationData($query) ?? '';
         $this->giata = $pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->exclusionRates = $pricingDtoTools->extractExclusionRates($pricingExclusionRules);
+        $this->exclusionRates = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'rate_code');
+        $this->exclusionRoomNames = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'room_name');
+        $this->exclusionRoomTypes = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'room_type');
 
         // Cache the processed data
         Cache::put($cacheKey, [
             'destinationData' => $this->destinationData,
             'giata' => $this->giata,
             'exclusionRates' => $this->exclusionRates,
+            'exclusionRoomNames' => $this->exclusionRoomNames,
+            'exclusionRoomTypes' => $this->exclusionRoomTypes,
         ], now()->addMinutes(self::CACHE_TTL_MINUTES));
     }
 }

@@ -151,10 +151,14 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         foreach ($roomGroup['rates'] as $key => $room) {
             foreach ($room['bed_groups'] as $bedGroupKey => $bedGroup) {
                 $rateId = Arr::get($room, 'id', '');
+                // exclude rate codes from the response according to excludeRules
                 if (in_array($rateId, $this->exclusionRates)) {
                     continue;
                 }
                 $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup);
+                if (empty($roomData)) {
+                    continue;
+                }
                 $roomResponse = $roomData['roomResponse'];
                 $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
                 $rooms[$key][$bedGroupKey] = $roomResponse;
@@ -198,8 +202,13 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
     public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup): array
     {
-        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
+        $roomName = $roomGroup['room_name'] ?? '';
+        // exclude and names from the response according to excludeRules
+        if (in_array($roomName, $this->exclusionRoomNames)) {
+            return [];
+        }
 
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
         $rateId = Arr::get($rate, 'id', '');
@@ -294,7 +303,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setQueryPackage($this->query_package);
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
-        $roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
+        $roomResponse->setSupplierRoomName($roomName);
         $roomResponse->setSupplierRoomCode($supplierRoomId);
         $roomResponse->setSupplierBedGroups(Arr::get($bedGroup, 'id'));
         $roomResponse->setRoomType('');
