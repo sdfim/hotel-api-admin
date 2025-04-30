@@ -59,6 +59,34 @@ class UpdatePricingRule extends Component implements HasForms
     public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
+        $name = $data['name'] ?? null;
+
+        $propertyCode = collect($data['conditions'] ?? [])
+            ->first(fn ($c) => $c['field'] === 'property')['value_from'] ?? null;
+
+        if ($name && $propertyCode) 
+        {
+            $exists = PricingRule::where('name', $name)
+                ->where('id', '!=', $this->record->id)
+                ->whereHas('conditions', function ($q) use ($propertyCode) {
+                    $q->where('field', 'property')
+                    ->where('value_from', $propertyCode);
+                })
+                ->exists();
+
+            if ($exists) 
+            {
+                Notification::make()
+                    ->title('Validation error')
+                    ->body('A rule with this name already exists for the same property.')
+                    ->danger()
+                    ->send();
+
+                throw ValidationException::withMessages([
+                    'data.name' => 'A rule with this name already exists for the same property.',
+                ]);
+            }
+        }
 
         $this->record->update($data);
 

@@ -75,6 +75,33 @@ class CreatePricingRule extends Component implements HasForms
     public function create($data = null): RedirectResponse|Redirector
     {
         $data = $data ?? $this->form->getState();
+        $name = $data['name'] ?? null;
+
+        $propertyCode = collect($data['conditions'] ?? [])
+            ->first(fn ($c) => $c['field'] === 'property')['value_from'] ?? null;
+
+        if ($name && $propertyCode) 
+        {
+            $exists = PricingRule::where('name', $name)
+                ->whereHas('conditions', function ($q) use ($propertyCode) {
+                    $q->where('field', 'property')
+                    ->where('value_from', $propertyCode);
+                })
+                ->exists();
+
+            if ($exists) 
+            {
+                Notification::make()
+                    ->title('Validation error')
+                    ->body('A rule with this name already exists for the same property.')
+                    ->danger()
+                    ->send();
+
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'data.name' => 'A rule with this name already exists for the same property.',
+                ]);
+            }
+        }
         $data['is_sr_creator'] = $data['is_sr_creator'] ?? $this->isSrCreator;
 
         if ($data['is_exclude_action']) {
