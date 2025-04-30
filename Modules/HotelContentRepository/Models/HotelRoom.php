@@ -37,6 +37,7 @@ class HotelRoom extends Model
         'room_views',
         'description',
         'related_rooms',
+        'max_occupancy',
     ];
 
     protected $casts = [

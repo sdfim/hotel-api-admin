@@ -8,11 +8,11 @@ use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Livewire\Configurations\RoomBedTypes\RoomBedTypeForm;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigRoomBedType;
-use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -59,104 +59,121 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     public function schemeForm($record = null): array
     {
         return [
-            Hidden::make('hotel_id')->default($this->hotelId),
-            Grid::make(3)->schema([
-                TextInput::make('name')->label('Name')->required()->columnSpan(2),
-                TextInput::make('external_code')->label('UJV Code')->columnSpan(1),
-            ]),
-            Grid::make(3)->schema([
-                RichEditor::make('description')
-                    ->label('Description')
-                    ->required()
-                    ->disableAllToolbarButtons()
-                    ->toolbarButtons([
-                        'attachFiles',
-                        'blockquote',
-                        'bold',
-                        'bulletList',
-                        'codeBlock',
-                        'h2',
-                        'h3',
-                        'italic',
-                        'link',
-                        'orderedList',
-                        'redo',
-                        'strike',
-                        'underline',
-                        'undo',
-                    ])
-                    ->extraAttributes([
-                        'style' => 'max-height: 30em; overflow-x: auto;',
-                    ])->columnSpan(2),
-                Grid::make(1)->schema([
-                    TextInput::make('area')->label('Area, square feet'),
-                    TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
-                    Select::make('bed_groups')
-                        ->label('Bed Types')
-                        ->multiple()
-                        ->searchable()
-                        ->native(false)
-                        ->createOptionForm(Gate::allows('create', ConfigRoomBedType::class) ? RoomBedTypeForm::getSchema() : [])
-                        ->createOptionUsing(function (array $data) {
-                            $bedType = ConfigRoomBedType::create($data);
-                            Notification::make()
-                                ->title('Bed Type created successfully')
-                                ->success()
-                                ->send();
+            Tabs::make('Tabs')
+                ->extraAttributes(['class' => 'custom-tabs-class', 'style' => 'background-color: #f5f5f5;'])
+                ->tabs([
+                    Tabs\Tab::make('Main')
+                        ->schema([
+                            Hidden::make('hotel_id')->default($this->hotelId),
+                            Grid::make(3)->schema([
+                                TextInput::make('name')->label('Name')->required()->columnSpan(2),
+                                TextInput::make('external_code')->label('UJV Code')->columnSpan(1),
+                            ]),
+                            Grid::make(3)->schema([
+                                RichEditor::make('description')
+                                    ->label('Description')
+                                    ->required()
+                                    ->disableAllToolbarButtons()
+                                    ->toolbarButtons([
+                                        'attachFiles',
+                                        'blockquote',
+                                        'bold',
+                                        'bulletList',
+                                        'codeBlock',
+                                        'h2',
+                                        'h3',
+                                        'italic',
+                                        'link',
+                                        'orderedList',
+                                        'redo',
+                                        'strike',
+                                        'underline',
+                                        'undo',
+                                    ])
+                                    ->extraAttributes([
+                                        'style' => 'max-height: 30em; overflow-x: auto;',
+                                    ])->columnSpan(2),
+                                Grid::make(1)->schema([
+                                    TextInput::make('area')
+                                        ->label('Area, square feet')
+                                        ->inlineLabel(),
+                                    TextInput::make('max_occupancy')
+                                        ->label('Max Occupancy')
+                                        ->placeholder('Enter Max Occupancy')
+                                        ->inlineLabel(),
+                                    TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
+                                    Select::make('bed_groups')
+                                        ->label('Bed Types')
+                                        ->multiple()
+                                        ->searchable()
+                                        ->native(false)
+                                        ->createOptionForm(Gate::allows('create', ConfigRoomBedType::class) ? RoomBedTypeForm::getSchema() : [])
+                                        ->createOptionUsing(function (array $data) {
+                                            $bedType = ConfigRoomBedType::create($data);
+                                            Notification::make()
+                                                ->title('Bed Type created successfully')
+                                                ->success()
+                                                ->send();
 
-                            return $bedType->id;
-                        })
-                        ->options(ConfigRoomBedType::pluck('name', 'name')),
-                    Select::make('related_rooms')
-                        ->label('Connecting Room Types')
-                        ->multiple()
-                        ->options(function (callable $get) {
-                            $hotelId = $get('hotel_id');
+                                            return $bedType->id;
+                                        })
+                                        ->options(ConfigRoomBedType::pluck('name', 'name')),
+                                    Select::make('related_rooms')
+                                        ->label('Connecting Room Types')
+                                        ->multiple()
+                                        ->options(function (callable $get) {
+                                            $hotelId = $get('hotel_id');
 
-                            return HotelRoom::where('hotel_id', $hotelId)
-                                ->orderBy('name')
-                                ->pluck('name', 'id');
-                        }),
-                ])->columnSpan(1),
-            ]),
-            Grid::make(1)->schema([
-                Select::make('attributes')
-                    ->label('Attributes')
-                    ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
-                    ->createOptionUsing(function (array $data) {
-                        $data['default_value'] = '';
-                        $attribute = ConfigAttribute::create($data);
-                        Notification::make()
-                            ->title('Attributes created successfully')
-                            ->success()
-                            ->send();
+                                            return HotelRoom::where('hotel_id', $hotelId)
+                                                ->orderBy('name')
+                                                ->pluck('name', 'id');
+                                        }),
+                                ])->columnSpan(1),
+                            ]),
 
-                        return $attribute->id;
-                    })
-                    ->searchable()
-                    ->multiple()
-                    ->native(false)
-                    ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id')),
+                            CustomRepeater::make('supplier_codes')
+                                ->label('Supplier Room Codes')
+                                ->schema([
+                                    Grid::make(2)->schema([
+                                        Select::make('supplier')
+                                            ->placeholder('Select Supplier')
+                                            ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
+                                            ->options(ContentSourceEnum::options()),
+                                        TextInput::make('code')
+                                            ->placeholder('Enter Code')
+                                            ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
+                                    ]),
+                                ]),
+                        ]),
+                    Tabs\Tab::make('Additional')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                Select::make('attributes')
+                                    ->label('Attributes')
+                                    ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
+                                    ->createOptionUsing(function (array $data) {
+                                        $data['default_value'] = '';
+                                        $attribute = ConfigAttribute::create($data);
+                                        Notification::make()
+                                            ->title('Attributes created successfully')
+                                            ->success()
+                                            ->send();
 
-                Select::make('galleries')
-                    ->label('Galleries')
-                    ->multiple()
-                    ->relationship('galleries', 'gallery_name')
-                    ->searchable()
-                    ->native(false),
-            ]),
-            CustomRepeater::make('supplier_codes')
-                ->label('Supplier Room Codes')
-                ->schema([
-                    Grid::make(2)->schema([
-                        Select::make('supplier')
-                            ->placeholder('Select Supplier')
-                            ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
-                            ->options(ContentSourceEnum::options()),
-                        TextInput::make('code')
-                            ->placeholder('Enter Code')
-                            ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
-                    ]),
+                                        return $attribute->id;
+                                    })
+                                    ->searchable()
+                                    ->multiple()
+                                    ->native(false)
+                                    ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id')),
+
+                                Select::make('galleries')
+                                    ->label('Galleries')
+                                    ->multiple()
+                                    ->relationship('galleries', 'gallery_name')
+                                    ->searchable()
+                                    ->native(false),
+                            ]),
+                        ]),
                 ]),
         ];
     }

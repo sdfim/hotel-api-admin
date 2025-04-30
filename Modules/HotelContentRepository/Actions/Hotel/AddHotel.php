@@ -46,13 +46,14 @@ class AddHotel
 
         $roomsData = [];
         $attributes = [];
+        $roomsOccupancy = [];
         $numRooms = 0;
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
 
         if ($expediaCode) {
             $expediaData = DB::connection('mysql_cache')
                 ->table('expedia_content_slave')
-                ->select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes')
+                ->select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
                 ->where('expedia_property_id', $expediaCode)
                 ->first();
 
@@ -60,6 +61,7 @@ class AddHotel
             if (! empty($expediaData)) {
                 $roomsData = json_decode(Arr::get($expediaData, 'rooms', '[]'), true);
                 $statistics = json_decode(Arr::get($expediaData, 'statistics', '{}'), true);
+                $roomsOccupancy = json_decode(Arr::get($expediaData, 'rooms_occupancy', '{}'), true);
 
                 $attributesP1 = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
                 $attributesP2 = Arr::get(json_decode(Arr::get($expediaData, 'attributes', '{}'), true), 'general', []);
@@ -100,7 +102,8 @@ class AddHotel
             ? $hotelForm->getGeocodingData($property->latitude, $property->longitude)
             : [];
 
-        return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes, $address) {
+        return DB::transaction(function () use (
+            $property, $roomsData, $vendorId, $source_id, $numRooms, $mealPlansRes, $attributes, $address, $roomsOccupancy) {
             $hotel = Hotel::updateOrCreate(
                 ['giata_code' => $property->code],
                 [
@@ -134,9 +137,10 @@ class AddHotel
 
             if (! empty($roomsData)) {
                 foreach ($roomsData as $room) {
+                    $roomId = Arr::get($room, 'id', 0);
                     $description = Arr::get($room, 'descriptions.overview');
                     $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
-
+                    $maxRoomOccupancy = Arr::get($roomsOccupancy, $roomId.'.occupancy.max_allowed.total', 0);
                     $hotelRoom = $hotel->rooms()->updateOrCreate(
                         ['name' => Arr::get($room, 'name')],
                         [
@@ -151,6 +155,7 @@ class AddHotel
                                     return $config['quantity'].' '.$config['size'].' Beds';
                                 }, $group['configuration']);
                             }, Arr::get($room, 'bed_groups', []))),
+                            'max_occupancy' => $maxRoomOccupancy,
                         ]);
                     $attributeIds = [];
                     $amenities = Arr::get($room, 'amenities', []);
@@ -332,5 +337,19 @@ class AddHotel
         }
 
         return $hotel;
+    }
+
+    public function getMaxOccupancy(array $data): int
+    {
+        $maxOccupancy = 0;
+
+        foreach ($data as $item) {
+            $currentOccupancy = $item['occupancy']['max_allowed']['total'] ?? 0;
+            if ($currentOccupancy > $maxOccupancy) {
+                $maxOccupancy = $currentOccupancy;
+            }
+        }
+
+        return $maxOccupancy;
     }
 }
