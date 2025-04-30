@@ -193,12 +193,15 @@ class TaxAndFeeResolver
                 // Apply additions
                 if (isset($repoTaxFees['add'])) {
                     foreach ($repoTaxFees['add'] as $addFeeTax) {
+
                         if (! is_null($addFeeTax['rate_code']) && $addFeeTax['rate_code'] !== $ratePlanCode) {
                             continue;
                         }
+
                         if (! is_null($addFeeTax['unified_room_code']) && $addFeeTax['unified_room_code'] !== $unifiedRoomCode) {
                             continue;
                         }
+
                         $rateData = [
                             'Code' => 'OBE_'.$addFeeTax['id'],
                             // TODO: Check if this is correct or not
@@ -211,6 +214,7 @@ class TaxAndFeeResolver
                             'Description' => $addFeeTax['name'],
                             'ObeAction' => $addFeeTax['action_type'],
                         ];
+
                         // TODO: Check if this is correct or not
                         // if ($addFeeTax['type'] === 'Fee') OR if (!$addFeeTax['commissionable'])
                         if (! $addFeeTax['commissionable'] && $addFeeTax['type'] === 'Fee') {
