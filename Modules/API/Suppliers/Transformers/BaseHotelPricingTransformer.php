@@ -239,4 +239,22 @@ class BaseHotelPricingTransformer
             'exclusionRoomTypes' => $this->exclusionRoomTypes,
         ], now()->addMinutes(self::CACHE_TTL_MINUTES));
     }
+
+    protected function transformPricingRulesAppliers(array $pricingRulesApplier): array
+    {
+        $listRules = collect(Arr::get($pricingRulesApplier, 'validPricingRules', []))->map(function ($rule) {
+            return [
+                'main' => 'id: '.$rule['id'].' | name: '.$rule['name'].' | weight: '.$rule['weight'],
+                'manipulable_price' => $rule['manipulable_price_type'].' '.$rule['price_value'].' '.$rule['price_value_type'].' '.$rule['price_value_target'],
+                'conditions' => collect($rule['conditions'])->map(function ($condition) {
+                    return "{$condition['field']} {$condition['compare']} ".($condition['value'] ?? "{$condition['value_from']} - {$condition['value_to']}");
+                })->toArray(),
+            ];
+        })->toArray();
+
+        return [
+            'count' => count($listRules),
+            'list' => $listRules,
+        ];
+    }
 }

@@ -437,7 +437,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
-        if($isCommissionTracking)
+        if ($isCommissionTracking)
         {
             $roomResponse->setMarkup(0);
             $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
@@ -469,6 +469,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
+        $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
+
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
 
@@ -492,7 +494,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'created_at' => Carbon::now(),
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
-        $rating =  $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $rating = Arr::get($this->giata, "$giataId.rating", 0);
         $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];

@@ -233,10 +233,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
             Log::error($e->getTraceAsString());
         }
 
-        if ($pricingRulesApplier['total_price'] == 0.0) {
-            Log::error('ExpediaHotelPricingTransformer | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
-        }
-
         /** https://developers.expediagroup.com/docs/products/rapid/resources/reference/constructing-cancellation-policies */
         $cancelPenalty = $rate['cancel_penalties'];
         $cancellationPolicies = [];
@@ -345,6 +341,8 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
+
+        $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
         $this->roomCombinations[$bookingItem] = [$bookingItem];
 

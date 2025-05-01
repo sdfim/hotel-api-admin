@@ -67,7 +67,10 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             $this->applyPricingRulesLogic($validPricingRules);
         }
 
-        return $this->totals($b2b);
+        $result = $this->totals($b2b);
+        $result['validPricingRules'] = $validPricingRules;
+
+        return $result;
     }
 
     private function calculateTransformedRoomTotals(array $transformedRoomPricing): array

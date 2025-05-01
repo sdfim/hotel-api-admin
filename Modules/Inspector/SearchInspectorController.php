@@ -12,8 +12,6 @@ use Psr\SimpleCache\InvalidArgumentException;
 class SearchInspectorController extends BaseInspectorController
 {
     /**
-     * @param array $data
-     * @return string|bool
      * @throws InvalidArgumentException
      */
     public function save(array $data): string|bool
@@ -34,6 +32,7 @@ class SearchInspectorController extends BaseInspectorController
                 $original = Cache::get($keys['dataOriginal']);
                 $content = Cache::get($keys['content']);
                 $clientContent = Cache::get($keys['clientContent']);
+                $clientContentWithPricingRules = Cache::get($keys['clientContentWithPricingRules']);
 
                 foreach ($keys as $key) {
                     Cache::forget($key);
@@ -43,10 +42,14 @@ class SearchInspectorController extends BaseInspectorController
             $content = $this->processString($content);
             $original = $this->processString($original);
             $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
+            $clientContentWithPricingRules = is_array($clientContentWithPricingRules)
+                ? json_encode($clientContentWithPricingRules)
+                : $clientContentWithPricingRules;
 
             $generalPath = self::PATH_INSPECTORS.'search_inspector/'.date('Y-m-d').'/'.$inspector['type'].'_'.$inspector['search_id'];
             $path = $generalPath.'.json';
             $client_path = $generalPath.'.client.json';
+            $client_path_with_pr = $generalPath.'.client_with_pracing_rule_applier.json';
             $original_path = $generalPath.'.original.json';
 
             $inspectorPath = ApiSearchInspector::where('response_path', $path)?->first();
@@ -61,6 +64,9 @@ class SearchInspectorController extends BaseInspectorController
 
                 Storage::put($client_path, $prepareContent($clientContent));
                 Log::debug('SearchInspectorController save client_response to Storage: '.$this->executionTime().' seconds');
+
+                Storage::put($client_path_with_pr, $prepareContent($clientContentWithPricingRules));
+                Log::debug('SearchInspectorController save client_response_with_pr to Storage: '.$this->executionTime().' seconds');
 
                 Storage::put($original_path, $prepareContent($original));
                 Log::debug('SearchInspectorController save original to Storage: '.$this->executionTime().' seconds');
@@ -89,7 +95,7 @@ class SearchInspectorController extends BaseInspectorController
 
     private function processString($input): string
     {
-        if (!is_string($input)) {
+        if (! is_string($input)) {
             return $input;
         }
 
@@ -105,7 +111,7 @@ class SearchInspectorController extends BaseInspectorController
             $subParts[0] = str_replace(['\"', '\\\\"', '"{', '}"'], ['"', '\"', '{', '}'], $subParts[0]);
 
             // Reconstruct the part
-            $result .= '"Expedia_' . implode('"HBSI', $subParts);
+            $result .= '"Expedia_'.implode('"HBSI', $subParts);
         }
 
         return $result;

@@ -51,6 +51,10 @@
                         </button>
                         <button type="button"
                                 class="text-white px-2 py-2 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                id="loadResponsePr"><i class="fas fa-download"></i> RS as JSON with <b>PricingRules</b> Applier
+                        </button>
+                        <button type="button"
+                                class="text-white px-2 py-2 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
                                 id="loadResponse"><i class="fas fa-download"></i> RS as JSON
                         </button>
 
@@ -77,6 +81,13 @@
                         <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-response"
                            class="inline-block px-5 py-3 rounded-md dark:hover:text-white">Supplier Response</a>
                     </li>
+                    @if($inspector->client_response_path)
+                        <li>
+                            <a href="javascript:void(0);" data-tw-toggle="tab"
+                               data-tw-target="tab-pills-client-response-pr"
+                               class="inline-block px-5 py-3 rounded-md dark:hover:text-white">UJV API Response WITH PricingRules Applier</a>
+                        </li>
+                    @endif
                     @if($inspector->client_response_path)
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab"
@@ -223,6 +234,35 @@
                         <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>
                         </p>
                     </div>
+                    <div class="hidden tab-pane" id="tab-pills-client-response-pr">
+                        <p class="mb-0 dark:text-gray-300">
+                        @php
+                            $path = str_replace('json', 'client_with_pracing_rule_applier.json', $inspector->response_path);
+                            $file_client_response_pr = Storage::get($path);
+                            if ($file_client_response_pr == ''){
+                                $file_client_response_pr = json_encode([]);
+                            }
+                            $file_size_bytes = Storage::size($path);
+                            $file_size_mb = $file_size_bytes / (1024 * 1024);
+                            echo "File name: " . basename($path) . "<br>";
+                            echo "File size: " . round($file_size_mb, 2) . " MB";
+                        @endphp
+                        <div id="actions-toolbar">
+                            <button
+                                class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                id="expand-client-pr">Expand All
+                            </button>
+                            <button
+                                class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                id="collapse-client-pr">Collapse All
+                            </button>
+                            <input
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                id="search-client-pr" placeholder="search"></input>
+                        </div>
+                        <json-viewer id="json-client-pr" style="font-size:0.8em"></json-viewer>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,9 +356,38 @@
             }
         });
 
+        //client response with pricing rules
+        document.querySelector('#json-client-pr').data = <?= $file_client_response_pr ?>;
+        const viewerClientPr = document.querySelector('#json-client-pr');
+        const expandClientPr = document.querySelector('#expand-client-pr');
+        const collapseClientPr = document.querySelector('#collapse-client-pr');
+        const searchClientPr = document.querySelector('#search-client-pr');
+        let currentSearchPr_client;
+        expandClientPr.addEventListener('click', (e) => {
+            e.preventDefault();
+            viewerClientPr.expandAll();
+        });
+
+        collapseClientPr.addEventListener('click', (e) => {
+            e.preventDefault();
+            viewerClientPr.collapseAll();
+        });
+        searchClientPr.addEventListener('input', () => {
+            currentSearchPr_client = viewerClientPr.search(searchClient.value);
+        });
+        searchClientPr.addEventListener('keyup', (e) => {
+            if (currentSearchPr_client && e.keyCode === 13) {
+                currentSearchPr_client.next();
+            }
+        });
+
         document.getElementById('loadResponse').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "rs.json");
+        });
+        document.getElementById('loadResponsePr').addEventListener('click', function () {
+            var blob = new Blob([<?= json_encode($file_client_response_pr) ?>], {type: "application/json;charset=utf-8"});
+            saveAs(blob, "rs_pr.json");
         });
         document.getElementById('loadRQ').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_original) ?>], {type: "application/json;charset=utf-8"});

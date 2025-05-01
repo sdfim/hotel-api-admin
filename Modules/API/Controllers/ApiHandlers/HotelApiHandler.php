@@ -324,8 +324,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $supplier,
                             $currentFilters,
                             $searchInspector,
-                            $preSearchData,
-                            $fiberKey
+                            $preSearchData
                         ) {
                             $result = match (SupplierNameEnum::from($supplier)) {
                                 SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $preSearchData),
@@ -372,8 +371,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 $executeTime['execution_time_fiber'] = microtime(true) - $startTime;
 
+                Log::info('HotelApiHandler _ price _ count_pricing_rules ', [
+                    'count_pricingRules' => count($pricingRules),
+                    'pricingRules' => $pricingRules,
+                    'supplierRequestGiataIds' => $supplierRequestGiataIds,
+                ]);
+
                 foreach ($supplierResponses as $fiber_key => $supplierResponse) {
-                    $st = microtime(true);
                     [$supplierName, $queryPackage] = explode('_', $fiber_key);
                     $currentFilters = [...$filters, 'query_package' => $queryPackage];
 
@@ -425,16 +429,24 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     unset($filters['ids']);
                 }
                 $content = ['count' => $countResponse, 'query' => $filters, 'results' => $dataResponse];
-                $clientContent = [
+
+                $clientContentWithPricingRules = [
                     'count' => $countClientResponse,
                     'total_pages' =>count($totalPages) === 0 ? 0 :  max($totalPages),
                     'query' => $filters,
                     'results' => $enrichClientResponse,
                 ];
 
+                $clientContent = [
+                    'count' => $countClientResponse,
+                    'total_pages' => ! empty($totalPages) ? max($totalPages) : 0,
+                    'query' => $filters,
+                    'results' => $this->removePricingRulesApplier($enrichClientResponse),
+                ];
+
                 /** Save data to Inspector */
                 $cacheKeys = [];
-                foreach (['dataOriginal', 'content', 'clientContent'] as $variableName) {
+                foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
                     $key = $variableName.'_'.uniqid();
                     $cacheKeys[$variableName] = $key;
                     Cache::put($key, json_encode($$variableName), now()->addMinutes(10));
@@ -462,7 +474,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $res = $this->applyFilters($res);
             $executeTime['execution_time_all'] = microtime(true) - $stp;
             Log::info('HotelApiHandler _ price _ executeTime '.$executeTime['execution_time_all'].' seconds', [
-                ... $executeTime,
+                ...$executeTime,
                 'supplier' => $request->supplier ?? 'all',
                 'count' => $res['count'],
                 'timestamp' => now()->toDateTimeString(),
@@ -482,6 +494,26 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         } finally {
             MemoryLogger::log('price_end');
         }
+    }
+
+    private function removePricingRulesApplier(array $response): array
+    {
+        return array_map(function ($supplierData) {
+            return array_map(function ($hotel) {
+                if (isset($hotel['room_groups'])) {
+                    $hotel['room_groups'] = array_map(function ($roomGroup) {
+                        if (isset($roomGroup['rooms'])) {
+                            $roomGroup['rooms'] = array_map(function ($room) {
+                                unset($room['pricing_rules_applier']); // Remove the key
+                                return $room;
+                            }, $roomGroup['rooms']);
+                        }
+                        return $roomGroup;
+                    }, $hotel['room_groups']);
+                }
+                return $hotel;
+            }, $supplierData);
+        }, $response);
     }
 
     private function getPreSearchData(string $supplier, array $filters): mixed

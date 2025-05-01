@@ -58,7 +58,10 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             $this->applyPricingRulesLogic($validPricingRules);
         }
 
-        return $this->totals($b2b);
+        $result = $this->totals($b2b);
+        $result['validPricingRules'] = $validPricingRules;
+
+        return $result;
     }
 
     /**
@@ -100,7 +103,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         $totals['total_fees'] += (float) ($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
-        $totals['commission_amount'] += (float)($roomPricing['totals']['marketing_fee']['billable_currency']['value'] ?? 0);
+        $totals['commission_amount'] += (float) ($roomPricing['totals']['marketing_fee']['billable_currency']['value'] ?? 0);
 
         return $totals;
     }

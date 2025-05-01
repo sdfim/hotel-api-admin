@@ -35,6 +35,7 @@ class RoomResponseFactory
         $roomResponse->setBedConfigurations([]);
         $roomResponse->setBreakdown([]);
         $roomResponse->setPromotions([]);
+        $roomResponse->setPricingRulesAppliers([]);
 
         return $roomResponse;
     }
