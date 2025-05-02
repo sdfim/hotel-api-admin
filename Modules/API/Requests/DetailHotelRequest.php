@@ -2,6 +2,7 @@
 
 namespace Modules\API\Requests;
 
+use App\Models\Configurations\ConfigConsortium;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
@@ -34,6 +35,26 @@ class DetailHotelRequest extends ApiRequest
      *        example=98736411
      *      )
      *    ),
+     *   @OA\Parameter(
+     *       name="consortia_affiliation",
+     *       in="query",
+     *       required=false,
+     *       description="Consortium affiliation name. Valid values depend on system configuration.",
+     *       @OA\Schema(
+     *         type="string",
+     *         example="Virtuoso"
+     *       )
+     *     ),
+     *   @OA\Parameter(
+     *       name="supplier_data",
+     *       in="query",
+     *       required=false,
+     *       description="Get Supplier Data",
+     *       @OA\Schema(
+     *         type="boolean",
+     *         example="true"
+     *       )
+     *     ),
      *   @OA\Parameter(
      *      name="room_type_codes",
      *      in="query",
@@ -115,6 +136,26 @@ class DetailHotelRequest extends ApiRequest
      *        )
      *      ),
      *   @OA\Parameter(
+     *       name="consortia_affiliation",
+     *       in="query",
+     *       required=false,
+     *       description="Consortium affiliation name. Valid values depend on system configuration.",
+     *       @OA\Schema(
+     *         type="string",
+     *         example="Virtuoso"
+     *       )
+     *     ),
+     *   @OA\Parameter(
+     *       name="supplier_data",
+     *       in="query",
+     *       required=false,
+     *       description="Get Supplier Data",
+     *       @OA\Schema(
+     *         type="boolean",
+     *         example="true"
+     *       )
+     *     ),
+     *   @OA\Parameter(
      *      name="room_type_codes",
      *      in="query",
      *      required=false,
@@ -166,6 +207,10 @@ class DetailHotelRequest extends ApiRequest
             'property_id' => 'required_without_all:property_ids,giata_ids|int|digits_between:4,12',
             'property_ids' => 'required_without_all:property_id,giata_ids|string',
             'giata_ids' => 'required_without_all:property_id,property_ids|string',
+
+            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
+            'supplier_data' => 'string|in:true,false',
+
             'type' => 'required|in:hotel,flight,combo',
             'supplier' => 'string',
             'room_type_codes' => 'array',

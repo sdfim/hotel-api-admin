@@ -138,13 +138,13 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->label('New Name')
                         ->reactive()
                         ->visible(fn (Get $get) => $get('action_type') !== 'delete'),
-                    Select::make('old_name')
+                    TextInput::make('old_name')
                         ->label('Current Name')
+                        ->datalist(fn (Get $get) => array_values($get('old_name_options') ?? []))
+                        ->autocomplete('list') 
+                        ->visible(fn (Get $get) => $get('action_type') !== 'add')
                         ->reactive()
-                        ->searchable()
-                        ->options(fn (Get $get) => $get('old_name_options') ?? [])
-                        ->rules(['required'])
-                        ->visible(fn (Get $get) => $get('action_type') !== 'add'),
+                        ->rules(['required']),
                 ]),
 
             Fieldset::make('Date Setting')

@@ -450,7 +450,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setAmenities($roomUltimateAmenities);
 
-        if (env('USE_REPO_TAX_FEES', false)) {
+        if (config('supplier-repository.use_repo_tax_fees')) {
             $breakdown = $this->taxAndFeeResolver->getTransformedBreakdown($rateToApply['transformedRates'], $this->fees);
         } else {
             $breakdown = $this->getBreakdown($rateToApply);
