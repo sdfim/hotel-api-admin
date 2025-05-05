@@ -62,6 +62,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function bootRoute(): void
     {
+        $disable =  env('DISABLE_THROTTLE', false);
+
+        if ($disable)
+        {
+            return;
+        }
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
