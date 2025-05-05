@@ -24,11 +24,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ProductApplyTypeEnum;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\HotelRate;
@@ -160,6 +160,19 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                         ->minValue(0)
                                         ->step('1'),
                                 ]),
+                            Grid::make(1)
+                                ->schema([
+                                    Select::make('priority_rooms')
+                                        ->label('Priority Rooms')
+                                        ->multiple()
+                                        ->searchable()
+                                        ->options(HotelRoom::whereHas('rates', function ($query) {
+                                            $query->where('pd_hotel_rates.id', $this->rateId);
+                                        })->pluck('name', 'id')
+                                        )
+                                        ->reactive()
+                                        ->visible(fn () => $this->rateId !== null),
+                                ]),
                         ]),
                 ]),
         ];
@@ -221,7 +234,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     EditAction::make()
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->form(fn ($record) => $this->schemeForm($record))
-                        ->modalWidth('5xl')
+                        ->modalWidth('6xl')
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
                             $data['amenities'] = $record->amenities->pluck('id')->toArray();

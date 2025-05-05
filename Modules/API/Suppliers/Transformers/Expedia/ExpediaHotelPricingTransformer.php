@@ -9,6 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\PricingAPI\Resolvers\UltimateAmenities\UltimateAmenityResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
@@ -29,6 +30,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     public function __construct(
+        private readonly UltimateAmenityResolver $ultimateAmenityResolver,
         private array $roomCombinations = [],
         private array $occupancy = [],
         private array $ratings = [],
@@ -54,13 +56,13 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
-            $hotelResponse[] = $this->setHotelResponse($propertyGroup);
+            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $query);
         }
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
-    public function setHotelResponse(array $propertyGroup): array
+    public function setHotelResponse(array $propertyGroup, array $query): array
     {
         $giataId = Arr::get($propertyGroup, 'giata_id');
         $this->roomCombinations = [];
@@ -84,7 +86,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroups = [];
         $lowestPrice = 100000;
         foreach ($propertyGroup['rooms'] as $roomGroup) {
-            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup);
+            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $query);
             if (! $roomGroupsData) {
                 continue;
             }
@@ -126,7 +128,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
     }
 
-    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup): ?array
+    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, array $query): ?array
     {
         $giataId = Arr::get($propertyGroup, 'giata_id');
 
@@ -155,7 +157,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
                 if (in_array($rateId, $this->exclusionRates)) {
                     continue;
                 }
-                $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup);
+                $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup, $query);
                 if (empty($roomData)) {
                     continue;
                 }
@@ -200,7 +202,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup): array
+    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup, array $query): array
     {
         $roomName = $roomGroup['room_name'] ?? '';
         // exclude and names from the response according to excludeRules
@@ -290,7 +292,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $supplierRoomId = intval($roomGroup['id']) ?? null;
 
         $expediaUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::EXPEDIA->value, []);
-        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup,'id', '')) ?? '';
+        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup, 'id', '')) ?? '';
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
@@ -314,20 +316,31 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         /** Commission tracking data */
         $roomResponse->setCommissionAmount($pricingRulesApplier['commission_amount']);
 
-        if($isCommissionTracking && !($pricingRulesApplier['commission_amount'] > 0))
-        {
+        if ($isCommissionTracking && ! ($pricingRulesApplier['commission_amount'] > 0)) {
             $roomResponse->setMarkup(0);
             $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
             $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
         }
-        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - -$roomResponse->getTotalTax());
 
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setDistribution(Arr::get($rate, 'sale_scenario.distribution', false));
         $roomResponse->setPromotions($promotions);
         $roomResponse->setNonRefundable(! $rate['refundable']);
-        $roomResponse->setAmenities($this->getAmenitiesFromRate($rate));
+
+        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
+            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
+        ))->filter(function ($amenity) {
+            return empty($amenity['drivers']) || in_array(SupplierNameEnum::EXPEDIA->value, $amenity['drivers'], true);
+        })->map(function ($amenity) {
+            unset($amenity['drivers']);
+            unset($amenity['priority_rooms']);
+            return $amenity;
+        })->toArray();
+        $roomUltimateAmenities = array_values($roomUltimateAmenities);
+        $supplierAmenities = $this->getAmenitiesFromRate($rate);
+        $roomResponse->setAmenities(array_merge($roomUltimateAmenities, $supplierAmenities));
 
         /** Commission tracking data */
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() - $roomResponse->getTotalTax());
@@ -371,7 +384,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
     {
         $amenities = Arr::get($rate, 'amenities', []);
 
-        return array_values(array_map(fn (array $amenity) => $amenity['name'], $amenities));
+        return array_values(array_map(fn (array $amenity) => ['name' => $amenity['name']], $amenities));
     }
 
     private function getBreakdown(array $roomsPricingArray): array

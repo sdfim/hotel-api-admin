@@ -93,6 +93,10 @@ class BaseHotelPricingTransformer
                                 'is_paid' => $amenity->is_paid,
                                 'min_night_stay' => $amenity->min_night_stay,
                                 'max_night_stay' => $amenity->max_night_stay,
+                                'drivers' => $amenity->drivers,
+                                'priority_rooms' => (! empty($amenity->priority_rooms))
+                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
+                                    : [],
                             ];
                             if ($amenity->is_paid) {
                                 $amenityData['price'] = $amenity->price;

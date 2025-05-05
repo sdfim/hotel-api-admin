@@ -425,8 +425,17 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($ratePlanCode);
 
-        $roomUltimateAmenities = $this->ultimateAmenityResolver->resolve(
-            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query);
+        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
+            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
+        ))->filter(function ($amenity) use ($unifiedRoomCode) {
+            return (empty($amenity['drivers']) || in_array(SupplierNameEnum::HBSI->value, $amenity['drivers'], true))
+                && (empty($amenity['priority_rooms']) || in_array($unifiedRoomCode, $amenity['priority_rooms'], true));
+        })->map(function ($amenity) {
+            unset($amenity['drivers']);
+            unset($amenity['priority_rooms']);
+            return $amenity;
+        })->toArray();
+        $roomUltimateAmenities = array_values($roomUltimateAmenities);
         $feesUltimateAmenities = $this->ultimateAmenityResolver->getFeesUltimateAmenities(
             $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
         $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
@@ -437,8 +446,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
-        if ($isCommissionTracking)
-        {
+        if ($isCommissionTracking) {
             $roomResponse->setMarkup(0);
             $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
             $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
