@@ -97,7 +97,6 @@ Route::get('/clear-cookies-and-login', function () {
 Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.switch');
 
 Route::get('team-invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])
-    ->name('team-invitations.accept')
     ->middleware(SelectTeamAfterAcceptMiddleware::class);
 
 Route::prefix('admin')->group(function () {

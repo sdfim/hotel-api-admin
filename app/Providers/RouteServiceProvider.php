@@ -19,11 +19,13 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->routes(function () {
+            /*
             $this->contentApiRoutes();
             $this->pricingApiRoutes();
             $this->bookingApiRoutes();
             $this->reportApiRoutes();
             $this->hotelContentRepositoryApiRoutes();
+            */
         });
     }
 
