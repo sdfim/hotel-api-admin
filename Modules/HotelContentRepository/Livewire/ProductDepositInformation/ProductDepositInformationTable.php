@@ -108,7 +108,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                     EditAction::make()
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->tooltip('Edit Deposit Information')
-                        ->form(fn ($record) => $this->schemeForm($record))
+                        ->form(fn ($record) => $this->schemeForm($record, true))
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
                             $data['conditions'] = $record->conditions->toArray();
@@ -139,7 +139,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
             ->headerActions([
                 CreateAction::make()
                     ->modalHeading(new HtmlString("Create {$this->title}"))
-                    ->form($this->schemeForm())
+                    ->form($this->schemeForm(null, true))
                     ->modalWidth('7xl')
                     ->createAnother(false)
                     ->action(function ($data) {

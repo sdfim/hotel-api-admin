@@ -334,8 +334,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         ))->filter(function ($amenity) {
             return empty($amenity['drivers']) || in_array(SupplierNameEnum::EXPEDIA->value, $amenity['drivers'], true);
         })->map(function ($amenity) {
-            unset($amenity['drivers']);
-            unset($amenity['priority_rooms']);
+            unset($amenity['drivers'], $amenity['priority_rooms']);
             return $amenity;
         })->toArray();
         $roomUltimateAmenities = array_values($roomUltimateAmenities);

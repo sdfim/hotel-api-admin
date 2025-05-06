@@ -95,6 +95,7 @@ class DepositResolver
 
         $level = $rateId ? 'rate' : 'hotel';
         $baseAmount = self::getBaseAmount($roomResponse, $depositInfo);
+        $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
         $calculatedDeposit = [
             'name' => $depositInfo['name'],
             'level' => $level,
@@ -104,6 +105,12 @@ class DepositResolver
             'base_price_amount' => $baseAmount,
             'total_deposit' => self::calculate($depositInfo, $baseAmount, self::getMultiplier($depositInfo, $query)),
         ];
+        if ($initialPaymentDueType) {
+            $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
+            $initialPaymentDueType === 'day'
+                ? $calculatedDeposit['initial_payment_due']['days'] = Arr::get($depositInfo, 'days_initial_payment_due')
+                : $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due');
+        }
 
         logger('getRateLevel _ '.$roomResponse->getRoomType().' _ execute '.microtime(true) - $st.' seconds', [
             'roomResponseRoomType' => $roomResponseRoomType,
@@ -125,7 +132,8 @@ class DepositResolver
 
         $calculatedDeposits = [];
         foreach ($activeDepositInformationHotelLevel as $depositInfo) {
-            $calculatedDeposits[] = [
+            $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
+            $calculatedDeposit = [
                 'name' => Arr::get($depositInfo, 'name'),
                 'level' => 'hotel',
                 'base_price_type' => $depositInfo['manipulable_price_type'],
@@ -137,6 +145,14 @@ class DepositResolver
                     'to' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'date_of_stay'), 'value_to'),
                 ],
             ];
+            if ($initialPaymentDueType) {
+                $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
+                $initialPaymentDueType === 'day'
+                    ? $calculatedDeposit['initial_payment_due']['days'] = Arr::get($depositInfo, 'days_initial_payment_due')
+                    : $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due');
+            }
+
+            $calculatedDeposits[] = $calculatedDeposit;
         }
 
         return $calculatedDeposits;
@@ -240,7 +256,7 @@ class DepositResolver
         // Filter for travel_date to ensure the travel date is after $checkin
         $filtered = $filtered->filter(function ($item) use ($checkin) {
             $condition = collect($item['conditions'])->firstWhere('field', 'travel_date');
-            $travelDate = Carbon::parse($condition['value'] ?? Carbon::now());
+            $travelDate = Carbon::parse($condition['value'] ?? Carbon::now()->addYears(1000));
 
             return $travelDate->greaterThan($checkin);
         });

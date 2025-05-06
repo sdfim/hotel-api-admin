@@ -259,7 +259,8 @@ class HotelContentApiTransformerService
         }
 
         return $hotel->product->depositInformations->map(function ($depositInfo) {
-            return [
+            $initialPaymentDueType = $depositInfo->initial_payment_due_type;
+            $deposit = [
                 'name' => $depositInfo->name,
                 'start_date' => $depositInfo->start_date,
                 'expiration_date' => $depositInfo->expiration_date,
@@ -269,6 +270,13 @@ class HotelContentApiTransformerService
                 'price_value_target' => $depositInfo->price_value_target,
                 'conditions' => $this->formatConditions($depositInfo->conditions),
             ];
+            if ($initialPaymentDueType) {
+                $deposit['initial_payment_due']['type'] = $initialPaymentDueType;
+                $initialPaymentDueType === 'day'
+                    ? $deposit['initial_payment_due']['days'] = $depositInfo->days_initial_payment_due
+                    : $deposit['initial_payment_due']['date'] = $depositInfo->date_initial_payment_due;
+            }
+            return $deposit;
         })->all();
     }
 

@@ -35,7 +35,16 @@ class ProductDepositInformation extends Model
         'price_value',
         'price_value_type',
         'price_value_target',
+        'days_initial_payment_due',
+        'date_initial_payment_due',
+        'initial_payment_due_type',
     ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'expiration_date' => 'date',
+    ];
+
 
     protected $hidden = [
         'created_at',
@@ -55,7 +64,7 @@ class ProductDepositInformation extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'])
+            ->logOnly(['*'])
             ->logOnlyDirty()
             ->useLogName('product_deposit_information');
     }
