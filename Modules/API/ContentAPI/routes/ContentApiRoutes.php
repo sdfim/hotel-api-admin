@@ -10,13 +10,13 @@ class ContentApiRoutes
 {
     public static function routes(): void
     {
-        Route::middleware('auth:sanctum')->prefix('content')->name('api.content.')->group(function () {
+        Route::middleware('auth:sanctum')->prefix('content')->group(function () {
             Route::post('/search', [RouteApiController::class, 'handle'])->name('search');
             Route::get('/detail', [RouteApiController::class, 'handle'])->name('detail');
             Route::get('/destinations', [DestinationsController::class, 'destinations'])->name('destinations');
         });
 
-        Route::middleware('auth:sanctum')->prefix('v1/content')->name('api.v1.content.')->group(function () {
+        Route::middleware('auth:sanctum')->prefix('v1/content')->group(function () {
             Route::post('/search', [RouteApiController::class, 'handle'])->name('v1.search');
             Route::get('/detail', [RouteApiController::class, 'handle'])->name('v1.detail');
             Route::get('/destinations', [DestinationsController::class, 'destinations'])->name('v1.destinations');
