@@ -64,12 +64,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $disable =  env('DISABLE_THROTTLE', false);
 
-        if ($disable)
-        {
-            return;
-        }
+        RateLimiter::for('api', function (Request $request) use ($disable) {
+            if ($disable)
+            {
+                return Limit::perMinute(1000)->by($request->user()?->id ?: $request->ip());
+            }
 
-        RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
