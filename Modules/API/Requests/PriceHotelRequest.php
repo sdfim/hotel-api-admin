@@ -132,8 +132,6 @@ class PriceHotelRequest extends ApiRequest
 
             'query_package' => 'string|in:both,standalone,package',
 
-            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
-
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|integer|between:1,20',

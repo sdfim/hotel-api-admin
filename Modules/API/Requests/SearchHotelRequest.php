@@ -154,8 +154,6 @@ class SearchHotelRequest extends ApiRequest
             'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
             'session' => 'required_with:place|nullable|string|max:36',
 
-            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
-
             'destination' => 'required_without_all:latitude,longitude,place,giata_ids|integer|min:1',
             'latitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-90|max:90',
             'longitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-180|max:180',
