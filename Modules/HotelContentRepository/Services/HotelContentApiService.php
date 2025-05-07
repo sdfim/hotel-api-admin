@@ -59,9 +59,11 @@ class HotelContentApiService
         return $this->combineContentResults($transformedResults, $structureSource, $repoData, $giataCodes);
     }
 
-    public function fetchDetailResults(array $giataCodes): array
+    public function fetchDetailResults(array $giataCodes, bool $isUI = false): array
     {
-        $this->clearGiataCodesByOnSaleOff($giataCodes);
+        if (! $isUI) {
+            $this->clearGiataCodesByOnSaleOff($giataCodes);
+        }
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
