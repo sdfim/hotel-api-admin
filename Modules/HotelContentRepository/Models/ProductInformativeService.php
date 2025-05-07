@@ -47,6 +47,7 @@ class ProductInformativeService extends Model
         'age_to',
         'min_night_stay',
         'max_night_stay',
+        'collected_by',
     ];
 
     protected $hidden = [

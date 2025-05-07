@@ -125,7 +125,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->reactive()
                                 ->rules(['required']),
                         ]),
-                    Grid::make(2)
+                    Grid::make(3)
                         ->schema([
                             Select::make('currency')
                                 ->label('Currency')
@@ -145,6 +145,13 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             TimePicker::make('service_time')
                                 ->label('Service Time')
                                 ->format('h:i A'),
+                            Select::make('collected_by')
+                                ->label('Collected By')
+                                ->options([
+                                    'Direct' => 'Direct',
+                                    'Vendor' => 'Vendor',
+                                ])
+                                ->required(),
                         ]),
                 ]),
 
