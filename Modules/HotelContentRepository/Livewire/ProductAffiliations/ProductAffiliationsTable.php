@@ -163,7 +163,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                             Grid::make(1)
                                 ->schema([
                                     Select::make('priority_rooms')
-                                        ->label('Priority Rooms')
+                                        ->label('Rooms')
                                         ->multiple()
                                         ->searchable()
                                         ->options(HotelRoom::whereHas('rates', function ($query) {
