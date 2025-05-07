@@ -54,7 +54,6 @@ class HotelContentApiService
         $giataCodes = $this->getGiataCodesByContent($results);
         ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale] = $this->resolveChannelAndForceParams();
         $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale);
-        \Log::info($giataCodes);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -114,34 +113,24 @@ class HotelContentApiService
 
     private function applyVisibilityFiltersToGiataCodes(array &$giataCodes, Channel $channel, ?bool $forceVerified, ?bool $forceOnSale): void
     {
-        \Log::info([
-            'giataCodes' => $giataCodes,
-            'channel' => $channel->accept_special_params ? '1' : '0',
-            'forceVerified' => $forceVerified ? '1' : '0',
-            'forceOnSale' => $forceOnSale ? '1' : '0',
-        ]);
         $query = Hotel::query()->whereIn('giata_code', $giataCodes);
 
         $query->whereHas('product', function ($productQuery) use ($channel, $forceVerified, $forceOnSale) {
             if (! $channel->accept_special_params || is_null($forceOnSale)) 
             {
-                \Log::info('here 1');
                 $productQuery->where('onSale', 1);
             } 
             else 
             {
-                \Log::info('here 2 '. $forceOnSale);
                 $productQuery->where('onSale', $forceOnSale);
             }
     
             if (! $channel->accept_special_params || is_null($forceVerified)) 
             {
-                \Log::info('here 3');
                 $productQuery->where('verified', 1);
             } 
             else 
             {
-                \Log::info('here 2 '. $forceVerified);
                 $productQuery->where('verified', $forceVerified);
             }
         });

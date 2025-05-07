@@ -54,6 +54,9 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
+            if (!in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+                continue;
+            }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
 

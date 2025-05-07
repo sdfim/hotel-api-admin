@@ -4,9 +4,11 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspectorByCacheKey;
+use App\Models\Channel;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository;
+use App\Repositories\ChannelRepository;
 use App\Traits\Timer;
 use Exception;
 use Fiber;
@@ -39,6 +41,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 use Throwable;
+use Modules\HotelContentRepository\Models\Hotel;
 
 /**
  * @OA\PathItem(
@@ -328,14 +331,32 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $preSearchData = $this->getPreSearchData($supplier, $filters);
 
-                    $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = array_merge(
-                        $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] ?? [],
-                        match (SupplierNameEnum::from($supplier)) {
-                            SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
-                            SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
-                            default => [],
-                        }
-                    );
+                    $rawGiataIds = match (SupplierNameEnum::from($supplier)) 
+                    {
+                        SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
+                        SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
+                        default => [],
+                    };
+
+                    $forceParams = $this->resolveForceParams();
+
+                    if (!$forceParams['force_on_sale']) {
+                        $hotelsOnSale = Hotel::whereIn('giata_code', $rawGiataIds)
+                            ->whereHas('product', function ($q) {
+                                $q->where('onSale', 1);
+                            })
+                            ->pluck('giata_code')
+                            ->toArray();
+
+                        $filteredGiataIds = array_intersect($rawGiataIds, $hotelsOnSale);
+                    } else {
+                        $filteredGiataIds = $rawGiataIds;
+                    }
+
+                    $filters['force_on_sale'] = $forceParams['force_on_sale'];
+                    $filters['filtered_giata_ids'] = $filteredGiataIds;
+
+                    $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = $filteredGiataIds;
 
                     foreach ($optionsQueries as $optionsQuery) {
                         $fiberKey = $supplier.'_'.$optionsQuery;
@@ -699,5 +720,24 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         unset($_filters['session']);
 
         return $_filters;
+    }
+
+    private function resolveForceParams(): array
+    {
+        $channelId = ChannelRepository::getTokenId(request()->bearerToken());
+        $channel = Channel::find($channelId);
+
+        $forceVerified = false;
+        $forceOnSale = false;
+
+        if ($channel && $channel->accept_special_params) {
+            $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+            $forceOnSale = filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+        }
+
+        return [
+            'force_verified' => $forceVerified,
+            'force_on_sale' => $forceOnSale,
+        ];
     }
 }
