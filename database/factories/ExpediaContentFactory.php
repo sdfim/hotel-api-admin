@@ -17,7 +17,12 @@ class ExpediaContentFactory extends Factory
     public function definition(): array
     {
         return [
-            'property_id' => $this->faker->unique()->numberBetween(1, 100000),
+            'property_id' => function () {
+                do {
+                    $id = fake()->numberBetween(1, 100000);
+                } while (\App\Models\ExpediaContent::where('property_id', $id)->exists());
+                return $id;
+            },
             'rating' => $this->faker->randomFloat(2, 1, 5),
             'name' => $this->faker->name(),
             'city' => $this->faker->city(),

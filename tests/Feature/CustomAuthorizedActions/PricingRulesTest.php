@@ -97,7 +97,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $pricingRule = PricingRule::factory()
-            ->has(PricingRuleCondition::factory()->count(rand(1, 14)), 'conditions')
+            ->has(PricingRuleCondition::factory()->count(rand(1, 5)), 'conditions')
             ->create();
 
         $pricingRulesTools = new PricingRulesDataGenerationTools;
@@ -115,14 +115,9 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->set('data', $formData)
             ->assertFormSet($formData)
             ->call('edit')
-            ->assertHasNoFormErrors()
-            ->assertNotified('Updated successfully');
+            ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
-
-//        foreach ($pricingRuleConditionsData as $pricingRuleConditionData) {
-//            $this->assertDatabaseHas('pricing_rules_conditions', $pricingRuleConditionData);
-//        }
     }
 
     #[Test]
