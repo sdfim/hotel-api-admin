@@ -339,21 +339,38 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     };
 
                     $forceParams = $this->resolveForceParams();
+                    $filteredGiataIds = $rawGiataIds;
 
-                    if (!$forceParams['force_on_sale']) {
-                        $hotelsOnSale = Hotel::whereIn('giata_code', $rawGiataIds)
-                            ->whereHas('product', function ($q) {
-                                $q->where('onSale', 1);
-                            })
-                            ->pluck('giata_code')
-                            ->toArray();
-
-                        $filteredGiataIds = array_intersect($rawGiataIds, $hotelsOnSale);
+                    if($forceParams['blueprint_exists']) {
+                        $query = Hotel::whereIn('giata_code', $rawGiataIds)
+                            ->whereHas('product');
+                        $filteredHotels = $query->pluck('giata_code')->toArray();
+                        $filteredGiataIds = array_intersect($rawGiataIds, $filteredHotels);
                     } else {
-                        $filteredGiataIds = $rawGiataIds;
+                        if(!$forceParams['force_on_sale'] || !$forceParams['force_verified'])
+                        {
+                            $query = Hotel::whereIn('giata_code', $rawGiataIds);
+                            
+                            if(!$forceParams['force_on_sale'])
+                            {
+                                $query->whereHas('product', function ($q) {
+                                    $q->where('onSale', 1);
+                                });
+                            }
+                            if(!$forceParams['force_verified'])
+                            {
+                                $query->whereHas('product', function ($q) {
+                                    $q->where('verified', 1);
+                                });
+                            }
+
+                            $filteredHotels = $query->pluck('giata_code')->toArray();
+                            $filteredGiataIds = array_intersect($rawGiataIds, $filteredHotels);
+                        }
                     }
 
                     $filters['force_on_sale'] = $forceParams['force_on_sale'];
+                    $filters['force_verified'] = $forceParams['force_verified'];
                     $filters['filtered_giata_ids'] = $filteredGiataIds;
 
                     $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = $filteredGiataIds;
@@ -729,6 +746,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
         $forceVerified = false;
         $forceOnSale = false;
+        $blueprintExists = filter_var(request('blueprint_exists'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
 
         if ($channel && $channel->accept_special_params) {
             $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
@@ -738,6 +756,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         return [
             'force_verified' => $forceVerified,
             'force_on_sale' => $forceOnSale,
+            'blueprint_exists' => $blueprintExists,
         ];
     }
 }

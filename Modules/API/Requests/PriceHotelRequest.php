@@ -140,6 +140,9 @@ class PriceHotelRequest extends ApiRequest
             'occupancy.*.children' => 'numeric',
             'occupancy.*.children_ages' => 'array',
             'occupancy.*.children_ages.*' => 'integer|between:0,17',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 

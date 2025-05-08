@@ -162,6 +162,9 @@ class SearchHotelRequest extends ApiRequest
             'radius' => 'required_without_all:destination,giata_ids|numeric|between:1,100',
             'supplier' => 'string',
             'hotel_name' => 'string',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 }

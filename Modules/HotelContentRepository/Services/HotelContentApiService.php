@@ -115,45 +115,54 @@ class HotelContentApiService
     {
         $query = Hotel::query()->whereIn('giata_code', $giataCodes);
 
-        $query->whereHas('product', function ($productQuery) use ($channel, $forceVerified, $forceOnSale) {
-            if (! $channel->accept_special_params || is_null($forceOnSale)) 
-            {
-                $productQuery->where('onSale', 1);
-            } 
-            else 
-            {
-                $productQuery->where('onSale', $forceOnSale);
+        if (!$forceOnSale || !$forceVerified) {
+            if (!$forceOnSale) {
+                $query->whereHas('product', function ($q) {
+                    $q->where('onSale', 1);
+                });
             }
-    
-            if (! $channel->accept_special_params || is_null($forceVerified)) 
-            {
-                $productQuery->where('verified', 1);
-            } 
-            else 
-            {
-                $productQuery->where('verified', $forceVerified);
+            if (!$forceVerified) {
+                $query->whereHas('product', function ($q) {
+                    $q->where('verified', 1);
+                });
             }
-        });
-    
+        }
+
         $query->where(function ($q) use ($channel) {
             $q->whereHas('product.channels', fn ($sub) => $sub->where('channel_id', $channel->id))
               ->orWhereDoesntHave('product.channels');
         });
-    
-        $giataCodes = $query->pluck('giata_code')->toArray();
+
+        $filteredHotels = $query->pluck('giata_code')->toArray();
+        $giataCodes = array_intersect($giataCodes, $filteredHotels);
     }
 
     public function getRepoData(array $giataCodes): ?Collection
     {
-        $hotelsOnSale = $this->getHotelsByOnSaleStatus($giataCodes, 1);
+        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale] = $this->resolveChannelAndForceParams();
+        
+        $query = Hotel::whereIn('giata_code', $giataCodes);
 
-        foreach ($hotelsOnSale as $hotel) {
+        if (!$forceOnSale && !$forceVerified) {
+            $query->whereHas('product', function ($productQuery) use ($forceVerified, $forceOnSale) {
+                if (!$forceOnSale) {
+                    $productQuery->where('onSale', 1);
+                }
+                if (!$forceVerified) {
+                    $productQuery->where('verified', 1);
+                }
+            });
+        }
+
+        $hotels = $query->get();
+
+        foreach ($hotels as $hotel) {
             if (! $hotel->product) {
-                unset($hotelsOnSale[$hotel->giata_code]);
+                unset($hotels[$hotel->giata_code]);
             }
         }
 
-        return $hotelsOnSale;
+        return $hotels;
     }
 
     private function combineDetailResults(array $resultsSuppliers, array $structureSource, $repoData, array $giataCodes): array
@@ -336,10 +345,18 @@ class HotelContentApiService
         $channelId = ChannelRepository::getTokenId($token);
         $channel = Channel::find($channelId);
 
+        $forceVerified = false;
+        $forceOnSale = false;
+
+        if ($channel && $channel->accept_special_params) {
+            $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+            $forceOnSale = filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+        }
+
         return [
             'channel' => $channel,
-            'force_verified' => filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
-            'force_on_sale' => filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+            'force_verified' => $forceVerified,
+            'force_on_sale' => $forceOnSale,
         ];
     }
 

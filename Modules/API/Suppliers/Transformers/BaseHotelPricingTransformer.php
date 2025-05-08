@@ -17,7 +17,10 @@ class BaseHotelPricingTransformer
 {
     private const CACHE_TTL_MINUTES = 1;
 
-    protected array $query = [];
+    protected array $query = [
+        'force_on_sale' => false,
+        'force_verified' => false
+    ];
 
     /**
      * Fetches and processes supplier repository data.
@@ -201,7 +204,11 @@ class BaseHotelPricingTransformer
         $this->bookingItems = [];
         $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
         $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
-        $this->query = $query;
+        
+        $this->query = array_merge([
+            'force_on_sale' => false,
+            'force_verified' => false
+        ], $query);
 
         $cacheKey = 'pricing_data_'.md5(json_encode([$giataIds, $search_id]));
 
