@@ -338,33 +338,32 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         default => [],
                     };
 
-                    $filteredGiataIds = $rawGiataIds;
+                    $filteredGiataIds = [];
 
                     if($forceParams['blueprint_exists']) {
                         $query = Hotel::whereIn('giata_code', $rawGiataIds)
                             ->whereHas('product');
                         $filteredHotels = $query->pluck('giata_code')->toArray();
-                        $filteredGiataIds = array_intersect($rawGiataIds, $filteredHotels);
+                        $filteredGiataIds = $filteredHotels;
                     } else {
-                        if(!$forceParams['force_on_sale'] || !$forceParams['force_verified'])
+                        $filteredGiataIds = $rawGiataIds;
+                        
+                        if(!$forceParams['force_verified']) 
                         {
-                            $query = Hotel::whereIn('giata_code', $rawGiataIds);
-                            
-                            if(!$forceParams['force_on_sale'])
-                            {
-                                $query->whereHas('product', function ($q) {
-                                    $q->where('onSale', 1);
+                            $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
+                                ->whereHas('product', function ($q) {
+                                    $q->where('verified', 0);
                                 });
-                            }
-                            if(!$forceParams['force_verified'])
-                            {
-                                $query->whereHas('product', function ($q) {
-                                    $q->where('verified', 1);
-                                });
-                            }
+                            $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
+                        }
 
-                            $filteredHotels = $query->pluck('giata_code')->toArray();
-                            $filteredGiataIds = array_intersect($rawGiataIds, $filteredHotels);
+                        if(!$forceParams['force_on_sale']) 
+                        {
+                            $onSaleQuery = Hotel::whereIn('giata_code', $rawGiataIds)
+                                ->whereHas('product', function ($q) {
+                                    $q->where('onSale', 0);
+                                });
+                            $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
                         }
                     }
 
