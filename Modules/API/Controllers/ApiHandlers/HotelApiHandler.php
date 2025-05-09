@@ -331,14 +331,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $preSearchData = $this->getPreSearchData($supplier, $filters);
 
-                    $rawGiataIds = match (SupplierNameEnum::from($supplier)) 
-                    {
+                    $forceParams = $this->resolveForceParams();
+                    $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
                         SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
                         default => [],
                     };
 
-                    $forceParams = $this->resolveForceParams();
                     $filteredGiataIds = $rawGiataIds;
 
                     if($forceParams['blueprint_exists']) {
@@ -373,7 +372,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $filters['force_verified'] = $forceParams['force_verified'];
                     $filters['filtered_giata_ids'] = $filteredGiataIds;
 
-                    $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = $filteredGiataIds;
+                    $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = array_merge(
+                        $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] ?? [],
+                        $filteredGiataIds
+                    );
 
                     foreach ($optionsQueries as $optionsQuery) {
                         $fiberKey = $supplier.'_'.$optionsQuery;
