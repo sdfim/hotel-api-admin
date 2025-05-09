@@ -83,8 +83,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         ];
 
         foreach ($transformedRoomPricing as $rate) {
-            $current_total_net = (float) $rate['AmountBeforeTax'];
-            $totals['total_net'] += $current_total_net;
+            $totals['total_net'] += (float) $rate['TotalAmountBeforeTax'];
 
             $unitMultiplier = (int) $rate['UnitMultiplier'];
 
