@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /var/www
+cd /var/www/html
 echo "Starting Laravel Optimize..." >&2
 php artisan optimize
 echo "Finished Laravel Optimize..." >&2
