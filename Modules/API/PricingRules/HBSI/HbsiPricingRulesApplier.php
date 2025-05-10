@@ -45,7 +45,8 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         // If there are no children or babies, then the format will appear as: '2-0-0'.
         $this->totalNumberOfGuests = array_sum(explode('-', $roomsPricingArray['rateOccupancy']));
 
-        if (config('supplier-repository.use_repo_tax_fees')) {
+        if (config('supplier-repository.use_repo_tax_fees'))
+        {
             $roomTotals = $this->calculateTransformedRoomTotals($roomsPricingArray['transformedRates']);
         } else {
             $roomTotals = $this->calculateRoomTotals($roomsPricingArray['Rates']);
@@ -83,8 +84,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         ];
 
         foreach ($transformedRoomPricing as $rate) {
-            $current_total_net = (float) $rate['AmountBeforeTax'];
-            $totals['total_net'] += $current_total_net;
+            $totals['total_net'] += (float) $rate['TotalAmountBeforeTax'];
 
             $unitMultiplier = (int) $rate['UnitMultiplier'];
 

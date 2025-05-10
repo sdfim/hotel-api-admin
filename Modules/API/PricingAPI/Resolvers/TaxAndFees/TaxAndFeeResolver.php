@@ -275,7 +275,7 @@ class TaxAndFeeResolver
                 'type' => 'base_rate',
             ];
             $baseFareRateNight = [
-                'amount' => $rate['AmountBeforeTax'] / $nightsRate,
+                'amount' => $rate['AmountBeforeTax'],
                 'title' => 'Base Rate',
                 'type' => 'base_rate',
             ];
