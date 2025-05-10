@@ -271,7 +271,7 @@ class DepositResolver
         $filtered = $filtered->filter(function ($item) {
             $condition = collect($item['conditions'])->firstWhere('field', 'channel_id');
             $bearerToken = request()->bearerToken();
-            $channelId = strval(Channel::where('access_token', 'like', '%'.$bearerToken)->first()?->token_id ?? 0);
+            $channelId = strval(Channel::where('access_token', 'like', "'%$bearerToken'")->first()?->token_id ?? 0);
             $conditionChannelId = $condition['value_from'] ?? null;
             $compare = $condition['compare'] ?? null;
 

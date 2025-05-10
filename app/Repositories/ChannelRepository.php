@@ -12,12 +12,12 @@ class ChannelRepository extends AbstractCRUDRepository
         if (!$token) {
             return null;
         }
-        return Channel::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
+        return Channel::where('access_token', 'like', "'%$token'" )->first()->token_id ?? null;
     }
 
     public static function getTokenName($token): ?string
     {
-        return Channel::where('access_token', 'like', '%' . $token)->first()->name ?? null;
+        return Channel::where('access_token', 'like', "'%$token'")->first()->name ?? null;
     }
 
     public function model(): string
