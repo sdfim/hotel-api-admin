@@ -13,8 +13,8 @@ return [
                 'region'      => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
                 'version'     => env('LOG_CLOUDWATCH_VERSION', 'latest'),
                 'credentials' => [
-                    'key'    => env('LOG_CLOUDWATCH_ACCESS_KEY_ID', ''),
-                    'secret' => env('LOG_CLOUDWATCH_SECRET_ACCESS_KEY', ''),
+                    'key' => env('LOG_AWSCLOUDWATCH_ACCESSKEYID', ''),
+                    'secret' => env('LOG_AWSCLOUDWATCH_SECRETACCESSKEY', ''),
                 ],
                 'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/booking-engine'),
                 'stream' => date('Y-m-d'),
