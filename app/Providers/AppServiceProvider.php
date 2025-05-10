@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function bootRoute(): void
     {
-        $disable =  env('DISABLE_THROTTLE', false);
+        $disable = config('engine.disable_throttle');
 
         RateLimiter::for('api', function (Request $request) use ($disable) {
             if ($disable)

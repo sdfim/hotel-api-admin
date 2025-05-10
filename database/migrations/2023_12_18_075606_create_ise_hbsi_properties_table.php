@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('ice_hbsi_properties')) {
-            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('ice_hbsi_properties', function (Blueprint $table) {
+        if (! Schema::connection(config('database.active_connections.mysql_cache'))->hasTable('ice_hbsi_properties')) {
+            Schema::connection(config('database.active_connections.mysql_cache'))->create('ice_hbsi_properties', function (Blueprint $table) {
                 $table->integer('code')->index()->unique();
                 $table->integer('supplier_id');
                 $table->string('name')->default('')->index();
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('ice_hbsi_properties');
+        Schema::connection(config('database.active_connections.mysql_cache'))->dropIfExists('ice_hbsi_properties');
     }
 };

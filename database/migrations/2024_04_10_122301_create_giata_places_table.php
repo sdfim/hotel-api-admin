@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('giata_places')) {
-            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('giata_places', function (Blueprint $table) {
+        if (! Schema::connection(config('database.active_connections.mysql_cache'))->hasTable('giata_places')) {
+            Schema::connection(config('database.active_connections.mysql_cache'))->create('giata_places', function (Blueprint $table) {
                 $table->id();
                 $table->string('key');
                 $table->string('parent_key')->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('giata_places');
+        Schema::connection(config('database.active_connections.mysql_cache'))->dropIfExists('giata_places');
     }
 };

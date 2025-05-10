@@ -20,7 +20,7 @@ class ExpediaTools
     public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
     {
         try {
-            $token = request()->bearerToken() ?? env('TEST_TOKEN', null);
+            $token = request()->bearerToken() ?? config('booking-suppliers.Expedia.credentials.test_token');
             $token_id = ChannelRepository::getTokenId($token);
             $channel_id = Channel::where('token_id', $token_id)->first()?->id;
 
