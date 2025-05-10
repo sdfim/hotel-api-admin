@@ -2,6 +2,8 @@
 
 cd /var/www/html
 
+composer dump-autoload --optimize
+
 # Reset caches at runtime when env vars are available
 php artisan config:clear
 php artisan config:cache
