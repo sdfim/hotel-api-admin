@@ -31,15 +31,6 @@ Artisan::command('obe {scenario} {action}', function () {
     $this->info($client->execute($scenario, $action));
 });
 
-Artisan::command('opcache:reset', function () {
-    if (function_exists('opcache_reset')) {
-        opcache_reset();
-        $this->info('OPcache has been reset.');
-    } else {
-        $this->error('OPcache is not enabled.');
-    }
-});
-
 // Expedia Content download archive, unzip, parse json, write to DB
 Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
 //Schedule::command('download-giata-data')->daily()->at('05:00');
