@@ -63,5 +63,5 @@ RUN php artisan key:generate
 
 EXPOSE 80
 
-#ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]
