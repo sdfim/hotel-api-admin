@@ -20,9 +20,8 @@ class PricingRulesTools
             return [];
         }
 
-        $type = Arr::get($query, 'type', 'hotel');
-
         $token = ChannelRepository::getTokenId(request()->bearerToken());
+
         \Log::info('TOKEN:', ['inspector' => [
             'token' => $token,
             'bearer' => request()->bearerToken(),
