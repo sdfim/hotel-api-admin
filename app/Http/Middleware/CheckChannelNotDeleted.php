@@ -21,7 +21,7 @@ class CheckChannelNotDeleted
                 $accessToken = substr($accessToken, 7);
             }
 
-            $channel = Channel::withTrashed()->where('access_token', 'like', "'%$accessToken'")->first();
+            $channel = Channel::withTrashed()->where('access_token', 'like', "%$accessToken")->first();
 
             if ($channel && $channel->trashed()) {
                 return response()->json(['error' => 'Channel is deleted'], 403);
