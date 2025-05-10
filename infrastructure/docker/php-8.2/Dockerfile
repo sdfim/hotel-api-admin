@@ -57,7 +57,8 @@ WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
 RUN cp .env.example .env
 RUN cp infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
-RUN cp infrastructure/docker/php-8.2/entrypoint.sh /var/www/html/entrypoint.sh
+RUN cp infrastructure/docker/php-8.2/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN php artisan key:generate
 RUN php artisan route:cache
 # RUN php artisan optimize
@@ -65,4 +66,4 @@ RUN php artisan route:cache
 EXPOSE 80
 
 CMD ["apache2-foreground"]
-ENTRYPOINT ["/var/www/html/entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
