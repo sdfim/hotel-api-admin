@@ -429,8 +429,7 @@ class HotelForm extends Component implements HasForms
                                     Grid::make(1)
                                         ->schema([
                                             TextInput::make('full_address')
-                                                ->label('Get Location by Address')
-                                                ->placeholder(fn ($get) => $get('addressArr.line_1').' '.$get('addressArr.city')),
+                                                ->label('Get Location by Address'),
                                             TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
                                             TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
                                         ])->columnSpan(1),
