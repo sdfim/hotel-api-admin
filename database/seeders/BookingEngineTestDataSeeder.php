@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
-class IntegrationPropertiesTestSeeder extends Seeder
+class BookingEngineTestDataSeeder extends Seeder
 {
     public function run(): void
     {
