@@ -766,11 +766,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
         $forceVerified = false;
         $forceOnSale = false;
-        $blueprintExists = filter_var(request('blueprint_exists'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+        $blueprintExists = true;
 
         if ($channel && $channel->accept_special_params) {
             $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
             $forceOnSale = filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+            $blueprintExists = filter_var(request('blueprint_exists'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
         }
 
         return [
