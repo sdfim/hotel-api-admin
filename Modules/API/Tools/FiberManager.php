@@ -51,6 +51,9 @@ class FiberManager
                 }
 
                 // Only GuzzleHttp\Promise\PromiseInterface can be awaited and add to promises
+                if (! $result) {
+                    continue;
+                }
                 foreach ($result as $chunkKey => $promise) {
                     $promises["{$key}_{$chunkKey}"] = $promise;
                 }
