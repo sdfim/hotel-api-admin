@@ -70,6 +70,24 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *      example="Virtuoso"
  *   ),
  *   @OA\Property(
+ *     property="force_on_sale_on",
+ *     type="boolean",
+ *     description="Force to show hotels that are not on sale",
+ *     example=false
+ *   ),
+ *   @OA\Property(
+ *     property="force_verified_on",
+ *     type="boolean",
+ *     description="Force to show hotels that are not verified",
+ *     example=false
+ *   ),
+ *   @OA\Property(
+ *     property="blueprint_exists",
+ *     type="boolean",
+ *     description="Filter hotels that have a product blueprint (default: true)",
+ *     example=true
+ *   ),
+ *   @OA\Property(
  *     property="occupancy",
  *     description="Occupancy of the hotel",
  *     type="array",

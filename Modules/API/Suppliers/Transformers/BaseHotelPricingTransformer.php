@@ -17,6 +17,11 @@ class BaseHotelPricingTransformer
 {
     private const CACHE_TTL_MINUTES = 1;
 
+    protected array $query = [
+        'force_on_sale' => false,
+        'force_verified' => false
+    ];
+
     /**
      * Fetches and processes supplier repository data.
      * Uses Cache to store the processed data, ensuring it is shared
@@ -148,6 +153,11 @@ class BaseHotelPricingTransformer
 
         $this->unifiedRoomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
+            // Skip hotels that are not on sale if force_on_sale is false
+            if (!$this->query['force_on_sale'] && !$hotel->product->onSale) {
+                continue;
+            }
+
             $hbsiHotelData = $expediaHotelData = [
                 'hotel_code' => $hotel->giata_code,
                 'rooms' => [],
@@ -194,6 +204,11 @@ class BaseHotelPricingTransformer
         $this->bookingItems = [];
         $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
         $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
+        
+        $this->query = array_merge([
+            'force_on_sale' => false,
+            'force_verified' => false
+        ], $query);
 
         $cacheKey = 'pricing_data_'.md5(json_encode([$giataIds, $search_id]));
 
