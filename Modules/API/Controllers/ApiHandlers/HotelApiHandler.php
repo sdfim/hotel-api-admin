@@ -345,6 +345,25 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             ->whereHas('product');
                         $filteredHotels = $query->pluck('giata_code')->toArray();
                         $filteredGiataIds = $filteredHotels;
+
+                        if (!$forceParams['force_verified']) 
+                        {
+                            $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
+                                ->whereHas('product', function ($q) {
+                                    $q->where('verified', 0);
+                                });
+                            $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
+                        }
+
+                        if (!$forceParams['force_on_sale']) 
+                        {
+                            $onSaleQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
+                                ->whereHas('product', function ($q) {
+                                    $q->where('onSale', 0);
+                                });
+                            $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
+                        }
+                        
                     } else {
                         $filteredGiataIds = $rawGiataIds;
                         
