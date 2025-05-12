@@ -75,4 +75,4 @@ php artisan db:seed --class=BookingEngineTestDataSeeder
 
 After running the seeders, both systems are ready for integration test simulations.
 
-The creation of hotels, destinations and regions made here, and the mapping with giatta serve for the successful connection with the API. Follow more instructions in the `docs/how-to-integrate-travel-connect` documentation in the [admin repository](https://github.com/ultimatejetvacations/ujv-dev.travelagentadmin.com).
+The creation of hotels, destinations and regions made here, and the mapping with giatta serve for the successful connection with the API. Follow more instructions in the `docs/travel-connect-test-data-explanation.md` documentation in the [admin repository](https://github.com/ultimatejetvacations/ujv-dev.travelagentadmin.com).
