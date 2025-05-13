@@ -307,7 +307,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                  */
                 /** @var FiberManager $fiberManager */
                 $fiberManager = app(FiberManager::class);
-                Log::info('HotelApiHandler _ suppliers ', $suppliers);
 
                 foreach ($suppliers as $supplierId) {
                     $supplier = Supplier::find($supplierId)?->name;
@@ -777,10 +776,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $forceOnSale = false;
         $blueprintExists = true;
 
-        if ($channel && $channel->accept_special_params) {
-            $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-            $forceOnSale = filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-            $blueprintExists = filter_var(request('blueprint_exists'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+        Log::info('HotelApiHandler _ Bearer ' . request()->bearerToken());
+        Log::info('HotelApiHandler _ Channel ' . $channelId);
+
+        if ($channel && $channel->accept_special_params)
+        {
+            $forceVerified = request('force_verified_on', false);
+            $forceOnSale = request('force_on_sale_on', false);
+            $blueprintExists = request('blueprint_exists', true);
         }
 
         return [
