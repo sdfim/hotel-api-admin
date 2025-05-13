@@ -4,6 +4,8 @@ namespace Modules\HotelContentRepository\Actions\Hotel;
 
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
+use App\Models\ExpediaContent;
+use App\Models\ExpediaContentSlave;
 use App\Models\Property;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
@@ -51,21 +53,28 @@ class AddHotel
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
 
         if ($expediaCode) {
-            $expediaData = DB::connection('mysql_cache')
-                ->table('expedia_content_slave')
-                ->select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
+            $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
                 ->where('expedia_property_id', $expediaCode)
-                ->first();
+                ->first()
+                ->toArray();
 
-            $expediaData = (array) $expediaData;
+            $expediaMainData = ExpediaContent::select('rating')
+                ->where('property_id', $expediaCode)
+                ->first()
+                ->toArray();
+
+            if (! empty($expediaMainData)) {
+                $ratingExpedia = Arr::get($expediaMainData, 'rating', 0);
+            }
+
             if (! empty($expediaData)) {
-                $roomsData = json_decode(Arr::get($expediaData, 'rooms', '[]'), true);
-                $statistics = json_decode(Arr::get($expediaData, 'statistics', '{}'), true);
-                $roomsOccupancy = json_decode(Arr::get($expediaData, 'rooms_occupancy', '{}'), true);
+                $roomsData = Arr::get($expediaData, 'rooms', []);
+                $statistics = Arr::get($expediaData, 'statistics', []);
+                $roomsOccupancy = Arr::get($expediaData, 'rooms_occupancy', []);
 
-                $attributesP1 = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
-                $attributesP2 = Arr::get(json_decode(Arr::get($expediaData, 'attributes', '{}'), true), 'general', []);
-                $attributesP3 = json_decode(Arr::get($expediaData, 'themes', '{}'), true);
+                $attributesP1 = Arr::get($expediaData, 'amenities', []);
+                $attributesP2 = Arr::get(Arr::get($expediaData, 'attributes', []), 'general', []);
+                $attributesP3 = Arr::get($expediaData, 'themes', []);
                 $attributes = array_merge($attributesP1, $attributesP2, $attributesP3);
                 $attributes = collect($attributes)
                     ->filter(function ($value) {
@@ -84,7 +93,7 @@ class AddHotel
                     ->all();
 
                 $numRooms = Arr::get($statistics, '52.value', 0);
-                $allInclusive = json_decode(Arr::get($expediaData, 'all_inclusive', '{}'), true);
+                $allInclusive = Arr::get($expediaData, 'all_inclusive', []);
                 $mealPlans = MealPlansEnum::values();
                 $mealPlansRes = array_filter($allInclusive, fn ($value) => in_array($value, $mealPlans));
                 $mealPlansRes = array_values($mealPlansRes) ?: [MealPlansEnum::NO_MEAL_PLAN->value];
@@ -103,11 +112,11 @@ class AddHotel
             : [];
 
         return DB::transaction(function () use (
-            $property, $roomsData, $vendorId, $source_id, $numRooms, $mealPlansRes, $attributes, $address, $roomsOccupancy) {
+            $property, $roomsData, $vendorId, $source_id, $numRooms, $mealPlansRes, $attributes, $address, $roomsOccupancy, $ratingExpedia) {
             $hotel = Hotel::updateOrCreate(
                 ['giata_code' => $property->code],
                 [
-                    'star_rating' => max($property->rating ?? 1, 1),
+                    'star_rating' => max($property->rating ?? 1, 1, $ratingExpedia),
                     'sale_type' => 'Direct Connection',
                     'num_rooms' => $numRooms,
                     'hotel_board_basis' => $mealPlansRes,
@@ -187,7 +196,7 @@ class AddHotel
                 ]);
                 $attribute = ConfigAttribute::firstOrCreate([
                     'name' => $attributeName,
-                    'default_value' => $attributeName . ' hotel',
+                    'default_value' => $attributeName.' hotel',
                 ]);
 
                 $attribute->categories()->syncWithoutDetaching([$category->id]);
