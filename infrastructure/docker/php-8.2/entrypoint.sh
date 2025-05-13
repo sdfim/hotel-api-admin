@@ -8,6 +8,7 @@ composer dump-autoload --optimize
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache reset.'; }"
 
 # Reset caches at runtime when env vars are available
+php artisan clear-compiled
 php artisan optimize:clear
 php artisan cache:clear
 php artisan view:clear
@@ -22,3 +23,6 @@ php artisan optimize
 echo "Finished Laravel Optimize..." >&2
 
 sudo systemctl restart apache2 # Common for Apache setups
+
+# Reset OPcache if available
+php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache reset.'; }"
