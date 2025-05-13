@@ -11,5 +11,7 @@ php artisan optimize:clear
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache reset.'; }"
 
 echo "Starting Laravel Optimize..." >&2
+
 #php artisan optimize
+
 echo "Finished Laravel Optimize..." >&2
