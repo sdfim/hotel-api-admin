@@ -333,24 +333,18 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $forceParams = $this->resolveForceParams();
 
-                    Log::info('HotelApiHandler _ force_params ', $forceParams);
-
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
                         SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
                         default => [],
                     };
 
-                    Log::info('HotelApiHandler _ rawGiataIds for supplier '.$supplier.': ', $rawGiataIds);
-
                     $filteredGiataIds = [];
 
                     if($forceParams['blueprint_exists']) {
-                        Log::info('HotelApiHandler _ blueprint_exists is true');
                         $query = Hotel::whereIn('giata_code', $rawGiataIds)
                             ->whereHas('product');
                         $filteredHotels = $query->pluck('giata_code')->toArray();
-                        Log::info('HotelApiHandler _ filteredHotels after whereHas: ', $filteredHotels);
                         $filteredGiataIds = $filteredHotels;
 
                         if (!$forceParams['force_verified'])
@@ -360,7 +354,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                                     $q->where('verified', 0);
                                 });
                             $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
-                            Log::info('HotelApiHandler _ filteredGiataIds after verified check: ', $filteredGiataIds);
                         }
 
                         if (!$forceParams['force_on_sale'])
@@ -370,7 +363,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                                     $q->where('onSale', 0);
                                 });
                             $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
-                            Log::info('HotelApiHandler _ filteredGiataIds after onSale check: ', $filteredGiataIds);
                         }
 
                     } else {
