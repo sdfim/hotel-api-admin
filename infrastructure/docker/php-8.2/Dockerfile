@@ -60,9 +60,8 @@ RUN cp infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/ph
 RUN cp infrastructure/docker/php-8.2/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN php artisan key:generate
-RUN php artisan optimize:clear
 
 EXPOSE 80
 
-ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]
+ENTRYPOINT ["entrypoint.sh"]
