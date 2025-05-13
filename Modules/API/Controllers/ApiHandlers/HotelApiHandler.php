@@ -387,8 +387,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         }
                     }
 
-                    Log::info('HotelApiHandler _ filteredGiataIds after all checks: ', $filteredGiataIds);
-
                     $filters['force_on_sale'] = $forceParams['force_on_sale'];
                     $filters['force_verified'] = $forceParams['force_verified'];
                     $filters['filtered_giata_ids'] = $filteredGiataIds;
