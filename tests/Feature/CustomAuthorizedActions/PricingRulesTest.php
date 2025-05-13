@@ -6,6 +6,7 @@ use App\Livewire\PricingRules\CreatePricingRule;
 use App\Livewire\PricingRules\UpdatePricingRule;
 use App\Models\PricingRule;
 use App\Models\PricingRuleCondition;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Modules\API\Tools\PricingRulesDataGenerationTools;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Test;
 class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
+    use RefreshDatabase;
 
     #[Test]
     public function test_pricing_rules_index_is_opening(): void
