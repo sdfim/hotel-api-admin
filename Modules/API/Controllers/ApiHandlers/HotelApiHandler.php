@@ -541,7 +541,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 50), $res['query']);
             }
 
-            return $this->sendResponse($res, 'success');
+            return $this->sendResponse($res, 'success', 200, true);
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelApiHandler '.$e->getMessage());
             Log::error($e->getTraceAsString());

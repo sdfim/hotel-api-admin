@@ -49,7 +49,7 @@ class ExpediaBookApiController extends BaseBookApiController
         private readonly PricingRulesTools $pricingRulesService,
         private readonly ExpediaHotelBookingApiController $expediaHotelBookingApiController,
     ) {
-        $this->base_params = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone') === 'package'
+        $this->base_params = config('booking-suppliers.Expedia.supplier_expedia_rate_type') === 'package'
             ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
     }
 

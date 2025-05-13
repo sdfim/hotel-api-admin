@@ -308,7 +308,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $rateToApply['transformedRates'] = $transformedRates;
 
-        if (env('USE_DEBUG_TAX_FEE', false)) {
+        if (config('booking-suppliers.HBSI.use_debug_tax_fee')) {
             \Log::debug('transformedRates | giataId '.$giataId.' | unifiedRoomCode '.$unifiedRoomCode.' | rateCode '.$ratePlanCode, [
                 'transformedRates' => $transformedRates,
                 'repoTaxFees ' => $this->repoTaxFees,
