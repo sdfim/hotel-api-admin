@@ -307,12 +307,15 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                  */
                 /** @var FiberManager $fiberManager */
                 $fiberManager = app(FiberManager::class);
+                Log::info('HotelApiHandler _ suppliers ', $suppliers);
 
                 foreach ($suppliers as $supplierId) {
                     $supplier = Supplier::find($supplierId)?->name;
                     if ($request->supplier) {
                         $supplierQuery = explode(',', $request->supplier);
                         if (! in_array($supplier, $supplierQuery)) {
+
+                            Log::info('HotelApiHandler _ supplier NOT '.$supplier);
                             continue;
                         }
                     }
@@ -333,7 +336,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $forceParams = $this->resolveForceParams();
 
-                    Log::info('HotelApiHandler force params ', $forceParams);
+                    Log::info('HotelApiHandler _ force_params ', $forceParams);
                     $forceParams['force_verified'] = true;
                     $forceParams['blueprint_exists'] = false;
 
