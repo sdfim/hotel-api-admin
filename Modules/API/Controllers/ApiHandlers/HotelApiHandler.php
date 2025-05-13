@@ -313,8 +313,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     if ($request->supplier) {
                         $supplierQuery = explode(',', $request->supplier);
                         if (! in_array($supplier, $supplierQuery)) {
-
-                            Log::info('HotelApiHandler _ supplier NOT '.$supplier);
                             continue;
                         }
                     }
