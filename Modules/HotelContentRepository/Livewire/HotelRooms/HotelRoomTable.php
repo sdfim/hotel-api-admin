@@ -145,7 +145,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                     ]),
                                 ]),
                         ]),
-                    Tabs\Tab::make('Additional')
+                    Tabs\Tab::make('Attributes and Galleries')
                         ->schema([
                             Grid::make(1)->schema([
                                 Select::make('attributes')
