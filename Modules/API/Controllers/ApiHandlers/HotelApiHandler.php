@@ -336,9 +336,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $forceParams = $this->resolveForceParams();
 
                     Log::info('HotelApiHandler _ force_params ', $forceParams);
-                    $forceParams['force_verified'] = true;
-                    $forceParams['blueprint_exists'] = false;
-
 
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
@@ -769,15 +766,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
     private function resolveForceParams(): array
     {
-        $channelId = ChannelRepository::getTokenId(request()->bearerToken());
-        $channel = Channel::find($channelId);
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
+        $channel = Channel::where('token_id', $token_id)->first();
 
         $forceVerified = false;
         $forceOnSale = false;
         $blueprintExists = true;
-
-        Log::info('HotelApiHandler _ Bearer ' . request()->bearerToken());
-        Log::info('HotelApiHandler _ Channel ' . $channelId);
 
         if ($channel && $channel->accept_special_params)
         {
