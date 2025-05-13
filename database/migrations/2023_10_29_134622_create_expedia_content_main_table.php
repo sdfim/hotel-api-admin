@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('expedia_content_main')) {
-            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('expedia_content_main', function (Blueprint $table) {
+        if (! Schema::connection(config('database.active_connections.mysql_cache'))->hasTable('expedia_content_main')) {
+            Schema::connection(config('database.active_connections.mysql_cache'))->create('expedia_content_main', function (Blueprint $table) {
                 $table->integer('property_id')->index()->unique();
                 $table->float('rating')->index()->default(0);
                 $table->string('name');
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('expedia_content_main');
+        Schema::connection(config('database.active_connections.mysql_cache'))->dropIfExists('expedia_content_main');
     }
 };

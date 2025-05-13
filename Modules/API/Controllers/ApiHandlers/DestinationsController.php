@@ -232,7 +232,7 @@ class DestinationsController
     {
         $client = new Client();
         $client->setApplicationName('OBE');
-        $client->setDeveloperKey(env('GOOGLE_API_DEVELOPER_KEY'));
+        $client->setDeveloperKey(config('services.google.google_api_developer_key'));
 
         $service = new MapsPlaces($client);
 
@@ -280,7 +280,7 @@ class DestinationsController
     {
         $client = new Client();
         $client->setApplicationName('OBE');
-        $client->setDeveloperKey(env('GOOGLE_API_DEVELOPER_KEY'));
+        $client->setDeveloperKey(config('services.google.google_api_developer_key'));
 
         $service = new MapsPlaces($client);
         $searchCriteria = $request->q;

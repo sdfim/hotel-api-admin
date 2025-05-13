@@ -2,9 +2,6 @@
 
 namespace Modules\API\Requests;
 
-use App\Models\Configurations\ConfigConsortium;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class DetailHotelRequest extends ApiRequest
@@ -208,7 +205,8 @@ class DetailHotelRequest extends ApiRequest
             'property_ids' => 'required_without_all:property_id,giata_ids|string',
             'giata_ids' => 'required_without_all:property_id,property_ids|string',
 
-            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
+            'consortia_affiliation' => 'string|nullable',
+
             'supplier_data' => 'string|in:true,false',
 
             'type' => 'required|in:hotel,flight,combo',

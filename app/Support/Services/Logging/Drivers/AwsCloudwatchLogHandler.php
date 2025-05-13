@@ -61,23 +61,26 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     /**
      * CloudWatchLogs constructor.
      *
-     * @param  CloudWatchLogsClient  $client
-     *
-     *  Log group names must be unique within a region for an AWS account.
-     *  Log group names can be between 1 and 512 characters long.
-     *  Log group names consist of the following characters: a-z, A-Z, 0-9, '_' (underscore), '-' (hyphen),
-     * '/' (forward slash), and '.' (period).
-     * @param  string  $group
+     * @param string $region
+     * @param string $version
+     * @param array $credentials
+     * @param string $group
      *
      *  Log stream names must be unique within the log group.
      *  Log stream names can be between 1 and 512 characters long.
      *  The ':' (colon) and '*' (asterisk) characters are not allowed.
-     * @param  int  $level
-     *
-     * @throws Exception
+     * @param string $stream
+     * @param int $retention
+     * @param int $batchSize
+     * @param array $tags
+     * @param int|string|Level $level
+     * @param bool $bubble
+     * @param bool $createGroup
      */
     public function __construct(
-        CloudWatchLogsClient $client,
+        string $region,
+        string $version,
+        array $credentials,
         string $group,
         string $stream,
         int $retention = 14,
@@ -91,7 +94,11 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
             throw new InvalidArgumentException('Batch size can not be greater than 10000');
         }
 
-        $this->client = $client;
+        $this->client = new CloudWatchLogsClient([
+            'region'      => $region,
+            'version'     => $version,
+            'credentials' => $credentials,
+        ]);
         $this->group = $group;
         $this->stream = $stream;
         $this->retention = $retention;

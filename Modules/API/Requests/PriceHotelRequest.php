@@ -2,7 +2,6 @@
 
 namespace Modules\API\Requests;
 
-use App\Models\Configurations\ConfigConsortium;
 use App\Models\Supplier;
 use Modules\API\Validate\ApiRequest;
 
@@ -135,7 +134,7 @@ class PriceHotelRequest extends ApiRequest
 
             'query_package' => 'string|in:both,standalone,package',
 
-            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
+            'consortia_affiliation' => 'string|nullable',
 
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
@@ -143,6 +142,9 @@ class PriceHotelRequest extends ApiRequest
             'occupancy.*.children' => 'numeric',
             'occupancy.*.children_ages' => 'array',
             'occupancy.*.children_ages.*' => 'integer|between:0,17',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 

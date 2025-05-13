@@ -37,6 +37,11 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->sortable(),
                 TextColumn::make('user.name')
                     ->label('Creator'),
+                TextColumn::make('accept_special_params')
+                    ->label('Special API Params')
+                    ->formatStateUsing(fn (bool $state) => $state ? 'Yes' : 'No')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

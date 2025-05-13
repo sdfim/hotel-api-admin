@@ -106,6 +106,9 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
+            if (!in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+                continue;
+            }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
         }
 
@@ -313,7 +316,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $rateToApply['transformedRates'] = $transformedRates;
 
-        if (env('USE_DEBUG_TAX_FEE', false)) {
+        if (config('booking-suppliers.HBSI.use_debug_tax_fee')) {
             \Log::debug('transformedRates | giataId '.$giataId.' | unifiedRoomCode '.$unifiedRoomCode.' | rateCode '.$ratePlanCode, [
                 'transformedRates' => $transformedRates,
                 'repoTaxFees ' => $this->repoTaxFees,

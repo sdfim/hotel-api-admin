@@ -12,8 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-      if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('properties')) {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('properties', function (Blueprint $table) {
+      if (! Schema::connection(config('database.active_connections.mysql_cache'))->hasTable('properties')) {
+        Schema::connection(config('database.active_connections.mysql_cache'))->create('properties', function (Blueprint $table) {
             $table->id(); // Auto-increment primary key
             $table->integer('code')->unique()->index();
             $table->timestamp('last_updated')->useCurrent();
@@ -49,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('properties');
+        Schema::connection(config('database.active_connections.mysql_cache'))->dropIfExists('properties');
     }
 };

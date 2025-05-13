@@ -41,6 +41,11 @@ class BaseHotelPricingTransformer
 
     protected array $exclusionRoomTypes = [];
 
+    protected array $query = [
+        'force_on_sale' => false,
+        'force_verified' => false,
+    ];
+
     /**
      * Fetches and processes supplier repository data.
      * Uses Cache to store the processed data, ensuring it is shared
@@ -93,7 +98,6 @@ class BaseHotelPricingTransformer
                                 'is_paid' => $amenity->is_paid,
                                 'min_night_stay' => $amenity->min_night_stay,
                                 'max_night_stay' => $amenity->max_night_stay,
-                                'drivers' => $amenity->drivers,
                                 'priority_rooms' => (! empty($amenity->priority_rooms))
                                     ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
                                     : [],
@@ -163,6 +167,11 @@ class BaseHotelPricingTransformer
 
         $this->unifiedRoomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
+            // Skip hotels that are not on sale if force_on_sale is false
+            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
+                continue;
+            }
+
             $hbsiHotelData = $expediaHotelData = [
                 'hotel_code' => $hotel->giata_code,
                 'rooms' => [],
@@ -209,6 +218,11 @@ class BaseHotelPricingTransformer
         $this->bookingItems = [];
         $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
         $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
+
+        $this->query = array_merge([
+            'force_on_sale' => false,
+            'force_verified' => false,
+        ], $query);
 
         $cacheKey = 'pricing_data_'.md5(json_encode([$giataIds, $search_id]));
 

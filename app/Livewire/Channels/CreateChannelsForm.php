@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Filament\Forms\Components\Toggle;
 
 class CreateChannelsForm extends Component implements HasForms
 {
@@ -35,6 +36,10 @@ class CreateChannelsForm extends Component implements HasForms
                 TextInput::make('description')
                     ->required()
                     ->maxLength(191),
+                Toggle::make('accept_special_params')
+                    ->label('Allow special API parameters')
+                    ->helperText('Enables use of "force_on_sale_on" and "force_verified_on" from the API.')
+                    ->default(false),
             ])
             ->statePath('data')
             ->model(Channel::class);
@@ -47,6 +52,7 @@ class CreateChannelsForm extends Component implements HasForms
             'name' => $data['name'],
             'description' => $data['description'],
             'user_id' => auth()->user()->id,
+            'accept_special_params' => $data['accept_special_params'] ?? false,
         ]);
 
         $token = $channel->createToken($data['name']);

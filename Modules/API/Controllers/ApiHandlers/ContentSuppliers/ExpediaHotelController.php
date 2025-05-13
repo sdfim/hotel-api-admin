@@ -165,7 +165,8 @@ class ExpediaHotelController implements SupplierControllerInterface
     public function price(array $filters, array $searchInspector, array $preSearchData): ?array
     {
         try {
-            if (empty($preSearchData['ids'])) {
+            if (empty($preSearchData['ids'])) 
+            {
                 return [
                     'original' => [
                         'request' => [],
@@ -176,8 +177,37 @@ class ExpediaHotelController implements SupplierControllerInterface
                 ];
             }
 
-            // get PriceData from RapidAPI Expedia
-            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters, $searchInspector);
+            // Filter IDs based on filtered_giata_ids if available
+            $filteredIds = [];
+            if (isset($filters['filtered_giata_ids']) && !empty($filters['filtered_giata_ids'])) 
+            {
+                $mappings = $this->mappingCacheService->getMappingsExpediaHashMap();
+                foreach ($preSearchData['ids'] as $id) 
+                {
+                    if (isset($mappings[$id]) && in_array($mappings[$id], $filters['filtered_giata_ids'])) {
+                        $filteredIds[] = $id;
+                    }
+                }
+            } 
+            else 
+            {
+                $filteredIds = $preSearchData['ids'];
+            }
+
+            if (empty($filteredIds)) 
+            {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            // get PriceData from RapidAPI Expedia using filtered IDs
+            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($filteredIds, $filters, $searchInspector);
 
             $output = [];
             // add price to response

@@ -1873,6 +1873,9 @@
                                 "$ref": "#/components/schemas/PricingSearchRequest"
                             },
                             "examples": {
+                                "PricingSearchRequestPlaceCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestPlaceCancun"
+                                },
                                 "PricingSearchWtithFilterAmenities": {
                                     "$ref": "#/components/examples/PricingSearchWtithFilterAmenities"
                                 },
@@ -1881,9 +1884,6 @@
                                 },
                                 "PricingSearchRequestPlace": {
                                     "$ref": "#/components/examples/PricingSearchRequestPlace"
-                                },
-                                "PricingSearchRequestPlaceCancun": {
-                                    "$ref": "#/components/examples/PricingSearchRequestPlaceCancun"
                                 },
                                 "PricingSearchRequestNewYork": {
                                     "$ref": "#/components/examples/PricingSearchRequestNewYork"
@@ -5638,6 +5638,21 @@
                         "description": "Consortium affiliation name.",
                         "type": "string",
                         "example": "Virtuoso"
+                    },
+                    "force_on_sale_on": {
+                        "description": "Force to show hotels that are not on sale",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "force_verified_on": {
+                        "description": "Force to show hotels that are not verified",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "blueprint_exists": {
+                        "description": "Filter hotels that have a product blueprint (default: true)",
+                        "type": "boolean",
+                        "example": true
                     },
                     "occupancy": {
                         "description": "Occupancy of the hotel",

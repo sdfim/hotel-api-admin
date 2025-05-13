@@ -40,7 +40,7 @@ class ContentRepositoryApiRoutes
             Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
             Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
 
-            Route::resource('hotel-rooms', HotelRoomController::class);
+            Route::resource('hotel-rooms', HotelRoomController::class)->names('api.hotel-rooms');
             Route::post('hotel-rooms/{id}/attach-gallery', [HotelRoomController::class, 'attachGallery']);
             Route::post('hotel-rooms/{id}/detach-gallery', [HotelRoomController::class, 'detachGallery']);
 

@@ -37,7 +37,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY ../../.. /var/www/html
 
-RUN composer install --ignore-platform-reqs --optimize-autoloader
+RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
 FROM node:18-bookworm as npmbuild
 
@@ -57,8 +57,11 @@ WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
 RUN cp .env.example .env
 RUN cp infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
+RUN cp infrastructure/docker/php-8.2/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN php artisan key:generate
 
 EXPOSE 80
 
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]

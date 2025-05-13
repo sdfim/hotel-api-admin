@@ -56,6 +56,9 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
+            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+                continue;
+            }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $query);
         }
 
@@ -335,6 +338,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
             return empty($amenity['drivers']) || in_array(SupplierNameEnum::EXPEDIA->value, $amenity['drivers'], true);
         })->map(function ($amenity) {
             unset($amenity['drivers'], $amenity['priority_rooms']);
+
             return $amenity;
         })->toArray();
         $roomUltimateAmenities = array_values($roomUltimateAmenities);

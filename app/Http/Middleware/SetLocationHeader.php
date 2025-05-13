@@ -17,7 +17,7 @@ class SetLocationHeader
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-        $appEnv = env('APP_ENV') ?? config('app.env');
+        $appEnv = config('engine.env');
         $path = $request->path();
 
         if (in_array($appEnv, ['production', 'prod', 'development', 'dev'])) {

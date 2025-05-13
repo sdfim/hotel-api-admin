@@ -29,6 +29,11 @@
                     </div>
                     <x-section-border/>
                     <div class="mt-10 sm:mt-0">
+                        <strong>Accepts Special API Parameters:</strong>
+                        {{ $channel->accept_special_params ? 'Yes' : 'No' }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
                         <strong>Access Token:</strong>
                         {{ $channel->access_token }}
                     </div>

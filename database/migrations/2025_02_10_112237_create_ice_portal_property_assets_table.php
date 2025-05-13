@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up()
     {
-        if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('ice_portal_property_assets')) {
-            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('ice_portal_property_assets', function (Blueprint $table) {
+        if (! Schema::connection(config('database.active_connections.mysql_cache'))->hasTable('ice_portal_property_assets')) {
+            Schema::connection(config('database.active_connections.mysql_cache'))->create('ice_portal_property_assets', function (Blueprint $table) {
                 $table->id('listingID');
                 $table->string('type');
                 $table->string('name');
@@ -52,7 +52,7 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('ice_portal_property_assets');
+        Schema::connection(config('database.active_connections.mysql_cache'))->dropIfExists('ice_portal_property_assets');
 
     }
 };

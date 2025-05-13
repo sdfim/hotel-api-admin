@@ -2,7 +2,6 @@
 
 namespace Modules\API\Requests;
 
-use App\Models\Configurations\ConfigConsortium;
 use Modules\API\Validate\ApiRequest;
 
 class SearchHotelRequest extends ApiRequest
@@ -155,7 +154,7 @@ class SearchHotelRequest extends ApiRequest
             'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
             'session' => 'required_with:place|nullable|string|max:36',
 
-            'consortia_affiliation' => 'string|in:'.implode(',', ConfigConsortium::pluck('name')->toArray()),
+            'consortia_affiliation' => 'string|nullable',
 
             'destination' => 'required_without_all:latitude,longitude,place,giata_ids|integer|min:1',
             'latitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-90|max:90',
@@ -163,6 +162,9 @@ class SearchHotelRequest extends ApiRequest
             'radius' => 'required_without_all:destination,giata_ids|numeric|between:1,100',
             'supplier' => 'string',
             'hotel_name' => 'string',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 }
