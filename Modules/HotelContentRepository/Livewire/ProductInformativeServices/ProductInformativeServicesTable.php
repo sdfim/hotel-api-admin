@@ -321,6 +321,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                         ->modalWidth('6xl')
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
+                            $data['show_service_on_pdf'] = $data['show_service_on_pdf'] ?? false;
+                            $data['show_service_data_on_pdf'] = $data['show_service_data_on_pdf'] ?? false;
                             $data['dynamicColumns'] = $record->dynamicColumns->toArray();
 
                             return $data;
@@ -359,7 +361,13 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->modalWidth('6xl')
                     ->createAnother(false)
                     ->action(function ($data) {
-                        $data['product_id'] = $this->product->id;
+                        $data = array_merge($data, [
+                            'product_id' => $this->product->id,
+                            'rate_id' => $this->rateId,
+                            'room_id' => $this->roomId,
+                        ]);
+                        $data['show_service_on_pdf'] = $data['show_service_on_pdf'] ?? false;
+                        $data['show_service_data_on_pdf'] = $data['show_service_data_on_pdf'] ?? false;
                         /** @var AddProductInformativeService $addProductInformativeService */
                         $addProductInformativeService = app(AddProductInformativeService::class);
                         $addProductInformativeService->createWithDynamicColumns($data);
