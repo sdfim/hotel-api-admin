@@ -3,8 +3,14 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\ClassHelper;
+use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -14,6 +20,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -85,9 +92,31 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->wrap(),
 
                 TextColumn::make('giata_code')
+                    ->label('GIATA Code')
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
+
+                TextColumn::make('giataCode.mappings')
+                    ->label('Mappings')
+                    ->html()
+                    ->getStateUsing(function ($record) {
+                        return $record->giataCode?->mappings
+                            ->filter(fn ($mapping) => $mapping->supplier !== 'HBSI')
+                            ->map(fn ($mapping) => "{$mapping->supplier_id}: {$mapping->supplier}")
+                            ->join('<br>');
+                    })
+                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('crmMapping.crm_hotel_id')
+                    ->label('CRM ID')
+                    ->sortable()
+                    ->url(fn ($record) => $record->crmMapping ? "https://staging.travelagentadmin.net/hotels/edit/{$record->crmMapping->crm_hotel_id}" : '#')
+                    ->openUrlInNewTab()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->extraAttributes(['style' => 'max-width: 50px;'])
+                    ->getStateUsing(fn ($record) => $record->crmMapping->crm_hotel_id ?? 'N/A'),
 
                 TextColumn::make('product.address')
                     ->label('Address')
@@ -311,11 +340,164 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->visible(! $this->vendor?->id),
             ])
             ->filters([
+                Filter::make('giata_code')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                TextInput::make('giata_code')
+                                    ->label('GIATA Code')
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_giata')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('giata_code', '');
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['giata_code'])) {
+                            $query->where('giata_code', 'like', '%'.$data['giata_code'].'%');
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+
+                Filter::make('product.name')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('name', '');
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['name'])) {
+                            $query->whereHas('product', function (Builder $subQuery) use ($data) {
+                                $subQuery->where('name', 'like', '%'.$data['name'].'%');
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+
+                SelectFilter::make('product.attributes')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('values')
+                                    ->label('Attributes')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        return ConfigAttribute::query()
+                                            ->pluck('name', 'id')
+                                            ->sortBy(fn ($value, $key) => $value)
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_attributes')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('values', '');
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['values'])) {
+                            $query->whereHas('product.attributes', function (Builder $subQuery) use ($data) {
+                                $subQuery->whereIn('config_attribute_id', $data['values']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+
+                SelectFilter::make('crmMapping.crm_hotel_id')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('value')
+                                    ->label('CRM Hotel ID')
+                                    ->searchable()
+                                    ->options(function () {
+                                        return Hotel::query()
+                                            ->whereHas('crmMapping')
+                                            ->with('crmMapping')
+                                            ->get()
+                                            ->pluck('crmMapping.crm_hotel_id', 'crmMapping.crm_hotel_id')
+                                            ->sortBy(fn ($value, $key) => $key)
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_crm')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('value', '');
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['value'])) {
+                            $query->whereHas('crmMapping', function (Builder $subQuery) use ($data) {
+                                $subQuery->where('crm_hotel_id', $data['value']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+
                 SelectFilter::make('product.verified')
-                    ->label('Verified')
-                    ->options([
-                        1 => 'Yes',
-                        0 => 'No',
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('value')
+                                    ->label('Verified')
+                                    ->options([
+                                        1 => 'Yes',
+                                        0 => 'No',
+                                    ])
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_verified')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('value', null);
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['value'])) {
@@ -325,12 +507,31 @@ class HotelTable extends Component implements HasForms, HasTable
                         }
 
                         return $query;
-                    }),
+                    })
+                    ->columnSpan(2),
+
                 SelectFilter::make('product.onSale')
-                    ->label('onSale')
-                    ->options([
-                        1 => 'Yes',
-                        0 => 'No',
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('value')
+                                    ->label('onSale')
+                                    ->options([
+                                        1 => 'Yes',
+                                        0 => 'No',
+                                    ])
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_onSale')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('value', null);
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['value'])) {
@@ -340,29 +541,52 @@ class HotelTable extends Component implements HasForms, HasTable
                         }
 
                         return $query;
-                    }),
+                    })
+                    ->columnSpan(2),
+
                 SelectFilter::make('star_rating')
-                    ->label('Star Rating')
-                    ->multiple()
-                    ->options([
-                        '1-2' => '1-2 Stars',
-                        '3-3.5' => '3-3.5 Stars',
-                        '3.5-4' => '3.5-4 Stars',
-                        '4-4.5' => '4-4.5 Stars',
-                        '4.5-5' => '4.5-5 Stars',
-                        '5-5.5' => '5-5.5 Stars',
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('values')
+                                    ->label('Star Rating')
+                                    ->multiple()
+                                    ->options([
+                                        '1-2' => '1-2 Stars',
+                                        '3-3.5' => '3-3.5 Stars',
+                                        '3.5-4' => '3.5-4 Stars',
+                                        '4-4.5' => '4-4.5 Stars',
+                                        '4.5-5' => '4.5-5 Stars',
+                                        '5-5.5' => '5-5.5 Stars',
+                                    ])
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    Action::make('clear_star_rating')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('values', []);
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (! empty($data['values'])) {
-                            foreach ($data['values'] as $value) {
-                                [$min, $max] = explode('-', $value);
-                                $query->orWhereBetween('star_rating', [(int) $min, (int) $max]);
-                            }
+                            $query->where(function (Builder $query) use ($data) {
+                                foreach ($data['values'] as $value) {
+                                    [$min, $max] = explode('-', $value);
+                                    $query->orWhereBetween('star_rating', [(float) $min, (float) $max]);
+                                }
+                            });
                         }
 
                         return $query;
-                    }),
-            ]);
+                    })
+                    ->columnSpan(2),
+            ])
+            ->filtersFormColumns(4);
     }
 
     public function exportDatabase(): bool

@@ -64,6 +64,7 @@ class RefreshTables extends Command
             $migrationsDeleted = DB::table('migrations')
                 ->where('migration', 'LIKE', '%'.$prefix.'%')
                 ->whereNot('migration', 'LIKE', '%general_configurations%')
+                ->whereNot('migration', 'LIKE', '%insurance_config%')
                 ->delete();
 
             $this->info("Deleted migration records: $migrationsDeleted");

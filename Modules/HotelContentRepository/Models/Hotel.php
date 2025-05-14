@@ -56,6 +56,11 @@ class Hotel extends Model
         'pivot',
     ];
 
+    public function crmMapping(): BelongsTo
+    {
+        return $this->belongsTo(HotelCrmMapping::class, 'giata_code', 'giata_code');
+    }
+
     public function giataCode(): HasOne
     {
         return $this->hasOne(Property::class, 'code', 'giata_code');
