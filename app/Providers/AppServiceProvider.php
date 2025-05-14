@@ -44,10 +44,6 @@ class AppServiceProvider extends ServiceProvider
 
             return new ExpediaService($propertyCallFactory);
         });
-
-        if ($this->app->environment('local')) {
-            $this->app->register(HorizonServiceProvider::class);
-        }
     }
 
     /**
@@ -66,7 +62,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function bootRoute(): void
     {
-        RateLimiter::for('api', function (Request $request) {
+        $disable = config('engine.disable_throttle');
+
+        RateLimiter::for('api', function (Request $request) use ($disable) {
+            if ($disable)
+            {
+                return Limit::perMinute(1000)->by($request->user()?->id ?: $request->ip());
+            }
+
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 

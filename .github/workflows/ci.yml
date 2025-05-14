@@ -79,7 +79,7 @@ jobs:
       - name: Install additional PHP extensions
         if: steps.cache-php-extensions.outputs.cache-hit != 'true'
         run: |
-          apt-get update
+          apt-get update --allow-releaseinfo-change
           apt-get install -y php8.2-xdebug
           echo "xdebug.mode=develop,debug,coverage" | tee -a /etc/php/8.2/cli/php.ini
           php -v

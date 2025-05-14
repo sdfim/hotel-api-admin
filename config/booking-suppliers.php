@@ -10,6 +10,7 @@ return [
             'target' => env('BOOKING_SUPPLIER_HBSI_TARGET', 'Test'),
             'component_info_id' => env('BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID', ''),
         ],
+        'use_debug_tax_fee' => env('USE_DEBUG_TAX_FEE', false),
     ],
 
     'Expedia' => [
@@ -17,7 +18,9 @@ return [
             'api_key' => env('SUPPLIER_EXPEDIA_API_KEY', ''),
             'shared_secret' => env('SUPPLIER_EXPEDIA_SHARED_SECRET', ''),
             'rapid_base_url' => env('SUPPLIER_EXPEDIA_BASE_URL', ''),
+            'test_token' => env('TEST_TOKEN', ''),
         ],
+        'supplier_expedia_rate_type' => env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone'),
     ],
 
     'IcePortal' => [

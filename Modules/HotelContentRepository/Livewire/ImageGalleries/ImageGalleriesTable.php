@@ -15,14 +15,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Actions\Gallery\AddGallery;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
-use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Product;
 
@@ -49,7 +47,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
         }
 
         return $table
-            ->paginated([25, 50, 100])
+            ->paginated([10, 25, 50, 100])
             ->query(function () {
                 $query = ImageGallery::query();
                 if ($this->productId) {
@@ -61,6 +59,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
             ->defaultSort('created_at', 'desc')
             ->recordUrl(fn (ImageGallery $record): ?string => Gate::allows('update', $record) ? route('image-galleries.edit', $record) : null
             )
+            ->deferLoading()
             ->columns([
                 ImageColumn::make('images.image_url')
                     ->size('70px')
@@ -70,7 +69,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                     ->getStateUsing(function ($record) {
                         return collect($record->images)
                             ->shuffle()
-                            ->pluck('image_url')
+                            ->map(fn ($image) => $image['full_url'])
                             ->toArray();
                     })
                     ->limit(4)
@@ -81,6 +80,15 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                 TextColumn::make('description')->wrap(),
             ])
             ->actions([
+                Action::make('view')
+                    ->iconButton()
+                    ->icon('heroicon-o-eye')
+                    ->modalWidth('7xl')
+                    ->modalHeading('Gallery')
+                    ->modalContent(function (ImageGallery $record) {
+                        return view('livewire.image-galleries.swiper-gallery', ['images' => $record->images]);
+                    })
+                    ->modalSubmitAction(false),
                 EditAction::make('edit')
                     ->iconButton()
                     ->form(ImageGalleriesForm::getGalleryFormComponents())
@@ -103,6 +111,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
+                    ->modalWidth('6xl')
                     ->tooltip('Add Image to Product Gallery')
                     ->modalHeading('Create Image')
                     ->form(array_filter(

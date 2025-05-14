@@ -137,6 +137,7 @@ class HotelResponse extends BaseResponse
     {
         return $this->deposit_information;
     }
+
     public function getDestination(): string
     {
         return $this->destination;

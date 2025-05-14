@@ -9,7 +9,6 @@ class ProductAffiliationDTO
 {
     public $id;
     public $product_id;
-    public $consortia_id;
     public $description;
     public $start_date;
     public $end_date;
@@ -25,7 +24,7 @@ class ProductAffiliationDTO
     {
         return [
             'id' => $productAffiliation->id,
-            'consortia' => $productAffiliation->consortia->name,
+            'consortia' => $productAffiliation->consortia?->name,
             'description' => $productAffiliation->description,
             'start_date' => $productAffiliation->start_date,
             'end_date' => $productAffiliation->end_date,

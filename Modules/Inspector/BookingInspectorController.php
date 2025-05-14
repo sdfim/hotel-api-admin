@@ -57,8 +57,7 @@ class BookingInspectorController extends BaseInspectorController
             /**
              * Added compatibility to save logs for imported TravelTek bookings
              */
-            if (empty($inspector['search_id']))
-            {
+            if (empty($inspector['search_id'])) {
                 $inspector['search_id'] = 'traveltek_import';
                 $inspector['booking_item'] = 'traveltek_import';
             }
@@ -70,7 +69,7 @@ class BookingInspectorController extends BaseInspectorController
             return $booking->id;
 
         } catch (Exception $e) {
-            Log::error('Error save ApiSearchInspector: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
+            Log::error('BookingInspectorController Error save ApiBookingInspector: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
             Log::error($e->getTraceAsString());
         }
 

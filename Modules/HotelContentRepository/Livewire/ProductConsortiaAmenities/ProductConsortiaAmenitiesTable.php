@@ -21,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
@@ -51,7 +52,7 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Consortia Amenities for '.$product->name;
         if ($this->rateId) {
@@ -75,8 +76,8 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
                 ->schema([
                     Select::make('consortia_id')
                         ->label('Consortia')
-                        ->options(ConfigConsortium::pluck('name', 'id'))
-                        ->createOptionForm(ConsortiaForm::getSchema())
+                        ->options(ConfigConsortium::all()->sortBy('name')->pluck('name', 'id'))
+                        ->createOptionForm(Gate::allows('create', ConfigConsortium::class) ? ConsortiaForm::getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             /** @var CreateConfigConsortium $createConfigConsortium */
                             $createConfigConsortium = app(CreateConfigConsortium::class);
@@ -129,6 +130,7 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
                     $query->whereNull('rate_id')->whereNull('room_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')

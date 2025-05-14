@@ -21,8 +21,11 @@ class PriceHotelRequest extends ApiRequest
      *     @OA\JsonContent(
      *       ref="#/components/schemas/PricingSearchRequest",
      *       examples={
+     *           "Search with Filter Amenities": @OA\Schema(ref="#/components/examples/PricingSearchWtithFilterAmenities", example="PricingSearchWtithFilterAmenities"),
+     *           "Search without Filter Amenities": @OA\Schema(ref="#/components/examples/PricingSearchWtithoutFilterAmenities", example="PricingSearchWtithoutFilterAmenities"),
      *           "GIATA Place Eiffel Tower": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlace", example="PricingSearchRequestPlace"),
      *           "GIATA Place Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlaceCancun", example="PricingSearchRequestPlaceCancun"),
+     *           "GIATA Place Eiffel Tower": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlace", example="PricingSearchRequestPlace"),
      *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
      *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
      *           "Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestCancun", example="PricingSearchRequestCancun"),
@@ -131,12 +134,17 @@ class PriceHotelRequest extends ApiRequest
 
             'query_package' => 'string|in:both,standalone,package',
 
+            'consortia_affiliation' => 'string|nullable',
+
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|integer|between:1,20',
             'occupancy.*.children' => 'numeric',
             'occupancy.*.children_ages' => 'array',
             'occupancy.*.children_ages.*' => 'integer|between:0,17',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 

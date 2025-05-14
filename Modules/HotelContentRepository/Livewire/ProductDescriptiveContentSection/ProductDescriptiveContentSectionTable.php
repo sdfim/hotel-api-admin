@@ -13,7 +13,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -21,9 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
@@ -73,15 +70,12 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ]),
             Select::make('descriptive_type_id')
                 ->label('Content')
-                ->options(ConfigDescriptiveType::get()->mapWithKeys(function ($item) {
-                    if ($item->name !== $item->type) {
-                        return [$item->id => "{$item->name} ({$item->type})"];
-                    }
-
-                    return [$item->id => $item->name];
+                ->searchable()
+                ->options(ConfigDescriptiveType::orderBy('name')->get()->mapWithKeys(function ($item) {
+                    return [$item->id => "{$item->name} ({$item->type} | location: {$item->location->name})"];
                 }))
                 ->required()
-                ->createOptionForm(DescriptiveTypesForm::getSchema())
+                ->createOptionForm(Gate::allows('create', ConfigDescriptiveType::class) ? DescriptiveTypesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
                     ConfigDescriptiveType::create($data);
                     Notification::make()
@@ -101,7 +95,6 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->nullable(),
                     FileUpload::make('document_path')
                         ->label('Document')
-                        ->disk('public')
                         ->directory('descriptive-documentation')
                         ->visibility('private')
                         ->downloadable()
@@ -115,8 +108,19 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
         return $table
             ->query(
                 ProductDescriptiveContentSection::query()
-                    ->where('product_id', $this->productId)->where('rate_id', $this->rateId)
+                    ->where('product_id', $this->productId)
             )
+            ->modifyQueryUsing(function ($query) {
+                if ($this->rateId) {
+                    $query->where(function ($q) {
+                        $q->where('rate_id', $this->rateId)
+                            ->orWhereNull('rate_id');
+                    });
+                } else {
+                    $query->whereNull('rate_id');
+                }
+            })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
@@ -134,7 +138,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 TextColumn::make('descriptiveType.name')
                     ->label('Content Section')
                     ->searchable(),
-                TextColumn::make('value')->label('Value')->wrap(),
+                TextColumn::make('value')->label('Value')->wrap()->limit(700),
                 TextColumn::make('created_at')->label('Created At')->date(),
                 TextColumn::make('document_description')->label('Document Description')->wrap(),
             ])
@@ -142,29 +146,10 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ActionGroup::make([
                     EditAction::make()
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
-                        ->form(fn ($record) => $this->schemeForm($record)),
+                        ->form(fn ($record) => $this->schemeForm($record))
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                     DeleteAction::make()
                         ->visible(fn () => Gate::allows('create', Product::class)),
-                    Action::make('download')
-                        ->icon('heroicon-s-arrow-down-circle')
-                        ->color('success')
-                        ->label('Download Document')
-                        ->visible(fn (ProductDescriptiveContentSection $record) => ! is_null($record->document_path))
-                        ->action(function (ProductDescriptiveContentSection $record) {
-                            $filePath = $record->document_path;
-                            if (Storage::disk('public')->exists($filePath)) {
-                                return response()->download(
-                                    Storage::disk('public')->path($filePath),
-                                    basename($filePath)
-                                );
-                            }
-                            Notification::make()
-                                ->title('File not found')
-                                ->danger()
-                                ->send();
-
-                            return false;
-                        }),
                 ])->visible(fn (ProductDescriptiveContentSection $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
             )
             ->headerActions($this->getHeaderActions());

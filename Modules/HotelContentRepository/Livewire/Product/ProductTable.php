@@ -43,7 +43,7 @@ class ProductTable extends Component implements HasForms, HasTable
                 $query = Product::query()
                     ->when(
                         auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
-                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id)
+                        fn ($q) => $q->whereIn('vendor_id', auth()->user()->allTeams()->pluck('vendor_id')->toArray())
                     );
 
                 if ($this->vendor?->id) {

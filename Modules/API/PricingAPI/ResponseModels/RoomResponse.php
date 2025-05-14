@@ -34,6 +34,10 @@ class RoomResponse extends BaseResponse
 
     private float $total_net;
 
+    private float $commissionable_amount = 0;
+
+    private float $commission_amount = 0;
+
     private float $markup;
 
     private string $booking_item;
@@ -71,6 +75,18 @@ class RoomResponse extends BaseResponse
     private string $query_package;
 
     private ?array $deposits = [];
+
+    private ?array $pricingRulesApplier = [];
+
+    public function setPricingRulesAppliers(array $pricingRulesApplier): void
+    {
+        $this->pricingRulesApplier = $pricingRulesApplier;
+    }
+
+    public function getPricingRulesAppliers(): array
+    {
+        return $this->pricingRulesApplier;
+    }
 
     public function setDeposits(array $deposits): void
     {
@@ -240,6 +256,25 @@ class RoomResponse extends BaseResponse
     public function getTotalTax(): float
     {
         return $this->total_tax;
+    }
+
+    public function setCommissionAmount(float $commission_amount): void
+    {
+        $this->commission_amount = $commission_amount;
+    }
+
+    public function getCommissionAmount(): float
+    {
+        return $this->commission_amount;
+    }
+    public function getCommissionableAmount(): float
+    {
+        return $this->commissionable_amount;
+    }
+
+    public function setCommissionableAmount(float $commissionable_amount): void
+    {
+        $this->commissionable_amount = $commissionable_amount;
     }
 
     public function setTotalFees(float $total_fees): void
@@ -442,6 +477,9 @@ class RoomResponse extends BaseResponse
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
             'markup' => $this->getMarkup(),
+
+            'pricing_rules_applier' => $this->getPricingRulesAppliers(),
+
             'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
             'booking_item' => $this->getBookingItem(),
@@ -454,6 +492,8 @@ class RoomResponse extends BaseResponse
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
             'deposits' => $this->getDeposits(),
+            'commissionable_amount' => $this->getCommissionableAmount(),
+            'commission_amount' => $this->getCommissionAmount(),
         ];
     }
 }

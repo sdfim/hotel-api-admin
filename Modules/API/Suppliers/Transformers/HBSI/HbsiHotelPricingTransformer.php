@@ -9,6 +9,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\TaxAndFeeResolver;
+use Modules\API\PricingAPI\Resolvers\UltimateAmenities\UltimateAmenityResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
@@ -16,20 +18,14 @@ use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
-use Modules\API\Tools\PricingDtoTools;
+use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
 use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\ItemTypeEnum;
-use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Models\Hotel;
 
-class HbsiHotelPricingTransformer
+class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 {
     private HbsiPricingRulesApplier $pricingRulesApplier;
-
-    private array $mapperSupplierRepository;
-
-    private array $depositInformation;
 
     /**
      * @var string[]
@@ -51,9 +47,6 @@ class HbsiHotelPricingTransformer
         'service charge',
     ];
 
-    /**
-     * @var string[]
-     */
     private array $taxes = [
         'assessment/license tax',
         'bed tax',
@@ -90,53 +83,36 @@ class HbsiHotelPricingTransformer
     ];
 
     public function __construct(
-        private readonly PricingDtoTools $pricingDtoTools,
-        private array $bookingItems = [],
+        private readonly TaxAndFeeResolver $taxAndFeeResolver,
+        private readonly UltimateAmenityResolver $ultimateAmenityResolver,
         private array $meal_plans_available = [],
         private array $roomCombinations = [],
-        private array $giata = [],
+        private array $basicHotelData = [],
         private string $rate_type = '',
-        private string $destinationData = '',
-        private string $search_id = '',
         private string $currency = '',
         private int $supplier_id = 0,
-        private array $exclusionRates = [],
-        private array $repoTaxFees = [],
-        private array $unifiedRoomCodes = [],
-        private string $checkin = '',
-        private string $checkout = '',
     ) {}
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
     {
-        $this->exclusionRates = $this->pricingDtoTools->extractExclusionRates($pricingExclusionRules);
-        $this->fetchSupplierRepositoryData($giataIds);
+        $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
+        $this->fetchSupplierRepositoryData($search_id, $giataIds);
 
-        $this->search_id = $search_id;
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $this->bookingItems = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
-        $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->destinationData = $this->pricingDtoTools->getDestinationData($query);
-
-        $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
-        $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
-
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
+            if (!in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+                continue;
+            }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
         }
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
-    }
-
-    private function filterActiveDepositInformation(array $depositInformation): array
-    {
-        return $depositInformation;
     }
 
     public function setHotelResponse(array $propertyGroup, int|string $key, array $query): array
@@ -151,7 +127,8 @@ class HbsiHotelPricingTransformer
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
-        $hotelResponse->setDepositInformation($this->filterActiveDepositInformation(Arr::get($this->depositInformation, $propertyGroup['giata_id'], [])));
+        $rating = $this->giata[$propertyGroup['giata_id']]['rating'] ?? 0;
+        $hotelResponse->setDepositInformation(DepositResolver::getHotelLevel(Arr::get($this->depositInformation, $propertyGroup['giata_id'], []), $query, $propertyGroup['giata_id'], $rating));
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -160,7 +137,7 @@ class HbsiHotelPricingTransformer
         $lowestPrice = 100000;
 
         foreach ($propertyGroup['rooms'] as $roomGroup) {
-            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $hotelResponse->getDepositInformation(), $query);
+            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $query);
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
             $lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
             if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
@@ -201,9 +178,13 @@ class HbsiHotelPricingTransformer
         return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
     }
 
-    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId, array $depositInformation, array $query): array
+    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId, array $query): array
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
+
+        $basicHotelData = Arr::get($this->basicHotelData, $propertyGroup['giata_id']);
+
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
         $roomGroupsResponse = RoomGroupsResponseFactory::create();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
@@ -225,11 +206,15 @@ class HbsiHotelPricingTransformer
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
             $ratePlanCode = Arr::get($room, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+            // exclude rate codes from the response according to excludeRules
             if (in_array($ratePlanCode, $this->exclusionRates)) {
                 continue;
             }
 
-            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $depositInformation, $query);
+            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $query);
+            if (empty($roomData)) {
+                continue;
+            }
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -251,7 +236,7 @@ class HbsiHotelPricingTransformer
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
+        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0));
 
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
         $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
@@ -261,12 +246,22 @@ class HbsiHotelPricingTransformer
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $depositInformation, array $query): array
+    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $query): array
     {
-        $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
-        $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, "$giataCode.$roomType", '');
+        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+        // exclude room types and names from the response according to excludeRules
+        if (in_array($roomType, $this->exclusionRoomTypes) || in_array($roomName, $this->exclusionRoomNames)) {
+            return [];
+        }
+
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+        $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+
+        $hbsiUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HBSI->value, []);
+        $unifiedRoomCode = Arr::get($hbsiUnifiedRoomCodes, "$giataCode.$roomType", '');
 
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
@@ -303,6 +298,7 @@ class HbsiHotelPricingTransformer
         //        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
         $rateOccupancy = $adults.'-'.$children.'-'.$infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
+        $numberOfPassengers = $adults + $children + $infants;
 
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
@@ -315,12 +311,12 @@ class HbsiHotelPricingTransformer
 
         $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
         $rateToApply['rateOccupancy'] = $rateOccupancy;
-        $transformedRates = $this->transformRates($rateToApply['Rates']);
-        $this->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $rateOccupancy);
+        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates']);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees);
 
         $rateToApply['transformedRates'] = $transformedRates;
 
-        if (env('USE_DEBUG_TAX_FEE', false)) {
+        if (config('booking-suppliers.HBSI.use_debug_tax_fee')) {
             \Log::debug('transformedRates | giataId '.$giataId.' | unifiedRoomCode '.$unifiedRoomCode.' | rateCode '.$ratePlanCode, [
                 'transformedRates' => $transformedRates,
                 'repoTaxFees ' => $this->repoTaxFees,
@@ -403,7 +399,6 @@ class HbsiHotelPricingTransformer
             $nonRefundable = true;
         }
 
-        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
@@ -432,11 +427,34 @@ class HbsiHotelPricingTransformer
         }
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($ratePlanCode);
+
+        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
+            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
+        ))->filter(function ($amenity) use ($unifiedRoomCode) {
+            return (empty($amenity['drivers']) || in_array(SupplierNameEnum::HBSI->value, $amenity['drivers'], true))
+                && (empty($amenity['priority_rooms']) || in_array($unifiedRoomCode, $amenity['priority_rooms'], true));
+        })->map(function ($amenity) {
+            unset($amenity['drivers']);
+            unset($amenity['priority_rooms']);
+            return $amenity;
+        })->toArray();
+        $roomUltimateAmenities = array_values($roomUltimateAmenities);
+        $feesUltimateAmenities = $this->ultimateAmenityResolver->getFeesUltimateAmenities(
+            $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
+        $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
+
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
-        $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
+        $roomResponse->setTotalFees($pricingRulesApplier['total_fees'] + $totalFeesUltimateAmenities);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
+
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
+        if ($isCommissionTracking) {
+            $roomResponse->setMarkup(0);
+            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
+            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+        }
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
         $roomResponse->setCurrency($this->currency ?? 'USD');
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setNonRefundable($nonRefundable);
@@ -448,14 +466,21 @@ class HbsiHotelPricingTransformer
             $this->meal_plans_available[] = $mealPlanName;
         }
 
-        if (env('USE_REPO_TAX_FEES', false)) {
-            $roomResponse->setBreakdown($this->getTransformedBreakdown($rateToApply['transformedRates']));
+        $roomResponse->setAmenities($roomUltimateAmenities);
+
+        if (config('supplier-repository.use_repo_tax_fees')) {
+            $breakdown = $this->taxAndFeeResolver->getTransformedBreakdown($rateToApply['transformedRates'], $this->fees);
         } else {
-            $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
+            $breakdown = $this->getBreakdown($rateToApply);
         }
+
+        $breakdown['fees'] = array_merge($breakdown['fees'], array_values($feesUltimateAmenities));
+        $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
+
+        $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
@@ -478,74 +503,12 @@ class HbsiHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now(),
-            'hotel_id' => $propertyGroup['giata_id'] ?? 0,
-            'room_id' => $rate['id'] ?? $roomType ?? 0,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
-        $roomResponse->setDeposits(DepositResolver::resolve($roomResponse, $depositInformation, $query));
+        $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
-    }
-
-    private function getTransformedBreakdown(array $transformedRates): array
-    {
-        $breakdown = [];
-        $night = 0;
-        $stay = [];
-        $fees = [];
-
-        foreach ($transformedRates as $rate) {
-            $nightsRate = $rate['UnitMultiplier'];
-            $baseFareRate = [
-                'amount' => $rate['AmountBeforeTax'],
-                'title' => 'Base Rate',
-                'type' => 'base_rate',
-            ];
-            $baseFareRateNight = [
-                'amount' => $rate['AmountBeforeTax'] / $nightsRate,
-                'title' => 'Base Rate',
-                'type' => 'base_rate',
-            ];
-
-            $taxesRate = [];
-            $feesRate = [];
-            foreach ($rate['Taxes'] as $tax) {
-                $code = strtolower($tax['Code']);
-                $type = in_array($code, $this->fees) ? 'fee' : 'tax';
-                $taxesRate[] = [
-                    'type' => $type,
-                    'amount' => $tax['Amount'],
-                    'title' => $tax['Description'] ?? ($tax['Amount'].' '.$tax['Code']),
-                ];
-            }
-            foreach (Arr::get($rate, 'Fees', []) as $fee) {
-                $multiplierFee = Arr::get($fee, 'MultiplierFee', 1);
-                $code = strtolower($fee['Code']);
-                $type = 'fee';
-                $feesRate[] = [
-                    'type' => $type,
-                    'amount' => $fee['Amount'] * $multiplierFee,
-                    'title' => $fee['Description'] ?? ($fee['Amount'].' '.$fee['Code']),
-                    'multiplier' => $multiplierFee,
-                ];
-            }
-
-            for ($i = 0; $i < $nightsRate; $i++) {
-                $breakdown[$night][] = $baseFareRateNight;
-                $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
-                $night++;
-            }
-
-            $stay[] = $baseFareRate;
-            $fees = array_values(array_unique(array_merge($fees, $feesRate), SORT_REGULAR));
-        }
-
-        return [
-            'nightly' => $breakdown,
-            // TODO: check if this is correct
-            //            'stay' => $stay,
-            'stay' => [],
-            'fees' => $fees,
-        ];
     }
 
     private function getBreakdown(array $rates): array
@@ -644,313 +607,5 @@ class HbsiHotelPricingTransformer
             'fees' => $fees,
 
         ];
-    }
-
-    private function fetchSupplierRepositoryData(array $giataIds): void
-    {
-        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
-        $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [$hotel->giata_code => $hotel->product?->depositInformations];
-        })->toArray();
-        $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
-                    if (! empty($room->external_code)) {
-                        return [
-                            $room->external_code => [
-                                'description' => $room->description,
-                                'name' => $room->name,
-                            ],
-                        ];
-                    }
-
-                    return [];
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->repoTaxFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product->feeTaxes->groupBy('action_type')->map(function ($group) {
-                    return $group->mapWithKeys(function ($feeTax) {
-                        $feeTaxData = $feeTax->toArray();
-                        $feeTaxData['rate_code'] = null;
-                        if ($feeTax->rate_id !== null) {
-                            $feeTaxData['rate_code'] = $feeTax->rate->code;
-                        }
-                        $feeTaxData['unified_room_code'] = null;
-                        if ($feeTax->room_id !== null) {
-                            $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
-                        }
-
-                        return [$feeTax->id => $feeTaxData];
-                    })->toArray();
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->unifiedRoomCodes = [];
-        foreach ($supplierRepositoryData as $hotel) {
-            $hotelData = [
-                'hotel_code' => $hotel->giata_code,
-                'rooms' => [],
-            ];
-            foreach ($hotel->rooms as $room) {
-                $hbsiCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::HBSI->value;
-                })->first()['code'] ?? null;
-                $hotelData['rooms'][$hbsiCode] = $room->external_code;
-            }
-            $this->unifiedRoomCodes[$hotel->giata_code] = $hotelData['rooms'];
-        }
-    }
-
-    private function transformRates(array $rates): array
-    {
-        $transformedRates = [];
-
-        if (isset($rates['Rate']['@attributes'])) {
-            $rate = $rates['Rate'];
-            $transformedRates[] = $this->transformRate($rate);
-        } else {
-            foreach ($rates['Rate'] as $rate) {
-                $transformedRates[] = $this->transformRate($rate);
-            }
-        }
-
-        return $transformedRates;
-    }
-
-    private function transformRate(array $rate): array
-    {
-        $transformedRate = [
-            'RateTimeUnit' => $rate['@attributes']['RateTimeUnit'] ?? '',
-            'UnitMultiplier' => $rate['@attributes']['UnitMultiplier'] ?? '',
-            'EffectiveDate' => $rate['@attributes']['EffectiveDate'] ?? '',
-            'ExpireDate' => $rate['@attributes']['ExpireDate'] ?? '',
-            'AmountBeforeTax' => $rate['Base']['@attributes']['AmountBeforeTax'] ?? '',
-            'AmountAfterTax' => $rate['Base']['@attributes']['AmountAfterTax'] ?? '',
-            'CurrencyCode' => $rate['Base']['@attributes']['CurrencyCode'] ?? '',
-            'Taxes' => $this->transformTaxes($rate['Base']['Taxes']['Tax'] ?? []),
-            'TotalAmountBeforeTax' => $rate['Total']['@attributes']['AmountBeforeTax'] ?? '',
-            'TotalAmountAfterTax' => $rate['Total']['@attributes']['AmountAfterTax'] ?? '',
-            'TotalCurrencyCode' => $rate['Total']['@attributes']['CurrencyCode'] ?? '',
-        ];
-
-        return $transformedRate;
-    }
-
-    private function transformTaxes(array $taxes): array
-    {
-        $transformedTaxes = [];
-        //it means that is not an array
-        if (isset($taxes['@attributes'])) {
-            $taxes = [$taxes];
-        }
-
-        foreach ($taxes as $tax) {
-            $transformedTaxes[] = [
-                'Type' => $tax['@attributes']['Type'] ?? '',
-                'Code' => $tax['@attributes']['Code'] ?? '',
-                'Amount' => $tax['@attributes']['Amount'] ?? '',
-                'Description' => $tax['TaxDescription']['Text'] ?? '',
-            ];
-        }
-
-        return $transformedTaxes;
-    }
-
-    private function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy): void
-    {
-        $repoTaxFees = Arr::get($this->repoTaxFees, $giataCode, []);
-
-        // Calculate the number of nights and the number of passengers
-        $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
-        $numberOfPassengers = $rateOccupancy ? array_sum(explode('-', $rateOccupancy)) : 1;
-
-        // Filter repoTaxFees based on start_date and end_date
-        foreach ($repoTaxFees as $key => $fees) {
-            $repoTaxFees[$key] = array_filter($fees, function ($feeTax) {
-                $startDate = Arr::get($feeTax, 'start_date', '');
-                $endDate = Arr::get($feeTax, 'end_date', '');
-
-                // If start_date and end_date are not set, apply the rule
-                if (empty($startDate) || empty($endDate)) {
-                    return true;
-                }
-
-                $startDate = Carbon::parse($startDate);
-                $endDate = Carbon::parse($endDate);
-                $checkin = Carbon::parse($this->checkin);
-                $checkout = Carbon::parse($this->checkout);
-
-                // Check if the interval $this->checkin - $this->checkout falls within start_date - end_date
-                return $checkin->between($startDate, $endDate) && $checkout->between($startDate, $endDate);
-            });
-        }
-
-        foreach ($transformedRates as &$rate) {
-            if (isset($this->repoTaxFees[$giataCode])) {
-
-                // Apply edits
-                if (isset($repoTaxFees['edit'])) {
-                    foreach ($repoTaxFees['edit'] as $editFeeTax) {
-                        if (! is_null($editFeeTax['rate_code']) && $editFeeTax['rate_code'] !== $ratePlanCode) {
-                            continue;
-                        }
-                        if (! is_null($editFeeTax['unified_room_code']) && $editFeeTax['unified_room_code'] !== $unifiedRoomCode) {
-                            continue;
-                        }
-                        foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
-                            if (is_int($key) || is_string($key)) {
-                                if (strcasecmp($tax['Description'], $editFeeTax['old_name']) === 0) {
-                                    if (! $editFeeTax['commissionable'] && $editFeeTax['type'] === 'Fee') {
-                                        if (! isset($rate['Fees'])) {
-                                            $rate['Fees'] = [];
-                                        }
-                                        // Move from Taxes to Fees
-                                        $rate['Fees'][] = [
-                                            'Type' => 'Exclusive',
-                                            'Code' => 'OBE_'.$editFeeTax['id'],
-                                            'Amount' => $editFeeTax['net_value'] ?? $tax['Amount'],
-                                            'Description' => $editFeeTax['name'],
-                                            'ObeAction' => $editFeeTax['action_type'],
-                                            'MultiplierFee' => 1,
-                                        ];
-                                        unset($rate['Taxes'][$key]);
-                                    } else {
-                                        $rateData['Type'] = $tax['Type'];
-                                        $rateData['Code'] = 'OBE_'.$editFeeTax['id'];
-                                        $rateData['Amount'] = match ($editFeeTax['apply_type']) {
-                                            ProductApplyTypeEnum::PER_PERSON->value => round(($editFeeTax['net_value'] / $numberOfNights), 3),
-                                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($editFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
-                                            default => $editFeeTax['net_value'],
-                                        };
-                                        $rateData['Description'] = $editFeeTax['name'];
-                                        $rateData['ObeAction'] = $editFeeTax['action_type'];
-                                        $rate['Taxes'][] = $rateData;
-                                        unset($rate['Taxes'][$key]);
-                                    }
-                                }
-                            }
-                        }
-                        foreach ($rate['Fees'] ?? [] as $key => &$fee) {
-                            if (is_int($key) || is_string($key)) {
-                                if (strcasecmp($fee['Description'], $editFeeTax['old_name']) === 0) {
-                                    $feeData['Description'] = $editFeeTax['name'];
-                                    $feeData['ObeAction'] = $editFeeTax['action_type'];
-                                    $feeData['Amount'] = $editFeeTax['net_value'] ?? $fee['Amount'];
-                                    $rate['Fees'][] = $feeData;
-                                    unset($rate['Fees'][$key]);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Apply updates
-                if (isset($repoTaxFees['update'])) {
-                    foreach ($repoTaxFees['update'] as $updateFeeTax) {
-                        if (! is_null($updateFeeTax['rate_code']) && $updateFeeTax['rate_code'] !== $ratePlanCode) {
-                            continue;
-                        }
-                        if (! is_null($updateFeeTax['unified_room_code']) && $updateFeeTax['unified_room_code'] !== $unifiedRoomCode) {
-                            continue;
-                        }
-                        foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
-                            if (is_int($key) || is_string($key)) {
-                                if (strcasecmp($tax['Description'], $updateFeeTax['old_name']) === 0) {
-                                    // TODO: Check if this is correct or not
-                                    // if ($updateFeeTax['type'] === 'Fee') OR if (!$updateFeeTax['commissionable'])
-                                    if (! $updateFeeTax['commissionable'] && $updateFeeTax['type'] === 'Fee') {
-                                        if (! isset($rate['Fees'])) {
-                                            $rate['Fees'] = [];
-                                        }
-                                        // Move from Taxes to Fees
-                                        $rate['Fees'][] = [
-                                            'Type' => 'Exclusive',
-                                            'Code' => 'OBE_'.$updateFeeTax['id'],
-                                            'Amount' => $updateFeeTax['net_value'] ?? $tax['Amount'],
-                                            'Description' => $updateFeeTax['name'],
-                                            'ObeAction' => $updateFeeTax['action_type'],
-                                            'MultiplierFee' => 1,
-                                        ];
-                                        unset($rate['Taxes'][$key]);
-                                    } else {
-                                        $rateData['Description'] = $updateFeeTax['name'];
-                                        $rateData['ObeAction'] = $updateFeeTax['action_type'];
-                                        $rateData['Amount'] = $updateFeeTax['net_value'] ?? $tax['Amount'];
-                                        $rate['Taxes'][] = $rateData;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Apply additions
-                if (isset($repoTaxFees['add'])) {
-                    foreach ($repoTaxFees['add'] as $addFeeTax) {
-                        if (! is_null($addFeeTax['rate_code']) && $addFeeTax['rate_code'] !== $ratePlanCode) {
-                            continue;
-                        }
-                        if (! is_null($addFeeTax['unified_room_code']) && $addFeeTax['unified_room_code'] !== $unifiedRoomCode) {
-                            continue;
-                        }
-                        $rateData = [
-                            'Code' => 'OBE_'.$addFeeTax['id'],
-                            // TODO: Check if this is correct or not
-                            // Recalculate the nightly fee on a per person basis
-                            'Amount' => match ($addFeeTax['apply_type']) {
-                                ProductApplyTypeEnum::PER_PERSON->value => round(($addFeeTax['net_value'] / $numberOfNights), 3),
-                                ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($addFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
-                                default => $addFeeTax['net_value'],
-                            },
-                            'Description' => $addFeeTax['name'],
-                            'ObeAction' => $addFeeTax['action_type'],
-                        ];
-                        // TODO: Check if this is correct or not
-                        // if ($addFeeTax['type'] === 'Fee') OR if (!$addFeeTax['commissionable'])
-                        if (! $addFeeTax['commissionable'] && $addFeeTax['type'] === 'Fee') {
-                            if (! isset($rate['Fees'])) {
-                                $rate['Fees'] = [];
-                            }
-                            $rateData['Type'] = 'Exclusive';
-                            $rateData['MultiplierFee'] = 1;
-                            $rate['Fees'][] = $rateData;
-                        } else {
-                            $rateData['Type'] = 'Inclusive';
-                            $rateData['MultiplierFee'] = $rate['UnitMultiplier'];
-                            $rate['Taxes'][] = $rateData;
-                        }
-                    }
-                }
-
-                // Apply deletions
-                if (isset($repoTaxFees['delete'])) {
-                    foreach ($repoTaxFees['delete'] as $deleteFeeTax) {
-                        if (! is_null($deleteFeeTax['rate_code']) && $deleteFeeTax['rate_code'] !== $ratePlanCode) {
-                            continue;
-                        }
-                        if (! is_null($deleteFeeTax['unified_room_code']) && $deleteFeeTax['unified_room_code'] !== $unifiedRoomCode) {
-                            continue;
-                        }
-                        $rate['Taxes'] = array_filter($rate['Taxes'], function ($tax) use ($deleteFeeTax) {
-                            return strcasecmp($tax['Description'], $deleteFeeTax['old_name']) !== 0;
-                        });
-                    }
-                }
-            } else {
-                foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
-                    if (Arr::get($tax, 'Type') === 'PropertyCollects') {
-                        if (! isset($rate['Fees'])) {
-                            $rate['Fees'] = [];
-                        }
-                        $rate['Fees'][] = $tax;
-                        unset($rate['Taxes'][$key]);
-                    }
-                }
-            }
-        }
     }
 }

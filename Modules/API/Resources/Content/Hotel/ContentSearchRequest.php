@@ -29,6 +29,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *       example=4
  *     ),
  *     @OA\Property(
+ *       property="consortia_affiliation",
+ *       type="string",
+ *       description="Consortium affiliation name. Valid values depend on system configuration.",
+ *       example="Virtuoso"
+ *     ),
+ *     @OA\Property(
  *       property="page",
  *       type="integer",
  *       description="Page number.",
@@ -51,6 +57,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *              "place": "9bb07983384eb956ae88e154b99b51a1",
  *              "rating": 4,
  *              "page": 1,
+ *              "consortia_affiliation": "Virtuoso",
  *              "results_per_page": 20
  *          }
  *   ),
@@ -92,6 +99,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *        description="Rating of the hotel.",
  *        example=4
  *      ),
+ *     @OA\Property(
+ *       property="consortia_affiliation",
+ *       type="string",
+ *       description="Consortium affiliation name. Valid values depend on system configuration.",
+ *       example="Virtuoso"
+ *     ),
  *      @OA\Property(
  *        property="page",
  *        type="integer",
@@ -116,6 +129,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "session": "123",
  *               "radius": 10,
  *               "rating": 4,
+ *                "consortia_affiliation": "Virtuoso",
  *               "page": 1,
  *               "results_per_page": 20
  *           }
@@ -146,6 +160,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *     description="Rating of the hotel.",
  *     example=2
  *   ),
+*     @OA\Property(
+ *       property="consortia_affiliation",
+ *       type="string",
+ *       description="Consortium affiliation name. Valid values depend on system configuration.",
+ *       example="Virtuoso"
+ *     ),
  *   @OA\Property(
  *     property="page",
  *     type="integer",
@@ -168,6 +188,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "type": "hotel",
  *            "destination": 508,
  *            "rating": 2,
+ *            "consortia_affiliation": "Virtuoso",
  *            "page": 1,
  *            "results_per_page": 20
  *        }
@@ -210,6 +231,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *     description="Rating of the hotel.",
  *     example=3.5
  *   ),
+ *    @OA\Property(
+ *       property="consortia_affiliation",
+ *       type="string",
+ *       description="Consortium affiliation name. Valid values depend on system configuration.",
+ *       example="Virtuoso"
+ *   ),
  *   @OA\Property(
  *     property="page",
  *     type="integer",
@@ -233,6 +260,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "supplier": "Expedia",
  *            "destination": 508,
  *            "rating": 3.5,
+ *            "consortia_affiliation": "Virtuoso",
  *            "page": 1,
  *            "results_per_page": 20
  * }
@@ -277,6 +305,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *      description="Rating of the hotel.",
  *      example=1
  *    ),
+ *     @OA\Property(
+ *       property="consortia_affiliation",
+ *       type="string",
+ *       description="Consortium affiliation name. Valid values depend on system configuration.",
+ *       example="Virtuoso"
+ *     ),
  *    @OA\Property(
  *      property="page",
  *      type="integer",
@@ -302,11 +336,36 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "longitude": -86.81,
  *            "radius": 20,
  *            "rating": 1,
+ *            "consortia_affiliation": "Virtuoso",
  *            "page": 1,
  *            "results_per_page": 20
  *        }
  * )
+ * @OA\Examples(
+ *      example="ContentSearchWithoutFilterAmenities",
+ *      summary="Content Search without Filter Amenities",
+ *      value=
+ *         {
+ *             "type": "hotel",
+ *             "supplier":"HBSI",
+ *             "giata_ids": {
+ *                  26319691
+ *              },
+ *         }
+ *  )
+ *
+ * @OA\Examples(
+ *       example="ContentSearchWithFilterAmenities",
+ *       summary="Content Search with Filter Amenities",
+ *       value=
+ *          {
+ *              "type": "hotel",
+ *              "supplier":"HBSI",
+ *              "giata_ids": {
+ *                   26319691
+ *               },
+ *              "consortia_affiliation": "Virtuoso",
+ *          }
+ *   )
  */
-class ContentSearchRequest
-{
-}
+class ContentSearchRequest {}

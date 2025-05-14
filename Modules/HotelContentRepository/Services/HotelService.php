@@ -80,6 +80,6 @@ class HotelService
 
     public function getDetailRespose($giataCode)
     {
-        return Arr::get($this->hotelContentApiService->fetchDetailResults([$giataCode]), 0, ['On Sale' => 'OFF']);
+        return Arr::get($this->hotelContentApiService->fetchDetailResults([$giataCode], true), 0, []);
     }
 }

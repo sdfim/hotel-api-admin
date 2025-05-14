@@ -37,6 +37,30 @@ class ProductInformativeServiceRequest extends ApiRequest
      *     )
      *   ),
      *
+     *     @OA\Parameter(
+     *      name="product_name",
+     *      in="query",
+     *      required=false,
+     *      description="Filter by product name",
+     *
+     *      @OA\Schema(
+     *        type="string",
+     *        example="Grace Bay Club"
+     *      )
+     *    ),
+     *
+     *    @OA\Parameter(
+     *      name="giata_code",
+     *      in="query",
+     *      required=false,
+     *      description="Filter by GIATA code",
+     *
+     *      @OA\Schema(
+     *        type="string",
+     *        example="45422295"
+     *      )
+     *    ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -60,8 +84,7 @@ class ProductInformativeServiceRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
-     *
+ *
      * @OA\Post(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services",
@@ -110,8 +133,7 @@ class ProductInformativeServiceRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
-     *
+ *
      * @OA\Get(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
@@ -153,8 +175,7 @@ class ProductInformativeServiceRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
-     *
+ *
      * @OA\Put(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
@@ -224,8 +245,7 @@ class ProductInformativeServiceRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
-     *
+ *
      * @OA\Delete(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",

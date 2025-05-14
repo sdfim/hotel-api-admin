@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
             $table->string('default_currency', 10);
-            $table->string('website')->nullable();
+            $table->string('website', 500)->nullable();
             $table->unsignedBigInteger('related_id')->nullable();
             $table->string('related_type')->nullable();
             $table->string('off_sale_by_sources')->nullable();

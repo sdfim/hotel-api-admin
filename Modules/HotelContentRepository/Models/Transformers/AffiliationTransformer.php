@@ -13,11 +13,13 @@ class AffiliationTransformer extends TransformerAbstract
             'start_date' => $affiliation->start_date,
             'end_date' => $affiliation->end_date,
             'amenities' => $affiliation->amenities->map(function ($amenity) {
-                return $amenity->name;
+                return [
+                    'name' => $amenity->amenity->name,
+                    'consortia' => $amenity->consortia,
+                    'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                    'price' => $amenity->price,
+                ];
             })->all(),
-            'consortia' => $affiliation->consortia,
-            'is_paid' => $affiliation->is_paid ? 'Yes' : 'No',
-            'price' => $affiliation->price,
         ];
     }
 }

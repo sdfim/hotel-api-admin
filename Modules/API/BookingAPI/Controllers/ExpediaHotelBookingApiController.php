@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\MoveBookingItemCache;
 use App\Jobs\SaveBookingInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -43,6 +44,8 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
             $content['original']['response'] = $content;
             $content['original']['request']['params'] = $props['paramToken'];
             $content['original']['request']['path'] = $props['path'];
+
+            MoveBookingItemCache::dispatchSync($filters['booking_item']);
 
             SaveBookingInspector::dispatchSync($bookingInspector, $content, []);
         } catch (RequestException $e) {

@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\HotelRateFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
@@ -27,11 +28,7 @@ class HotelRate extends Model
         'hotel_id',
         'name',
         'code',
-        'room_ids',
-    ];
-
-    protected $casts = [
-        'room_ids' => 'array',
+        'description',
     ];
 
     protected $hidden = [
@@ -48,6 +45,11 @@ class HotelRate extends Model
     public function dates(): HasMany
     {
         return $this->hasMany(HotelRateDates::class, 'rate_id');
+    }
+
+    public function rooms(): BelongsToMany
+    {
+        return $this->belongsToMany(HotelRoom::class, 'pd_hotel_rate_rooms', 'hotel_rate_id', 'room_id');
     }
 
     public function productDescriptiveContentSections(): HasMany

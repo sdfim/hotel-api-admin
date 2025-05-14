@@ -36,11 +36,14 @@ class PermissionSeeder extends Seeder
         'insurance_rate_tier',
         'insurance_type',
         'config_attribute',
+        'config_attribute_category',
         'config_consortium',
         'config_descriptive_type',
         'config_job_description',
         'config_service_type',
         'config_chain',
+        'config_room_bed_type',
+        'config_contact_information_department',
         'config_insurance_documentation_type',
         'image_gallery',
         'hotel_image',
@@ -80,6 +83,17 @@ class PermissionSeeder extends Seeder
                 name: Str::replace(['-', '_'], ' ', Str::ucfirst($permission)),
             );
         }
+
+        // Always create these specific permissions if they do not exist
+        Permission::firstOrCreate(
+            ['slug' => 'admin'],
+            ['name' => 'Admin']
+        );
+
+        Permission::firstOrCreate(
+            ['slug' => 'user'],
+            ['name' => 'User']
+        );
     }
 
     private function createIfNotExists(string $slug, string $name): void

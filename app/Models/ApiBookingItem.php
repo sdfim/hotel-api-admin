@@ -13,37 +13,19 @@ class ApiBookingItem extends Model
 {
     use HasFactory;
 
-    /**
-     * @var string
-     */
     protected $table = 'api_booking_items';
 
-    /**
-     * @var string
-     */
     protected $primaryKey = 'booking_item';
 
-    /**
-     * @var bool
-     */
     public $incrementing = false;
 
-    /**
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * Get the auto-incrementing key type.
-     */
     public function getKeyType(): string
     {
         return 'string';
     }
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'booking_item',
         'search_id',
@@ -51,8 +33,7 @@ class ApiBookingItem extends Model
         'booking_item_data',
         'created_at',
         'complete_id',
-        'hotel_id',
-        'room_id',
+        'cache_checkpoint',
     ];
 
     /**

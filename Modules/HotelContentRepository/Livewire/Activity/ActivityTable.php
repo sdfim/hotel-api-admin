@@ -76,12 +76,13 @@ class ActivityTable extends Component implements HasForms, HasTable
         return $table
             ->defaultPaginationPageOption(5)
             ->persistSearchInSession()
-            ->query(Activity::query())
+            ->query(Activity::query()->with(['causer' => function ($query) {
+                $query->withTrashed();
+            }]))
             ->modifyQueryUsing(function ($query) {
                 $level = session('activity_level', $this->level);
 
                 if ($level === 'Product') {
-
                     $product = session('activity_product', $this->product ?? null);
                     $hotel = session('activity_hotel', $this->hotel ?? null);
 
@@ -186,10 +187,8 @@ class ActivityTable extends Component implements HasForms, HasTable
             })
             ->defaultSort('created_at', 'DESC')
             ->columns([
-//                TextColumn::make('id')->label('ID')->searchable(),
                 TextColumn::make('causer.name')->label('Changed By'),
                 TextColumn::make('causer.email')->label('Email'),
-
                 TextColumn::make('description')
                     ->label('Description')
                     ->badge()
@@ -199,13 +198,10 @@ class ActivityTable extends Component implements HasForms, HasTable
                         'danger' => 'deleted',
                     ])
                     ->width('200px'),
-
                 TextColumn::make('log_name')->label('Log Name')->searchable(),
-
                 TextColumn::make('subject_type')
                     ->label('Model Name')
                     ->formatStateUsing(fn ($state) => class_basename($state)),
-
                 TextColumn::make('properties')
                     ->label('Changed Attribute')
                     ->wrap()
@@ -226,7 +222,6 @@ class ActivityTable extends Component implements HasForms, HasTable
 
                         return $formattedProperties;
                     }),
-
                 TextColumn::make('created_at')->label('Created At')->dateTime(),
             ])
             ->filters([

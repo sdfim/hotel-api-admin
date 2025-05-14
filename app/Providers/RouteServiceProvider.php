@@ -19,17 +19,19 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->routes(function () {
+            /*
             $this->contentApiRoutes();
             $this->pricingApiRoutes();
             $this->bookingApiRoutes();
             $this->reportApiRoutes();
             $this->hotelContentRepositoryApiRoutes();
+            */
         });
     }
 
     protected function contentApiRoutes()
     {
-        Route::domain(env('APP_CONTENT_DOMAIN'))
+        Route::domain(config('domains.app_content_domain'))
             ->group(function () {
                 ContentApiRoutes::routes();
             });
@@ -37,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function pricingApiRoutes()
     {
-        Route::domain(env('APP_PRICING_DOMAIN'))
+        Route::domain(config('domains.app_pricing_domain'))
             ->group(function () {
                 PricingApiRoutes::routes();
             });
@@ -45,7 +47,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function bookingApiRoutes()
     {
-        Route::domain(env('APP_BOOKING_DOMAIN'))
+        Route::domain(config('domains.app_booking_domain'))
             ->group(function () {
                 BookingApiRoutes::routes();
                 InsuranceApiRoutes::routes();
@@ -55,7 +57,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function reportApiRoutes()
     {
-        Route::domain(env('APP_REPORT_DOMAIN'))
+        Route::domain(config('domains.app_report_domain'))
             ->group(function () {
                 ReportApiRoutes::routes();
             });
@@ -63,7 +65,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function hotelContentRepositoryApiRoutes()
     {
-        Route::domain(env('APP_CONTENT_REPOSITORY_DOMAIN'))
+        Route::domain(config('domains.app_repository_domain'))
             ->group(function () {
                 ContentRepositoryApiRoutes::routes();
             });

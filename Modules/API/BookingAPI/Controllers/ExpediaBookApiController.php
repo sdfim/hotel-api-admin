@@ -16,7 +16,7 @@ use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
@@ -49,7 +49,7 @@ class ExpediaBookApiController extends BaseBookApiController
         private readonly PricingRulesTools $pricingRulesService,
         private readonly ExpediaHotelBookingApiController $expediaHotelBookingApiController,
     ) {
-        $this->base_params = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone') === 'package'
+        $this->base_params = config('booking-suppliers.Expedia.supplier_expedia_rate_type') === 'package'
             ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
     }
 
@@ -355,10 +355,10 @@ class ExpediaBookApiController extends BaseBookApiController
         ]);
 
         try {
-            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); // $booking_id
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
             $sts = microtime(true);
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
-            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); //$booking_id
 
             $content = json_decode($response->getBody()->getContents(), true);
 
@@ -431,7 +431,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
     public function listBookings(): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
         // step 1 Read Booking Inspector, Get link  GET method from 'add_item | post_book'
         $list = BookingRepository::getAffiliateReferenceIdByChannel($token_id);
@@ -540,7 +540,7 @@ class ExpediaBookApiController extends BaseBookApiController
         // Delete item DELETE method query
         $props = $this->getPathParamsFromLink($linkDeleteItem);
         $path = $props['path'];
-        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
+        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters, $supplierId));
 
         $bodyArr = [
             'itinerary_id' => $itineraryId,

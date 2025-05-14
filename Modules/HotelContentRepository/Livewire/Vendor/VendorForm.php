@@ -22,6 +22,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -180,7 +181,7 @@ class VendorForm extends Component implements HasForms
                             )
                             ->multiple()
                             ->searchable()
-                            ->createOptionForm([
+                            ->createOptionForm(Gate::allows('create', User::class) ? [
                                 TextInput::make('name')
                                     ->required()
                                     ->maxLength(191),
@@ -195,7 +196,7 @@ class VendorForm extends Component implements HasForms
                                     ->password()
                                     ->revealable()
                                     ->formatStateUsing(fn () => Str::password(10)),
-                            ])
+                            ] : [])
                             ->createOptionUsing(function (array $data) {
                                 $user = User::create([
                                     'name' => $data['name'],
@@ -314,6 +315,7 @@ class VendorForm extends Component implements HasForms
         $this->record->verified = $this->verified ?? true;
         $isNew = ! $this->record->exists || ! $this->record->team;
         $this->record->save();
+        $vendor = $this->record;
 
         $userIds = $this->data['user_ids'];
         if ($isNew) {
@@ -356,7 +358,7 @@ class VendorForm extends Component implements HasForms
 
         session()->flash('message', $message);
 
-        return redirect()->route('vendor-repository.index');
+        return redirect()->route('vendor-repository.edit', ['vendor_repository' => $vendor]);
     }
 
     protected function handleReverseGeocoding(array $state, callable $set): void

@@ -79,6 +79,6 @@ class HotelRoomControllerTest extends TestCase
         $hotelRoom = HotelRoom::factory()->create();
         $response = $this->request()->deleteJson("api/repo/hotel-rooms/{$hotelRoom->id}");
         $response->assertStatus(204);
-        $this->assertDatabaseMissing('pd_hotel_rooms', ['id' => $hotelRoom->id]);
+        $this->assertSoftDeleted('pd_hotel_rooms', ['id' => $hotelRoom->id]);
     }
 }

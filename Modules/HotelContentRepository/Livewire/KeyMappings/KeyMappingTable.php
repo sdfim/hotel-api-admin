@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\KeyMapping;
@@ -42,11 +43,11 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                 ->label('Key Mapping Owner')
                 ->options(KeyMappingOwner::pluck('name', 'id'))
                 ->relationship('keyMappingOwner', 'name')
-                ->createOptionForm([
+                ->createOptionForm(Gate::allows('create', KeyMappingOwner::class) ? [
                     TextInput::make('name')
                         ->label('Name')
                         ->required(),
-                ])
+                ] : [])
                 ->required(),
             TextInput::make('key_id')
                 ->label('Key ID')

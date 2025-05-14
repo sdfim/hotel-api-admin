@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use Carbon\Carbon;
@@ -117,7 +118,7 @@ class ApiBookingInspectorRepository
         return $linkPutMethod;
     }
 
-    public static function getItineraryId($filters): ?string
+    public static function getItineraryId($filters, $supplierId): ?string
     {
         $booking_id = $filters['booking_id'];
 
@@ -125,6 +126,7 @@ class ApiBookingInspectorRepository
             ->where('sub_type', 'like', 'retrieve'.'%')
             ->where('booking_id', $booking_id)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->where('supplier_id', $supplierId)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));
@@ -189,7 +191,7 @@ class ApiBookingInspectorRepository
 
     public static function getBookedBookingIdsByChannel(int $supplier_id = 2): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
         $inspectors = ApiBookingInspector::where('token_id', $token_id)
             ->where(function ($query) use ($supplier_id) {
@@ -441,13 +443,17 @@ class ApiBookingInspectorRepository
          */
         [$booking_id, $query, $supplier_id, $type, $subType, $search_type] = $input;
 
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
-        $search_id = $query['search_id'] ?? $booking_item
-            ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
-            : null;
+        $search_id = $query['search_id'] ?? (
+            $booking_item
+                ? (ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
+                ?? ApiBookingItemCache::where('booking_item', $booking_item)->first()?->search_id)
+                : null
+        );
 
-        $inspector = new ApiBookingInspector;
+        /** @var ApiBookingInspector $inspector */
+        $inspector = app(ApiBookingInspector::class);
         $inspector->booking_id = $booking_id;
         $inspector->token_id = $token_id;
         $inspector->supplier_id = $supplier_id;

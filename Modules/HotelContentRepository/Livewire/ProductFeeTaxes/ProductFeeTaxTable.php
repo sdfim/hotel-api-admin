@@ -62,7 +62,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Fees and Taxes for '.$product->name;
         if ($this->rateId) {
@@ -137,15 +137,14 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     TextInput::make('name')
                         ->label('New Name')
                         ->reactive()
-                        ->rules(['required'])
                         ->visible(fn (Get $get) => $get('action_type') !== 'delete'),
-                    Select::make('old_name')
+                    TextInput::make('old_name')
                         ->label('Current Name')
+                        ->datalist(fn (Get $get) => array_values($get('old_name_options') ?? []))
+                        ->autocomplete('list') 
+                        ->visible(fn (Get $get) => $get('action_type') !== 'add')
                         ->reactive()
-                        ->searchable()
-                        ->options(fn (Get $get) => $get('old_name_options') ?? [])
-                        ->rules(['required'])
-                        ->visible(fn (Get $get) => $get('action_type') !== 'add'),
+                        ->rules(['required']),
                 ]),
 
             Fieldset::make('Date Setting')
@@ -169,21 +168,18 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->options([
                             ProductFeeTaxTypeEnum::TAX->value => 'Tax',
                             ProductFeeTaxTypeEnum::FEE->value => 'Fee',
-                        ])
-                        ->rules(['required']),
+                        ]),
                     Grid::make(2)
                         ->schema([
                             Toggle::make('commissionable')
-                                ->label('Commissionable')
-                                ->inline(false)
-                                ->rules(['required']),
+                                ->label('Commissionable to TA')
+                                ->inline(false),
                             Select::make('fee_category')
                                 ->label('Fee Category')
                                 ->options([
                                     'mandatory' => 'Mandatory',
                                     'optional' => 'Optional',
-                                ])
-                                ->rules(['required']),
+                                ]),
                         ])->columnSpan(1),
                 ]),
             Fieldset::make('Value Setting')
@@ -224,8 +220,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->options([
                             FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
                             FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
-                        ])
-                        ->rules(['required']),
+                        ]),
                 ]),
         ];
     }
@@ -256,6 +251,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     $query->whereNull('rate_id')->whereNull('room_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
@@ -308,7 +304,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('apply_type')->label('Apply Type')->sortable(),
                 IconColumn::make('commissionable')
-                    ->label('Commissionable')
+                    ->label('Commissionable to TA')
                     ->boolean(),
 
                 TextColumn::make('fee_category')->label('Fee Category'),

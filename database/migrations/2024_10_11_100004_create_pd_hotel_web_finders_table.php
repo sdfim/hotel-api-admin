@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('website')->nullable();
             $table->string('base_url');
-            $table->string('finder', 255);
-            $table->string('example', 255)->nullable();
+            $table->string('finder', 1000);
+            $table->string('example', 1000)->nullable();
             $table->timestamps();
         });
     }

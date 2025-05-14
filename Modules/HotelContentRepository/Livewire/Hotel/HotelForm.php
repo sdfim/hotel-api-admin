@@ -25,11 +25,13 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Intervention\Image\Laravel\Facades\Image;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\HotelSaleTypeEnum;
 use Modules\Enums\MealPlansEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -59,11 +61,6 @@ class HotelForm extends Component implements HasForms
     public $showModalLogInfoProduct = false;
 
     public string $onSaleCausation = '';
-
-    public function __construct()
-    {
-        $this->record = new Hotel;
-    }
 
     public function mount(Hotel $hotel): void
     {
@@ -271,17 +268,22 @@ class HotelForm extends Component implements HasForms
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
-                                        ->disk('public')
-                                        ->visibility('public')
                                         ->columnSpan(1)
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
-                                                $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
+                                                $originalPath = $state->storeAs('products', $state->getClientOriginalName());
+                                                $filamentPath = config('filament.default_filesystem_disk') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
-                                                if (Storage::disk('public')->exists($originalPath)) {
-                                                    $image = Image::read(Storage::disk('public')->get($originalPath));
+                                                $publicPath = Storage::url($originalPath);
+
+                                                if (Storage::exists($originalPath)) {
+                                                    $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
+                                                    ? Http::get($publicPath)->body()
+                                                    : Image::read(Storage::get($originalPath));
+
+                                                    $image = Image::read($imageData);
                                                     $image->resize(150, 150);
-                                                    Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
+                                                    Storage::put($filamentPath.$thumbnailPath, (string) $image->encode());
                                                     $set('product.hero_image_thumbnails', $thumbnailPath);
                                                 }
                                             }
@@ -409,7 +411,7 @@ class HotelForm extends Component implements HasForms
                                     Select::make('channels')
                                         ->label('Channels')
                                         ->multiple()
-                                        ->options(Channel::pluck('name', 'id')),
+                                        ->options(Channel::all()->sortBy('name')->pluck('name', 'id')),
 
                                     Section::make('Drivers')
                                         ->schema($toggles)
@@ -427,8 +429,7 @@ class HotelForm extends Component implements HasForms
                                     Grid::make(1)
                                         ->schema([
                                             TextInput::make('full_address')
-                                                ->label('Get Location by Address')
-                                                ->placeholder(fn ($get) => $get('addressArr.line_1').' '.$get('addressArr.city')),
+                                                ->label('Get Location by Address'),
                                             TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
                                             TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
                                         ])->columnSpan(1),
@@ -529,7 +530,7 @@ class HotelForm extends Component implements HasForms
                         $query->where('name', auth()->user()->currentTeam->name);
                     }
 
-                    return $query->pluck('name', 'id')->toArray();
+                    return $query->orderBy('name')->pluck('name', 'id')->toArray();
                 })
                 ->dehydrated()
                 ->required()

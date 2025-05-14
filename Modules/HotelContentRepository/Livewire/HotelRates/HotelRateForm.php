@@ -8,11 +8,13 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -58,26 +60,25 @@ class HotelRateForm extends Component implements HasForms
     {
         $schema = [
             TextInput::make('hotel_id')->hidden(fn () => $this->data['hotel_id']),
-            Grid::make(2)
+            Grid::make(4)
                 ->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->maxLength(191),
                     TextInput::make('code')
                         ->required()
                         ->maxLength(191)
+                        ->columnSpan(1)
                         ->rule('unique:pd_hotel_rates,code,'.($this->record->id ?? 'NULL').',id,hotel_id,'.$this->data['hotel_id']),
+                    Textarea::make('name')
+                        ->label('Description')
+                        ->required()
+                        ->columnSpan(3)
+                        ->rows(5)
+                        ->maxLength(5000),
                     Grid::make(8)
                         ->schema([
-                            Select::make('room_ids')
+                            Select::make('rooms')
                                 ->label('Rooms')
                                 ->multiple()
-                                ->options(function () {
-                                    return HotelRoom::where('hotel_id', $this->data['hotel_id'])
-                                        ->limit(50)
-                                        ->get()
-                                        ->pluck('full_name', 'id');
-                                })
+                                ->relationship('rooms', 'name')
                                 ->searchable()
                                 ->required()
                                 ->columnSpan(7),
@@ -85,17 +86,18 @@ class HotelRateForm extends Component implements HasForms
                                 Action::make('add_all_rooms')
                                     ->label('Add All Rooms')
                                     ->action(function () {
-                                        $this->data['room_ids'] = HotelRoom::where('hotel_id', $this->data['hotel_id'])
+                                        $this->data['rooms'] = HotelRoom::where('hotel_id', $this->data['hotel_id'])
                                             ->pluck('id')
                                             ->toArray();
                                         $this->form->fill($this->data);
                                     })
                                     ->button()
-                                    ->extraAttributes(['class' => 'h-10 text-right']),
+                                    ->extraAttributes(['class' => 'h-10 text-right'])
+                                    ->visible(Gate::allows('create', Hotel::class)),
                             ])
                                 ->extraAttributes(['class' => 'flex justify-end']),
                         ])
-                        ->columnSpan(2),
+                        ->columnSpan(4),
                 ]),
             Fieldset::make('Date Setting')
                 ->schema([

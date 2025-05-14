@@ -2,9 +2,12 @@
 
 namespace Modules\HotelContentRepository\Livewire\ContactInformation;
 
+use App\Actions\ConfigContactInformationDepartment\CreateConfigContactInformationDepartment;
 use App\Actions\ConfigJobDescription\CreateConfigJobDescription;
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\ContactInformationDepartments\ContactInformationDepartmentForm;
 use App\Livewire\Configurations\JobDescriptions\JobDescriptionsForm;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -13,7 +16,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -23,6 +25,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContactInformationDepartmentEnum;
@@ -30,6 +33,7 @@ use Modules\HotelContentRepository\Actions\ContactInformation\AddContactInformat
 use Modules\HotelContentRepository\Actions\ContactInformation\EditContactInformation;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\ContactInformation;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -78,7 +82,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->required()
                         ->multiple()
                         ->options(ConfigJobDescription::pluck('name', 'id'))
-                        ->createOptionForm(JobDescriptionsForm::getSchema())
+                        ->createOptionForm(Gate::allows('create', ConfigJobDescription::class) ? JobDescriptionsForm::getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             /** @var CreateConfigJobDescription $actionDescription */
                             $actionDescription = app(CreateConfigJobDescription::class);
@@ -121,6 +125,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
             CustomRepeater::make('emails')
                 ->label('Emails')
+                ->defaultItems(0)
                 ->schema([
                     Grid::make(3)
                         ->schema([
@@ -130,10 +135,23 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                                 ->placeholder('Email*'),
                             Select::make('departments')
                                 ->hiddenLabel()
-                                ->rules(['required'])
-                                ->placeholder('Select UJV Department*')
+                                ->placeholder('Select UJV Department')
+                                ->searchable()
+                                ->native(false)
                                 ->multiple()
-                                ->options(ContactInformationDepartmentEnum::options())
+                                ->options(ConfigContactInformationDepartment::pluck('name', 'name'))
+                                ->createOptionForm(Gate::allows('create', ConfigContactInformationDepartment::class) ? ContactInformationDepartmentForm::getSchema() : [])
+                                ->createOptionUsing(function (array $data) {
+                                    /** @var CreateConfigContactInformationDepartment $action */
+                                    $action = app(CreateConfigContactInformationDepartment::class);
+                                    $department = $action->create($data);
+                                    Notification::make()
+                                        ->title('Department created successfully')
+                                        ->success()
+                                        ->send();
+
+                                    return $department->name;
+                                })
                                 ->columnSpan(2),
                         ]),
                 ]),
@@ -155,14 +173,14 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
-        $categories = ContactInformationDepartmentEnum::values();
+        $categories = ConfigContactInformationDepartment::pluck('name')->toArray();
 
         $emailColumns = array_map(function ($category) {
             return $this->createEmailColumn($category);
         }, $categories);
 
         $columns = [
-            TextColumn::make('first_name')->label('First Name'),
+            TextColumn::make('first_name')->label('First Name')->wrap(),
             TextColumn::make('last_name')->label('Last Name'),
             TextColumn::make('job_title')->label('Job Title')->wrap(),
             TextColumn::make('job_title')
@@ -231,10 +249,12 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         /** @var EditContactInformation $editContactInformation */
                         $editContactInformation = app(EditContactInformation::class);
                         $editContactInformation->execute($data, $record, $this->contactableType);
-                    }),
+                    })
+                    ->visible(Gate::allows('create', Hotel::class)),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ])
             ->headerActions([
                 CreateAction::make('addContact')
@@ -260,7 +280,8 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Contact Information')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(Gate::allows('create', Hotel::class)),
                 CreateAction::make('copyEmails')
                     ->label('Copy Emails')
                     ->modalWidth('sm')
@@ -289,7 +310,8 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->tooltip('Copy Emails to Clipboard')
                     ->icon('heroicon-o-clipboard')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
 

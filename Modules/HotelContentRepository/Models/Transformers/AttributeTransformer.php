@@ -10,7 +10,7 @@ class AttributeTransformer extends TransformerAbstract
     public function transform(ProductAttribute $attribute)
     {
         return [
-            'name' => $attribute->name,
+            'name' => $attribute->attribute->name,
         ];
     }
 }

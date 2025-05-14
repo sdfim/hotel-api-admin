@@ -18,6 +18,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -31,6 +32,7 @@ use Modules\HotelContentRepository\Actions\Gallery\EditGallery;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\ImageSection;
 
 class ImageGalleriesForm extends Component implements HasForms, HasTable
 {
@@ -78,21 +80,22 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
+        if ($this->viewMode != 'table') {
+            $table = $table->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5]);
+        }
+
         return $table
             ->heading('Images')
-            ->paginated([25, 50, 100])
-            ->query(
-                Image::query()
-                    ->when($this->record->exists, function ($query) {
-                        return $query->whereHas('galleries', fn ($query) => $query->where('gallery_id', $this->record->id));
-                    })
-                    ->when(! $this->record->exists, function ($query) {
-                        return $query->whereIn('id', $this->imageIds);
-                    })
-            )
+            ->paginated([10, 25, 50, 100])
+            ->query(Image::query())
+            ->modifyQueryUsing(function ($query) {
+                match (true) {
+                    $this->record->exists => $query->whereHas('galleries', fn ($query) => $query->where('gallery_id', $this->record->id)),
+                    ! $this->record->exists => $query->whereIn('id', $this->imageIds),
+                };
+            })
             ->defaultSort('created_at', 'desc')
             ->columns($this->viewMode === 'grid' ? $this->getGridColumns() : $this->getTableColumns()) // Modify this line
-            ->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
                     ->action(function ($records) {
@@ -102,6 +105,16 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     }),
             ])
             ->headerActions([
+                Action::make('view')
+                    ->iconButton()
+                    ->icon('heroicon-o-eye')
+                    ->modalWidth('7xl')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->modalHeading('Gallery')
+                    ->modalContent(function () {
+                        return view('livewire.image-galleries.swiper-gallery', ['images' => $this->record->images]);
+                    })
+                    ->modalSubmitAction(false),
                 Action::make('toggleViewMode')
                     ->label('')
                     ->tooltip('Switch to '.($this->viewMode === 'grid' ? 'Table' : 'Grid').' View')
@@ -113,6 +126,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->tooltip('Create Image')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
+                    ->modalWidth('6xl')
                     ->iconButton()
                     ->form(HotelImagesForm::getFormComponents())
                     ->action(function ($data) {
@@ -120,34 +134,11 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         $addGallery = app(AddGallery::class);
                         $addGallery->execute($data, $this->record, $this->imageIds);
                     }),
-
-//                Action::make('Add existing image')
-//                    ->tooltip('Add existing image')
-//                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-//                    ->icon('heroicon-o-link')
-//                    ->iconButton()
-//                    ->form([
-//                        Select::make('image_ids')
-//                            ->label('Images')
-//                            ->required()
-//                            ->allowHtml()
-//                            ->searchable()
-//                            ->multiple()
-//                            ->options(
-//                                $this->prepareSelectImages($this->getSelectImages())
-//                            )
-//                            ->getSearchResultsUsing(function ($search) {
-//                                return $this->prepareSelectImages($this->getSelectImages($search));
-//                            }),
-//                    ])->action(function ($data) {
-//                        /** @var AddGallery $addGallery */
-//                        $addGallery = app(AddGallery::class);
-//                        $addGallery->attachImages($data, $this->record, $this->imageIds);
-//                    }),
             ])
             ->actions([
                 EditAction::make('edit')
                     ->iconButton()
+                    ->modalWidth('6xl')
                     ->form(HotelImagesForm::getFormComponents()),
                 DeleteAction::make()
                     ->iconButton()
@@ -156,6 +147,14 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         $deleteGallery = app(DeleteGallery::class);
                         $deleteGallery->detachImage($record, $this->record, $this->imageIds);
                     }),
+            ])
+            ->filters([
+                SelectFilter::make('source')
+                    ->label('Source')
+                    ->options(Image::distinct()->pluck('source', 'source')->toArray()),
+                SelectFilter::make('section_id')
+                    ->label('Section')
+                    ->options(ImageSection::pluck('name', 'id')->toArray()),
             ]);
     }
 
@@ -166,12 +165,15 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                 ->columns(1)
                 ->schema([
                     ImageColumn::make('image_url')
-                        ->size('200px'),
+                        ->size('200px')
+                        ->getStateUsing(fn ($record) => $record->full_url),
                     TextColumn::make('tag')
                         ->searchable(),
                     TextColumn::make('section.name')
                         ->searchable(),
                     TextColumn::make('weight')
+                        ->searchable(),
+                    TextColumn::make('source')
                         ->searchable(),
                 ]),
         ];
@@ -184,10 +186,13 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                 ->sortable()
                 ->searchable(),
             ImageColumn::make('image_url')
-                ->size('100px'),
+                ->size('100px')
+                ->getStateUsing(fn ($record) => $record->full_url),
             TextColumn::make('tag')
                 ->searchable(),
             TextColumn::make('section.name')
+                ->searchable(),
+            TextColumn::make('source')
                 ->searchable(),
         ];
     }
@@ -210,7 +215,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             if (str_contains($image->image_url, 'http')) {
                 $url = $image->image_url;
             } else {
-                $url = Storage::disk('public')->url($image->image_url);
+                $url = Storage::url($image->image_url);
             }
 
             return [

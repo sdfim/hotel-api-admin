@@ -11,9 +11,8 @@ return new class extends Migration
         Schema::create('pd_hotel_rates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('hotel_id');
-            $table->string('name');
+            $table->string('name', 5000);
             $table->string('code');
-            $table->json('room_ids');
             $table->timestamps();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');

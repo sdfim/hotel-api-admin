@@ -15,7 +15,7 @@ use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
-use App\Repositories\ChannelRenository;
+use App\Repositories\ChannelRepository;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -357,7 +357,7 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function listBookings(): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
             ->where('supplier_id', $supplierId)
@@ -502,7 +502,7 @@ class HbsiBookApiController extends BaseBookApiController
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
-            $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
+            $this->hbsiService->updateBookingItemsData($filters['new_booking_item'], true);
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;

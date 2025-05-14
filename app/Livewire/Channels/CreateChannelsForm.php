@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Filament\Forms\Components\Toggle;
 
 class CreateChannelsForm extends Component implements HasForms
 {
@@ -35,6 +36,10 @@ class CreateChannelsForm extends Component implements HasForms
                 TextInput::make('description')
                     ->required()
                     ->maxLength(191),
+                Toggle::make('accept_special_params')
+                    ->label('Allow special API parameters')
+                    ->helperText('Enables use of "force_on_sale_on" and "force_verified_on" from the API.')
+                    ->default(false),
             ])
             ->statePath('data')
             ->model(Channel::class);
@@ -43,12 +48,20 @@ class CreateChannelsForm extends Component implements HasForms
     public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-        $token = auth()->user()->createToken($data['name']);
-        $data['token_id'] = $token->accessToken->id;
-        $data['access_token'] = $token->plainTextToken;
-        $record = Channel::create($data);
+        $channel = Channel::create([
+            'name' => $data['name'],
+            'description' => $data['description'],
+            'user_id' => auth()->user()->id,
+            'accept_special_params' => $data['accept_special_params'] ?? false,
+        ]);
 
-        $this->form->model($record)->saveRelationships();
+        $token = $channel->createToken($data['name']);
+        $channel->update([
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
+        ]);
+
+        $this->form->model($channel)->saveRelationships();
 
         Notification::make()
             ->title('Created successfully')

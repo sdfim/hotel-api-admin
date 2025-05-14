@@ -54,8 +54,7 @@ class RolesTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->iconButton()
                     ->url(fn (): string => route('roles.create'))
-                    ->visible(fn () => Gate::allows('create', Role::class))
-                    ->hidden(),
+                    ->visible(fn () => Gate::allows('create', Role::class)),
             ]);
     }
 

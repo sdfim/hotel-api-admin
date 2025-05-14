@@ -22,6 +22,6 @@ class DeleteUserTest extends TestCase
             ->set('password', 'password')
             ->call('deleteUser');
 
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
     }
 }

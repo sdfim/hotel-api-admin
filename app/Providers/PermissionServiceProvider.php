@@ -4,23 +4,28 @@ namespace App\Providers;
 
 use App\Models\Configurations\ConfigAmenity;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\Configurations\ConfigChain;
 use App\Models\Configurations\ConfigConsortium;
+use App\Models\Configurations\ConfigContactInformationDepartment;
 use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
+use App\Models\Configurations\ConfigRoomBedType;
 use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
-use App\Models\IcePortalProperty;
 use App\Models\InformationalService;
 use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
+use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
+use App\Policies\Configurations\ConfigContactInformationDepartmentPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigInsuranceDocumentationTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
+use App\Policies\Configurations\ConfigRoomBedTypePolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
 use App\Policies\Configurations\KeyMappingOwnerPolicy;
 use App\Policies\HotelPolicy;
@@ -77,6 +82,7 @@ class PermissionServiceProvider extends ServiceProvider
         InsuranceRateTier::class => InsuranceRateTierPolicy::class,
         InsurancePlan::class => InsurancePlanPolicy::class,
         ConfigAttribute::class => ConfigAttributePolicy::class,
+        ConfigAttributeCategory::class => ConfigAttributeCategoryPolicy::class,
         ConfigAmenity::class => ConfigAmenityPolicy::class,
         ConfigConsortium::class => ConfigConsortiumPolicy::class,
         ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
@@ -84,6 +90,8 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigServiceType::class => ConfigServiceTypePolicy::class,
         ConfigChain::class => ConfigChainPolicy::class,
         ConfigInsuranceDocumentationType::class => ConfigInsuranceDocumentationTypePolicy::class,
+        ConfigRoomBedType::class => ConfigRoomBedTypePolicy::class,
+        ConfigContactInformationDepartment::class => ConfigContactInformationDepartmentPolicy::class,
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
         Commission::class => CommissionPolicy::class,
         InformationalService::class => InformationalServicePolicy::class,

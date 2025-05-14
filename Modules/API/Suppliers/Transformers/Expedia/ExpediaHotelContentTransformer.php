@@ -78,7 +78,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             $hotelResponse->setRating($hotel['rating']);
             $hotelResponse->setCurrency(Arr::get($supplierResponse, 'currency', ''));
             $hotelResponse->setNumberRooms($totalRooms);
-            $amenities = $hotel['amenities'] ? json_decode(json_encode($hotel['amenities']), true) : [];
+            $amenities = isset($hotel['amenities']) && is_array($hotel['amenities']) ? $hotel['amenities'] : [];
             $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
                 return [
                     'name' => Arr::get($amenity, 'name'),
@@ -102,7 +102,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
 
         if (is_array($statistics)) {
             foreach ($statistics as $stat) {
-                if (str_contains($stat['name'], 'Total number of rooms')) {
+                if (is_array($stat) && str_contains($stat['name'], 'Total number of rooms')) {
                     $totalRooms = (int) $stat['value'];
                     break;
                 }

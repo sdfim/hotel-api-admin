@@ -238,18 +238,22 @@ class HotelContentApiTransformerService
             return [];
         }
 
-        return $hotel->product->cancellationPolicies->map(function ($policy) {
-            return [
-                'name' => $policy->name,
-                'start_date' => $policy->start_date,
-                'expiration_date' => $policy->end_date,
-                'manipulable_price_type' => $policy->manipulable_price_type,
-                'price_value' => $policy->price_value,
-                'price_value_type' => $policy->price_value_type,
-                'price_value_target' => $policy->price_value_target,
-                'conditions' => $this->formatConditions($policy->conditions),
-            ];
-        })->all();
+        return $hotel->product->cancellationPolicies
+            ->filter(function ($policy) {
+                return $policy->rate_id === null;
+            })
+            ->map(function ($policy) {
+                return [
+                    'name' => $policy->name,
+                    'start_date' => $policy->start_date,
+                    'expiration_date' => $policy->end_date,
+                    'manipulable_price_type' => $policy->manipulable_price_type,
+                    'price_value' => $policy->price_value,
+                    'price_value_type' => $policy->price_value_type,
+                    'price_value_target' => $policy->price_value_target,
+                    'conditions' => $this->formatConditions($policy->conditions),
+                ];
+            })->all();
     }
 
     private function getProductDepositInformation($hotel): array
@@ -258,18 +262,31 @@ class HotelContentApiTransformerService
             return [];
         }
 
-        return $hotel->product->depositInformations->map(function ($depositInfo) {
-            return [
-                'name' => $depositInfo->name,
-                'start_date' => $depositInfo->start_date,
-                'expiration_date' => $depositInfo->expiration_date,
-                'manipulable_price_type' => $depositInfo->manipulable_price_type,
-                'price_value' => $depositInfo->price_value,
-                'price_value_type' => $depositInfo->price_value_type,
-                'price_value_target' => $depositInfo->price_value_target,
-                'conditions' => $this->formatConditions($depositInfo->conditions),
-            ];
-        })->all();
+        return $hotel->product->depositInformations
+            ->filter(function ($depositInfo) {
+                return $depositInfo->rate_id === null;
+            })
+            ->map(function ($depositInfo) {
+                $initialPaymentDueType = $depositInfo->initial_payment_due_type;
+                $deposit = [
+                    'name' => $depositInfo->name,
+                    'start_date' => $depositInfo->start_date,
+                    'expiration_date' => $depositInfo->expiration_date,
+                    'manipulable_price_type' => $depositInfo->manipulable_price_type,
+                    'price_value' => $depositInfo->price_value,
+                    'price_value_type' => $depositInfo->price_value_type,
+                    'price_value_target' => $depositInfo->price_value_target,
+                    'conditions' => $this->formatConditions($depositInfo->conditions),
+                ];
+                if ($initialPaymentDueType) {
+                    $deposit['initial_payment_due']['type'] = $initialPaymentDueType;
+                    $initialPaymentDueType === 'day'
+                        ? $deposit['initial_payment_due']['days'] = $depositInfo->days_initial_payment_due
+                        : $deposit['initial_payment_due']['date'] = $depositInfo->date_initial_payment_due;
+                }
+
+                return $deposit;
+            })->all();
     }
 
     private function formatConditions(Collection $conditions): string
@@ -292,7 +309,7 @@ class HotelContentApiTransformerService
     {
         $descriptions = $hotel->product->descriptiveContentsSection
             ->filter(function ($section) {
-                return $section->descriptiveType?->type !== 'Taxes And Fees';
+                return $section->descriptiveType?->type !== 'Taxes And Fees' && $section->rate_id === null;
             })
             ->map(function ($section) {
                 return [
@@ -325,15 +342,24 @@ class HotelContentApiTransformerService
 
     private function getUltimateAmenities($hotel): array
     {
+        $requestConsortiaAffiliation = request()->input('consortia_affiliation', null);
+
         $amenities = $hotel->product->affiliations
             ->filter(function ($affiliation) {
-                return $affiliation->room_id === null;
+                return $affiliation->room_id === null && $affiliation->rate_id === null;
             })
-            ->map(function ($affiliation) {
+            ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
+                    return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
+                });
+            })
+            ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
                 return [
                     'start_date' => $affiliation->start_date,
                     'end_date' => $affiliation->end_date,
-                    'amenities' => $affiliation->amenities->map(function ($amenity) {
+                    'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
+                        return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                    })->map(function ($amenity) {
                         return [
                             'name' => $amenity->amenity->name,
                             'consortia' => $amenity->consortia,
@@ -343,7 +369,8 @@ class HotelContentApiTransformerService
                             'min_night_stay' => $amenity->min_night_stay,
                             'max_night_stay' => $amenity->max_night_stay,
                         ];
-                    })->all(),
+                    })
+                        ->all(),
                 ];
             })
             ->all();
@@ -363,6 +390,8 @@ class HotelContentApiTransformerService
 
     public function getHotelRooms($hotel): array
     {
+        $requestConsortiaAffiliation = request()->input('consortia_affiliation', null);
+
         $rooms = [];
         foreach ($hotel->rooms as $room) {
             $attributes = $room->attributes->map(function ($attribute) {
@@ -374,23 +403,31 @@ class HotelContentApiTransformerService
 
             $ultimateAmenities = [];
             if ($room->affiliations) {
-                $ultimateAmenities = $room->affiliations->map(function ($affiliation) {
-                    return [
-                        'start_date' => $affiliation->start_date,
-                        'end_date' => $affiliation->end_date,
-                        'amenities' => $affiliation->amenities->map(function ($amenity) {
-                            return [
-                                'name' => $amenity->amenity->name,
-                                'consortia' => $amenity->consortia,
-                                'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
-                                'price' => $amenity->price,
-                                'apply_type' => $amenity->apply_type,
-                                'min_night_stay' => $amenity->min_night_stay,
-                                'max_night_stay' => $amenity->max_night_stay,
-                            ];
-                        })->all(),
-                    ];
-                })->all();
+                $ultimateAmenities = $room->affiliations
+                    ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
+                        return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
+                            return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
+                        });
+                    })
+                    ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
+                        return [
+                            'start_date' => $affiliation->start_date,
+                            'end_date' => $affiliation->end_date,
+                            'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
+                                return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
+                            })->map(function ($amenity) {
+                                return [
+                                    'name' => $amenity->amenity->name,
+                                    'consortia' => $amenity->consortia,
+                                    'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                                    'price' => $amenity->price,
+                                    'apply_type' => $amenity->apply_type,
+                                    'min_night_stay' => $amenity->min_night_stay,
+                                    'max_night_stay' => $amenity->max_night_stay,
+                                ];
+                            })->all(),
+                        ];
+                    })->all();
             }
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {

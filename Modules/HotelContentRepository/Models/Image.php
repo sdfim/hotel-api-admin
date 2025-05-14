@@ -25,6 +25,7 @@ class Image extends Model
         'weight',
         'section_id',
         'alt',
+        'source',
     ];
 
     protected $hidden = [
@@ -41,5 +42,16 @@ class Image extends Model
     public function galleries()
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_gallery_images', 'image_id', 'gallery_id');
+    }
+
+    public function getFullUrlAttribute()
+    {
+        return match ($this->source) {
+            'crm' => config('image_sources.sources.crm').$this->image_url,
+            'own' => config('filesystems.default') === 's3'
+                ? config('image_sources.sources.s3').$this->image_url
+                : config('image_sources.sources.local').'/storage/'.$this->image_url,
+            default => $this->image_url,
+        };
     }
 }

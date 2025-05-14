@@ -3,7 +3,6 @@
 namespace Modules\HotelContentRepository\Livewire\HotelWebFinder;
 
 use App\Helpers\ClassHelper;
-use Carbon\Carbon;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -71,17 +70,13 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                         ->label('')
                         ->placeholder('Select Field')
                         ->options([
-                            'start_date' => 'Start Date',
-                            'end_date' => 'End Date',
-                            //                            'destination' => 'Destination',
-                            'number_of_rooms' => 'Number of Rooms',
-                            'property_code' => 'Property Code',
-                            'adults' => 'Adults',
-                            'children' => 'Children',
-                            'start_travel_date' => 'Travel Start Date',
-                            'end_travel_date' => 'Travel End Date',
-                            'nights' => 'Nights',
-                            'search_property_identifier' => 'Search Property Identifier',
+                            'search_start_travel_date_name' => 'Travel Start Date',
+                            'search_end_travel_date_name' => 'Travel End Date',
+                            'search_rooms_count_name' => 'Number of Rooms',
+                            'search_property_identifier_name' => 'Property Code',
+                            'search_adults_name' => 'Adults',
+                            'search_children_name' => 'Children',
+                            'search_nights_name' => 'Nights',
                         ])
                         ->required(),
                     TextInput::make('value')
@@ -95,8 +90,14 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                             'm/d/y' => 'm/d/y',
                             'd/m/y' => 'd/m/y',
                             'Y-m-d' => 'Y-m-d',
+                            'yy/mm/dd' => 'yy/mm/dd',
                         ])
-                        ->visible(fn ($get) => in_array($get('field'), ['start_travel_date', 'end_travel_date'])),
+                        ->visible(fn ($get) => in_array($get('field'), ['search_start_travel_date_name', 'search_end_travel_date_name'])),
+
+                    TextInput::make('type')
+                        ->label('')
+                        ->placeholder('Type')
+                        ->visible(fn ($get) => in_array($get('field'), ['search_property_identifier_name'])),
                 ])
                 ->defaultItems(1)
                 ->required()
@@ -250,7 +251,11 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         if (! empty($this->units)) {
             $step = 0;
             foreach ($this->units as $unit) {
-                $finder .= ($step > 0 ? '&' : '').$unit['value'].'={'.$unit['field'].(! empty($unit['type']) ? ':'.$unit['type'] : '').'}';
+                if ($unit['field'] === 'search_property_identifier_name') {
+                    $finder .= ($step > 0 ? '&' : '').$unit['value'].'='.$unit['type'];
+                } else {
+                    $finder .= ($step > 0 ? '&' : '').$unit['value'].'={'.$unit['field'].(! empty($unit['type']) ? ':'.$unit['type'] : '').'}';
+                }
                 $step++;
             }
         } else {

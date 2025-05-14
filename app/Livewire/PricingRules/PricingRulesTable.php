@@ -7,6 +7,9 @@ use App\Models\PricingRule;
 use App\Models\PricingRuleCondition;
 use App\Models\Property;
 use Carbon\Carbon;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -15,13 +18,15 @@ use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Models\Product;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
@@ -97,6 +102,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
@@ -115,11 +121,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ]),
                 TextColumn::make('name')
                     ->searchable()
+                    ->wrap()
                     ->toggleable(),
-                TextInputColumn::make('weight')
-                    ->searchable()
-                    ->toggleable()
-                    ->extraAttributes(['style' => 'max-width: 100px;']),
+//                TextColumn::make('weight')
+//                    ->searchable()
+//                    ->toggleable()
+//                    ->extraAttributes(['style' => 'max-width: 100px;']),
                 TextColumn::make('is_exclude_action')
                     ->label('Type')
                     ->badge()
@@ -132,6 +139,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('conditions')
                     ->label('Property')
                     ->html()
+                    ->wrap()
                     ->formatStateUsing(function ($state) {
                         $state = trim($state, " \t\n\r\0\x0B\"");
                         $state = '['.$state.']';
@@ -157,13 +165,13 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     )
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
-                    ->label('Travel Start Date')
+                    ->label('Rule Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('rule_expiration_date')
-                    ->label('Travel End Date')
+                    ->label('Rule End Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
@@ -175,16 +183,62 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('manipulable_price_type')
                     ->label('Price Type')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            'total_price' => 'Total Price',
+                            'net_price' => 'Net Price',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('price_value_type')
                     ->label('Value Type')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true)
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            'fixed_value' => 'Fixed Value',
+                            'percentage' => 'Percentage',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('price_value')
                     ->label('Value')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : $state
+                    )
+                    ->icon(function ($record) {
+                        return $record?->is_exclude_action
+                            ? false
+                            : match ($record->price_value_type) {
+                                null, '' => false,
+                                'fixed_value' => 'heroicon-o-banknotes',
+                                'percentage' => 'heroicon-o-receipt-percent',
+                                'exclude_action' => 'heroicon-o-banknotes',
+                                default => '',
+                            };
+                    }),
                 TextColumn::make('price_value_target')
                     ->label('Value Target')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->formatStateUsing(fn ($state, $record) => $record?->is_exclude_action
+                        ? ''
+                        : match ($state) {
+                            ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
+                            ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                            ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                            'not_applicable' => 'N/A',
+                            'exclude_action' => '',
+                            default => $state,
+                        }
+                    ),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -289,7 +343,230 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         'rc' => $this->rateCode ?? null,
                     ]))
                     ->visible(fn (): bool => Gate::allows('create', PricingRule::class) && ! $this->isSrCreator),
-            ]);
+            ])
+            ->filters([
+                Filter::make('destination')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('destination')
+                                    ->label('Destination')
+                                    ->native(false)
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        return \App\Models\PricingRuleCondition::query()
+                                            ->where('field', 'destination')
+                                            ->where('compare', '=')
+                                            ->pluck('value_from')
+                                            ->mapWithKeys(function ($cityId) {
+                                                $giataGeography = \App\Models\GiataGeography::where('city_id', $cityId)->first();
+
+                                                return [$cityId => $giataGeography ? "{$giataGeography->city_name} ({$giataGeography->city_id})" : $cityId];
+                                            })
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('clear_hotel_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('destination',  []);
+                                        }),
+                                ]),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['destination'])) {
+                            $propertyCodes = \App\Models\Property::whereIn('city_id', $data['destination'])
+                                ->pluck('code')
+                                ->toArray();
+
+                            if (! empty($propertyCodes)) {
+                                $query->whereHas('conditions', function (Builder $query) use ($propertyCodes, $data) {
+                                    $query->where('field', 'property')
+                                        ->where('compare', '=')
+                                        ->whereIn('value_from', $propertyCodes)
+                                        ->orWhere(function (Builder $query) use ($data) {
+                                            $query->where('field', 'destination')
+                                                ->where('compare', '=')
+                                                ->whereIn('value', $data['destination']);
+                                        });
+                                });
+                            }
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+                Filter::make('property')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('property')
+                                    ->label('Property')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        $propertyCodes = \App\Models\PricingRuleCondition::query()
+                                            ->where('field', 'property')
+                                            ->where('compare', '=')
+                                            ->pluck('value_from')
+                                            ->toArray();
+
+                                        return \App\Models\Property::whereIn('code', $propertyCodes)
+                                            ->get()
+                                            ->mapWithKeys(function ($property) {
+                                                return [$property->code => "{$property->name} ({$property->code})"];
+                                            })
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('clear_hotel_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('property', []);
+                                        }),
+                                ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['property'])) {
+                            $query->whereHas('conditions', function (Builder $query) use ($data) {
+                                $query->where('field', 'property')
+                                    ->where('compare', '=')
+                                    ->whereIn('value_from', $data['property']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+                Filter::make('rate_code')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('rate_code')
+                                    ->label('Rate Code')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        return \App\Models\PricingRuleCondition::query()
+                                            ->where('field', 'rate_code')
+                                            ->where('compare', '=')
+                                            ->pluck('value_from', 'value_from')
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('clear_hotel_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('rate_code', []);
+                                        }),
+                                ]),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['rate_code'])) {
+                            $query->whereHas('conditions', function (Builder $query) use ($data) {
+                                $query->where('field', 'rate_code')
+                                    ->where('compare', '=')
+                                    ->whereIn('value_from', $data['rate_code']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+                Filter::make('room_name')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('room_name')
+                                    ->label('Room Name')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        return \App\Models\PricingRuleCondition::query()
+                                            ->where('field', 'room_name')
+                                            ->where('compare', '=')
+                                            ->pluck('value_from', 'value_from')
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('clear_hotel_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('room_name', []);
+                                        }),
+                                ]),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['room_name'])) {
+                            $query->whereHas('conditions', function (Builder $query) use ($data) {
+                                $query->where('field', 'room_name')
+                                    ->where('compare', '=')
+                                    ->whereIn('value_from', $data['room_name']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+                Filter::make('room_type')
+                    ->form([
+                        Grid::make(4)
+                            ->schema([
+                                Select::make('room_type')
+                                    ->label('Room Type')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->options(function () {
+                                        return \App\Models\PricingRuleCondition::query()
+                                            ->where('field', 'room_type')
+                                            ->where('compare', '=')
+                                            ->pluck('value_from', 'value_from')
+                                            ->toArray();
+                                    })
+                                    ->columnSpan(3),
+                                Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('clear_hotel_name')
+                                        ->icon('heroicon-o-x-mark')
+                                        ->iconButton()
+                                        ->color('gray')
+                                        ->action(function ($state, callable $set) {
+                                            $set('room_type', []);
+                                        }),
+                                ]),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['room_type'])) {
+                            $query->whereHas('conditions', function (Builder $query) use ($data) {
+                                $query->where('field', 'room_type')
+                                    ->where('compare', '=')
+                                    ->whereIn('value_from', $data['room_type']);
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->columnSpan(2),
+            ])
+            ->filtersFormColumns(4);
     }
 
     public function render(): View

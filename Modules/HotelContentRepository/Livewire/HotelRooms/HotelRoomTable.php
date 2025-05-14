@@ -5,11 +5,14 @@ namespace Modules\HotelContentRepository\Livewire\HotelRooms;
 use App\Helpers\ClassHelper;
 use App\Livewire\Components\CustomRepeater;
 use App\Livewire\Configurations\Attributes\AttributesForm;
+use App\Livewire\Configurations\RoomBedTypes\RoomBedTypeForm;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigRoomBedType;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -56,84 +59,121 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     public function schemeForm($record = null): array
     {
         return [
-            Hidden::make('hotel_id')->default($this->hotelId),
-            Grid::make(3)->schema([
-                TextInput::make('name')->label('Name')->required()->columnSpan(2),
-                TextInput::make('external_code')->label('UJV Code')->columnSpan(1),
-            ]),
-            Grid::make(3)->schema([
-                RichEditor::make('description')
-                    ->label('Description')
-                    ->required()
-                    ->disableAllToolbarButtons()
-                    ->toolbarButtons([
-                        'attachFiles',
-                        'blockquote',
-                        'bold',
-                        'bulletList',
-                        'codeBlock',
-                        'h2',
-                        'h3',
-                        'italic',
-                        'link',
-                        'orderedList',
-                        'redo',
-                        'strike',
-                        'underline',
-                        'undo',
-                    ])
-                    ->extraAttributes([
-                        'style' => 'max-height: 30em; overflow-x: auto;',
-                    ])->columnSpan(2),
-                Grid::make(1)->schema([
-                    TextInput::make('area')->label('Area, square feet'),
-                    TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
-                    TagsInput::make('bed_groups')->label('Bed Types')->placeholder('Enter Bed Types'),
-                    Select::make('related_rooms')
-                        ->label('Connecting Room Types')
-                        ->multiple()
-                        ->options(function (callable $get) {
-                            $hotelId = $get('hotel_id');
+            Tabs::make('Tabs')
+                ->extraAttributes(['class' => 'custom-tabs-class', 'style' => 'background-color: #f5f5f5;'])
+                ->tabs([
+                    Tabs\Tab::make('Main')
+                        ->schema([
+                            Hidden::make('hotel_id')->default($this->hotelId),
+                            Grid::make(3)->schema([
+                                TextInput::make('name')->label('Name')->required()->columnSpan(2),
+                                TextInput::make('external_code')->label('UJV Code')->columnSpan(1),
+                            ]),
+                            Grid::make(3)->schema([
+                                RichEditor::make('description')
+                                    ->label('Description')
+                                    ->required()
+                                    ->disableAllToolbarButtons()
+                                    ->toolbarButtons([
+                                        'attachFiles',
+                                        'blockquote',
+                                        'bold',
+                                        'bulletList',
+                                        'codeBlock',
+                                        'h2',
+                                        'h3',
+                                        'italic',
+                                        'link',
+                                        'orderedList',
+                                        'redo',
+                                        'strike',
+                                        'underline',
+                                        'undo',
+                                    ])
+                                    ->extraAttributes([
+                                        'style' => 'max-height: 30em; overflow-x: auto;',
+                                    ])->columnSpan(2),
+                                Grid::make(1)->schema([
+                                    TextInput::make('area')
+                                        ->label('Area, square feet')
+                                        ->inlineLabel(),
+                                    TextInput::make('max_occupancy')
+                                        ->label('Max Occupancy')
+                                        ->placeholder('Enter Max Occupancy')
+                                        ->inlineLabel(),
+                                    TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
+                                    Select::make('bed_groups')
+                                        ->label('Bed Types')
+                                        ->multiple()
+                                        ->searchable()
+                                        ->native(false)
+                                        ->createOptionForm(Gate::allows('create', ConfigRoomBedType::class) ? RoomBedTypeForm::getSchema() : [])
+                                        ->createOptionUsing(function (array $data) {
+                                            $bedType = ConfigRoomBedType::create($data);
+                                            Notification::make()
+                                                ->title('Bed Type created successfully')
+                                                ->success()
+                                                ->send();
 
-                            return HotelRoom::where('hotel_id', $hotelId)
-                                ->pluck('name', 'id');
-                        }),
-                ])->columnSpan(1),
-            ]),
-            Grid::make(1)->schema([
-                Select::make('attributes')
-                    ->label('Attributes')
-                    ->createOptionForm(AttributesForm::getSchema())
-                    ->createOptionUsing(function (array $data) {
-                        $data['default_value'] = '';
-                        ConfigAttribute::create($data);
-                        Notification::make()
-                            ->title('Attributes created successfully')
-                            ->success()
-                            ->send();
-                    })
-                    ->searchable()
-                    ->multiple()
-                    ->options(ConfigAttribute::pluck('name', 'id')),
-                Select::make('galleries')
-                    ->label('Galleries')
-                    ->multiple()
-                    ->relationship('galleries', 'gallery_name')
-                    ->searchable()
-                    ->native(false),
-            ]),
-            CustomRepeater::make('supplier_codes')
-                ->label('Supplier Codes')
-                ->schema([
-                    Grid::make(2)->schema([
-                        Select::make('supplier')
-                            ->placeholder('Select Supplier')
-                            ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
-                            ->options(ContentSourceEnum::options()),
-                        TextInput::make('code')
-                            ->placeholder('Enter Code')
-                            ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
-                    ]),
+                                            return $bedType->id;
+                                        })
+                                        ->options(ConfigRoomBedType::pluck('name', 'name')),
+                                    Select::make('related_rooms')
+                                        ->label('Connecting Room Types')
+                                        ->multiple()
+                                        ->options(function (callable $get) {
+                                            $hotelId = $get('hotel_id');
+
+                                            return HotelRoom::where('hotel_id', $hotelId)
+                                                ->orderBy('name')
+                                                ->pluck('name', 'id');
+                                        }),
+                                ])->columnSpan(1),
+                            ]),
+
+                            CustomRepeater::make('supplier_codes')
+                                ->label('Supplier Room Codes')
+                                ->schema([
+                                    Grid::make(2)->schema([
+                                        Select::make('supplier')
+                                            ->placeholder('Select Supplier')
+                                            ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
+                                            ->options(ContentSourceEnum::options()),
+                                        TextInput::make('code')
+                                            ->placeholder('Enter Code')
+                                            ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
+                                    ]),
+                                ]),
+                        ]),
+                    Tabs\Tab::make('Attributes and Galleries')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                Select::make('attributes')
+                                    ->label('Attributes')
+                                    ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
+                                    ->createOptionUsing(function (array $data) {
+                                        $data['default_value'] = '';
+                                        $attribute = ConfigAttribute::create($data);
+                                        Notification::make()
+                                            ->title('Attributes created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $attribute->id;
+                                    })
+                                    ->searchable()
+                                    ->multiple()
+                                    ->native(false)
+                                    ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id')),
+
+                                Select::make('galleries')
+                                    ->label('Galleries')
+                                    ->multiple()
+                                    ->relationship('galleries', 'gallery_name')
+                                    ->searchable()
+                                    ->native(false),
+                            ]),
+                        ]),
                 ]),
         ];
     }
@@ -150,21 +190,22 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
                 TextInputColumn::make('external_code')
                     ->label('UJV Code')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
-                    ->disabled(fn () => ! Gate::allows('create', Hotel::class)),
+                    ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
-                    ->disabled(fn () => ! Gate::allows('create', Hotel::class)),
+                    ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
                 TextColumn::make('supplier_codes')
-                    ->label('Supplier Codes')
+                    ->label('Supplier Room Codes')
                     ->formatStateUsing(function ($state) {
                         return implode('<br>', array_map(function ($code) {
                             return $code['supplier'].': '.$code['code'];
@@ -181,6 +222,11 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->modalWidth('7xl')
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->form($this->schemeForm())
+                        ->modalFooterActions(function ($livewire, $action) {
+                            return Gate::allows('create', Hotel::class)
+                                ? [$action->getModalSubmitAction(), $action->getModalCancelAction()]
+                                : [$action->getModalCancelAction()];
+                        })
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
                             $data['galleries'] = $record->galleries->pluck('id')->toArray();
@@ -200,7 +246,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 ->success()
                                 ->send();
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('images')
                         ->icon('heroicon-o-gif')
@@ -211,7 +257,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->modalContent(function ($record) {
                             return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-attributes')
                         ->icon('heroicon-o-gift')
@@ -225,7 +271,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-fee-tax')
                         ->icon('heroicon-o-banknotes')
@@ -239,7 +285,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                     Action::make('add-informational-service')
                         ->icon('heroicon-o-sparkles')
@@ -253,13 +299,13 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                 'roomId' => $record->id,
                             ]);
                         })
-                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                        ->visible(fn () => Gate::allows('update', Hotel::class)),
 
                 ]),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    ->visible(fn () => Gate::allows('update', Hotel::class)),
             ])
             ->headerActions([
                 CreateAction::make()

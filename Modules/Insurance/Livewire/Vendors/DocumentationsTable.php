@@ -13,7 +13,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -77,7 +76,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     Select::make('document_type_id')
                         ->label('Type Document')
                         ->reactive()
-                        ->createOptionForm(app(InsuranceDocumentationTypesForm::class)->getSchema())
+                        ->createOptionForm(Gate::allows('create', ConfigInsuranceDocumentationType::class) ? app(InsuranceDocumentationTypesForm::class)->getSchema() : [])
                         ->createOptionUsing(function (array $data) {
                             ConfigInsuranceDocumentationType::create($data);
                             Notification::make()
@@ -85,7 +84,8 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                                 ->success()
                                 ->send();
                         })
-                        ->options(ConfigInsuranceDocumentationType::pluck('name_type', 'id')->toArray())
+                        ->relationship('documentType', 'name_type')
+                        ->native(false)
                         ->rules(['required']),
 
                 ]),
@@ -100,7 +100,6 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                 ]),
             FileUpload::make('path')
                 ->label('Upload file')
-                ->disk('public')
                 ->directory('insurance-documentation')
                 ->visibility('private')
                 ->downloadable()
@@ -130,48 +129,40 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->formatStateUsing(fn ($state) => InsuranceDocTypeEnum::tryFrom($state)?->label() ?? $state),
             ])
             ->actions([
-                Action::make('download')
-                    ->icon('heroicon-s-arrow-down-circle')
-                    ->iconButton()
-                    ->color('success')
-                    ->tooltip('Download File')
-                    ->action(function (InsuranceProviderDocumentation $record) {
-                        $filePath = $record->path;
-
-                        if (Storage::disk('public')->exists($filePath)) {
-                            return response()->download(
-                                Storage::disk('public')->path($filePath),
-                                basename($filePath)
-                            );
-                        }
-
-                        Notification::make()
-                            ->title('File not found')
-                            ->danger()
-                            ->send();
-
-                        return false;
-                    }),
-                Action::make('View')
-                    ->icon('heroicon-s-eye')
-                    ->iconButton()
-                    ->color('success')
-                    ->tooltip('View File')
-                    ->url(function (InsuranceProviderDocumentation $record) {
-                        $filePath = $record->path;
-
-                        if (Storage::disk('public')->exists($filePath)) {
-                            return Storage::url($filePath);
-                        }
-
-                        Notification::make()
-                            ->title('File not found')
-                            ->danger()
-                            ->send();
-
-                        return false;
-                    })
-                    ->openUrlInNewTab(),
+//                Action::make('download')
+//                    ->icon('heroicon-s-arrow-down-circle')
+//                    ->iconButton()
+//                    ->color('success')
+//                    ->tooltip('Download File')
+//                    ->action(function (InsuranceProviderDocumentation $record) {
+//                        $filePath = $record->path;
+//
+//                        if (Storage::exists($filePath)) {
+//                            redirect(Storage::url($filePath));
+//                        }
+//
+//                        Notification::make()
+//                            ->title('File not found')
+//                            ->danger()
+//                            ->send();
+//
+//                        return false;
+//                    }),
+//                Action::make('View')
+//                    ->icon('heroicon-s-eye')
+//                    ->iconButton()
+//                    ->color('success')
+//                    ->tooltip('View File')
+//                    ->url(function (InsuranceProviderDocumentation $record) {
+//                        $filePath = $record->path;
+//
+//                        if (Storage::exists($filePath)) {
+//                            return Storage::url($filePath);
+//                        }
+//
+//                        return false;
+//                    })
+//                    ->openUrlInNewTab(),
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Provider Documentation')
@@ -206,8 +197,8 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->action(function (InsuranceProviderDocumentation $record) {
                         $filePath = $record->path;
 
-                        if (Storage::disk('public')->exists($filePath)) {
-                            Storage::disk('public')->delete($filePath);
+                        if (Storage::exists($filePath)) {
+                            Storage::delete($filePath);
                         } else {
                             Notification::make()
                                 ->title('Can\'t delete file')

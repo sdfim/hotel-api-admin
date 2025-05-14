@@ -6,10 +6,13 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PricingRule extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     /**
      * @var string[]
@@ -54,5 +57,12 @@ class PricingRule extends Model
     public function conditions(): HasMany
     {
         return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('pricing_rule');
     }
 }

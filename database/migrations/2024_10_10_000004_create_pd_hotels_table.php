@@ -14,7 +14,7 @@ return new class extends Migration
             $table->integer('giata_code');
             $table->boolean('featured_flag')->nullable();
             $table->json('address')->nullable();
-            $table->decimal('star_rating', 8, 2);
+            $table->decimal('star_rating', 8, 2)->default(5);
             $table->integer('weight')->nullable();
             $table->boolean('is_not_auto_weight')->nullable();
             $table->integer('num_rooms');

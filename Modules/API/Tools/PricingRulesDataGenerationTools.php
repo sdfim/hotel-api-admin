@@ -84,9 +84,9 @@ class PricingRulesDataGenerationTools
 
         return [
             'name' => "Pricing rule $name",
-            'weight' => rand(1, 10),
-            'is_sr_creator' => false,
-            'is_exclude_action' => false,
+            'weight' => 0,
+            'is_sr_creator' => 0,
+            'is_exclude_action' => 0,
             'rule_start_date' => $this->today->copy()->toDateString(),
             'rule_expiration_date' => $this->today->copy()->addDays(rand(30, 60))->toDateString(),
             'manipulable_price_type' => $this->faker->randomElement($this->getManipulablePriceTypeKeys()),
@@ -122,11 +122,12 @@ class PricingRulesDataGenerationTools
 
         $supplierIds = Supplier::pluck('id')->toArray();
 
-        $giataIds = [10000011, 10000044, 10000066, 10000171, 10000215, 10000273, 10000320, 10000353, 10000433, 10000560];
+        // destination_id = 508 (Cancun)
+        $giataIds = [46383222, 88822477, 59492695, 62870775, 10998011, 38175222, 10057691, 27878720, 71545713, 39039200];
 
         $compare = match ($field) {
             'supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'meal_plan' => '=',
-            default => $this->faker->randomElement(['=', '<', '>', 'between'])
+            default => $this->faker->randomElement(['=', '>', 'between'])
         };
 
         $condition = [
@@ -139,42 +140,42 @@ class PricingRulesDataGenerationTools
                 'supplier_id' => $this->faker->randomElement($supplierIds) ?? 1,
                 'channel_id' => $this->faker->randomElement($channelIds) ?? 1,
                 'property' => $giataId ?? $this->faker->randomElement($giataIds),
-                'destination' => 961, //New York
+                'destination' => 508, // Cancun
                 'rate_code', 'room_type', 'meal_plan' => $this->faker->word()
             };
         } elseif (in_array($field, ['travel_date', 'booking_date'])) {
             $condition['value_from'] = $this->today->copy()->addDay()->toDateString();
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => $this->today->copy()->addDays(rand(2, 7))->toDateString()
             };
         } elseif ($field === 'total_guests') {
             $condition['value_from'] = rand(3, 4);
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => rand(5, 8)
             };
         } elseif ($field === 'days_until_departure') {
             $condition['value_from'] = rand(1, 8);
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => rand(9, 16)
             };
         } elseif ($field === 'nights') {
             $condition['value_from'] = rand(1, 6);
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => rand(7, 14)
             };
         } elseif ($field === 'rating') {
             $condition['value_from'] = $this->faker->randomFloat(2, 1.0, 3.0);
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => $this->faker->randomFloat(2, 3.1, 5.5)
             };
         } else {
@@ -182,7 +183,7 @@ class PricingRulesDataGenerationTools
             $condition['value_from'] = 1;
 
             $condition['value_to'] = match ($compare) {
-                '=', '<', '>' => null,
+                '=', '>' => null,
                 'between' => rand(2, 3)
             };
         }

@@ -12,15 +12,16 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
             $table->string('external_code')->nullable();
-            $table->jsonb('supplier_codes')->nullable();
+            $table->json('supplier_codes')->nullable();
             $table->string('name')->nullable();
             $table->string('area')->nullable();
-            $table->string('bed_groups')->nullable();
+            $table->json('bed_groups')->nullable();
             $table->string('room_views')->nullable();
             $table->string('related_rooms')->nullable();
             $table->text('description')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
         });

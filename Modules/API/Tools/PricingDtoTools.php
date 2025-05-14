@@ -169,24 +169,24 @@ class PricingDtoTools
         return implode(',', $mergedRates);
     }
 
-    public function extractExclusionRates(array $pricingExclusionRules): array
+    public function extractExclusionValues(array $pricingExclusionRules, string $field): array
     {
-        $exclusionRates = [];
+        $exclusionValues = [];
 
         foreach ($pricingExclusionRules as $rule) {
             foreach ($rule['conditions'] as $condition) {
-                if ($condition['field'] === 'rate_code') {
+                if ($condition['field'] === $field) {
                     if (! empty($condition['value'])) {
                         $values = explode('; ', $condition['value']);
-                        $exclusionRates = array_merge($exclusionRates, $values);
+                        $exclusionValues = array_merge($exclusionValues, $values);
                     }
                     if (! empty($condition['value_from'])) {
-                        $exclusionRates[] = $condition['value_from'];
+                        $exclusionValues[] = $condition['value_from'];
                     }
                 }
             }
         }
 
-        return array_unique($exclusionRates);
+        return array_unique($exclusionValues);
     }
 }

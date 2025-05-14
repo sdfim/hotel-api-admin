@@ -5,6 +5,7 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 use App\Jobs\SaveSearchInspector;
 use Exception;
 use Fiber;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
@@ -65,6 +66,8 @@ class PropertyPriceCall
     private const PAYMENT_TERMS = 'payment_terms';
 
     private const PARTNER_POINT_SALE = 'partner_point_of_sale';
+
+    private const INCLUDE = 'include';
 
     private const BATCH_SIZE = 250;
 
@@ -193,21 +196,23 @@ class PropertyPriceCall
         }
 
         $responses = Fiber::suspend($promises);
+        $dataResponses = [];
 
         try {
             foreach ($responses as $response) {
-                if ($response['state'] === 'fulfilled') {
-                    $data = $response['value']->getBody()->getContents();
-                    $responses = array_merge($responses, json_decode($data, true));
-                }
-                elseif (!isset($response['value'])) {
+                if ($response->getReasonPhrase() === 'OK') {
+                    $data = $response->getBody()->getContents();
+                    $dataResponses = array_merge($dataResponses, json_decode($data, true));
+                } elseif (! isset($response)) {
+                    Log::error('Expedia Response', [
+                        'state' => Arr::get($response, 'state'),
+                        'reason' => Arr::get($response, 'reason'),
+                    ]);
                     Log::error('Expedia Timeout Exception');
                     $parent_search_id = $searchInspector['search_id'];
                     $searchInspector['search_id'] = Str::uuid();
                     SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',
                         ['side' => 'supplier', 'message' => 'Expedia Timeout Exception  ', 'parent_search_id' => $parent_search_id]);
-
-                    return ['error' => 'Timeout Exception '];
                 } else {
                     Log::error('PropertyPriceCall | getPriceData ', [
                         'propertyChunk' => $this->propertyChunk,
@@ -242,8 +247,8 @@ class PropertyPriceCall
         }
 
         $res = [];
-        if (! empty($responses)) {
-            foreach ($responses as $response) {
+        if (! empty($dataResponses)) {
+            foreach ($dataResponses as $response) {
                 if (isset($response['property_id'])) {
                     $res[$response['property_id']] = $response;
                 }
@@ -290,6 +295,10 @@ class PropertyPriceCall
         }
         if (! empty($this->paymentTerms)) {
             $queryParams[self::PAYMENT_TERMS] = $this->paymentTerms;
+
+            if ($this->paymentTerms === self::STANDALONE_RATES['payment_terms']) {
+                $queryParams[self::INCLUDE] = 'rooms.rates.marketing_fee_incentives';
+            }
         }
         if (! empty($this->partnerPointSale)) {
             $queryParams[self::PARTNER_POINT_SALE] = $this->partnerPointSale;

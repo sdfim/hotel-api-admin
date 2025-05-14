@@ -11,20 +11,21 @@ use Modules\Inspector\SearchInspectorController;
 
 class SaveSearchInspectorByCacheKey implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
      * @param array $inspector
      * @param array $cacheKeys
-     * @param SearchInspectorController $searchInspector
      * @param string $status
      * @param array $status_describe
      */
     public function __construct(
         private array $inspector,
         private readonly array $cacheKeys,
-        private readonly SearchInspectorController $searchInspector = new SearchInspectorController(),
         private readonly string $status = 'success',
         private readonly array $status_describe = [],
     ) {}
@@ -37,6 +38,8 @@ class SaveSearchInspectorByCacheKey implements ShouldQueue
         $this->inspector['status'] = $this->status;
         $this->inspector['status_describe'] = $this->status_describe;
 
-        $this->searchInspector->save([$this->inspector, ['keyCache' => $this->cacheKeys], [], []]);
+        /** @var SearchInspectorController $searchInspector */
+        $searchInspector = app(SearchInspectorController::class);
+        $searchInspector->save([$this->inspector, ['keyCache' => $this->cacheKeys], [], []]);
     }
 }

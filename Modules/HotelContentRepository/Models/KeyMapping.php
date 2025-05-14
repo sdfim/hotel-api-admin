@@ -27,6 +27,8 @@ class KeyMapping extends Model
         'product_id',
         'key_id',
         'key_mapping_owner_id',
+        'created_at',
+        'updated_at',
     ];
 
     protected $hidden = [

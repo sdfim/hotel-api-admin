@@ -35,8 +35,13 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('access_token')
                     ->sortable(),
-                TextColumn::make('token.tokenable.name')
+                TextColumn::make('user.name')
                     ->label('Creator'),
+                TextColumn::make('accept_special_params')
+                    ->label('Special API Params')
+                    ->formatStateUsing(fn (bool $state) => $state ? 'Yes' : 'No')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -66,7 +71,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
         $user = auth()->user();
 
         return Channel::query()
-            ->when(!$user->hasRole(RoleSlug::ADMIN->value), function ($query) use ($user) {
+            ->when(! $user->hasRole(RoleSlug::ADMIN->value), function ($query) use ($user) {
                 return $query->whereHas(
                     'token', fn ($query) => $query->where('tokenable_id', $user->id),
                 );

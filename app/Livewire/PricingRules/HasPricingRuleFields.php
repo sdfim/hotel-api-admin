@@ -18,8 +18,8 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\HotelRoom;
@@ -41,15 +41,17 @@ trait HasPricingRuleFields
                     TextInput::make('name')
                         ->label('Rule name')
                         ->maxLength(191)
-                        ->unique(ignoreRecord: true)
-                        ->required(),
-                    TextInput::make('weight')
-                        ->label('Priority Weighting')
-                        ->numeric()
-                        ->maxLength(191),
+                        ->required()
+                    ->columnSpan(3),
+//                    TextInput::make('weight')
+//                        ->label('Priority Weighting')
+//                        ->numeric()
+//                        ->required()
+//                        ->default(0)
+//                        ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
-                        ->helperText('Remove a rate from the search results')
+                        ->helperText('Remove a entity from the search results')
                         ->inline(false)
                         ->reactive()
                         ->afterStateUpdated(fn (Set $set, $state) => $set('price_settings_hidden', $state)),
@@ -78,67 +80,8 @@ trait HasPricingRuleFields
                             }
                             $component->state($formattedDate);
                         }),
-                    Placeholder::make('travel_dates_explanation')
-                        ->label('')
-                        ->columnSpan(5)
-                        ->content(fn () => new HtmlString(<<<HTML
-        <button type="button" onclick="toggleCollapse()">
-            <span id="toggleIcon">▼</span> IMPORTANT: Rules dates explanation
-        </button>
-        <div id="collapseContent" style="display: none;">
-            When doing a search, the users will need to select a start and an Travel End Date.
-            This rule will only apply if the "Rule Start Date" is contained within the travel dates selected by the user.
-            If the "Rule Expiration Date" is provided, it must also be contained within the travel dates selected by the user.
-            If the "Rule Expiration Date" is not provided, a default date of 01-01-2100 will be applied.<br>
-            <br>
-            For example, consider the following scenario:<br>
-            Assume that you select Jan 15, $currentYear as the "Rule Start Date" and Jan 20, $currentYear
-            as the "Rule Expiration Date" (if provided)<br>
-            <ul class="list-disc pl-6">
-                <li class="mb-2">
-                    User selects Jan 10, $currentYear as the Travel Start Date <br>
-                    User selects Jan 14, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 12, $currentYear as the Travel Start Date <br>
-                    User selects Jan 18, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 18, $currentYear as the Travel Start Date <br>
-                    User selects Jan 24, $currentYear as the Travel End Date <br>
-                    Will this rule apply? NO
-                </li>
-                <li class="mb-2">
-                    User selects Jan 15, $currentYear as the Travel Start Date <br>
-                    User selects Jan 18, $currentYear as the Travel End Date <br>
-                    Will this rule apply? YES
-                </li>
-                <li class="mb-2">
-                    User selects Jan 17, $currentYear as the Travel Start Date <br>
-                    User selects Jan 20, $currentYear as the Travel End Date <br>
-                    Will this rule apply? YES
-                </li>
-            </ul>
-        </div>
-        <script>
-            function toggleCollapse() {
-                var content = document.getElementById('collapseContent');
-                var icon = document.getElementById('toggleIcon');
-                if (content.style.display === 'none') {
-                    content.style.display = 'block';
-                    icon.textContent = '▲';
-                } else {
-                    content.style.display = 'none';
-                    icon.textContent = '▼';
-                }
-            }
-        </script>
-    HTML
-                        )),
                 ])
-                ->columns(5),
+                ->columns(6),
 
             Fieldset::make('Price Setting')
                 ->schema([
@@ -204,39 +147,95 @@ trait HasPricingRuleFields
                 Select::make('field')
                     ->options(function () {
                         $options = [
-                            'supplier_id' => 'Supplier ID',
-                            'channel_id' => 'Channel ID',
-                            'property' => 'Property',
-                            'destination' => 'Destination',
-                            'travel_date' => 'Travel date',
-                            'booking_date' => 'Booking date',
-                            'total_guests' => 'Total guests',
-                            'days_until_departure' => 'Days until departure',
-                            'nights' => 'Nights',
-                            'rating' => 'Rating',
-                            'number_of_rooms' => 'Number of rooms',
-                            'meal_plan' => 'Meal plan / Board basis',
-                            'rate_code' => 'Rate code',
-                            //                                'room_code' => 'Room code',
-                            'room_name' => 'Room name',
+                            'general' => [
+                                'supplier_id' => 'Supplier ID',
+                                'channel_id' => 'Channel ID',
+                            ],
+                            'location' => [
+                                'destination' => 'Destination',
+                                'property' => 'Property',
+                                'rate_code' => 'Rate code',
+                                'room_name' => 'Room name',
+                            ],
+                            'dates' => [
+                                'date_of_stay' => 'Date of stay',
+                                'travel_date' => 'Travel date',
+                                'booking_date' => 'Booking date',
+                            ],
+                            'addition' => [
+                                'total_guests' => 'Total guests',
+                                'days_until_departure' => 'Days until departure',
+                                'nights' => 'Nights',
+                                'rating' => 'Rating',
+                                'number_of_rooms' => 'Number of rooms',
+                                'meal_plan' => 'Meal plan / Board basis',
+                            ],
                         ];
 
                         if ($this->isSrCreator) {
-                            $options['room_type_cr'] = 'Room type';
+                            $options['location']['room_type_cr'] = 'Room type';
                         } else {
-                            $options['room_type'] = 'Room type';
+                            $options['location']['room_type'] = 'Room type';
                         }
 
                         return $options;
                     })
                     ->live()
                     ->required()
-                    ->afterStateUpdated(fn (Select $component) => $component
-                        ->getContainer()
-                        ->getComponent('dynamicFieldValue')
-                        ->getChildComponentContainer()
-                        ->fill()
-                    ),
+                    ->afterStateUpdated(function (Select $component, $state, Get $get) {
+                        // Validation logic
+                        $selectedFields = collect($get('../../conditions'))
+                            ->pluck('field')
+                            ->filter()
+                            ->unique()
+                            ->values(); // Re-index the collection
+                        $selectedFields->pop(); // Remove the last element
+                        $selectedFields = $selectedFields->toArray();
+
+                        if (in_array($state, $selectedFields, true)) {
+                            Notification::make()
+                                ->title('Validation Error')
+                                ->body('This field is already selected. Please choose another one.')
+                                ->danger()
+                                ->send();
+
+                            $component->state(null); // Reset the state if validation fails
+
+                            return;
+                        }
+
+                        // Additional validation
+                        if ($state === 'rate_code' && ! in_array('property', $selectedFields, true)) {
+                            Notification::make()
+                                ->title('Validation Error')
+                                ->body('The "rate_code" field requires a selected "property".')
+                                ->danger()
+                                ->send();
+
+                            $component->state(null); // Reset the state if validation fails
+
+                            return;
+                        }
+                        if (($state === 'room_name' || $state === 'room_type' || $state === 'room_type_cr')
+                                && (! in_array('property', $selectedFields, true) || ! in_array('rate_code', $selectedFields, true))) {
+                            Notification::make()
+                                ->title('Validation Error')
+                                ->body('The "room_name" field requires selected "property" and "rate_code".')
+                                ->danger()
+                                ->send();
+
+                            $component->state(null); // Reset the state if validation fails
+
+                            return;
+                        }
+
+                        // Existing functionality
+                        $component
+                            ->getContainer()
+                            ->getComponent('dynamicFieldValue')
+                            ->getChildComponentContainer()
+                            ->fill();
+                    }),
                 Select::make('compare')
                     ->options(fn (Get $get): array => match ($get('field')) {
                         'supplier_id', 'channel_id', 'meal_plan' => [
@@ -265,18 +264,21 @@ trait HasPricingRuleFields
                     }),
                 Grid::make()
                     ->schema(components: fn (Get $get): array => match ($get('field')) {
+
                         'supplier_id' => [
                             Select::make('value_from')
                                 ->label('Supplier ID')
                                 ->options(Supplier::all()->pluck('name', 'id'))
                                 ->required(),
                         ],
+
                         'channel_id' => [
                             Select::make('value_from')
                                 ->label('Channel ID')
                                 ->options(Channel::all()->pluck('name', 'id'))
                                 ->required(),
                         ],
+
                         'property' => [
                             Select::make('value')
                                 ->label('Property')
@@ -333,6 +335,7 @@ trait HasPricingRuleFields
                                 ->dehydrated()
                                 ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', 'not_in'])),
                         ],
+
                         'destination' => [
                             Select::make('value')
                                 ->label('Destination')
@@ -440,20 +443,46 @@ trait HasPricingRuleFields
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
-                                        ->required(),
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
+
                                     DateTimePicker::make('value_to')
                                         ->label('Travel date to')
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
+
+                        'date_of_stay' => [
+                            Grid::make()
+                                ->schema([
+                                    DateTimePicker::make('value_from')
+                                        ->label('Date of stay from')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
+
+                                    DateTimePicker::make('value_to')
+                                        ->label('Date of stay to')
+                                        ->native(false)
+                                        ->time(false)
+                                        ->format('Y-m-d')
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
+                                ])
+                                ->columns(2),
+                        ],
+
                         'booking_date' => [
                             Grid::make()
                                 ->schema([
@@ -462,20 +491,21 @@ trait HasPricingRuleFields
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
-                                        ->required(),
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
                                     DateTimePicker::make('value_to')
                                         ->label('Booking date to')
                                         ->native(false)
                                         ->time(false)
                                         ->format('Y-m-d')
-                                        ->displayFormat('d-m-Y')
-                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
-                                        ->disabled(fn (Get $get): bool => $get('compare') !== 'between')
-                                        ->readonly(fn (Get $get): bool => $get('compare') === 'between'),
+                                        ->displayFormat('m/d/Y')
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
                                 ])
                                 ->columns(2),
                         ],
+
                         'total_guests' => [
                             Grid::make()
                                 ->schema([
@@ -492,6 +522,7 @@ trait HasPricingRuleFields
                                 ])
                                 ->columns(2),
                         ],
+
                         'days_until_departure' => [
                             Grid::make()
                                 ->schema([
@@ -508,6 +539,7 @@ trait HasPricingRuleFields
                                 ])
                                 ->columns(2),
                         ],
+
                         'nights' => [
                             Grid::make()
                                 ->schema([
@@ -524,6 +556,7 @@ trait HasPricingRuleFields
                                 ])
                                 ->columns(2),
                         ],
+
                         'rating' => [
                             Grid::make()
                                 ->schema([
@@ -544,6 +577,7 @@ trait HasPricingRuleFields
                                 ])
                                 ->columns(2),
                         ],
+
                         'number_of_rooms' => [
                             Grid::make()
                                 ->schema([
@@ -560,6 +594,7 @@ trait HasPricingRuleFields
                                 ])
                                 ->columns(2),
                         ],
+
                         'rate_code' => [
                             TextInput::make('value_from')
                                 ->label('Rate code')
@@ -575,6 +610,7 @@ trait HasPricingRuleFields
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                         ],
+
                         'room_type' => [
                             TextInput::make('value_from')
                                 ->label('Room type')
@@ -589,6 +625,7 @@ trait HasPricingRuleFields
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                         ],
+
                         'room_code' => [
                             TextInput::make('value_from')
                                 ->label('Room code')
@@ -603,6 +640,7 @@ trait HasPricingRuleFields
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                         ],
+
                         'room_name' => [
                             TextInput::make('value_from')
                                 ->label('Room name')
@@ -617,12 +655,14 @@ trait HasPricingRuleFields
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                         ],
+
                         'meal_plan' => [
                             TextInput::make('value_from')
                                 ->label('Meal plan from')
                                 ->maxLength(191)
                                 ->required(),
                         ],
+
                         default => []
                     })
                     ->columns(1)

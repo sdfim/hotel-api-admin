@@ -4,6 +4,7 @@ namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
@@ -99,9 +100,13 @@ class RouteBookingApiController extends Controller
             $apiBookingItem = null;
             if (! $cacheBookingItem) {
                 $waitTime = 0;
-                $maxWaitTime = 5;
+                $maxWaitTime = 10;
                 while ($waitTime < $maxWaitTime) {
-                    $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+                    if ($request->route()->getName() === RouteBookingEnum::ROUTE_ADD_ITEM->value) {
+                        $apiBookingItem = ApiBookingItemCache::where('booking_item', $request->booking_item)->with('search')->first();
+                    } else {
+                        $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+                    }
                     if ($apiBookingItem) {
                         break;
                     }
@@ -114,7 +119,9 @@ class RouteBookingApiController extends Controller
                 }
             }
 
-            if (! $apiBookingItem && ! $cacheBookingItem) {
+            $apiBookingItemCache = ApiBookingItemCache::where('booking_item', $request->booking_item)->with('search')->first();
+
+            if (! $apiBookingItem && ! $cacheBookingItem && ! $apiBookingItemCache) {
                 return ['error' => 'Invalid booking_item'];
             }
             if ($apiBookingItem) {
@@ -124,6 +131,14 @@ class RouteBookingApiController extends Controller
                 }
                 $this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
                 $this->type = SearchRepository::geTypeBySearchId($apiBookingItem->search_id);
+            }
+            if ($apiBookingItemCache) {
+                $dbTokenId = $apiBookingItemCache->search->token_id;
+                if ($dbTokenId !== $requestTokenId) {
+                    return ['error' => 'Owner token not match'];
+                }
+                $this->supplier = Supplier::where('id', $apiBookingItemCache->supplier_id)->first()->name;
+                $this->type = SearchRepository::geTypeBySearchId($apiBookingItemCache->search_id);
             }
             if ($cacheBookingItem) {
                 $this->type = TypeRequestEnum::HOTEL->value;

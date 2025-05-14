@@ -19,13 +19,14 @@ class SearchHotelRequest extends ApiRequest
      *
      *     @OA\JsonContent(
      *       oneOf={
-     *
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestGooglePlace"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
      *         },
      *       examples={
+     *           "searchWithoutFilterAmenities": @OA\Schema(ref="#/components/examples/ContentSearchWithoutFilterAmenities", example="ContentSearchWithoutFilterAmenities"),
+     *           "searchWithFilterAmenities": @OA\Schema(ref="#/components/examples/ContentSearchWithFilterAmenities", example="ContentSearchWithFilterAmenities"),
      *           "searchByGooglePlace": @OA\Schema(ref="#/components/examples/ContentSearchRequestGooglePlace", example="ContentSearchRequestGooglePlace"),
      *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
      *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
@@ -153,12 +154,17 @@ class SearchHotelRequest extends ApiRequest
             'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
             'session' => 'required_with:place|nullable|string|max:36',
 
+            'consortia_affiliation' => 'string|nullable',
+
             'destination' => 'required_without_all:latitude,longitude,place,giata_ids|integer|min:1',
             'latitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-90|max:90',
             'longitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-180|max:180',
             'radius' => 'required_without_all:destination,giata_ids|numeric|between:1,100',
             'supplier' => 'string',
             'hotel_name' => 'string',
+            'force_on_sale_on' => 'nullable|boolean',
+            'force_verified_on' => 'nullable|boolean',
+            'blueprint_exists' => 'nullable|boolean',
         ];
     }
 }

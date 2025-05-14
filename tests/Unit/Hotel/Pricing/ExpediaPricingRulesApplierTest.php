@@ -45,6 +45,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $this->assertNotNull($result['total_net']);
 
         $expectedResult = $this->getExpectedResult();
+        unset($result['validPricingRules']);
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -60,6 +61,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_fees' => 270.0,
             'total_net' => 2196.0,
             'markup' => 60.0,
+            'commission_amount' => 0.0,
         ];
     }
 

@@ -17,15 +17,10 @@ class HbsiHotelController
 
     private const PAGE = 1;
 
-    /**
-     * @param HbsiClient $hbsiClient
-     * @param Geography $geography
-     */
     public function __construct(
-        private readonly HbsiClient $hbsiClient = new HbsiClient(),
-        private readonly Geography $geography = new Geography(),
-    ) {
-    }
+        private readonly HbsiClient $hbsiClient,
+        private readonly Geography $geography,
+    ) {}
 
     public function preSearchData(array &$filters): ?array
     {
@@ -41,12 +36,23 @@ class HbsiHotelController
         } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
         } elseif (isset($filters['session'])) {
+            $geoLocationTime = microtime(true);
             $geoLocation = $this->geography->getPlaceDetailById($filters['place'], $filters['session']);
+            $endTime = microtime(true) - $geoLocationTime;
+            Log::info('HbsiHotelController | preSearchData | geoLocation '.$endTime.' seconds');
+
+            $coordinateTime = microtime(true);
             $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
+            $endTime = microtime(true) - $coordinateTime;
+            Log::info('HbsiHotelController | preSearchData | minMaxCoordinate '.$endTime.' seconds');
+
             $filters['latitude'] = $geoLocation['latitude'];
             $filters['longitude'] = $geoLocation['longitude'];
 
+            $idsTime = microtime(true);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
+            $endTime = microtime(true) - $idsTime;
+            Log::info('HbsiHotelController | preSearchData | ids '.$endTime.' seconds');
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
@@ -64,9 +70,25 @@ class HbsiHotelController
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {
-            $hotelIds = array_keys($hotelData['data']);
+            // Filter hotel IDs based on filtered_giata_ids if available
+            $filteredHotelIds = [];
+            if (isset($filters['filtered_giata_ids']) && !empty($filters['filtered_giata_ids'])) 
+            {
+                foreach ($hotelData['data'] as $hotelId => $data) 
+                {
+                    if (in_array($data['giata'], $filters['filtered_giata_ids'])) 
+                    {
+                        $filteredHotelIds[] = $hotelId;
+                    }
+                }
+            } 
+            else 
+            {
+                $filteredHotelIds = array_keys($hotelData['data']);
+            }
 
-            if (empty($hotelIds)) {
+            if (empty($filteredHotelIds)) 
+            {
                 return [
                     'original' => [
                         'request' => [],
@@ -78,9 +100,10 @@ class HbsiHotelController
             }
 
             /** get PriceData from HBSI */
-            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($filteredHotelIds, $filters, $searchInspector);
 
-            if (isset($xmlPriceData['error'])) {
+            if (isset($xmlPriceData['error'])) 
+            {
                 return [
                     'error' => $xmlPriceData['error'],
                     'original' => [
@@ -94,10 +117,12 @@ class HbsiHotelController
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $arrayResponse = $this->object2array($response);
-            if (isset($arrayResponse['Errors'])) {
+            if (isset($arrayResponse['Errors'])) 
+            {
                 Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
             }
-            if (! isset($arrayResponse['RoomStays']['RoomStay'])) {
+            if (! isset($arrayResponse['RoomStays']['RoomStay'])) 
+            {
                 return [
                     'original' => [
                         'request' => [],

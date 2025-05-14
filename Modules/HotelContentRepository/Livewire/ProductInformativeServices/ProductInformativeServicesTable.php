@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Modules\Enums\ProductApplyTypeEnum;
+use Modules\Enums\ProductServiceApplyTypeEnum;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\AddProductInformativeService;
 use Modules\HotelContentRepository\Actions\ProductInformativeService\EditProductInformativeService;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
@@ -48,7 +48,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public int $productId;
+    public Product $product;
 
     public ?int $rateId = null;
 
@@ -60,11 +60,11 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
 
     public function mount(Product $product, ?int $rateId = null, ?int $roomId = null)
     {
-        $this->productId = $product->id;
+        $this->product = $product;
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Add On or Informational Service for '.$product->name;
         if ($this->rateId) {
@@ -80,7 +80,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     public function schemeForm(): array
     {
         return [
-            Hidden::make('product_id')->default($this->productId),
+            Hidden::make('product_id')->default($this->product->id),
             Hidden::make('rate_id')->default($this->rateId),
             Hidden::make('room_id')->default($this->roomId),
 
@@ -94,8 +94,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->columnSpan(2),
                             Select::make('service_id')
                                 ->label('Service Type')
-                                ->options(ConfigServiceType::all()->pluck('name', 'id')->toArray())
-                                ->createOptionForm(ServiceTypesForm::getSchema())
+                                ->options(ConfigServiceType::all()->sortBy('name')->pluck('name', 'id')->toArray())
+                                ->createOptionForm(Gate::allows('create', ConfigServiceType::class) ? ServiceTypesForm::getSchema() : [])
                                 ->createOptionUsing(function (array $data) {
                                     if (! isset($data['cost'])) {
                                         $data['cost'] = 0;
@@ -117,15 +117,15 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             Select::make('apply_type')
                                 ->label('Apply Type')
                                 ->options([
-                                    ProductApplyTypeEnum::PER_ROOM->value => 'Per Room',
-                                    ProductApplyTypeEnum::PER_PERSON->value => 'Per Person',
-                                    ProductApplyTypeEnum::PER_NIGHT->value => 'Per Night',
-                                    ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
+                                    ProductServiceApplyTypeEnum::PER_SERVICE->value => 'Per Service',
+                                    ProductServiceApplyTypeEnum::PER_PERSON->value => 'Per Person',
+                                    ProductServiceApplyTypeEnum::PER_NIGHT->value => 'Per Night',
+                                    ProductServiceApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                                 ])
                                 ->reactive()
                                 ->rules(['required']),
                         ]),
-                    Grid::make(2)
+                    Grid::make(3)
                         ->schema([
                             Select::make('currency')
                                 ->label('Currency')
@@ -145,6 +145,13 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             TimePicker::make('service_time')
                                 ->label('Service Time')
                                 ->format('h:i A'),
+                            Select::make('collected_by')
+                                ->label('Collected By')
+                                ->options([
+                                    'Direct' => 'Direct',
+                                    'Vendor' => 'Vendor',
+                                ])
+                                ->required(),
                         ]),
                 ]),
 
@@ -196,10 +203,10 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                 ->schema([
                     Grid::make(4)
                         ->schema([
-                            Checkbox::make('show_service_on_pdf')
-                                ->label('Show Service on PDF'),
-                            Checkbox::make('show_service_data_on_pdf')
-                                ->label('Show Service Date on PDF'),
+                            //                            Checkbox::make('show_service_on_pdf')
+                            //                                ->label('Show Service on PDF'),
+                            //                            Checkbox::make('show_service_data_on_pdf')
+                            //                                ->label('Show Service Date on PDF'),
                             Checkbox::make('auto_book')
                                 ->label('Mandatory'),
                             Checkbox::make('commissionable')
@@ -246,7 +253,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
             ->emptyStateDescription('Create an Add On or Informational Service to get started.')
             ->query(
                 ProductInformativeService::query()
-                    ->where('product_id', $this->productId)
+                    ->where('product_id', $this->product->id)
             )
             ->modifyQueryUsing(function (Builder $query) {
                 if ($this->rateId) {
@@ -267,14 +274,15 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     $query->whereNull('rate_id')->whereNull('room_id');
                 }
             })
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $record->rate_id !== null => 'Rate',
-                            $this->productId && $record->room_id !== null => 'Room',
+                            $this->product->id && $record->rate_id !== null => 'Rate',
+                            $this->product->id && $record->room_id !== null => 'Room',
                             default => 'Hotel',
                         };
                     })
@@ -293,13 +301,14 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                             default => '',
                         };
                     }),
-                TextColumn::make('name')->label('Name')->searchable(),
-                TextColumn::make('service.name')->label('Service Type')->searchable(),
+                TextColumn::make('name')->label('Name')->searchable()->wrap()->sortable(),
+                TextColumn::make('service.name')->label('Service Type')->searchable()->sortable(),
                 TextColumn::make('cost')->label('Total Rack')->searchable(),
+                TextColumn::make('total_net')->label('Total Net')->searchable(),
                 TextColumn::make('currency')->label('Currency')->searchable(),
                 TextColumn::make('service_time')->label('Service Time')->searchable(),
-                IconColumn::make('show_service_on_pdf')->label('Show on PDF')->boolean(),
-                IconColumn::make('show_service_data_on_pdf')->label('Show Data on PDF')->boolean(),
+                //                IconColumn::make('show_service_on_pdf')->label('Show on PDF')->boolean(),
+                //                IconColumn::make('show_service_data_on_pdf')->label('Show Data on PDF')->boolean(),
                 IconColumn::make('commissionable')->label('Commissionable')->boolean(),
                 IconColumn::make('auto_book')->label('Mandatory')->boolean(),
             ])
@@ -312,6 +321,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                         ->modalWidth('6xl')
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
+                            $data['show_service_on_pdf'] = $data['show_service_on_pdf'] ?? false;
+                            $data['show_service_data_on_pdf'] = $data['show_service_data_on_pdf'] ?? false;
                             $data['dynamicColumns'] = $record->dynamicColumns->toArray();
 
                             return $data;
@@ -342,9 +353,21 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->form($this->schemeForm())
+                    ->fillForm(function () {
+                        return [
+                            'currency' => $this->product->default_currency,
+                        ];
+                    })
                     ->modalWidth('6xl')
                     ->createAnother(false)
                     ->action(function ($data) {
+                        $data = array_merge($data, [
+                            'product_id' => $this->product->id,
+                            'rate_id' => $this->rateId,
+                            'room_id' => $this->roomId,
+                        ]);
+                        $data['show_service_on_pdf'] = $data['show_service_on_pdf'] ?? false;
+                        $data['show_service_data_on_pdf'] = $data['show_service_data_on_pdf'] ?? false;
                         /** @var AddProductInformativeService $addProductInformativeService */
                         $addProductInformativeService = app(AddProductInformativeService::class);
                         $addProductInformativeService->createWithDynamicColumns($data);

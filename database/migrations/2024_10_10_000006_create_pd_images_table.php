@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('pd_images', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('image_url')->index();
+            $table->string('image_url', 255)->index();
             $table->string('tag', 100);
             $table->string('weight');
             $table->string('alt')->nullable();
             $table->unsignedBigInteger('section_id');
+            $table->string('source')->default('own');
             $table->timestamps();
 
             $table->foreign('section_id')->references('id')->on('pd_image_sections');

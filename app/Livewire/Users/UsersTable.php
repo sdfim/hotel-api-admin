@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use App\Models\Team;
 use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -11,7 +12,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -33,19 +34,33 @@ class UsersTable extends Component implements HasForms, HasTable
             ->query(User::query())
             ->modifyQueryUsing(fn (Builder $query) => $query->with('roles'))
             ->columns([
-//                TextColumn::make('id')
-//                    ->label('ID'),
+
                 TextColumn::make('name')
                     ->searchable(),
+
                 TextColumn::make('email')
                     ->searchable(),
-                TextColumn::make('currentTeam.name')
-                    ->label('Vendor (Team)'),
-                BooleanColumn::make('owner_team')
-                    ->label('Owner')
-                    ->getStateUsing(fn (User $record) => $record->currentTeam?->owner()->is($record)),
+
                 TextColumn::make('roles.0.name')
                     ->label('Role'),
+
+                TextColumn::make('allTeams')
+                    ->label('Can View Vendors (Teams)')
+                    ->wrap()
+                    ->getStateUsing(fn (User $record) => $record->hasRole(RoleSlug::EXTERNAL_USER->value) ? $record->allTeams()->pluck('name')->join(', ') : 'All'),
+
+                TextColumn::make('currentTeam.name')
+                    ->label('Current Team')
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true),
+
+                IconColumn::make('owner_team')
+                    ->label('Owner')
+                    ->boolean()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true)
+                    ->getStateUsing(fn (User $record) => $record->currentTeam?->owner()->is($record)),
+
             ])
             ->actions([
                 ActionGroup::make([
@@ -93,4 +108,3 @@ class UsersTable extends Component implements HasForms, HasTable
         return view('livewire.users.users-table');
     }
 }
-

@@ -24,11 +24,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ProductApplyTypeEnum;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\HotelRate;
@@ -58,7 +58,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
         $this->rateId = $rateId;
         $this->roomId = $roomId;
         $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Amenities for '.$product->name;
         if ($this->rateId) {
@@ -99,8 +99,8 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                 ->schema([
                                     Select::make('amenity_id')
                                         ->label('Amenity')
-                                        ->options(ConfigAmenity::pluck('name', 'id'))
-                                        ->createOptionForm(AmenitiesForm::getSchema())
+                                        ->options(ConfigAmenity::all()->sortBy('name')->pluck('name', 'id'))
+                                        ->createOptionForm(Gate::allows('create', ConfigAmenity::class) ? AmenitiesForm::getSchema() : [])
                                         ->createOptionUsing(function (array $data) {
                                             /** @var CreateConfigAmenity $createConfigAmenity */
                                             $createConfigAmenity = app(CreateConfigAmenity::class);
@@ -119,7 +119,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                     Select::make('consortia')
                                         ->label('Consortia')
                                         ->multiple()
-                                        ->options(ConfigConsortium::pluck('name', 'name'))
+                                        ->options(ConfigConsortium::all()->sortBy('name')->pluck('name', 'name'))
                                         ->required()
                                         ->columnSpan(2),
                                     Select::make('is_paid')
@@ -160,6 +160,19 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                         ->minValue(0)
                                         ->step('1'),
                                 ]),
+                            Grid::make(1)
+                                ->schema([
+                                    Select::make('priority_rooms')
+                                        ->label('Rooms')
+                                        ->multiple()
+                                        ->searchable()
+                                        ->options(HotelRoom::whereHas('rates', function ($query) {
+                                            $query->where('pd_hotel_rates.id', $this->rateId);
+                                        })->pluck('name', 'id')
+                                        )
+                                        ->reactive()
+                                        ->visible(fn () => $this->rateId !== null),
+                                ]),
                         ]),
                 ]),
         ];
@@ -172,6 +185,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()
                     ->where('product_id', $this->productId)
             )
+            ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
@@ -220,7 +234,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     EditAction::make()
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->form(fn ($record) => $this->schemeForm($record))
-                        ->modalWidth('5xl')
+                        ->modalWidth('6xl')
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
                             $data['amenities'] = $record->amenities->pluck('id')->toArray();
@@ -232,9 +246,11 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                             if (isset($data['amenities'])) {
                                 $record->amenities()->sync($data['amenities']);
                             }
-                        }),
+                        })
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                     DeleteAction::make()
-                        ->label('Delete'),
+                        ->label('Delete')
+                        ->visible(fn () => Gate::allows('create', Product::class)),
                 ])->visible(fn (ProductAffiliation $record): bool => ($this->rateId && $this->rateId === $record->rate_id)
                     || ($this->roomId && $this->roomId === $record->room_id)
                     || (! $this->rateId && ! $this->roomId && $record->room_id === null && $record->rate_id === null)

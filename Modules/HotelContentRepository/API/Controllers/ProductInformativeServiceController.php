@@ -5,16 +5,19 @@ namespace Modules\HotelContentRepository\API\Controllers;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Requests\ProductInformativeServiceRequest;
 use Modules\HotelContentRepository\Models\ProductInformativeService;
+use Modules\HotelContentRepository\Models\Traits\ProductResponseTransformable;
 
 class ProductInformativeServiceController extends BaseController
 {
+    use ProductResponseTransformable;
+
     public function index()
     {
         $query = ProductInformativeService::query();
         $query = $this->filter($query, ProductInformativeService::class);
-        $hotelInformativeServices = $query->get();
+        $response = $this->filterAndTransformProductResponse($query);
 
-        return $this->sendResponse($hotelInformativeServices->toArray(), 'index success');
+        return $this->sendResponse($response->toArray(), 'index success');
     }
 
     public function store(ProductInformativeServiceRequest $request)

@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -14,6 +15,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +25,7 @@ use Modules\HotelContentRepository\Actions\Image\AddImage;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\Models\Product;
 
 class HotelImagesTable extends Component implements HasForms, HasTable
@@ -82,6 +85,10 @@ class HotelImagesTable extends Component implements HasForms, HasTable
             $description = 'Room Image Gallery: '.$galleryName;
         }
 
+        if ($this->viewMode != 'list') {
+            $table = $table->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5]);
+        }
+
         return $table
             ->paginated([5, 10, 25, 50, 100])
             ->query(function () {
@@ -104,11 +111,11 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 return $query;
             })
             ->defaultSort('created_at', 'desc')
-            ->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5])
             ->columns($this->viewMode === 'list' ? $this->getListViewColumns() : $this->getGridViewColumns())
             ->actions([
                 EditAction::make('edit')
                     ->iconButton()
+                    ->modalWidth('6xl')
                     ->form(HotelImagesForm::getFormComponents())
                     ->modalHeading('Edit Image')
                     ->fillForm(fn (Image $record) => $record->attributesToArray())
@@ -118,13 +125,26 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->requiresConfirmation()
                     ->action(fn (Image $record) => $record->delete())
                     ->visible(fn (Image $record) => Gate::allows('delete', $record))
-                    ->after(fn (Image $record) => Storage::disk('public')->delete($record->image_url)),
+                    ->after(fn (Image $record) => Storage::delete($record->image_url)),
             ])
             ->headerActions([
+                Action::make('view')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->icon('heroicon-o-eye')
+                    ->modalWidth('7xl')
+                    ->modalHeading('Gallery')
+                    ->modalContent(function () use ($room) {
+                        return view('livewire.image-galleries.swiper-gallery', ['images' => $room->galleries->flatMap(fn ($gallery) => $gallery->images)]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->visible(fn () => $this->roomId),
+
                 CreateAction::make()
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
+                    ->modalWidth('6xl')
                     ->createAnother(false)
                     ->modalHeading('Create Image')
                     ->form(array_filter(
@@ -144,6 +164,19 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->action(fn () => $this->toggleViewMode())
                     ->icon($this->viewMode === 'list' ? 'heroicon-o-table-cells' : 'heroicon-o-cube-transparent')
                     ->iconButton(),
+            ])
+            ->filters([
+                SelectFilter::make('source')
+                    ->label('Source')
+                    ->options(
+                        Image::distinct()
+                            ->whereNotNull('source')
+                            ->pluck('source', 'source')
+                            ->toArray()
+                    ),
+                SelectFilter::make('section_id')
+                    ->label('Section')
+                    ->options(ImageSection::pluck('name', 'id')->toArray()),
             ]);
     }
 
@@ -155,23 +188,19 @@ class HotelImagesTable extends Component implements HasForms, HasTable
     protected function getListViewColumns(): array
     {
         return [
+            TextColumn::make('id')
+                ->sortable()
+                ->searchable(),
             ImageColumn::make('image_url')
                 ->size('100px')
-                ->getStateUsing(function ($record) {
-                    $validAlts = ['Header image', 'Thumbnail image', 'Gallery image'];
-                    if (in_array($record->alt, $validAlts)) {
-                        return url(env('CRM_PATH_HOTEL_IMAGES', '').$record->image_url);
-                    }
-                    if ($record->alt === 'Room image') {
-                        return url(env('CRM_PATH_ROOM_IMAGES', '').$record->image_url);
-                    }
-
-                    return $record->image_url;
-                }),
+                ->getStateUsing(fn ($record) => $record->full_url),
             TextColumn::make('tag')
                 ->searchable(),
             TextColumn::make('alt')
                 ->searchable(),
+            TextColumn::make('source')
+                ->searchable(),
+
             TextColumn::make('section.name')
                 ->searchable(),
             TextColumn::make('galleries.gallery_name')
@@ -189,26 +218,12 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 ->schema([
                     ImageColumn::make('image_url')
                         ->size($this->viewMode === 'list' ? '200px' : '100%')
-                        ->getStateUsing(function ($record) {
-                            $validAlts = ['Header image', 'Thumbnail image', 'Gallery image'];
-                            if (in_array($record->alt, $validAlts)) {
-                                return url(env('CRM_PATH_HOTEL_IMAGES', '').$record->image_url);
-                            }
-                            if ($record->alt === 'Room image') {
-                                return url(env('CRM_PATH_ROOM_IMAGES', '').$record->image_url);
-                            }
-
-                            return $record->image_url;
-                        }),
-//                    TextColumn::make('tag')
-//                        ->searchable(),
-//                    TextColumn::make('alt')
-//                        ->searchable(),
-//                    TextColumn::make('section.name')
-//                        ->searchable(),
+                        ->getStateUsing(fn ($record) => $record->full_url),
+                    TextColumn::make('source')
+                        ->searchable(),
                     TextColumn::make('galleries.gallery_name')
                         ->searchable()
-                    ->wrap(),
+                        ->wrap(),
                 ]),
         ];
     }

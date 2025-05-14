@@ -51,27 +51,34 @@ class HotelRateTable extends Component implements HasForms, HasTable
 
                 return $query;
             })
+            ->deferLoading()
             ->columns([
-                TextColumn::make('name')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
+
                 TextInputColumn::make('code')
                     ->label('Code')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'max-width: 200px;'])
                     ->rules(['unique:pd_hotel_rates,code,'.($this->record->id ?? 'NULL').',id,hotel_id,'.$this->hotelId]),
-                TextColumn::make('room_ids')
+
+                TextColumn::make('name')
+                    ->label('Description')
+                    ->searchable()
+                    ->wrap()
+                    ->sortable()
+                    ->extraAttributes(['style' => 'max-width: 500px;']),
+
+                TextColumn::make('rooms')
                     ->label('Room Names')
-                    ->formatStateUsing(function ($state) {
-                        if (is_string($state)) {
-                            $state = json_decode("[$state]", true);
-                        }
-                        $roomNames = HotelRoom::whereIn('id', $state)->pluck('name')->toArray();
+                    ->formatStateUsing(function ($state, $record) {
+                        $roomNames = $record->rooms->pluck('name')->toArray();
 
                         return implode('<br>', $roomNames);
-                    })->wrap()->html(),
+                    })
+                    ->wrap()
+                    ->html()
+                    ->extraAttributes(['style' => 'max-height: 150px; overflow-y: auto;']),
+
                 TextColumn::make('dates')
                     ->label('Dates')
                     ->formatStateUsing(function ($state) {
@@ -95,7 +102,7 @@ class HotelRateTable extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->tooltip('Edit Rate')
                     ->url(fn ($record) => route('hotel-rates.edit', ['hotel_rate' => $record->id, 'hotelId' => $record->hotel_id]))
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    ->visible(fn () => Gate::allows('update', Hotel::class)),
                 Action::make('duplicate')
                     ->label('')
                     ->iconButton()
