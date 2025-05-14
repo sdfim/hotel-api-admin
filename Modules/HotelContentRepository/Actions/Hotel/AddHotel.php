@@ -51,17 +51,38 @@ class AddHotel
         $roomsOccupancy = [];
         $numRooms = 0;
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
+        $ratingExpedia = 0;
+
+        if (! $expediaCode) {
+            Notification::make()
+                ->title('Expedia hotel not found in the mapper.')
+                ->danger()
+                ->send();
+        }
 
         if ($expediaCode) {
             $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
                 ->where('expedia_property_id', $expediaCode)
-                ->first()
-                ->toArray();
+                ->first();
+            $expediaData = $expediaData ? $expediaData->toArray() : [];
 
             $expediaMainData = ExpediaContent::select('rating')
                 ->where('property_id', $expediaCode)
-                ->first()
-                ->toArray();
+                ->first();
+            $expediaMainData = $expediaMainData ? $expediaMainData->toArray() : [];
+
+            if (empty($expediaData) && ! empty($expediaMainData)) {
+                Notification::make()
+                    ->title('Hotel Expedia extended content data is not available on Stage.')
+                    ->danger()
+                    ->send();
+            }
+            if (empty($expediaData) && empty($expediaMainData)) {
+                Notification::make()
+                    ->title('Expedia hotel not found in the mapper.')
+                    ->danger()
+                    ->send();
+            }
 
             if (! empty($expediaMainData)) {
                 $ratingExpedia = Arr::get($expediaMainData, 'rating', 0);
