@@ -14,8 +14,8 @@ use PHPUnit\Framework\Attributes\Test;
 
 class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
-    use WithFaker;
     use RefreshDatabase;
+    use WithFaker;
 
     #[Test]
     public function test_pricing_rules_index_is_opening(): void
@@ -102,10 +102,9 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->has(PricingRuleCondition::factory()->count(rand(1, 5)), 'conditions')
             ->create();
 
-        $pricingRulesTools = new PricingRulesDataGenerationTools;
-
+        /** @var PricingRulesDataGenerationTools $pricingRulesTools */
+        $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
-
         $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
 
         $formData = [
