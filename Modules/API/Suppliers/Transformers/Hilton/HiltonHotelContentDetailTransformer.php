@@ -56,9 +56,9 @@ class HiltonHotelContentDetailTransformer
             }, $room['roomAmenities'] ?? []);
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setContentSupplier(SupplierNameEnum::HILTON->value);
-            $roomResponse->setUnifiedRoomCode($room['roomTypeCode']);
-            $roomResponse->setSupplierRoomName($room['bedClass']);
-            $roomResponse->setSupplierRoomCode($room['roomTypeCode']);
+            $roomResponse->setUnifiedRoomCode(Arr::get($room, 'roomTypeCode', ''));
+            $roomResponse->setSupplierRoomName(Arr::get($room, 'bedClass', ''));
+            $roomResponse->setSupplierRoomCode(Arr::get($room, 'roomTypeCode', ''));
             $roomResponse->setAmenities($roomAmenities);
             $roomResponse->setImages([]);
             $roomResponse->setDescriptions($room['enhancedDescription'] ?? '');

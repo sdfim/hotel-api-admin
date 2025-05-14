@@ -30,7 +30,7 @@ class HiltonHotelContentTransformer implements SupplierContentTransformerInterfa
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setLatitude(Arr::get($hotel, 'latitude', Arr::get($hotel, 'props.locationDetails.onlineLatitude', '')));
             $hotelResponse->setLongitude(Arr::get($hotel, 'longitude', Arr::get($hotel, 'props.locationDetails.onlineLongitude', '')));
-            $hotelResponse->setRating(Arr::get($hotel, 'star_rating', Arr::get($hotel, 'props.propDetail.ratings.starRating', '')));
+            $hotelResponse->setRating(Arr::get($hotel, 'star_rating', Arr::get($hotel, 'props.propDetail.ratings.starRating', '')) ?? '');
             $hotelResponse->setAmenities($amenities);
             $hotelResponse->setGiataDestination(GiataGeography::where('city_name', $hotel['city'])->value('city_id') ?? '');
             $hotelResponse->setUserRating('');

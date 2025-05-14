@@ -83,8 +83,8 @@ class HiltonTransformerService
     public function mapAirportData(array $airportData): array
     {
         return array_map(fn ($airport) => [
-            'name' => $airport['name'],
-            'distance_km' => $airport['airportDistance'],
+            'name' => Arr::get($airport, 'name', ''),
+            'distance_km' => Arr::get($airport, 'airportDistance', 0),
         ], $airportData);
     }
 
