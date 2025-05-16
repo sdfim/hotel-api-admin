@@ -13,6 +13,9 @@ class InformativeServiceTransformer extends TransformerAbstract
             'name' => $service->service->name,
             'description' => $service->service->description,
             'cost' => $service->service->cost,
+            'currency' => $service->currency,
+            'service_time' => $service->service_time,
+            'collected_by' => $service->collected_by,
         ];
     }
 }

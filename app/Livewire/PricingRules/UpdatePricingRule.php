@@ -20,6 +20,7 @@ class UpdatePricingRule extends Component implements HasForms
     public ?array $data = [];
 
     public PricingRule $record;
+
     public bool $isSrCreator = false;
 
     public function mount(PricingRule $pricingRule): void
@@ -85,6 +86,49 @@ class UpdatePricingRule extends Component implements HasForms
                 throw ValidationException::withMessages([
                     'data.name' => 'A rule with this name already exists for the same property.',
                 ]);
+            }
+        }
+
+        // Extract selected fields
+        $selectedFields = [];
+
+        // Check for duplicates
+        foreach ($data['conditions'] as $condition) {
+            if (in_array($condition['field'], $selectedFields, true)) {
+                Notification::make()
+                    ->title('Validation Error')
+                    ->body('Duplicate fields are not allowed.')
+                    ->danger()
+                    ->send();
+
+                return back();
+            }
+            $selectedFields[] = $condition['field'];
+        }
+
+        // Hierarchy validation
+        foreach ($data['conditions'] as $condition) {
+            $field = $condition['field'];
+
+            if ($field === 'rate_code' && ! in_array('property', $selectedFields, true)) {
+                Notification::make()
+                    ->title('Validation Error')
+                    ->body('The "rate_code" field requires a selected "property".')
+                    ->danger()
+                    ->send();
+
+                return back();
+            }
+
+            if (in_array($field, ['room_name', 'room_type', 'room_type_cr'], true) &&
+                (! in_array('property', $selectedFields, true) || ! in_array('rate_code', $selectedFields, true))) {
+                Notification::make()
+                    ->title('Validation Error')
+                    ->body('The "room_name" field requires selected "property" and "rate_code".')
+                    ->danger()
+                    ->send();
+
+                return back();
             }
         }
 

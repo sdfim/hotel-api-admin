@@ -67,7 +67,7 @@ class ProductController extends BaseController
         if (! $useFractal) {
             $productDTO = $this->productDTO->transformProduct($product, true);
         } else {
-            $resource = new FractalCollection([$product], new ProductTransformer);
+            $resource = new FractalCollection([$product], new ProductTransformer());
             $productDTO = $this->fractal->createData($resource)->toArray()[0];
         }
 

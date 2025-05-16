@@ -21,12 +21,16 @@ class ProductAffiliationAmenity extends Model
         'apply_type',
         'min_night_stay',
         'max_night_stay',
+        'priority_rooms',
+        'drivers',
     ];
 
     protected $casts = [
         'consortia' => 'array',
         'is_paid' => 'boolean',
         'price' => 'float',
+        'priority_rooms' => 'array',
+        'drivers' => 'array',
     ];
 
     protected $hidden = [
@@ -42,5 +46,10 @@ class ProductAffiliationAmenity extends Model
     public function amenity()
     {
         return $this->belongsTo(ConfigAmenity::class);
+    }
+
+    public function priorityRooms()
+    {
+        return HotelRoom::whereIn('id', $this->priority_rooms);
     }
 }

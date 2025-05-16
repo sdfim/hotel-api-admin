@@ -2,24 +2,48 @@
 
 namespace Modules\API\Suppliers\Transformers;
 
-use AllowDynamicProperties;
-use Fiber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use React\Promise\Promise;
 
-#[AllowDynamicProperties]
 class BaseHotelPricingTransformer
 {
     private const CACHE_TTL_MINUTES = 1;
 
+    protected array $ultimateAmenities = [];
+
+    protected array $depositInformation = [];
+
+    protected array $mapperSupplierRepository = [];
+
+    protected array $repoTaxFees = [];
+
+    protected array $unifiedRoomCodes = [];
+
+    protected string $search_id = '';
+
+    protected array $bookingItems = [];
+
+    protected string $checkin = '';
+
+    protected string $checkout = '';
+
+    protected string $destinationData = '';
+
+    protected array $giata = [];
+
+    protected array $exclusionRates = [];
+
+    protected array $exclusionRoomNames = [];
+
+    protected array $exclusionRoomTypes = [];
+
     protected array $query = [
         'force_on_sale' => false,
-        'force_verified' => false
+        'force_verified' => false,
     ];
 
     /**
@@ -30,11 +54,8 @@ class BaseHotelPricingTransformer
      *
      * @param  string  $searchId  Unique identifier for the search.
      * @param  array  $giataIds  Array of Giata IDs to fetch data for.
-     * @param  bool  $isFiber  Indicates if the method is called within a Fiber context.
-     *
-     * @throws \Throwable
      */
-    public function fetchSupplierRepositoryData(string $searchId, array $giataIds, bool $isFiber = false): void
+    public function fetchSupplierRepositoryData(string $searchId, array $giataIds): void
     {
         $cacheKey = 'supplier_data_'.$searchId;
 
@@ -51,18 +72,8 @@ class BaseHotelPricingTransformer
             return;
         }
 
-        if ($isFiber) {
-            // Create a promise for fetching data
-            $promise = new Promise(function () use ($giataIds) {
-                return $this->processSupplierData($giataIds);
-            });
-
-            // Suspend the fiber and wait for the promise to resolve
-            $cachedData = Fiber::suspend($promise);
-        } else {
-            // Fetch and process data
-            $cachedData = $this->processSupplierData($giataIds);
-        }
+        // Fetch and process data
+        $cachedData = $this->processSupplierData($giataIds);
 
         Cache::put($cacheKey, $cachedData, now()->addMinutes(self::CACHE_TTL_MINUTES));
     }
@@ -87,6 +98,9 @@ class BaseHotelPricingTransformer
                                 'is_paid' => $amenity->is_paid,
                                 'min_night_stay' => $amenity->min_night_stay,
                                 'max_night_stay' => $amenity->max_night_stay,
+                                'priority_rooms' => (! empty($amenity->priority_rooms))
+                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
+                                    : [],
                             ];
                             if ($amenity->is_paid) {
                                 $amenityData['price'] = $amenity->price;
@@ -154,7 +168,7 @@ class BaseHotelPricingTransformer
         $this->unifiedRoomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
             // Skip hotels that are not on sale if force_on_sale is false
-            if (!$this->query['force_on_sale'] && !$hotel->product->onSale) {
+            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
                 continue;
             }
 
@@ -204,10 +218,10 @@ class BaseHotelPricingTransformer
         $this->bookingItems = [];
         $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
         $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
-        
+
         $this->query = array_merge([
             'force_on_sale' => false,
-            'force_verified' => false
+            'force_verified' => false,
         ], $query);
 
         $cacheKey = 'pricing_data_'.md5(json_encode([$giataIds, $search_id]));
@@ -218,6 +232,8 @@ class BaseHotelPricingTransformer
             $this->destinationData = $cachedData['destinationData'];
             $this->giata = $cachedData['giata'];
             $this->exclusionRates = $cachedData['exclusionRates'];
+            $this->exclusionRoomNames = $cachedData['exclusionRoomNames'];
+            $this->exclusionRoomTypes = $cachedData['exclusionRoomTypes'];
             $this->search_id = $search_id;
 
             return;
@@ -228,13 +244,35 @@ class BaseHotelPricingTransformer
         $pricingDtoTools = app(PricingDtoTools::class);
         $this->destinationData = $pricingDtoTools->getDestinationData($query) ?? '';
         $this->giata = $pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->exclusionRates = $pricingDtoTools->extractExclusionRates($pricingExclusionRules);
+        $this->exclusionRates = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'rate_code');
+        $this->exclusionRoomNames = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'room_name');
+        $this->exclusionRoomTypes = $pricingDtoTools->extractExclusionValues($pricingExclusionRules, 'room_type');
 
         // Cache the processed data
         Cache::put($cacheKey, [
             'destinationData' => $this->destinationData,
             'giata' => $this->giata,
             'exclusionRates' => $this->exclusionRates,
+            'exclusionRoomNames' => $this->exclusionRoomNames,
+            'exclusionRoomTypes' => $this->exclusionRoomTypes,
         ], now()->addMinutes(self::CACHE_TTL_MINUTES));
+    }
+
+    protected function transformPricingRulesAppliers(array $pricingRulesApplier): array
+    {
+        $listRules = collect(Arr::get($pricingRulesApplier, 'validPricingRules', []))->map(function ($rule) {
+            return [
+                'main' => 'id: '.$rule['id'].' | name: '.$rule['name'].' | weight: '.$rule['weight'],
+                'manipulable_price' => $rule['manipulable_price_type'].' '.$rule['price_value'].' '.$rule['price_value_type'].' '.$rule['price_value_target'],
+                'conditions' => collect($rule['conditions'])->map(function ($condition) {
+                    return "{$condition['field']} {$condition['compare']} ".($condition['value'] ?? "{$condition['value_from']} - {$condition['value_to']}");
+                })->toArray(),
+            ];
+        })->toArray();
+
+        return [
+            'count' => count($listRules),
+            'list' => $listRules,
+        ];
     }
 }

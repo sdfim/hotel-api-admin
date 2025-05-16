@@ -206,11 +206,15 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
             $ratePlanCode = Arr::get($room, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+            // exclude rate codes from the response according to excludeRules
             if (in_array($ratePlanCode, $this->exclusionRates)) {
                 continue;
             }
 
             $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $query);
+            if (empty($roomData)) {
+                continue;
+            }
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -244,14 +248,18 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $query): array
     {
-
-        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
-
-        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
-
-        $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
+        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+        // exclude room types and names from the response according to excludeRules
+        if (in_array($roomType, $this->exclusionRoomTypes) || in_array($roomName, $this->exclusionRoomNames)) {
+            return [];
+        }
+
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
+        $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
+        $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+
         $hbsiUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HBSI->value, []);
         $unifiedRoomCode = Arr::get($hbsiUnifiedRoomCodes, "$giataCode.$roomType", '');
 
@@ -391,7 +399,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             $nonRefundable = true;
         }
 
-        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
@@ -421,8 +428,17 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($ratePlanCode);
 
-        $roomUltimateAmenities = $this->ultimateAmenityResolver->resolve(
-            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query);
+        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
+            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
+        ))->filter(function ($amenity) use ($unifiedRoomCode) {
+            return (empty($amenity['drivers']) || in_array(SupplierNameEnum::HBSI->value, $amenity['drivers'], true))
+                && (empty($amenity['priority_rooms']) || in_array($unifiedRoomCode, $amenity['priority_rooms'], true));
+        })->map(function ($amenity) {
+            unset($amenity['drivers']);
+            unset($amenity['priority_rooms']);
+            return $amenity;
+        })->toArray();
+        $roomUltimateAmenities = array_values($roomUltimateAmenities);
         $feesUltimateAmenities = $this->ultimateAmenityResolver->getFeesUltimateAmenities(
             $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
         $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
@@ -433,8 +449,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
-        if($isCommissionTracking)
-        {
+        if ($isCommissionTracking) {
             $roomResponse->setMarkup(0);
             $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
             $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
@@ -465,6 +480,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
+        $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
+
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
 
@@ -488,7 +505,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'created_at' => Carbon::now(),
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
-        $rating =  $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $rating = Arr::get($this->giata, "$giataId.rating", 0);
         $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];

@@ -99,7 +99,11 @@ class BaseController extends Controller
 
         foreach ($filterableFields as $field) {
             if (request()->has($field)) {
-                $query->where($field, 'like', '%'.request()->input($field).'%');
+                if (str_ends_with($field, '_id')) {
+                    $query->where($field, request()->input($field)); // Exact match for *_id fields
+                } else {
+                    $query->where($field, 'like', '%'.request()->input($field).'%'); // Partial match for other fields
+                }
             }
         }
 

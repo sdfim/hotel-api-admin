@@ -61,10 +61,12 @@ class HotelContentApiService
         return $this->combineContentResults($transformedResults, $structureSource, $repoData, $giataCodes);
     }
 
-    public function fetchDetailResults(array $giataCodes): array
+    public function fetchDetailResults(array $giataCodes, bool $isUI = false): array
     {
-        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-        $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+        if (! $isUI) {
+            ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
+            $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+        }
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -177,7 +179,7 @@ class HotelContentApiService
     public function getRepoData(array $giataCodes): ?Collection
     {
         ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale] = $this->resolveChannelAndForceParams();
-        
+
         $query = Hotel::whereIn('giata_code', $giataCodes);
 
         if (!$forceOnSale && !$forceVerified) {
@@ -397,5 +399,4 @@ class HotelContentApiService
             'channel' => $channel,
         ];
     }
-
 }

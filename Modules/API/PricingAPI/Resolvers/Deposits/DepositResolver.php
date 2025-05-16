@@ -95,6 +95,7 @@ class DepositResolver
 
         $level = $rateId ? 'rate' : 'hotel';
         $baseAmount = self::getBaseAmount($roomResponse, $depositInfo);
+        $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
         $calculatedDeposit = [
             'name' => $depositInfo['name'],
             'level' => $level,
@@ -104,6 +105,12 @@ class DepositResolver
             'base_price_amount' => $baseAmount,
             'total_deposit' => self::calculate($depositInfo, $baseAmount, self::getMultiplier($depositInfo, $query)),
         ];
+        if ($initialPaymentDueType) {
+            $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
+            $initialPaymentDueType === 'day'
+                ? $calculatedDeposit['initial_payment_due']['days'] = Arr::get($depositInfo, 'days_initial_payment_due')
+                : $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due');
+        }
 
         logger('getRateLevel _ '.$roomResponse->getRoomType().' _ execute '.microtime(true) - $st.' seconds', [
             'roomResponseRoomType' => $roomResponseRoomType,
@@ -125,18 +132,27 @@ class DepositResolver
 
         $calculatedDeposits = [];
         foreach ($activeDepositInformationHotelLevel as $depositInfo) {
-            $calculatedDeposits[] = [
+            $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
+            $calculatedDeposit = [
                 'name' => Arr::get($depositInfo, 'name'),
                 'level' => 'hotel',
                 'base_price_type' => $depositInfo['manipulable_price_type'],
                 'price_value' => $depositInfo['price_value'],
                 'price_value_type' => $depositInfo['price_value_type'],
-                'compare' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'compare'),
+                'compare' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'date_of_stay'), 'compare'),
                 'interval' => [
-                    'from' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_from'),
-                    'to' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'travel_date'), 'value_to'),
+                    'from' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'date_of_stay'), 'value_from'),
+                    'to' => Arr::get(collect($depositInfo['conditions'])->firstWhere('field', 'date_of_stay'), 'value_to'),
                 ],
             ];
+            if ($initialPaymentDueType) {
+                $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
+                $initialPaymentDueType === 'day'
+                    ? $calculatedDeposit['initial_payment_due']['days'] = Arr::get($depositInfo, 'days_initial_payment_due')
+                    : $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due');
+            }
+
+            $calculatedDeposits[] = $calculatedDeposit;
         }
 
         return $calculatedDeposits;
@@ -229,12 +245,20 @@ class DepositResolver
 
         // Filter intervals that overlap with $checkin-$checkout
         $filtered = $filtered->filter(function ($item) use ($checkin, $checkout) {
-            $condition = collect($item['conditions'])->firstWhere('field', 'travel_date');
+            $condition = collect($item['conditions'])->firstWhere('field', 'date_of_stay');
             $from = Carbon::parse($condition['value_from'] ?? Carbon::now());
             $to = Carbon::parse($condition['value_to'] ?? Carbon::now()->addYears(1000));
 
             return ($from <= $checkout && $to >= $checkin)
                 || ($condition['compare'] === '=' && ($from <= $checkout && $from >= $checkin));
+        });
+
+        // Filter for travel_date to ensure the travel date is after $checkin
+        $filtered = $filtered->filter(function ($item) use ($checkin) {
+            $condition = collect($item['conditions'])->firstWhere('field', 'travel_date');
+            $travelDate = Carbon::parse($condition['value'] ?? Carbon::now()->addYears(1000));
+
+            return $travelDate->greaterThan($checkin);
         });
 
         // Filter for booking_date to ensure the current date is within the interval
@@ -330,12 +354,12 @@ class DepositResolver
 
         // Retain only intervals that are not nested within other intervals
         return $filtered->reject(function ($item) use ($filtered) {
-            $condition = collect($item['conditions'])->firstWhere('field', 'travel_date');
+            $condition = collect($item['conditions'])->firstWhere('field', 'date_of_stay');
             $from = Carbon::parse($condition['value_from'] ?? Carbon::now());
             $to = Carbon::parse($condition['value_to'] ?? Carbon::now()->addYears(1000));
 
             return $filtered->contains(function ($existing) use ($from, $to) {
-                $existingCondition = collect($existing['conditions'])->firstWhere('field', 'travel_date');
+                $existingCondition = collect($existing['conditions'])->firstWhere('field', 'date_of_stay');
                 $existingFrom = Carbon::parse($existingCondition['value_from'] ?? Carbon::now());
                 $existingTo = Carbon::parse($existingCondition['value_to'] ?? Carbon::now()->addYears(1000));
 

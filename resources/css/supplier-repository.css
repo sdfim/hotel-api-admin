@@ -55,8 +55,6 @@
     color: #0056b3;
 }
 
-
-
 .pd-grid table {
     max-height: 65vh;
     overflow-y: auto;
@@ -291,7 +289,7 @@ thead .bg-gray-50{
 /* breadcrumbs */
 .breadcrumb-container {
     margin-bottom: 20px;
-    font-size: 14px; /* Размер шрифта для хлебных крошек */
+    font-size: 14px;
 }
 
 .breadcrumb {
@@ -303,34 +301,34 @@ thead .bg-gray-50{
 }
 
 .breadcrumb-item {
-    color: #6c757d; /* Цвет текста по умолчанию */
+    color: #6c757d;
     display: flex;
     align-items: center;
 }
 
 .breadcrumb-item a {
-    text-decoration: none; /* Убираем подчеркивание */
-    color: var(--purple-color); /* Цвет ссылки (фиолетовый) */
+    text-decoration: none;
+    color: var(--purple-color);
     transition: color 0.3s;
 }
 
 .breadcrumb-item a:hover {
-    color: var(--purple-color) /* Цвет при наведении */
+    color: var(--purple-color)
 }
 
 .breadcrumb-item::after {
-    content: "›"; /* Разделитель */
+    content: "›";
     color: #6c757d;
     padding: 0 8px;
 }
 
 .breadcrumb-item:last-child {
-    color: var(--purple-color); /* Цвет текущей страницы */
+    color: var(--purple-color);
     font-weight: bold;
 }
 
 .breadcrumb-item:last-child::after {
-    content: ""; /* Убираем разделитель у последнего элемента */
+    content: "";
 }
 
 
@@ -367,15 +365,15 @@ thead .bg-gray-50{
 
 .hotel-form-toggle-label {
     margin-right: 10px;
-    font-size: 14px; /* Размер текста */
-    color: #333; /* Цвет текста */
+    font-size: 14px;
+    color: #333;
 }
 
 .hotel-form-toggle-button {
     position: relative;
     display: inline-block;
-    width: 60px; /* Ширина тумблера */
-    height: 32px; /* Высота тумблера */
+    width: 60px;
+    height: 32px;
 }
 
 .hotel-form-toggle-button input {
@@ -391,30 +389,30 @@ thead .bg-gray-50{
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #e5e5e5; /* Серый фон для неактивного состояния */
+    background-color: #e5e5e5;
     transition: background-color 0.4s;
-    border-radius: 25px; /* Закругленные края */
+    border-radius: 25px;
 }
 
 .hotel-form-slider:before {
     position: absolute;
     content: "";
-    height: 25px; /* Размер круга */
+    height: 25px;
     width: 25px;
-    left: 4px; /* Расстояние от левого края */
-    bottom: 3.5px; /* Центрирование круга */
-    background-color: var(--red-color); /* Красный круг в неактивном состоянии */
+    left: 4px;
+    bottom: 3.5px;
+    background-color: var(--red-color);
     transition: transform 0.4s, background-color 0.4s;
     border-radius: 50%;
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider {
-    background-color: #d9f7dc; /* Зеленый фон для активного состояния */
+    background-color: #d9f7dc;
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider:before {
-    transform: translateX(27px); /* Смещение круга вправо */
-    background-color: var(--green-color) /* Зеленый круг в активном состоянии */
+    transform: translateX(27px);
+    background-color: var(--green-color)
 }
 
 /* Basic Modal Styles */
@@ -463,27 +461,27 @@ thead .bg-gray-50{
 
 /* Modal Title */
 .hotel-modal-header h4 {
-    font-size: 18px; /* Размер шрифта */
-    font-weight: 600; /* Полужирный шрифт */
-    color: #333333; /* Темно-серый цвет */
-    margin-bottom: 8px; /* Отступ снизу */
+    font-size: 18px;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 8px;
 }
 
 /* Описание модального окна */
 .hotel-modal-header p {
-    font-size: 14px; /* Размер текста */
-    color: #555555; /* Средне-серый цвет */
-    margin-bottom: 16px; /* Отступ снизу */
+    font-size: 14px;
+    color: #555555;
+    margin-bottom: 16px;
 }
 
 /* Buttons */
 .hotel-modal-header button {
-    padding: 10px 16px; /* Отступы */
-    font-size: 14px; /* Размер текста */
-    font-weight: 500; /* Полужирный шрифт */
-    border-radius: 8px; /* Закругленные углы */
-    cursor: pointer; /* Указатель при наведении */
-    transition: all 0.2s ease-in-out; /* Плавный переход */
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
 
 /* Confirm Button Style */
@@ -499,7 +497,7 @@ thead .bg-gray-50{
 }
 
 .hotel-modal-header button:last-child:hover {
-    background-color: #e5e7eb; /* Темнее при наведении */
+    background-color: #e5e7eb;
 }
 
 @keyframes fadeIn {
@@ -523,8 +521,8 @@ thead .bg-gray-50{
 /* Custom slider */
 .slider-container {
     width: 100%;
-    max-width: 600px; /* Ограничиваем максимальную ширину */
-    margin: 0 auto; /* Центрируем слайдер */
+    max-width: 600px;
+    margin: 0 auto;
     padding: 20px 0;
     position: relative;
 }
@@ -534,7 +532,7 @@ thead .bg-gray-50{
     position: relative;
     overflow: hidden;
     touch-action: pan-y pinch-zoom;
-    aspect-ratio: 16/9; /* Задаём пропорции слайдера */
+    aspect-ratio: 16/9;
 }
 
 .slides {
@@ -553,7 +551,7 @@ thead .bg-gray-50{
 .slide img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Сохраняем пропорции изображения */
+    object-fit: contain;
     pointer-events: none;
 }
 

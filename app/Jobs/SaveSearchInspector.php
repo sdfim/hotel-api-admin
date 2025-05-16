@@ -11,21 +11,22 @@ use Modules\Inspector\SearchInspectorController;
 
 class SaveSearchInspector implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
         private array $inspector,
-        private readonly array $original = [],
-        private readonly array $content = [],
-        private readonly array $client_content = [],
-        private readonly string $status = 'success',
-        private readonly array $status_describe = [],
-        private readonly SearchInspectorController $searchInspector = new SearchInspectorController(),
-    ) {
-    }
+        private readonly array $original,
+        private readonly array $content,
+        private readonly array $client_content,
+        private readonly string $status,
+        private readonly array $status_describe,
+    ) {}
 
     /**
      * Execute the job.
@@ -35,6 +36,8 @@ class SaveSearchInspector implements ShouldQueue
         $this->inspector['status'] = $this->status;
         $this->inspector['status_describe'] = $this->status_describe;
 
-        $this->searchInspector->save([$this->inspector, $this->original, $this->content, $this->client_content]);
+        /** @var SearchInspectorController $searchInspector */
+        $searchInspector = app(SearchInspectorController::class);
+        $searchInspector->save([$this->inspector, $this->original, $this->content, $this->client_content]);
     }
 }

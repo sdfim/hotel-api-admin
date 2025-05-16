@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\Livewire\ProductDepositInformation;
 
-use App\Helpers\Strings;
 use App\Livewire\Components\CustomRepeater;
 use App\Models\Channel;
 use App\Models\Property;
@@ -25,7 +24,7 @@ use Modules\Enums\ProductPriceValueTypeEnum;
 
 trait DepositFieldTrait
 {
-    public function schemeForm($record = null): array
+    public function schemeForm($record = null, bool $isDepositForm = false): array
     {
         return [
             Hidden::make('product_id')->default($this->productId),
@@ -104,6 +103,41 @@ trait DepositFieldTrait
                         ->required(),
                 ])
                 ->columns(4),
+
+            Fieldset::make('Initial Payment')
+                ->schema([
+                    Select::make('initial_payment_due_type')
+                        ->label('Initial Payment Due Type')
+                        ->inlineLabel()
+                        ->options([
+                            'day' => 'Day',
+                            'date' => 'Date',
+                        ])
+                        ->live(),
+                    TextInput::make('days_initial_payment_due')
+                        ->label('Days')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->maxLength(191)
+                        ->numeric()
+                        ->minValue(1)
+                        ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'day')
+                        ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'day'),
+                    DateTimePicker::make('date_initial_payment_due')
+                        ->label('Date')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('d-m-Y')
+                        ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'date')
+                        ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'date'),
+
+                ])
+                ->columns(2)
+                ->visible($isDepositForm),
+
             Fieldset::make('Сonditions')
                 ->schema([
                     $this->getBaseRepiter(),

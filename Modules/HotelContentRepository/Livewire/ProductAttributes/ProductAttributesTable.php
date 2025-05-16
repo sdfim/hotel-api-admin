@@ -5,10 +5,8 @@ namespace Modules\HotelContentRepository\Livewire\ProductAttributes;
 use App\Actions\ConfigAttribute\CreateConfigAttribute;
 use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
-use App\Models\Configurations\ConfigAttributeCategory;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -44,7 +42,22 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             Hidden::make('product_id')->default($this->productId),
             Select::make('config_attribute_id')
                 ->label('Attribute')
-                ->options(ConfigAttribute::all()->sortBy('name')->pluck('name', 'id'))
+                ->searchable()
+                ->options(
+                    ConfigAttribute::with('categories')
+                        ->get()
+                        ->sortBy('name')
+                        ->mapWithKeys(function ($attribute) {
+                            $categories = $attribute->categories
+                                ->pluck('name')
+                                ->map(fn ($name) => \Illuminate\Support\Str::of($name)->replace('_', ' ')->title())
+                                ->join(', ');
+
+                            $categories = $categories ? " | categories: $categories" : null;
+
+                            return [$attribute->id => $attribute->name.($categories ? "{$categories}" : '')];
+                        })
+                )
                 ->createOptionForm(Gate::allows('create', ConfigAttribute::class) ? AttributesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
                     $data['default_value'] = '';
@@ -59,32 +72,6 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                     return $attribute->id;
                 })
                 ->required(),
-            Select::make('config_attribute_category_id')
-                ->label('Category')
-                ->options(
-                    ConfigAttributeCategory::all()
-                        ->sortBy('name')
-                        ->mapWithKeys(function ($item) {
-                            $formattedName = ucwords(str_replace('_', ' ', $item->name));
-
-                            return [$item->id => $formattedName];
-                        })
-                )
-                ->createOptionForm(Gate::allows('create', ConfigAttributeCategory::class) ?
-                    [
-                        TextInput::make('name')
-                            ->label('Category Name')
-                            ->required(),
-                    ] : [])
-                ->createOptionUsing(function (array $data) {
-                    $category = ConfigAttributeCategory::create($data);
-                    Notification::make()
-                        ->title('Category created successfully')
-                        ->success()
-                        ->send();
-
-                    return $category->id;
-                }),
         ];
     }
 
@@ -99,9 +86,9 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 TextColumn::make('attribute.name')
                     ->label('Attribute Name')
                     ->searchable(),
-                TextColumn::make('category.name')
+                TextColumn::make('attribute.categories.name')
                     ->searchable()
-                    ->label('Category Name')
+                    ->label('Categories')
                     ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
             ])
             ->actions($this->getActions())

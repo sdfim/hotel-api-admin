@@ -62,11 +62,11 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                 KeyMapping::with('keyMappingOwner')->where('product_id', $this->productId)
             )
             ->columns([
-                TextInputColumn::make('key_id')
-                    ->label('External ID')
-                    ->searchable(),
                 TextColumn::make('keyMappingOwner.name')
-                    ->label('External Owner'),
+                    ->label('Owner'),
+                TextColumn::make('key_id')
+                    ->label('ID')
+                    ->searchable(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions($this->getActions())

@@ -17,7 +17,7 @@ class ExpediaContentSlave extends Model
     /**
      * @var string
      */
-    protected $primaryKey = 'property_id';
+    protected $primaryKey = 'expedia_property_id';
 
     /**
      * @var bool
@@ -53,6 +53,7 @@ class ExpediaContentSlave extends Model
             'images' => 'array',
             'onsite_payments' => 'array',
             'rooms' => 'array',
+            'rooms_occupancy' => 'array',
             'rates' => 'array',
             'dates' => 'array',
             'descriptions' => 'array',

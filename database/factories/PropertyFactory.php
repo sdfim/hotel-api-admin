@@ -19,7 +19,7 @@ class PropertyFactory extends Factory
         $addressLine = "Delhy No. {$this->faker->numberBetween(1, 100)}, Viln {$this->faker->word()}";
 
         return [
-            'code' => $this->faker->numberBetween(1, 100000),
+            'code' => $this->faker->unique()->numberBetween(1, 100000),
             'last_updated' => $this->faker->dateTimeThisDecade(),
             'name' => $this->faker->name(),
             'chain' => '{}',

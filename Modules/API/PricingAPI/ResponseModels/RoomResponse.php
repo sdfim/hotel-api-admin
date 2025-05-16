@@ -76,6 +76,18 @@ class RoomResponse extends BaseResponse
 
     private ?array $deposits = [];
 
+    private ?array $pricingRulesApplier = [];
+
+    public function setPricingRulesAppliers(array $pricingRulesApplier): void
+    {
+        $this->pricingRulesApplier = $pricingRulesApplier;
+    }
+
+    public function getPricingRulesAppliers(): array
+    {
+        return $this->pricingRulesApplier;
+    }
+
     public function setDeposits(array $deposits): void
     {
         $this->deposits = $deposits;
@@ -465,6 +477,9 @@ class RoomResponse extends BaseResponse
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
             'markup' => $this->getMarkup(),
+
+            'pricing_rules_applier' => $this->getPricingRulesAppliers(),
+
             'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
             'booking_item' => $this->getBookingItem(),

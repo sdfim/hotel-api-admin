@@ -6457,6 +6457,26 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "product_name",
+                        "in": "query",
+                        "description": "Filter by product name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Grace Bay Club"
+                        }
+                    },
+                    {
+                        "name": "giata_code",
+                        "in": "query",
+                        "description": "Filter by GIATA code",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "45422295"
+                        }
                     }
                 ],
                 "responses": {

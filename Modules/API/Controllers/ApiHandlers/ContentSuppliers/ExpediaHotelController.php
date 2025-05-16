@@ -135,9 +135,6 @@ class ExpediaHotelController implements SupplierControllerInterface
         }
 
         $endTime = microtime(true) - $timeStart;
-        $finalMemoryUsage = memory_get_usage();
-        $finalMemoryUsageMB = $finalMemoryUsage / 1024 / 1024;
-        Log::info('Final memory usage: '.$finalMemoryUsageMB.' MB');
         Log::info('ExpediaHotelApiHandler | preSearchData | mysql query '.$endTime.' seconds');
 
         return [

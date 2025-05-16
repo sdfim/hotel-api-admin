@@ -45,14 +45,15 @@ class ProductTransformer extends TransformerAbstract
 
     public function includeRelated(Product $product)
     {
-        {
-            if ($product->related !== null) {
-                if ($product->product_type === 'hotel') {
-                    return $this->item($product->related, new HotelWithoutProductTransformer());
-                }
+
+        if ($product->related !== null) {
+            if ($product->product_type === 'hotel') {
+                return $this->item($product->related, new HotelWithoutProductTransformer());
             }
-            return $this->null();
         }
+
+        return $this->null();
+
     }
 
     public function includeContentSource(Product $product)
@@ -65,6 +66,7 @@ class ProductTransformer extends TransformerAbstract
         if ($product->contactInformation !== null) {
             return $this->item($product->contactInformation, new ContactInformationTransformer());
         }
+
         return $this->null();
     }
 

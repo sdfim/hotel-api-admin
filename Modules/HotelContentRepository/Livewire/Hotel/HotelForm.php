@@ -277,7 +277,9 @@ class HotelForm extends Component implements HasForms
                                                 $publicPath = Storage::url($originalPath);
 
                                                 if (Storage::exists($originalPath)) {
-                                                    $imageData = Http::get($publicPath)->body();
+                                                    $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
+                                                    ? Http::get($publicPath)->body()
+                                                    : Image::read(Storage::get($originalPath));
 
                                                     $image = Image::read($imageData);
                                                     $image->resize(150, 150);
@@ -427,8 +429,7 @@ class HotelForm extends Component implements HasForms
                                     Grid::make(1)
                                         ->schema([
                                             TextInput::make('full_address')
-                                                ->label('Get Location by Address')
-                                                ->placeholder(fn ($get) => $get('addressArr.line_1').' '.$get('addressArr.city')),
+                                                ->label('Get Location by Address'),
                                             TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
                                             TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
                                         ])->columnSpan(1),

@@ -238,7 +238,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  * "results_per_page": 10
  *   }
  *   ),
- * * @OA\Examples(
+ * @OA\Examples(
  *     example="PricingSearchRequestCurrencySupplier",
  *     summary="Pricing Search set Supplier",
  *     value=
@@ -265,7 +265,42 @@ namespace Modules\API\Resources\Pricing\Hotel;
  * "page": 1,
  * "results_per_page": 20
  * }
- * )
+ * ),
+ * @OA\Examples(
+ *      example="PricingSearchWtithoutFilterAmenities",
+ *      summary="Pricing Search without filter amenities",
+ *      value=
+ *  {
+ *      "type": "hotel",
+ *      "supplier":"HBSI",
+ *      "checkin": "2025-08-22",
+ *      "checkout": "2025-08-24",
+ *      "giata_ids": {26319691},
+ *      "occupancy": {
+ *          {
+ *              "adults": 2
+ *          }
+ *      }
+ *  }
+ *  ),
+ * @OA\Examples(
+ *       example="PricingSearchWtithFilterAmenities",
+ *       summary="Pricing Search with filter amenities",
+ *       value=
+ *   {
+ *       "type": "hotel",
+ *       "supplier":"HBSI",
+ *       "checkin": "2025-08-22",
+ *       "checkout": "2025-08-24",
+ *       "giata_ids": {26319691},
+ *       "occupancy": {
+ *           {
+ *               "adults": 2
+ *           }
+ *       },
+ *     "consortia_affiliation": "Virtuoso",
+ *   }
+ *   )
  */
 class PricingSearchRequest
 {

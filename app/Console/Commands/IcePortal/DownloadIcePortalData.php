@@ -2,51 +2,43 @@
 
 namespace App\Console\Commands\IcePortal;
 
-use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use Illuminate\Console\Command;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
 
 class DownloadIcePortalData extends Command
 {
     protected $signature = 'download-iceportal-data';
 
-    protected $description = 'Command description';
+    protected $description = 'Download IcePortal data';
 
-    protected PendingRequest $client;
-
-    protected const TOKEN = 'sOTJHpaSjAtedYFpBItGPF2PwhnGv0GKXfPTEjkMd518cfbe';
-
-    protected const BASE_URI = 'http://localhost:8008';
-
-    public function __construct()
-    {
+    public function __construct(
+        protected IceHBSIClient $client
+    ) {
         parent::__construct();
-        $this->client = Http::withToken(self::TOKEN)->timeout(3600);
     }
 
     public function handle(): void
     {
-        $existingIds = IcePortalPropertyAsset::all()->pluck('listingID')->toArray();
-        $giataIds = Mapping::IcePortal()
-            ->whereNotIn('supplier_id', $existingIds)
-            ->pluck('giata_id')->toArray();
-        $chunks = array_chunk($giataIds, 10);
-        $batchNumber = 1;
+        $mapperItems = Cache::remember('iceportal_mapper_items', 0.5, function () {
+            return Mapping::IcePortal()
+                ->where('supplier', 'IcePortal')
+                ->get();
+        });
 
-        foreach ($chunks as $chunk) {
+        $mapperItems->chunk(10)->each(function ($chunk) use (&$batchNumber) {
             $st = microtime(true);
-            $propertyIds = implode(',', $chunk);
-            $response = $this->client->get(self::BASE_URI.'/api/v1/content/detail', [
-                'type' => 'hotel',
-                'property_ids' => $propertyIds,
-            ]);
 
-            $this->info('Batch '.$batchNumber.': '.implode(', ', $chunk));
+            $supplierIds = $chunk->pluck('supplier_id')->toArray();
+            $supplierIds = implode(', ', $supplierIds);
+
+            $this->client->processListings($chunk, []);
+
+            $this->info('Batch '.$batchNumber.': '.$supplierIds);
             $this->info('Total Time: '.(microtime(true) - $st));
             $this->info('---------------------------------');
             $batchNumber++;
-        }
+        });
     }
 }
