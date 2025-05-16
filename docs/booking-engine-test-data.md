@@ -27,6 +27,87 @@ Creates hotel properties with matching names and GIATA IDs.
 
 ---
 
+### Hotels
+
+Hotels are created using `Hotel::updateOrCreate` based on the GIATA code.
+
+Each hotel includes:
+- `star_rating`, `num_rooms`, `featured_flag`, `sale_type`, and `travel_agent_commission`
+- The `address` is copied from the property
+
+---
+
+### Hotel Rooms
+
+Each hotel is seeded with **5 rooms**:
+- `external_code`: matches hotel GIATA code
+- `supplier_codes`: mocked Expedia code
+- Includes fake description, bed groups, views, and size
+
+---
+
+### Vendor
+
+A default `Vendor` is created (if not exists):
+- Name: **"Booking Engine Vendor"**
+- Verified: `true`
+
+This vendor is used to associate with all created `Product` entries.
+
+---
+
+### Products & Deposits
+
+Each hotel generates a corresponding `Product` of type `hotel`.
+
+Deposit creation follows business rules:
+- **2 hotels** get a `$100` fixed deposit
+- **1 hotel** gets a `50%` percentage deposit
+- Remaining hotels have no deposit
+
+> _Deposit type is randomized among the hotel codes._
+
+---
+
+### Amenities
+
+The following amenities are seeded using `ConfigAmenity`:
+
+| Amenity Name                             | Type       | Hotel                 |
+|------------------------------------------|------------|------------------------|
+| Nizuc Resort & Spa - Virtuoso Amenities  | Virtuoso   | Nizuc Resort & Spa     |
+| Nizuc Signature Amenities                | Signature  | Nizuc Resort & Spa     |
+| The Cove Atlantis - Virtuoso             | Virtuoso   | The Cove Atlantis      |
+| The Cove Atlantis - Signature            | Signature  | The Cove Atlantis      |
+
+---
+
+### Product Affiliations
+
+Each product receives a `ProductAffiliation` that links it to Virtuoso/Signature consortia. Then:
+
+- Amenities are attached as `ProductAffiliationAmenity` entries.
+- **All Virtuoso amenities** are flagged as `is_paid: true`.
+- **All Signature amenities** are `is_paid: false`.
+
+> _Only products linked to hotels that match amenity naming will receive affiliation/amenity associations (i.e., Nizuc and The Cove)._
+
+---
+
+### Relationships Summary
+
+| Entity                   | Linked To                         |
+|--------------------------|------------------------------------|
+| Property                 | Hotel (via `giata_code`)          |
+| Mapping                  | Property (`giata_id`)             |
+| HotelRoom                | Hotel (`hotel_id`)                |
+| Product                  | Hotel (`related_id`, morph)       |
+| ProductDepositInformation| Product (`product_id`)            |
+| ProductAffiliation       | Product (`product_id`)            |
+| ProductAffiliationAmenity| ProductAffiliation + Amenity      |
+
+---
+
 ### Mappings
 
 Uses the `Mapping` model to link each property to the supplier integration, based on the GIATA ID and supplier ID.
