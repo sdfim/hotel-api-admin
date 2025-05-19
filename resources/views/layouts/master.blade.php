@@ -19,6 +19,7 @@
         @vite(['resources/css/supplier-repository.css'])
     @endif
     @include('layouts.head-css')
+    @stack('head')
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">

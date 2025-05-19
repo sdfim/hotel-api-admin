@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\HotelContentRepository\Models\Factories\HotelRoomFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
@@ -53,6 +54,11 @@ class HotelRoom extends Model
         'pivot',
     ];
 
+    public function crm(): HasOne
+    {
+        return $this->hasOne(RoomCrm::class, 'room_id', 'id');
+    }
+
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
@@ -68,7 +74,7 @@ class HotelRoom extends Model
         return $this->belongsToMany(ImageGallery::class, 'pd_hotel_room_gallery', 'hotel_room_id', 'gallery_id');
     }
 
-    public function attributes()
+    public function attributes(): BelongsToMany
     {
         return $this->belongsToMany(ConfigAttribute::class, 'pd_hotel_room_attributes', 'hotel_room_id', 'config_attribute_id');
     }
@@ -98,6 +104,26 @@ class HotelRoom extends Model
         return $this->belongsToMany(HotelRoom::class, 'pd_hotel_related_room_pivot_table', 'room_id', 'related_room_id');
     }
 
+    public function parentMerge(): HasOne
+    {
+        return $this->hasOne(HotelRoomMerge::class, 'parent_room_id');
+    }
+
+    public function childMerge(): HasOne
+    {
+        return $this->hasOne(HotelRoomMerge::class, 'child_room_id');
+    }
+
+    public function newMerge(): HasOne
+    {
+        return $this->hasOne(HotelRoomMerge::class, 'new_room_id');
+    }
+
+    public function getIsMergedRoomAttribute(): bool
+    {
+        return $this->parentMerge()->exists() || $this->childMerge()->exists() || $this->newMerge()->exists();
+    }
+
     public function getFullNameAttribute()
     {
         $res = "{$this->name}";
@@ -114,5 +140,20 @@ class HotelRoom extends Model
             ->logOnly(['hotel_id', 'external_code', 'name', 'description'])
             ->logOnlyDirty()
             ->useLogName('hotel_room');
+    }
+
+    public function isValidForMerge(bool $checkCrm = true): bool
+    {
+        // Check if the room is already merged
+        if ($this->parentMerge()->exists() || $this->childMerge()->exists()) {
+            return false;
+        }
+
+        // Check if the room has a CRM record (only for fromRoom)
+        if ($checkCrm && ! $this->crm()->exists()) {
+            return false;
+        }
+
+        return true;
     }
 }

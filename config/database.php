@@ -30,7 +30,15 @@ return [
             'database' => env('SUPPLIER_CONTENT_DB_DATABASE', 'forge'),
             'username' => env('SUPPLIER_CONTENT_DB_USERNAME', 'forge'),
             'password' => env('SUPPLIER_CONTENT_DB_PASSWORD', ''),
-            'collation' => env('DB_COLLATION', 'utf8mb4_0900_ai_ci'),
+        ],
+
+        'donor' => [
+            'driver' => 'mysql',
+            'host' => env('DONOR_DB_HOST', '127.0.0.1'),
+            'port' => env('DONOR_DB_PORT', '3306'),
+            'database' => env('DONOR_DB_DATABASE', 'forge'),
+            'username' => env('DONOR_DB_USERNAME', 'forge'),
+            'password' => env('DONOR_DB_PASSWORD', ''),
         ],
     ],
 

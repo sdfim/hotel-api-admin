@@ -37,6 +37,11 @@ class ProductDescriptiveContentSection extends Model
         'document_path',
     ];
 
+    public $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
