@@ -58,6 +58,9 @@ namespace Modules\API\Resources\Content\Hotel;
  *              "rating": 4,
  *              "page": 1,
  *              "consortia_affiliation": "Virtuoso",
+ *              "blueprint_exists": true,
+ *              "force_verified_on": false,
+ *              "force_on_sale_on": false,
  *              "results_per_page": 20
  *          }
  *   ),
@@ -129,7 +132,10 @@ namespace Modules\API\Resources\Content\Hotel;
  *               "session": "123",
  *               "radius": 10,
  *               "rating": 4,
- *                "consortia_affiliation": "Virtuoso",
+ *               "consortia_affiliation": "Virtuoso",
+ *               "blueprint_exists": true,
+ *               "force_verified_on": false,
+ *               "force_on_sale_on": false,
  *               "page": 1,
  *               "results_per_page": 20
  *           }
@@ -189,6 +195,9 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "destination": 508,
  *            "rating": 2,
  *            "consortia_affiliation": "Virtuoso",
+ *            "blueprint_exists": true,
+ *            "force_verified_on": false,
+ *            "force_on_sale_on": false,
  *            "page": 1,
  *            "results_per_page": 20
  *        }
@@ -261,6 +270,9 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "destination": 508,
  *            "rating": 3.5,
  *            "consortia_affiliation": "Virtuoso",
+ *            "blueprint_exists": true,
+ *            "force_verified_on": false,
+ *            "force_on_sale_on": false,
  *            "page": 1,
  *            "results_per_page": 20
  * }
@@ -337,6 +349,9 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "radius": 20,
  *            "rating": 1,
  *            "consortia_affiliation": "Virtuoso",
+ *            "blueprint_exists": true,
+ *            "force_verified_on": false,
+ *            "force_on_sale_on": false,
  *            "page": 1,
  *            "results_per_page": 20
  *        }
