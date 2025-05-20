@@ -250,11 +250,20 @@ trait HasPricingRuleFields
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
                         ],
+                        'days_until_departure' => [
+                            '=' => 'Equals',
+                            '!=' => 'Not Equals',
+                            '<' => '< (Less Than)',
+                            '>' => '> (Greater Than)',
+                            '<=' => '<= (Less Than or Equal To)',
+                            '>=' => '>= (Greater Than or Equal To)',
+                            'between' => 'Between',
+                        ],
                         default => [
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
-                            '<' => '<',
-                            '>' => '>',
+                            '<' => '< (Less Than)',
+                            '>' => '> (Greater Than)',
                             'between' => 'Between',
                         ],
                     })
@@ -500,10 +509,12 @@ trait HasPricingRuleFields
                                     TextInput::make('value_from')
                                         ->label('Days until departure from')
                                         ->numeric()
+                                        ->maxValue(31)
                                         ->required(),
                                     TextInput::make('value_to')
                                         ->label('Days until departure to')
                                         ->numeric()
+                                        ->maxValue(31)
                                         ->required(fn (Get $get): bool => $get('compare') === 'between')
                                         ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
                                         ->visible(fn (Get $get): bool => $get('compare') === 'between'),
