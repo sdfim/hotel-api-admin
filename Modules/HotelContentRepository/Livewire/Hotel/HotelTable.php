@@ -123,7 +123,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->default(function ($record) {
                         return 'Content: '.$record->product?->contentSource->name.'<br>'
-                            .'Room Images: '.$record->roomImagesSource?->name.'<br>'
+                            .'Room Images: '.$record->roomImagesSource->name.'<br>'
                             .'Property Images: '.$record->product?->propertyImagesSource->name;
                     })
                     ->html(),
