@@ -284,7 +284,7 @@ class TaxAndFeeResolver
             $taxesRate = [];
             $feesRate = [];
             foreach ($rate['Taxes'] as $tax) {
-                $code = strtolower($tax['Code']);
+                $code = strtolower($tax['Code'] ?? '');
                 $type = in_array($code, $inputFees) ? 'fee' : 'tax';
                 $taxesRate[] = [
                     'type' => $type,
