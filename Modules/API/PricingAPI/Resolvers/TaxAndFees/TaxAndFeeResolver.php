@@ -27,6 +27,7 @@ class TaxAndFeeResolver
     private function transformRate(array $rate): array
     {
         $transformedRate = [
+            'Code' => $rate['@attributes']['Code'] ?? '',
             'RateTimeUnit' => $rate['@attributes']['RateTimeUnit'] ?? '',
             'UnitMultiplier' => $rate['@attributes']['UnitMultiplier'] ?? '',
             'EffectiveDate' => $rate['@attributes']['EffectiveDate'] ?? '',
