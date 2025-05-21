@@ -247,8 +247,18 @@ class PricingRulesTools
                             })
                             ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
                                 $q->where('field', 'days_until_departure')
+                                    ->where('compare', '<=')
+                                    ->where('value_from', '<=', $daysUntilDeparture);
+                            })
+                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
+                                $q->where('field', 'days_until_departure')
                                     ->where('compare', '>')
                                     ->where('value_from', '>', $daysUntilDeparture);
+                            })
+                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
+                                $q->where('field', 'days_until_departure')
+                                    ->where('compare', '>=')
+                                    ->where('value_from', '>=', $daysUntilDeparture);
                             })
                             ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
                                 $q->where('field', 'days_until_departure')
