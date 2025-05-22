@@ -201,12 +201,12 @@ class PricingRulesTools
                 }
 
                 foreach ([
-                    'total_guests' => $totalGuests,
-                    'days_until_departure' => $daysUntilDeparture,
-                    'nights' => $nights,
-                    'rating' => $rating,
-                    'number_of_rooms' => $numberOfRooms,
-                ] as $field => $value) {
+                             'total_guests' => $totalGuests,
+                             'days_until_departure' => $daysUntilDeparture,
+                             'nights' => $nights,
+                             'rating' => $rating,
+                             'number_of_rooms' => $numberOfRooms,
+                         ] as $field => $value) {
                     if ($value !== null) {
                         $q->orWhere(function (Builder $q) use ($field, $value) {
                             $q->where('field', $field)

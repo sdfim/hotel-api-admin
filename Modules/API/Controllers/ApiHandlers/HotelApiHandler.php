@@ -328,6 +328,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $preSearchData = $this->getPreSearchData($supplier, $filters);
 
                     $forceParams = $this->resolveForceParams();
+
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
                         SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
@@ -342,7 +343,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $filteredHotels = $query->pluck('giata_code')->toArray();
                         $filteredGiataIds = $filteredHotels;
 
-                        if (!$forceParams['force_verified']) 
+                        if (!$forceParams['force_verified'])
                         {
                             $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
                                 ->whereHas('product', function ($q) {
@@ -351,7 +352,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
                         }
 
-                        if (!$forceParams['force_on_sale']) 
+                        if (!$forceParams['force_on_sale'])
                         {
                             $onSaleQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
                                 ->whereHas('product', function ($q) {
@@ -359,11 +360,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                                 });
                             $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
                         }
-                        
+
                     } else {
                         $filteredGiataIds = $rawGiataIds;
-                        
-                        if(!$forceParams['force_verified']) 
+
+                        if(!$forceParams['force_verified'])
                         {
                             $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
                                 ->whereHas('product', function ($q) {
@@ -372,7 +373,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
                         }
 
-                        if(!$forceParams['force_on_sale']) 
+                        if(!$forceParams['force_on_sale'])
                         {
                             $onSaleQuery = Hotel::whereIn('giata_code', $rawGiataIds)
                                 ->whereHas('product', function ($q) {
@@ -802,17 +803,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
     private function resolveForceParams(): array
     {
-        $channelId = ChannelRepository::getTokenId(request()->bearerToken());
-        $channel = Channel::find($channelId);
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
+        $channel = Channel::where('token_id', $token_id)->first();
 
         $forceVerified = false;
         $forceOnSale = false;
-        $blueprintExists = true;
+        $blueprintExists = request('blueprint_exists', true);
 
-        if ($channel && $channel->accept_special_params) {
-            $forceVerified = filter_var(request('force_verified_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-            $forceOnSale = filter_var(request('force_on_sale_on'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-            $blueprintExists = filter_var(request('blueprint_exists'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+        if ($channel && $channel->accept_special_params)
+        {
+            $forceVerified = request('force_verified_on', false);
+            $forceOnSale = request('force_on_sale_on', false);
         }
 
         return [
