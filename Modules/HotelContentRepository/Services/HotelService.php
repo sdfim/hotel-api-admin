@@ -5,16 +5,12 @@ namespace Modules\HotelContentRepository\Services;
 use Illuminate\Support\Arr;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Services\Suppliers\ExpediaHotelContentApiService;
-use Modules\HotelContentRepository\Services\Suppliers\IcePortalHotelContentApiService;
 
 class HotelService
 {
     public function __construct(
         protected readonly HotelContentApiService $hotelContentApiService,
         protected readonly HotelContentApiTransformerService $detailDataTransformer,
-        protected readonly ExpediaHotelContentApiService $expediaService,
-        protected readonly IcePortalHotelContentApiService $icePortalService
     ) {}
 
     public function getHotelData($giataCode)
@@ -70,12 +66,8 @@ class HotelService
         $resultsSuppliers = [];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            $supplierService = match ($supplier) {
-                SupplierNameEnum::EXPEDIA->value => $this->expediaService,
-                SupplierNameEnum::ICE_PORTAL->value => $this->icePortalService,
-                default => null,
-            };
-
+            /** @var SupplierInterface $supplierService */
+            $supplierService = app(SupplierInterface::class, ['supplier' => $supplier]);
             $resultsSuppliers[$supplier] = Arr::get($supplierService->getResults([$giataCode]), 0, []);
             if ($clean) {
                 unset($resultsSuppliers[$supplier]['images']);

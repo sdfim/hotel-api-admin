@@ -466,8 +466,6 @@ class HotelContentApiTransformerService
             ];
         }
 
-        \Log::debug('Rooms', $rooms);
-
         return $rooms;
     }
 }

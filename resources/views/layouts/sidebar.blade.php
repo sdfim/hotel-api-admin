@@ -243,6 +243,22 @@
                         </ul>
                     </li>
                 @endif
+
+                <li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-contract-2"></i>
+                        <span data-key="t-property-mapping">Property Mapping</span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('expedia.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Expedia
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @if($canView(ApiExceptionReport::class))
                     <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"

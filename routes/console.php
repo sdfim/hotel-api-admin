@@ -35,7 +35,7 @@ Artisan::command('obe {scenario} {action}', function () {
 // Expedia Content download archive, unzip, parse json, write to DB
 Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
 // Hilton Content download to DB
-// Schedule::command('hilton:fetch-properties', ['--limit' => 50])->weeklyOn(6, '05:00');
+Schedule::command('hilton:fetch-properties', ['--limit' => 50])->weeklyOn(6, '05:00');
 // Download IcePortal data to DB
 Schedule::command('download-iceportal-data')->weeklyOn(6, '06:00');
 

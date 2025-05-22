@@ -75,7 +75,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->required(),
                 Select::make('content_supplier')
                     ->label('Include this supplier in your search as a content supplier (ContentApi)')
-                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Expedia, IcePortal' => 'Expedia, IcePortal'])
+                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Hilton' => 'Hilton', 'Expedia, IcePortal, Hilton' => 'Expedia, IcePortal, Hilton'])
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')

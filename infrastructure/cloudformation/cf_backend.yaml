@@ -179,6 +179,12 @@ Parameters:
   GiataMainPassword:
     Description: GIATA Main Password
     Type: String
+  HiltonClientId:
+    Description: Hilton Client Id
+    Type: String
+  HiltonClientSecret:
+    Description: Hilton Client Secret
+    Type: String
   GoogleApiDeveloperKey:
     Description: Google API Developer Key
     Type: String
@@ -358,6 +364,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: HILTON_CLIENT_ID
+                Value: !Ref 'HiltonClientId'
+              - Name: HILTON_CLIENT_SECRET
+                Value: !Ref 'HiltonClientSecret'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
@@ -518,6 +528,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: HILTON_CLIENT_ID
+                Value: !Ref 'HiltonClientId'
+              - Name: HILTON_CLIENT_SECRET
+                Value: !Ref 'HiltonClientSecret'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
@@ -735,6 +749,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: HILTON_CLIENT_ID
+                Value: !Ref 'HiltonClientId'
+              - Name: HILTON_CLIENT_SECRET
+                Value: !Ref 'HiltonClientSecret'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
@@ -1749,6 +1767,12 @@ Resources:
           - '",'
           - '"GIATA_MAIN_PASSWORD":"'
           - !Ref 'GiataMainPassword'
+          - '",'
+          - '"HILTON_CLIENT_ID":"'
+          - !Ref 'HiltonClientId'
+          - '",'
+          - '"HILTON_CLIENT_SECRET":"'
+          - !Ref 'HiltonClientSecret'
           - '",'
           - '"GOOGLE_API_DEVELOPER_KEY":"'
           - !Ref 'GoogleApiDeveloperKey'

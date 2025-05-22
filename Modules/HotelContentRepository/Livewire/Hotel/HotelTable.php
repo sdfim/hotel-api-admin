@@ -35,6 +35,7 @@ use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
 use Modules\HotelContentRepository\Actions\Product\DeleteProduct;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
+use ZipArchive;
 
 class HotelTable extends Component implements HasForms, HasTable
 {

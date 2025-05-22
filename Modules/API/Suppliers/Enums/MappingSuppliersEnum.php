@@ -7,6 +7,7 @@ enum MappingSuppliersEnum: string
     case Expedia = 'Expedia';
     case HBSI = 'HBSI';
     case IcePortal = 'IcePortal';
+    case HILTON = 'Hilton';
 
     public static function values(): array
     {
@@ -16,8 +17,8 @@ enum MappingSuppliersEnum: string
     public static function options(): array
     {
         return [
-            self::EXPEDIA->value => self::EXPEDIA->value,
-            self::ICEPORTAL->value => self::ICEPORTAL->value,
+            self::Expedia->value => self::Expedia->value,
+            self::IcePortal->value => self::IcePortal->value,
         ];
     }
 }
