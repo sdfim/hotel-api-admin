@@ -18,7 +18,7 @@ class HiltonClient
 
     private Client $client;
 
-    private string $accessToken;
+    private ?string $accessToken;
 
     public function __construct()
     {
