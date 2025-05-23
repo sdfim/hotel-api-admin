@@ -8,6 +8,16 @@ class CreateConfigAttribute
 {
     public function create(array $data): ConfigAttribute
     {
-        return ConfigAttribute::create($data);
+        $categories = $data['categories'] ?? [];
+        unset($data['categories']);
+
+        $attribute = ConfigAttribute::create($data);
+
+        if (! empty($categories)) {
+            $attribute->categories()->sync($categories);
+        }
+
+        return $attribute;
+
     }
 }
