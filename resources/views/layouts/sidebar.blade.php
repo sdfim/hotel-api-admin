@@ -16,6 +16,7 @@
     use App\Models\ApiExceptionReport;
     use App\Models\InformationalService;
     use App\Models\Property;
+    use App\Models\ExpediaContent;
     use Modules\HotelContentRepository\Models\Hotel;
     use Modules\HotelContentRepository\Models\Product;
     use Modules\HotelContentRepository\Models\Vendor;
@@ -315,6 +316,15 @@
                            class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-map"></i>
                             <span data-key="t-property-mapping">Properties</span>
+                        </a>
+                    </li>
+                @endif
+                @if($canView(ExpediaContent::class))
+                    <li>
+                        <a href="{{ Route('expedia.index') }}"
+                           class="{{ ClassHelper::sidebarPointClass() }}">
+                            <i class="dripicons-map"></i>
+                            <span data-key="t-property-mapping">Expedia</span>
                         </a>
                     </li>
                 @endif
