@@ -34,6 +34,8 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
     ): array {
         $this->initPricingRulesProperties();
 
+        $roomTotals = [];
+
         foreach ($this->requestArray['occupancy'] as $room) {
             $this->totalNumberOfGuests += $this->totalNumberOfGuestsInRoom($room);
 
@@ -47,7 +49,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         $validPricingRules = [];
 
         foreach ($this->pricingRules as $pricingRule) {
-            $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_code', 'room_type']];
+            $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_code', 'room_type', 'total_price'], $roomTotals['total_price']];
             if ($this->validPricingRule(...$params)) {
                 $validPricingRules[] = $pricingRule;
             }

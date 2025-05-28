@@ -150,6 +150,7 @@ trait HasPricingRuleFields
                             'general' => [
                                 'supplier_id' => 'Supplier ID',
                                 'channel_id' => 'Channel ID',
+                                'total_price' => 'Total price',
                             ],
                             'location' => [
                                 'destination' => 'Destination',
@@ -672,6 +673,29 @@ trait HasPricingRuleFields
                                 ->label('Meal plan from')
                                 ->maxLength(191)
                                 ->required(),
+                        ],
+
+                        'total_price' => [
+                            Grid::make()
+                                ->schema([
+                                    TextInput::make('value_from')
+                                        ->suffixIcon('heroicon-o-banknotes')
+                                        ->label('Total Price from')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step(0.01)
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
+                                    TextInput::make('value_to')
+                                        ->suffixIcon('heroicon-o-banknotes')
+                                        ->label('Total Price to')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step(0.01)
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
+                                ])
+                                ->columns(2),
                         ],
 
                         default => []

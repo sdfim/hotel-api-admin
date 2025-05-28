@@ -39,7 +39,7 @@ trait DepositFieldTrait
                         ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('start_date')
-                        ->label('Travel Start Date')
+                        ->label('Valid From')
                         ->type('date')
                         ->default(Carbon::now()->format('Y-m-d'))
                         ->required()
@@ -53,7 +53,7 @@ trait DepositFieldTrait
                         }),
 
                     TextInput::make('expiration_date')
-                        ->label('Travel End Date')
+                        ->label('Valid To')
                         ->type('date')
                         ->afterStateHydrated(function (TextInput $component) use ($record) {
                             $formattedDate = isset($record) && $record->expiration_date
@@ -110,19 +110,29 @@ trait DepositFieldTrait
                         ->label('Initial Payment Due Type')
                         ->inlineLabel()
                         ->options([
-                            'day' => 'Day',
+                            'days_after_booking' => 'Days After Booking',
+                            'days_before_arrival' => 'Days Before Arrival',
                             'date' => 'Date',
                         ])
                         ->live(),
-                    TextInput::make('days_initial_payment_due')
+                    TextInput::make('days_after_booking_initial_payment_due')
                         ->label('Days')
                         ->inlineLabel()
                         ->columnSpan(1)
                         ->maxLength(191)
                         ->numeric()
                         ->minValue(1)
-                        ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'day')
-                        ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'day'),
+                        ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_after_booking')
+                        ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_after_booking'),
+                    TextInput::make('days_before_arrival_initial_payment_due')
+                        ->label('Days')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->maxLength(191)
+                        ->numeric()
+                        ->minValue(1)
+                        ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_before_arrival')
+                        ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_before_arrival'),
                     DateTimePicker::make('date_initial_payment_due')
                         ->label('Date')
                         ->inlineLabel()
@@ -155,22 +165,33 @@ trait DepositFieldTrait
             ->schema([
                 Select::make('field')
                     ->options(function () {
-                        return [
-                            'supplier_id' => 'Supplier ID',
-                            'channel_id' => 'Channel ID',
-                            'destination' => 'Destination',
-                            'travel_date' => 'Travel date',
-                            'booking_date' => 'Booking date',
-                            'date_of_stay' => 'Date of stay',
-                            'total_guests' => 'Total guests',
-                            'days_until_departure' => 'Days until departure',
-                            'nights' => 'Nights',
-                            'rating' => 'Rating',
-                            'number_of_rooms' => 'Number of rooms',
-                            'meal_plan' => 'Meal plan / Board basis',
-                            'room_name' => 'Room name',
-                            'room_type' => 'Room type',
+                        $options = [
+                            'general' => [
+                                'supplier_id' => 'Supplier ID',
+                                'channel_id' => 'Channel ID',
+                                'total_price' => 'Total Price',
+                            ],
+                            'location' => [
+                                'destination' => 'Destination',
+                                'room_name' => 'Room name',
+                                'room_type' => 'Room type',
+                            ],
+                            'dates' => [
+                                'travel_date' => 'Travel date',
+                                'booking_date' => 'Booking date',
+                                'date_of_stay' => 'Date of stay',
+                            ],
+                            'addition' => [
+                                'total_guests' => 'Total guests',
+                                'days_until_departure' => 'Days until departure',
+                                'nights' => 'Nights',
+                                'rating' => 'Rating',
+                                'number_of_rooms' => 'Number of rooms',
+                                'meal_plan' => 'Meal plan / Board basis',
+                            ],
                         ];
+
+                        return $options;
                     })
                     ->live()
                     ->required()
@@ -195,8 +216,8 @@ trait DepositFieldTrait
                         default => [
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
-                            '<' => '<',
-                            '>' => '>',
+                            '<' => '< (Less Than)',
+                            '>' => '> (Greater Than)',
                             'between' => 'Between',
                         ],
                     })
@@ -293,6 +314,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'booking_date' => [
                             Grid::make()
                                 ->schema([
@@ -315,6 +337,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'date_of_stay' => [
                             Grid::make()
                                 ->schema([
@@ -337,6 +360,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'total_guests' => [
                             Grid::make()
                                 ->schema([
@@ -353,6 +377,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'days_until_departure' => [
                             Grid::make()
                                 ->schema([
@@ -369,6 +394,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'nights' => [
                             Grid::make()
                                 ->schema([
@@ -385,6 +411,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'rating' => [
                             Grid::make()
                                 ->schema([
@@ -405,6 +432,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'number_of_rooms' => [
                             Grid::make()
                                 ->schema([
@@ -421,6 +449,7 @@ trait DepositFieldTrait
                                 ])
                                 ->columns(2),
                         ],
+
                         'rate_code' => [
                             TextInput::make('value_from')
                                 ->label('Rate code')
@@ -435,6 +464,7 @@ trait DepositFieldTrait
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
+
                         'room_type' => [
                             TextInput::make('value_from')
                                 ->label('Room type')
@@ -449,6 +479,7 @@ trait DepositFieldTrait
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
+
                         'room_code' => [
                             TextInput::make('value_from')
                                 ->label('Room code')
@@ -463,6 +494,7 @@ trait DepositFieldTrait
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
+
                         'room_name' => [
                             TextInput::make('value_from')
                                 ->label('Room name')
@@ -477,12 +509,37 @@ trait DepositFieldTrait
                                 ->required()
                                 ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
+
                         'meal_plan' => [
                             TextInput::make('value_from')
                                 ->label('Meal plan from')
                                 ->maxLength(191)
                                 ->required(),
                         ],
+
+                        'total_price' => [
+                            Grid::make()
+                                ->schema([
+                                    TextInput::make('value_from')
+                                        ->suffixIcon('heroicon-o-banknotes')
+                                        ->label('Total Price from')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step(0.01)
+                                        ->required(fn (Get $get): bool => $get('compare') !== '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') !== '<'),
+                                    TextInput::make('value_to')
+                                        ->suffixIcon('heroicon-o-banknotes')
+                                        ->label('Total Price to')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step(0.01)
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between' || $get('compare') === '<'),
+                                ])
+                                ->columns(2),
+                        ],
+
                         default => []
                     })
                     ->columns(1)

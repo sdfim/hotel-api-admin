@@ -106,7 +106,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
-            if (!in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
                 continue;
             }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
@@ -436,6 +436,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         })->map(function ($amenity) {
             unset($amenity['drivers']);
             unset($amenity['priority_rooms']);
+
             return $amenity;
         })->toArray();
         $roomUltimateAmenities = array_values($roomUltimateAmenities);
@@ -506,7 +507,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating));
+        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, Arr::get($pricingRulesApplier, 'total_price', 0)));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }

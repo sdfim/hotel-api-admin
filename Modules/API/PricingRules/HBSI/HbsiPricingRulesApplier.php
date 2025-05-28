@@ -45,8 +45,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         // If there are no children or babies, then the format will appear as: '2-0-0'.
         $this->totalNumberOfGuests = array_sum(explode('-', $roomsPricingArray['rateOccupancy']));
 
-        if (config('supplier-repository.use_repo_tax_fees'))
-        {
+        if (config('supplier-repository.use_repo_tax_fees')) {
             $roomTotals = $this->calculateTransformedRoomTotals($roomsPricingArray['transformedRates']);
         } else {
             $roomTotals = $this->calculateRoomTotals($roomsPricingArray['Rates']);
@@ -57,7 +56,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         $validPricingRules = [];
 
         foreach ($this->pricingRules as $pricingRule) {
-            $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_type']];
+            $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_type', 'total_price'], $roomTotals['total_price']];
             if ($this->validPricingRule(...$params)) {
                 $validPricingRules[] = $pricingRule;
             }
@@ -179,12 +178,11 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         }
         */
 
-        if ($tax['@attributes']['Type'] === 'PropertyCollects')
-        {
-            $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
-        }else{
+        if ($tax['@attributes']['Type'] === 'PropertyCollects') {
+            $totals['total_fees'] += (float) $tax['@attributes']['Amount'];
+        } else {
             // TODO: check that logic when there are actual lists of taxes and fees.
-            $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
+            $totals['total_tax'] += (float) $tax['@attributes']['Amount'] * $unitMultiplier;
         }
 
         return $totals;

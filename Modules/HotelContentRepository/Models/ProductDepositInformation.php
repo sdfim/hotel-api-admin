@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,7 +34,8 @@ class ProductDepositInformation extends Model
         'price_value',
         'price_value_type',
         'price_value_target',
-        'days_initial_payment_due',
+        'days_after_booking_initial_payment_due',
+        'days_before_arrival_initial_payment_due',
         'date_initial_payment_due',
         'initial_payment_due_type',
     ];
@@ -44,7 +44,6 @@ class ProductDepositInformation extends Model
         'start_date' => 'date',
         'expiration_date' => 'date',
     ];
-
 
     protected $hidden = [
         'created_at',

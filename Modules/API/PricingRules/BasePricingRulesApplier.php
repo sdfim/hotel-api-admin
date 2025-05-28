@@ -82,7 +82,8 @@ class BasePricingRulesApplier
         string $roomName,
         string|int $roomCode,
         string|int $roomType,
-        array $conditionsFieldsToVerify = ['supplier_id', 'property']
+        array $conditionsFieldsToVerify = ['supplier_id', 'property'],
+        float $roomTotalsPrice = 0
     ): bool {
         $validPricingRule = [
             'supplier_id' => true,
@@ -90,6 +91,7 @@ class BasePricingRulesApplier
             'room_name' => true,
             'room_code' => true,
             'room_type' => true,
+            'total_price' => true,
         ];
 
         foreach ($conditionsFieldsToVerify as $field) {
@@ -103,6 +105,7 @@ class BasePricingRulesApplier
                     'room_name' => $this->evaluateCondition($condition, $roomName),
                     'room_code' => $this->evaluateCondition($condition, $roomCode),
                     'room_type' => $this->evaluateCondition($condition, $roomType),
+                    'total_price' => $this->evaluateCondition($condition, $roomTotalsPrice),
                     default => true
                 };
             }
@@ -119,8 +122,8 @@ class BasePricingRulesApplier
     {
         $compare = $condition['compare'];
         $valueFrom = $condition['value_from'];
+        $valueTo = $condition['value_to'];
         $valueArr = $condition['value'];
-        //        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
         $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
 
         return match ($compare) {
@@ -128,14 +131,18 @@ class BasePricingRulesApplier
             '!=' => (string) $valueFrom !== (string) $value,
             'in' => in_array($value, $valueArr),
             'not_in' => ! in_array($value, $valueArr),
+            '>' => (float) $valueFrom < (float) $value,
+            '<' => (float) $valueTo > (float) $value,
+            '>=' => (float) $valueFrom <= (float) $value,
+            '<=' => (float) $valueTo >= (float) $value,
+            'between' => (float) $valueFrom < (float) $value && (float) $valueTo > (float) $value,
             default => false
         };
     }
 
     protected function applyPricingRulesLogic(array $pricingRules): void
     {
-        foreach ($pricingRules as $pricingRule)
-        {
+        foreach ($pricingRules as $pricingRule) {
             $priceValueType = (string) $pricingRule['price_value_type'];
             $fixedValue = (float) $pricingRule['price_value'];
             $manipulablePriceType = (string) $pricingRule['manipulable_price_type'];
