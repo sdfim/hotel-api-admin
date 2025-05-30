@@ -7,9 +7,9 @@
             <script>
                 document.write(new Date().getFullYear());
             </script>
-            UJV
+            TerraMare
         </div>
-        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-violet-500 underline">UJVAPI</a>
+        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-violet-500 underline">TerraMare API</a>
         </div>
     </div>
 </footer>

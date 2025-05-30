@@ -1,9 +1,9 @@
 @extends('layouts.master')
 @section('title')
     @if($configContactInformationDepartment->exists)
-        {{ __('Edit UJV Department') }}
+        {{ __('Edit TerraMare Department') }}
     @else
-        {{ __('Create UJV Department') }}
+        {{ __('Create TerraMare Department') }}
     @endif
 @endsection
 @section('content')

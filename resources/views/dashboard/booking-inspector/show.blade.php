@@ -104,7 +104,7 @@
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab"
                                data-tw-target="tab-pills-client-response"
-                               class="inline-block px-5 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
+                               class="inline-block px-5 py-3 rounded-md dark:hover:text-white">TerraMare API Response</a>
                         </li>
                     @endif
                 </ul>

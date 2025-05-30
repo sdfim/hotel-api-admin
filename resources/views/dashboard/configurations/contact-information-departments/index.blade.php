@@ -1,10 +1,10 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('UJV Department') }}
+    {{ __('TerraMare Department') }}
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="UJV Department" pagetitle="index"/>
+    <x-page-title title="TerraMare Department" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">

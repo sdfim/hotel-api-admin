@@ -43,7 +43,8 @@ return [
     'default_filesystem_disk' => env('FILAMENT_FILESYSTEM_DISK', 'public'),
 
     'colors' => [
-        'primary' => '#866ffd',
+        'primary' => '#fd6fc4',
+        'secondary' => '#f7d7ea',
     ],
 
 ];

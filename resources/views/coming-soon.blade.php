@@ -37,11 +37,11 @@
                         <a href="{{ url('index') }}">
                             <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                                  class="h-7 mx-auto inline-block"><span
-                                class="text-22 align-middle ml-2 font-semibold text-white">UJV</span>
+                                class="text-22 align-middle ml-2 font-semibold text-white">TerraMare</span>
                         </a>
                     </div>
                     <div class="text-center">
-                        <h2 class="mt-8 text-white">Let's get started with UJV</h2>
+                        <h2 class="mt-8 text-white">Let's get started with TerraMare</h2>
                         <p class="text-base text-white/50">Donec pede justo fringilla vel aliquet nec vulputate eget
                             arcu.
                             In enim justo, rhoncus ut imperdiet a <br> venenatis vitae, justo felis</p>

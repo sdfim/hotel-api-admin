@@ -16,14 +16,14 @@
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
                                     <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
                                 </a>
                             </div>
 
                             <div class="my-auto">
                                 <div class="text-center">
                                     <h5 class="text-gray-600 dark:text-gray-100">Welcome Back !</h5>
-                                    <p class="text-gray-500 dark:text-gray-100/60 mt-1">Sign in to continue to UJV.</p>
+                                    <p class="text-gray-500 dark:text-gray-100/60 mt-1">Sign in to continue to TerraMare.</p>
                                 </div>
 
                                 <form class="mt-4 pt-2" action="index.html">
@@ -106,8 +106,8 @@
                                     <script>
                                         document.write(new Date().getFullYear())
                                     </script>
-                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by UJVAPI
+                                    TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    by TerraMare API
                                 </p>
                             </div>
                         </div>

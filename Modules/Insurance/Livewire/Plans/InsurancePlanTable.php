@@ -46,7 +46,7 @@ class InsurancePlanTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->alignCenter(),
                 TextColumn::make('commission_ujv')
-                    ->label('Commission UJV')
+                    ->label('Commission TerraMare')
                     ->sortable()
                     ->alignCenter(),
             ])

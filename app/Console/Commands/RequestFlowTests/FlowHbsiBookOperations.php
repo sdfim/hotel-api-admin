@@ -648,7 +648,7 @@ class FlowHbsiBookOperations extends Command
                 [
                     'booking_item' => $bookingItems[0],
                     'room' => 1,
-                    'special_request' => 'UJV Test Booking, please disregard.',
+                    'special_request' => 'TerraMare Test Booking, please disregard.',
                 ],
             ],
         ];

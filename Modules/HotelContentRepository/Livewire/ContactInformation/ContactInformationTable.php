@@ -135,7 +135,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                                 ->placeholder('Email*'),
                             Select::make('departments')
                                 ->hiddenLabel()
-                                ->placeholder('Select UJV Department')
+                                ->placeholder('Select TerraMare Department')
                                 ->searchable()
                                 ->native(false)
                                 ->multiple()

@@ -103,7 +103,7 @@ class BookingBookTest extends BaseBookingFlow
                 [
                     'booking_item' => self::$bookingItem,
                     'room' => 1,
-                    'special_request' => 'UJV Test Booking, please disregard.',
+                    'special_request' => 'TerraMare Test Booking, please disregard.',
                 ],
             ],
             'credit_cards' => [

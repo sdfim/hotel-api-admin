@@ -10,7 +10,7 @@ class ConfigContactInformationDepartmentController extends BaseWithPolicyControl
 {
     protected static string $model = ConfigContactInformationDepartment::class;
 
-    private array $message = ['edit' => 'Edit UJV Department', 'create' => 'Create UJV Department'];
+    private array $message = ['edit' => 'Edit TerraMare Department', 'create' => 'Create TerraMare Department'];
 
     /**
      * Display a listing of the resource.

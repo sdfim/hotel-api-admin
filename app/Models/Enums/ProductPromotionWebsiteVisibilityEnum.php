@@ -14,7 +14,7 @@ enum ProductPromotionWebsiteVisibilityEnum: string
         return [
             self::NO_VISIBLE->value => 'No Visible',
             self::VISIBLE_ALL->value => 'Visible All',
-            self::VISIBLE_UJV->value => 'Visible UJV',
+            self::VISIBLE_UJV->value => 'Visible TerraMare',
             self::VISIBLE_LUXURIA->value => 'Visible Luxuria',
         ];
     }

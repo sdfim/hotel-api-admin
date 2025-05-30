@@ -16,7 +16,7 @@
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
                                     <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
                                 </a>
                             </div>
 
@@ -81,8 +81,8 @@
                                     <script>
                                         document.write(new Date().getFullYear())
                                     </script>
-                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by UJVAPI
+                                    TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    by TerraMare API
                                 </p>
                             </div>
                         </div>

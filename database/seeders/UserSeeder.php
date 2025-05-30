@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         $createAdminPermission = Permission::where('slug', 'admin')->first();
 
         $admin = User::withTrashed()->updateOrCreate(
-            ['email' => 'admin@ujv.com'],
+            ['email' => 'admin@terramare.com'],
             [
                 'name' => 'Admin',
                 'email_verified_at' => now(),
@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
         $createUserPermission = Permission::where('slug', 'user')->first();
 
         $user = User::withTrashed()->updateOrCreate(
-            ['email' => 'user@ujv.com'],
+            ['email' => 'user@terramare.com'],
             [
                 'name' => 'User',
                 'email_verified_at' => now(),

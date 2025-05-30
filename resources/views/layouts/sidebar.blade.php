@@ -81,7 +81,7 @@
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
-        ['route' => 'configurations.contact-information-departments.index', 'text' => 'UJV Departments', 'model' => ConfigContactInformationDepartment::class],
+        ['route' => 'configurations.contact-information-departments.index', 'text' => 'TerraMare Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {
@@ -316,15 +316,6 @@
                            class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-map"></i>
                             <span data-key="t-property-mapping">Properties</span>
-                        </a>
-                    </li>
-                @endif
-                @if($canView(ExpediaContent::class))
-                    <li>
-                        <a href="{{ Route('expedia.index') }}"
-                           class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-map"></i>
-                            <span data-key="t-property-mapping">Expedia</span>
                         </a>
                     </li>
                 @endif
