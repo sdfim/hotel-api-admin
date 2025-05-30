@@ -41,7 +41,7 @@
 
                                     <div class="mb-4">
                                         <button
-                                            class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
+                                            class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-mandarin-200 dark:shadow-zinc-600"
                                             type="submit">Reset
                                         </button>
                                     </div>
@@ -50,7 +50,7 @@
                                 <div class="mt-12 text-center">
                                     <p class="text-gray-500 dark:text-zinc-100">Remember It ? <a
                                             href="{{ url('login') }}"
-                                            class="text-violet-500 font-semibold"> Sign In </a></p>
+                                            class="text-mandarin-500 font-semibold"> Sign In </a></p>
                                 </div>
                             </div>
 
@@ -68,7 +68,7 @@
                 </div>
                 <div class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
                     <div class="h-screen bg-cover relative p-5">
-                        <div class="absolute inset-0 bg-violet-500/90"></div>
+                        <div class="absolute inset-0 bg-mandarin-500/90"></div>
 
                         <ul class="bg-bubbles absolute top-0 left-0 w-full h-full overflow-hidden animate-square">
                             <li class="h-10 w-10 rounded-3xl bg-white/10 absolute left-[10%] "></li>

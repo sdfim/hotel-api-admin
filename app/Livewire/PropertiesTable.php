@@ -306,6 +306,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 TextColumn::make('mapper_address')
                     ->label('Address')
                     ->sortable()
+                    ->wrap()
                     ->toggleable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('mapper_phone_number')

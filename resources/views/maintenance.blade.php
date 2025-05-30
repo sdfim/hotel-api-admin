@@ -17,7 +17,7 @@
                                 </a>
                             </div>
 
-                            <div class="text-center text-violet-500 pt-10 ">
+                            <div class="text-center text-mandarin-500 pt-10 ">
                                 <i class="mdi mdi-cog text-7xl relative left-3 mdi-spin"></i>
                                 <i class="mdi mdi-cog text-6xl relative -top-8 mdi-spin"></i>
                             </div>
@@ -31,9 +31,9 @@
                                         <div class="p-5">
                                             <div class="mt-8">
                                                 <div
-                                                    class="h-12 w-12 bg-violet-500/30 rounded-full mx-auto text-center dark:bg-violet-100">
+                                                    class="h-12 w-12 bg-mandarin-500/30 rounded-full mx-auto text-center dark:bg-mandarin-100">
                                                     <i
-                                                        class="mdi mdi-access-point-network text-2xl text-violet-500 leading-loose"></i>
+                                                        class="mdi mdi-access-point-network text-2xl text-mandarin-500 leading-loose"></i>
                                                 </div>
                                             </div>
                                             <div class="text-center">
@@ -52,9 +52,9 @@
                                         <div class="p-5">
                                             <div class="mt-8">
                                                 <div
-                                                    class="h-12 w-12 bg-violet-500/30 rounded-full mx-auto text-center dark:bg-violet-100">
+                                                    class="h-12 w-12 bg-mandarin-500/30 rounded-full mx-auto text-center dark:bg-mandarin-100">
                                                     <i
-                                                        class="mdi mdi-clock-outline text-2xl text-violet-500 leading-loose"></i>
+                                                        class="mdi mdi-clock-outline text-2xl text-mandarin-500 leading-loose"></i>
                                                 </div>
                                             </div>
                                             <div class="text-center">
@@ -73,9 +73,9 @@
                                         <div class="p-5">
                                             <div class="mt-8">
                                                 <div
-                                                    class="h-12 w-12 bg-violet-500/30 rounded-full mx-auto text-center dark:bg-violet-100">
+                                                    class="h-12 w-12 bg-mandarin-500/30 rounded-full mx-auto text-center dark:bg-mandarin-100">
                                                     <i
-                                                        class="mdi mdi-email-outline text-2xl text-violet-500 leading-loose"></i>
+                                                        class="mdi mdi-email-outline text-2xl text-mandarin-500 leading-loose"></i>
                                                 </div>
                                             </div>
                                             <div class="text-center">
@@ -87,7 +87,7 @@
                                                     Lorem Ipsum available, but the majority have suffered
                                                     alteration.</p>
                                                 <a href="mailto:no-reply@domain.com"
-                                                   class="border-b border-violet-500 text-violet-500 dark:text-gray-50 dark:border-gray-50">no-reply@domain.com</a>
+                                                   class="border-b border-mandarin-500 text-mandarin-500 dark:text-gray-50 dark:border-gray-50">no-reply@domain.com</a>
                                             </div>
                                         </div>
                                     </div>

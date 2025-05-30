@@ -9,6 +9,10 @@
             margin-top: 10px;
             word-wrap: break-word;
         }
+        .active-tab {
+            border: 2px solid #FF7C1A;
+            font-weight: bold;
+        }
     </style>
 
     <div class="col-span-12 xl:col-span-6">
@@ -51,7 +55,7 @@
                             <strong>Channel:</strong>
                             {{ $inspector->token->name }}
                         </div>
-                        <div class="mt-6">
+                        <div class="card mt-6 p-5">
                             <button type="button"
                                     class="text-white px-2 py-2 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
                                     data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
@@ -88,26 +92,23 @@
                 </div>
             </div>
 
-            <div class="nav-tabs border-tab mt-12">
-                <ul class="flex flex-wrap w-full text-sm font-medium text-center text-gray-500 border-b border-gray-100 nav dark:border-gray-700 dark:text-gray-400">
-                    <li>
-                        <a href="javascript:void(0);" data-tw-toggle="tab"
-                           data-tw-target="tab-pills-origin"
-                           class="inline-block px-5 py-3 rounded-md active">Original Request and Response</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" data-tw-toggle="tab"
-                           data-tw-target="tab-pills-response"
-                           class="inline-block px-5 py-3 rounded-md">Supplier Response</a>
-                    </li>
+            <div class="card mt-12 p-5">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-origin"
+                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-orange-100 text-orange-600 active-tab">
+                        Original Request and Response
+                    </button>
+                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-response"
+                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-600">
+                        Supplier Response
+                    </button>
                     @if($inspector->client_response_path)
-                        <li>
-                            <a href="javascript:void(0);" data-tw-toggle="tab"
-                               data-tw-target="tab-pills-client-response"
-                               class="inline-block px-5 py-3 rounded-md dark:hover:text-white">TerraMare API Response</a>
-                        </li>
+                        <button data-tw-toggle="tab" data-tw-target="#tab-pills-client-response"
+                                class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-600">
+                            TerraMare API RS
+                        </button>
                     @endif
-                </ul>
+                </div>
                 <div class="relative z-50 hidden modal" id="modal-idmediummodal" aria-labelledby="modal-title"
                      role="dialog" aria-modal="true">
                     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -166,7 +167,7 @@
                                 id="collapse-original">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-original" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-original" style="font-size:0.8em"></json-viewer>
@@ -189,7 +190,7 @@
                                 id="collapse-response">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-response" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-response" style="font-size:0.8em"></json-viewer>
@@ -212,7 +213,7 @@
                                 id="collapse-client">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-client" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>
@@ -268,6 +269,23 @@
 
 
     <script type="module">
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('[data-tw-toggle="tab"]');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(t => t.classList.remove('active-tab'));
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
+                    this.classList.add('active-tab');
+                    const target = document.querySelector(this.getAttribute('data-tw-target'));
+                    if (target) {
+                        target.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
         var fileOriginal = {!! $file_original !!};
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0];

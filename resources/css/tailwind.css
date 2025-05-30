@@ -37,7 +37,7 @@
 @import "plugins/calender.css";
 
 :root {
-   --tw-sidebar-width: 250px;
+   --tw-sidebar-width: 300px;
    --tw-sidebar-bg: #fbfaff;
 }
 
@@ -168,23 +168,23 @@ select{
 }
 
 .nav-tabs.border-tab ul li .active{
-   @apply border border-b-0 rounded-md border-violet-300 rounded-b-none text-violet-300 dark:text-violet-300;
+   @apply border border-b-0 rounded-md border-mandarin-300 rounded-b-none text-mandarin-300 dark:text-mandarin-300;
 }
 
 .nav-tabs.border-b-tabs ul li .active{
-   @apply border-violet-300 border-b-2 text-violet-300;
+   @apply border-mandarin-300 border-b-2 text-mandarin-300;
 }
 
 .nav-tabs.tab-pill ul li .active{
-   @apply bg-violet-300 text-white;
+   @apply bg-mandarin-300 text-white;
 }
 
 .nav-tabs.chart-tabpill ul li .active {
-   @apply bg-white text-violet-500 rounded dark:bg-zinc-800;
+   @apply bg-white text-mandarin-500 rounded dark:bg-zinc-800;
 }
 
 .nav-tabs.bar-tabs ul li .active {
-   @apply bg-violet-300 text-white;
+   @apply bg-mandarin-300 text-white;
 }
 .accordion-item .accordion-header{
    @apply text-gray-200;
@@ -193,7 +193,7 @@ select{
    @apply text-gray-500;
 }
 .accordion-item .accordion-header.active{
-   @apply text-violet-500;
+   @apply text-mandarin-500;
 }
 
 @keyframes draw-attention {

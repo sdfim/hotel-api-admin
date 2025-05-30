@@ -1,7 +1,13 @@
 :root {
+    --spacing-small: 10px;
+    --spacing-medium: 25px;
+    --spacing-large: 50px;
+
+    --gray-50: #fafafa;
+
     --white-color: #ffffff;
     --tab-buttom-color: #fafafa;
-    --buttom-color: #8770ff;
+    --buttom-color: #f37a1f;
 
     --background-main-color: #f8f8f8;
     --background-item-color: #fdfdfd;
@@ -11,21 +17,23 @@
 
     --red-color: #ee6a64;
     --green-color: #87e291;
-    --purple-color: #866ffd;
-    --grey-color: #797979;
-    --grey-lite-color: #e0dad3;
+    --theme-color: #D97706;
+    --theme-light-color: #fbbf8f;
 
-    --primary-50: 235, 235, 255;
-    --primary-100: 199, 199, 254;
-    --primary-200: 138, 138, 253;
-    --primary-300: 77, 77, 252;
-    --primary-400: 36, 36, 251;
-    --primary-500: 11, 11, 245;
-    --primary-600: 134, 111, 253; /* #866ffd */
-    --primary-700: 83, 83, 180;
-    --primary-800: 64, 64, 146;
-    --primary-900: 53, 53, 120;
-    --primary-950: 26, 26, 69;
+    --grey-color : #e4e4e7;
+    --grey-light-color : #fafafa;
+
+    --primary-50: 255, 247, 235;
+    --primary-100: 255, 237, 213;
+    --primary-200: 254, 215, 170;
+    --primary-300: 253, 186, 116;
+    --primary-400: 251, 146, 60;
+    --primary-500: 217, 119, 6;
+    --primary-600: 180, 83, 9;
+    --primary-700: 146, 64, 14;
+    --primary-800: 120, 53, 15;
+    --primary-900: 96, 44, 14;
+    --primary-950: 59, 21, 6;
 }
 
 .choices__list--multiple .choices__item {
@@ -79,12 +87,17 @@
 }
 
 .border-b {
-    background-color: var(--grey-lite-color);
+    background-color: var(--white-color);
 }
 
 .page-content {
     --tw-bg-opacity: 1;
-    background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+    background-color: #e4e4e74f;
+}
+
+.vertical-menu {
+    --tw-bg-opacity: 1;
+    background-color: #e4e4e74f;
 }
 
 .navbar-brand {
@@ -97,7 +110,7 @@
     --tw-bg-opacity: 1;
 }
 thead .bg-gray-50{
-    background-color: var(--grey-lite-color);
+    background-color: var(--grey-light-color);
 }
 
 .fi-btn-label {
@@ -105,13 +118,12 @@ thead .bg-gray-50{
 }
 
 .fi-ta-content {
-    margin: 24px;
-    outline: 1px solid var(--grey-lite-color);
+    outline: 1px solid var(--theme-light-color);
     border-radius: 2px;
 }
 
 .rounded-xl {
-    border-radius: 5px;
+    border-radius: 25px;
     border: 1px solid #e5e7eb;
 }
 .hotel-form-container .rounded-xl {
@@ -133,7 +145,7 @@ thead .bg-gray-50{
 }
 
 .hotel-form-container .fi-input-wrp:hover {
-    outline: 2px solid var(--purple-color) !important;
+    outline: 2px solid var(--theme-color) !important;
     outline-offset: 0;
 }
 
@@ -190,7 +202,7 @@ thead .bg-gray-50{
     background-color: var(--white-color);
     padding: 1.5rem;
     border: 1px solid #e5e7eb;
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 .hotel-form-container .choices__list--multiple .choices__item {
@@ -237,12 +249,12 @@ thead .bg-gray-50{
 
 .sr_tab-link {
     display: block;
-    padding: 0.75rem 1.1rem;
+    padding: 0.75rem 1rem;
     border-radius: 8px;
     border: #e5e7eb 1px solid;
     background-color: var(--tab-buttom-color);
     color: #333;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     transition: background-color 0.3s ease, color 0.3s ease;
     cursor: pointer;
     text-transform: uppercase;
@@ -253,7 +265,7 @@ thead .bg-gray-50{
 }
 
 .sr_tab-link.sr_active {
-    background-color: var(--purple-color);
+    background-color: var(--theme-color);
     color: #fff;
     font-weight: bold;
 }
@@ -272,7 +284,7 @@ thead .bg-gray-50{
     padding: 0.75rem 1.1rem;
     border-radius: 0;
     border: #e5e7eb 1px solid;
-    background-color: var(--purple-color);
+    background-color: var(--theme-color);
     color: #fff;
     font-weight: bold;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -282,7 +294,7 @@ thead .bg-gray-50{
 }
 
 .save-button:hover {
-    background-color: var(--purple-color) !important;
+    background-color: var(--theme-color) !important;
     color: #dedddd;
 }
 
@@ -308,12 +320,12 @@ thead .bg-gray-50{
 
 .breadcrumb-item a {
     text-decoration: none;
-    color: var(--purple-color);
+    color: var(--theme-color);
     transition: color 0.3s;
 }
 
 .breadcrumb-item a:hover {
-    color: var(--purple-color)
+    color: var(--theme-color)
 }
 
 .breadcrumb-item::after {
@@ -323,7 +335,7 @@ thead .bg-gray-50{
 }
 
 .breadcrumb-item:last-child {
-    color: var(--purple-color);
+    color: var(--theme-color);
     font-weight: bold;
 }
 

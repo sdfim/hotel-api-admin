@@ -15,19 +15,18 @@
     <!-- Styles -->
     @filamentStyles
     @vite(['resources/css/app.css'])
-    @if (request()->is('*-repository*') || request()->is('*-grid*') || request()->is('*insurance*') || request()->is('*activities*') || request()->is('*hotel-rates*'))
-        @vite(['resources/css/supplier-repository.css'])
-    @endif
+    @vite(['resources/css/supplier-repository.css'])
     @include('layouts.head-css')
     @stack('head')
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">
 @livewire('notifications')
-<!-- topbar -->
-@include('layouts.topbar')
 <!-- sidebar -->
 @include('layouts.sidebar')
+<!-- topbar -->
+@include('layouts.topbar')
+
 
 <div class="main-content">
     <div class="page-content dark:bg-zinc-800 min-h-screen">

@@ -2,10 +2,10 @@
 
 <div>
     @canany(['update', 'create'], GeneralConfiguration::class)
-        <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: rgb(81, 86, 190);">
+        <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: var(--theme-color);">
             {{ __('Clear Search Cache') }}
         </x-button>
-        <x-button class="mt-4 mb-8" wire:click="clearMappingCache" style="background-color: rgb(120, 86, 190);">
+        <x-button class="mt-4 mb-8" wire:click="clearMappingCache" style="background-color: var(--theme-color);">
             {{ __('Clear Mapping Cache') }}
         </x-button>
     @endcan

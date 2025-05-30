@@ -18,7 +18,7 @@
                                     is more simple and regular than that of the individual</p>
                                 <div class="mt-4">
                                     <button type="button"
-                                            class="btn border-transparent bg-violet-500 mt-2 mr-2 shadow-md text-white shadow-violet-200 focus:ring focus:ring-violet-50 dark:shadow-zinc-600">
+                                            class="btn border-transparent bg-mandarin-500 mt-2 mr-2 shadow-md text-white shadow-mandarin-200 focus:ring focus:ring-mandarin-50 dark:shadow-zinc-600">
                                         Email
                                         Us
                                     </button>
@@ -37,10 +37,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">01.</h5>
+                                <h5 class="text-mandarin-500">01.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">What is Lorem Ipsum?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">New common language
                                     will
@@ -53,10 +53,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">02.</h5>
+                                <h5 class="text-mandarin-500">02.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where does it come from?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Everyone realizes
                                     why a
@@ -70,10 +70,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">03.</h5>
+                                <h5 class="text-mandarin-500">03.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where can I get some?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">If several languages
                                     coalesce, the grammar of the resulting language is more simple and regular than that
@@ -85,10 +85,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">04.</h5>
+                                <h5 class="text-mandarin-500">04.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Why do we use it?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Their separate
                                     existence
@@ -99,10 +99,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">05.</h5>
+                                <h5 class="text-mandarin-500">05.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where can I get some?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">The point of using
                                     Lorem
@@ -115,10 +115,10 @@
                         <div class="border border-gray-50 rounded-md overflow-hidden dark:border-zinc-600">
                             <div class="relative">
                                 <i
-                                    class="bx bx-help-circle text-7xl text-violet-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-violet-500/10"></i>
+                                    class="bx bx-help-circle text-7xl text-mandarin-50/50 absolute ltr:-right-3 rtl:-left-3 -top-4 dark:text-mandarin-500/10"></i>
                             </div>
                             <div class="p-5">
-                                <h5 class="text-violet-500">06.</h5>
+                                <h5 class="text-mandarin-500">06.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">What is Lorem Ipsum?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">To an English
                                     person, it

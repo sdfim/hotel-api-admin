@@ -156,8 +156,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
 
     public function clearMappingCache(): void
     {
-        if (Cache::has('expedia_hash_map_mappings'))
-        {
+        if (Cache::has('expedia_hash_map_mappings')) {
             Cache::forget('expedia_hash_map_mappings');
         }
 

@@ -19,7 +19,7 @@ div.dataTables_wrapper div.dataTables_filter input {
     padding-left: 30px
 }
 .table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before, table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before {
-    @apply absolute border text-white border-white text-center bg-violet-500 block rounded-xl;
+    @apply absolute border text-white border-white text-center bg-mandarin-500 block rounded-xl;
     top: 50%;
     left: 5px;
     height: 14px;

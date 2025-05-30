@@ -44,7 +44,7 @@
                                 id="collapse-response-{{$getRecord()->report_id}}">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-response-{{$getRecord()->report_id}}" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-response-{{$getRecord()->report_id}}" style="font-size:0.8em">

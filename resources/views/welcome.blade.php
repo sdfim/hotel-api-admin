@@ -344,7 +344,8 @@
 
         .mx-auto {
             margin-left: auto;
-            margin-right: auto
+            margin-right: auto;
+            margin-top: 70px;
         }
 
         .mx-6 {
@@ -539,7 +540,7 @@
         }
 
         .text-sm {
-            font-size: 0.875rem;
+            font-size: 1rem;
             line-height: 1.25rem
         }
 

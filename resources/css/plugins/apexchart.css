@@ -67,7 +67,7 @@
 
 .apexcharts-tooltip-title,
 .apexcharts-tooltip-text{
-    @apply text-violet-500;
+    @apply text-mandarin-500;
 }
 
 .apexcharts-tooltip{
@@ -79,7 +79,7 @@
 }
 
 .apexcharts-tooltip .apexcharts-tooltip-title {
-    @apply bg-gray-50 border border-gray-50 dark:bg-zinc-700 dark:border-zinc-600 !important; 
+    @apply bg-gray-50 border border-gray-50 dark:bg-zinc-700 dark:border-zinc-600 !important;
 }
 
 .apexcharts-tooltip.apexcharts-theme-dark *{

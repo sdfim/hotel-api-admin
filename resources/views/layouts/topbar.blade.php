@@ -1,148 +1,109 @@
-<nav
-    class="border-b border-slate-100 dark:bg-zinc-800 print:hidden flex items-center fixed top-0 right-0 left-0 bg-white z-10 dark:border-zinc-700">
-
-    <div class="flex items-center justify-between w-full">
-        <div class="topbar-brand flex items-center">
-            <div
-                class="navbar-brand flex items-center justify-between shrink px-5 h-[50px] border-r bg-slate-50 border-r-gray-50 dark:border-zinc-700 dark:bg-zinc-800">
-                <a href="#" class="flex items-center font-bold text-lg  dark:text-white">
-                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
-                         class="ltr:mr-2 rtl:ml-2 inline-block mt-1 h-6"/>
-                    <span class="hidden xl:block align-middle">TerraMare</span>
-                </a>
-            </div>
-            <button type="button"
-                    class="text-gray-600 dark:text-white h-[50px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 vertical-menu-btn"
-                    id="vertical-menu-btn">
-                <i class="fa fa-fw fa-bars"></i>
-            </button>
+<nav class="main fixed inset-x-0 top-0 z-10 flex items-center justify-between border-b bg-white dark:border-zinc-700 dark:bg-zinc-800 print:hidden">
+    <!-- Brand & burger -->
+    <div class="topbar-brand flex items-center">
+        <div class="navbar-brand flex h-[50px] shrink items-center justify-between border-r bg-slate-50 px-5 dark:border-zinc-700 dark:bg-zinc-800">
+            <a href="#" class="flex items-center font-bold text-lg dark:text-white">
+                <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="logo" class="inline-block h-6 ltr:mr-2 rtl:ml-2 mt-1" />
+                <span class="hidden align-middle xl:block">TerraMare</span>
+            </a>
         </div>
-        <div class="flex items-center">
-            <div>
-                <div class="dropdown relative sm:hidden block">
-                    <button type="button"
-                            class="text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 dropdown-toggle"
-                            data-dropdown-toggle="navNotifications">
-                        <i data-feather="search" class="h-5 w-5"></i>
-                    </button>
+        <button type="button" id="vertical-menu-btn" class="vertical-menu-btn h-[50px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 text-gray-600 dark:text-white">
+            <i class="fa fa-fw fa-bars"></i>
+        </button>
+    </div>
 
-                    <div
-                        class="dropdown-menu absolute px-4 -left-36 top-0 mx-4 w-72 z-50 hidden list-none border border-gray-50 rounded bg-white shadow dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300"
-                        id="navNotifications">
-                        <form class="py-3 dropdown-item" aria-labelledby="navNotifications">
-                            <div class="form-group m-0">
-                                <div class="flex w-full">
-                                    <input type="text"
-                                           class="border-gray-100 dark:border-zinc-600 dark:text-zinc-100 w-fit"
-                                           placeholder="Search ..." aria-label="Search Result">
-                                    <button
-                                        class="btn btn-primary border-l-0 rounded-l-none bg-violet-500 border-transparent text-white"
-                                        type="submit"><i class="mdi mdi-magnify"></i></button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dropdown relative language hidden sm:block">
-                <button class="btn border-0 py-0 dropdown-toggle px-4 h-[50px]" type="button" aria-expanded="false"
-                        data-dropdown-toggle="navNotifications">
-                    <img src="{{ URL::asset('build/images/flags/us.jpg') }}" alt="" class="h-4"
-                         id="header-lang-img">
+    <!-- Right section: search + user -->
+    <div class="flex items-center space-x-2 px-4">
+        <!-- Search (Filament-style) -->
+        <form action="#" method="GET">
+            <div class="flex w-64 items-center gap-2 overflow-hidden rounded-lg border border-gray-300 bg-white px-3 transition-all"
+                 :class="focused ? 'ring-2 ring-primary-500 border-primary-500' : ''"
+                 @click="focused = true"
+                 @click.away="focused = false">
+                <span class="text-gray-500 dark:text-gray-400">
+                    <i data-feather="search" class="h-4 w-4"></i>
+                </span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search"
+                    x-model="query"
+                    class="w-full border-none bg-transparent text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-0 dark:text-gray-200 dark:placeholder-gray-400"
+                    @focus="focused = true"
+                />
+                <button
+                    x-show="query.length > 0"
+                    x-cloak
+                    @click.prevent="query = ''; focused = false"
+                    type="button"
+                    class="text-gray-400 hover:text-gray-500">
+                    <i data-feather="x" class="h-4 w-4"></i>
                 </button>
-                <div
-                    class="dropdown-menu absolute -left-24 z-50 hidden w-40 list-none rounded bg-white shadow dark:bg-zinc-800"
-                    id="navNotifications">
-                    <ul class="border border-gray-50 dark:border-gray-700" aria-labelledby="navNotifications">
-                        <li>
-                            <a href="#"
-                               class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-50/50 dark:text-gray-200 dark:hover:bg-zinc-600/50 dark:hover:text-white"><img
-                                    src="{{ URL::asset('build/images/flags/us.jpg') }}" alt="user-image"
-                                    class="mr-1 inline-block h-3"> <span class="align-middle">English</span></a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-50/50 dark:text-gray-200 dark:hover:bg-zinc-600/50 dark:hover:text-white"><img
-                                    src="{{ URL::asset('build/images/flags/spain.jpg') }}" alt="user-image"
-                                    class="mr-1 inline-block h-3"> <span class="align-middle">Spanish</span></a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-50/50 dark:text-gray-200 dark:hover:bg-zinc-600/50 dark:hover:text-white"><img
-                                    src="{{ URL::asset('build/images/flags/germany.jpg') }}" alt="user-image"
-                                    class="mr-1 inline-block h-3"> <span class="align-middle">German</span></a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-50/50 dark:text-gray-200 dark:hover:bg-zinc-600/50 dark:hover:text-white"><img
-                                    src="{{ URL::asset('build/images/flags/italy.jpg') }}" alt="user-image"
-                                    class="mr-1 inline-block h-3"> <span class="align-middle">Italian</span></a>
-                        </li>
-                    </ul>
+            </div>
+        </form>
+
+        <!-- User dropdown -->
+        <div class="relative" x-data="{ open: false }" @click.away="open = false">
+            <button id="user-dropdown-toggle" @click="open = !open" class="flex h-[50px] items-center border-x border-gray-100 px-4 dark:border-zinc-600 dark:bg-zinc-800">
+                <img class="mr-2 h-8 w-8 rounded-full" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                <span class="hidden text-gray-800 dark:text-white xl:block text-sm">{{ Auth::user()->name }}</span>
+                <svg class="ml-1 h-4 w-4 text-gray-500 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Dropdown panel -->
+            <div id="user-dropdown" x-show="open" x-transition class="absolute right-0 mt-2 w-64 space-y-2 rounded bg-white p-3 text-sm text-gray-800 shadow dark:bg-zinc-800 dark:text-gray-100" style="display:none;">
+                <!-- Profile & API in one row -->
+                <div class="flex justify-between gap-2">
+                    <a href="{{ route('profile.show') }}" class="flex flex-1 items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                        <i class="mdi mdi-account text-lg"></i>
+                        <span>Profile</span>
+                    </a>
+                    @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                        <a href="{{ route('api-tokens.index') }}" class="flex flex-1 items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                            <i class="mdi mdi-key-variant text-lg"></i>
+                            <span>API</span>
+                        </a>
+                    @endif
                 </div>
-            </div>
 
-            <div>
-                <button type="button"
-                        class="light-dark-mode text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 hidden sm:block ">
-                    <i data-feather="moon" class="h-5 w-5 block dark:hidden"></i>
-                    <i data-feather="sun" class="h-5 w-5 hidden dark:block"></i>
-            </div>
+                <!-- Toggle theme -->
+                <button type="button" @click="open = false; window.dispatchEvent(new Event('toggle-theme'));" class="light-dark-mode flex w-full items-center space-x-2 rounded px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-zinc-700">
+                    <i data-feather="moon" class="block h-5 w-5 dark:hidden"></i>
+                    <i data-feather="sun" class="hidden h-5 w-5 dark:block"></i>
+                    <span>Toggle Theme</span>
+                </button>
 
-            <div>
-                <div class="dropdown relative ltr:mr-4 rtl:ml-4">
-                    <button type="button"
-                            class="flex items-center px-4 py-5 border-x border-gray-50 bg-gray-50/30 dropdown-toggle dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-100"
-                            id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="true">
-                        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                            <img class="h-8 w-8 rounded-full ltr:xl:mr-2 rtl:xl:ml-2"
-                                 src="@if (Auth::user()->profile_photo_url) {{ Auth::user()->profile_photo_url }} @else https://ui-avatars.com/api/?name={{ Auth::user()->name }}&color=7F9CF5&background=EBF4FF @endif"
-                                 alt="{{ Auth::user()->name }}">
-                        @endif
-                        <span class="fw-medium hidden xl:block">{{ Auth::user()->name }}</span>
-                        <i class="mdi mdi-chevron-down align-bottom hidden xl:block"></i>
+                <!-- Logout -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex w-full items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                        <i class="mdi mdi-logout text-lg"></i>
+                        <span>Logout</span>
                     </button>
-                    <div
-                        class="dropdown-menu absolute top-0 ltr:-left-3 rtl:-right-3 z-50 hidden w-40 list-none rounded bg-white shadow dark:bg-zinc-800"
-                        id="profile/log">
-                        <div class="border border-gray-50 dark:border-zinc-600" aria-labelledby="navNotifications">
-                            <div class="dropdown-item dark:text-gray-100">
-                                <x-responsive-nav-link href="{{ route('profile.show') }}"
-                                                       :active="request()->routeIs('profile.show')">
-                                    <i class="mdi mdi-face-man text-16 align-middle mr-1"></i>{{ __('Profile') }}
-                                </x-responsive-nav-link>
-                            </div>
-                            <div class="dropdown-item dark:text-gray-100">
-                                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                    <x-responsive-nav-link href="{{ route('api-tokens.index') }}"
-                                                           :active="request()->routeIs('api-tokens.index')">
-                                        <i class="mdi mdi-key-variant text-16 align-middle mr-1"></i>{{ __('API Tokens') }}
-                                    </x-responsive-nav-link>
-                                @endif
-                            </div>
-{{--                            <div class="dropdown-item dark:text-gray-100">--}}
-{{--                                <x-responsive-nav-link href="{{ route('teams.show', ['team' => Auth::user()->currentTeam->id]) }}"--}}
-{{--                                                       :active="request()->routeIs('teams.show')">--}}
-{{--                                    <i class="mdi mdi-account-group text-16 align-middle mr-1"></i>{{ __('Team') }}--}}
-{{--                                </x-responsive-nav-link>--}}
-{{--                            </div>--}}
-                            <hr class="border-gray-50 dark:border-gray-700">
-                            <div class="dropdown-item dark:text-gray-100">
-                                <x-responsive-nav-link href="javascript:void();"
-                                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="mdi mdi-logout text-16 align-middle mr-1"></i>{{ __('Logout') }}
-                                </x-responsive-nav-link>
-                                <form method="POST" action="{{ route('logout') }}" id="logout-form">
-                                    @csrf
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
-
         </div>
     </div>
 </nav>
+
+<!-- Feather & Alpine initialisation -->
+<script>
+    document.addEventListener('alpine:init', () => {
+        window.addEventListener('toggle-theme', () => {
+            const root = document.documentElement;
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    });
+
+    window.addEventListener('load', () => {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    });
+</script>

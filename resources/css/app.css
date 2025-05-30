@@ -1,6 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree&family=Open+Sans&display=swap');
 @import "tailwind.css";
+@import "supplier-repository.css";
 @import 'swiper/css/bundle';
-/*@import "supplier-repository.css";*/
+
+nav.main {
+    height: 65px;
+    border: none;
+    border-bottom: 1px solid var(--theme-light-color);
+}
+
+footer {
+    font-size: 12px;
+}
+
+footer.border-t {
+    border-top-width: 0 !important;
+}
+
+.btn-back {
+    padding: 0.5rem 2.5rem;  /* py-2 px-10 */
+    font-weight: 700;        /* font-bold */
+    color: white;          /* text-white */
+    background-color: var(--theme-light-color);
+    border-color: var(--theme-light-color);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-back:hover {
+    color: #ffffff;
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
+}
+
+.btn-back:focus {
+    color: #ffffff;          /* focus:text-white */
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.25); /* focus:ring-4 focus:ring-orange-400 */
+}
+
+.btn-back:active {
+    color: #ffffff;          /* active:text-white */
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn-back {
+        border-color: transparent; /* dark:border-transparent */
+    }
+}
 
 .swiper {
     width: 80%;
@@ -40,7 +89,7 @@
     height: 20px;
     display: flex;
     align-items: center;
-    color: #6563ff;
+    color: var(--theme-color);
 }
 
 :is([data-mode=dark] .copy-clipboard-btn) {

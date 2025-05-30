@@ -97,7 +97,7 @@
     <!-- ========== Left Sidebar Start ========== -->
 <div
     class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
-    style="top: 61px;">
+    style="top: 65px;">
 
     <div data-simplebar class="h-full">
         <!--- Sidemenu -->
@@ -116,7 +116,7 @@
                                 @if($canView($link['model']))
                                     <li>
                                         <a href="{{ route($link['route']) }}"
-                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                             {{ $link['text'] }}
                                         </a>
                                     </li>
@@ -139,7 +139,7 @@
                                     <a href="{{ Route('users.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-violet-500
+                               duration-150 ease-linear hover:text-mandarin-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Users</a>
                                 </li>
@@ -149,7 +149,7 @@
                                     <a href="{{ Route('roles.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-violet-500
+                               duration-150 ease-linear hover:text-mandarin-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Roles</a>
                                 </li>
@@ -159,7 +159,7 @@
                                     <a href="{{ Route('permissions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-violet-500
+                               duration-150 ease-linear hover:text-mandarin-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Permissions</a>
                                 </li>
@@ -223,21 +223,21 @@
                             @if($canView(ApiSearchInspector::class))
                                 <li>
                                     <a href="{{ Route('search-inspector.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
                                         Search Inspector</a>
                                 </li>
                             @endif
                             @if($canView(ApiBookingInspector::class))
                                 <li>
                                     <a href="{{ Route('booking-inspector.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
                                         Booking Inspector</a>
                                 </li>
                             @endif
                             @if($canView(ApiBookingItem::class))
                                 <li>
                                     <a href="{{ Route('booking-items.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">
                                         Booking Items</a>
                                 </li>
                             @endif
@@ -247,14 +247,14 @@
 
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-contract-2"></i>
                         <span data-key="t-property-mapping">Property Mapping</span>
                     </a>
                     <ul>
                         <li>
                             <a href="{{ Route('expedia.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                 Expedia
                             </a>
                         </li>
@@ -270,12 +270,12 @@
                         <ul>
                             <li>
                                 <a href="{{ Route('exceptions-report.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
                                     Data</a>
                             </li>
                             <li>
                                 <a href="{{ Route('exceptions-report-chart.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
                                     Chart</a>
                             </li>
                         </ul>

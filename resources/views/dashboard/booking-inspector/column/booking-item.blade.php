@@ -2,7 +2,7 @@
     if($getRecord()->booking_item != null){
         $booking_item = $getRecord()->booking_item;
         $shortBookingItem = \App\Livewire\Helpers\ViewHelpers::compressString($booking_item);
-        $str =  '<a href=' . route('booking-items.show', $booking_item ) .' title="'.$booking_item.'" alt="'.$booking_item.'" target="_blank" style="color: #007bff;">' . $shortBookingItem . '</a><br>';
+        $str =  '<a href=' . route('booking-items.show', $booking_item ) .' title="'.$booking_item.'" alt="'.$booking_item.'" target="_blank" style="color: #007bff;" class="text-sm">' . $shortBookingItem . '</a><br>';
     }else{
         $str = '';
     }

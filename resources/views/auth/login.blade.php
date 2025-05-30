@@ -9,8 +9,8 @@
     <div class="container-fluid">
         <div class="h-screen md:overflow-hidden">
             <div class="flex flex-col items-center w-full">
-                <div class="flex h-[90vh] flex-col">
-                    <div class="mx-auto">
+                <div class="card flex flex-col mx-5 mt-10 p-10">
+                    <div class="mx-auto mb-4">
                         <a href="{{ url('index') }}" class="">
                             <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                                  class="h-8 inline"> <span
@@ -92,7 +92,7 @@
                             </div>
                             <div class="mb-3">
                                 <button
-                                    class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
+                                    class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-mandarin-200 dark:shadow-zinc-600"
                                     type="submit">Log In
                                 </button>
                             </div>
@@ -100,8 +100,7 @@
 
                     </div>
 
-
-                    <div class=" text-center">
+                    <div class=" text-center mt-4">
                         <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                             <script>
                                 document.write(new Date().getFullYear())

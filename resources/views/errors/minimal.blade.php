@@ -84,7 +84,7 @@
         }
 
         .border-t {
-            border-top-width: 1px
+            border-top-width: 0 !important;
         }
 
         .border-r {
@@ -128,7 +128,7 @@
         }
 
         .text-sm {
-            font-size: .875rem
+            font-size: 1rem
         }
 
         .text-lg {
@@ -141,7 +141,8 @@
 
         .mx-auto {
             margin-left: auto;
-            margin-right: auto
+            margin-right: auto;
+            margin-top: 70px;
         }
 
         .ml-1 {
