@@ -29,11 +29,6 @@ class Channel extends Authenticatable
         'token_id',
         'access_token',
         'user_id',
-        'accept_special_params',
-    ];
-
-    protected $casts = [
-        'accept_special_params' => 'boolean',
     ];
 
     public function token(): BelongsTo

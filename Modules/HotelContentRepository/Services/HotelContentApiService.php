@@ -52,8 +52,6 @@ class HotelContentApiService
         }
 
         $giataCodes = $this->getGiataCodesByContent($results);
-        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-        $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -63,10 +61,6 @@ class HotelContentApiService
 
     public function fetchDetailResults(array $giataCodes, bool $isUI = false): array
     {
-        if (! $isUI) {
-            ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-            $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
-        }
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -113,95 +107,17 @@ class HotelContentApiService
             ->get();
     }
 
-    private function applyVisibilityFiltersToGiataCodes(array &$giataCodes, Channel $channel, ?bool $forceVerified, ?bool $forceOnSale, ?bool $blueprintExists): void
-    {
-        $filteredGiataIds = $giataCodes;
-
-        // Whitelist check
-        $hotelsNotWhiteList = [];
-        if ($channel) {
-            $hotelsNotWhiteList = Hotel::with('product.channels')
-                ->whereIn('giata_code', $giataCodes)
-                ->whereDoesntHave('product.channels', function ($query) use ($channel) {
-                    $query->where('channel_id', $channel->id);
-                })
-                ->get()->pluck('giata_code')->toArray();
-
-            $hotelsWithoutWhiteList = Hotel::with('product.channels')
-                ->whereDoesntHave('product.channels')
-                ->get()->pluck('giata_code')->toArray();
-
-            $hotelsNotWhiteList = array_diff($hotelsNotWhiteList, $hotelsWithoutWhiteList);
-            $filteredGiataIds = array_diff($filteredGiataIds, $hotelsNotWhiteList);
-        }
-
-        if ($blueprintExists) {
-            $query = Hotel::whereIn('giata_code', $filteredGiataIds)
-                ->whereHas('product');
-            $filteredGiataIds = $query->pluck('giata_code')->toArray();
-
-            if (!$forceVerified) {
-                $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
-                    ->whereHas('product', function ($q) {
-                        $q->where('verified', 0);
-                    });
-                $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
-            }
-
-            if (!$forceOnSale) {
-                $onSaleQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
-                    ->whereHas('product', function ($q) {
-                        $q->where('onSale', 0);
-                    });
-                $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
-            }
-        } else {
-            if (!$forceVerified) {
-                $verifiedQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
-                    ->whereHas('product', function ($q) {
-                        $q->where('verified', 0);
-                    });
-                $filteredGiataIds = array_diff($filteredGiataIds, $verifiedQuery->pluck('giata_code')->toArray());
-            }
-
-            if (!$forceOnSale) {
-                $onSaleQuery = Hotel::whereIn('giata_code', $filteredGiataIds)
-                    ->whereHas('product', function ($q) {
-                        $q->where('onSale', 0);
-                    });
-                $filteredGiataIds = array_diff($filteredGiataIds, $onSaleQuery->pluck('giata_code')->toArray());
-            }
-        }
-
-        $giataCodes = $filteredGiataIds;
-    }
-
     public function getRepoData(array $giataCodes): ?Collection
     {
-        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale] = $this->resolveChannelAndForceParams();
+        $hotelsOnSale = $this->getHotelsByOnSaleStatus($giataCodes, 1);
 
-        $query = Hotel::whereIn('giata_code', $giataCodes);
-
-        if (!$forceOnSale && !$forceVerified) {
-            $query->whereHas('product', function ($productQuery) use ($forceVerified, $forceOnSale) {
-                if (!$forceOnSale) {
-                    $productQuery->where('onSale', 1);
-                }
-                if (!$forceVerified) {
-                    $productQuery->where('verified', 1);
-                }
-            });
-        }
-
-        $hotels = $query->get();
-
-        foreach ($hotels as $hotel) {
+        foreach ($hotelsOnSale as $hotel) {
             if (! $hotel->product) {
-                unset($hotels[$hotel->giata_code]);
+                unset($hotelsOnSale[$hotel->giata_code]);
             }
         }
 
-        return $hotels;
+        return $hotelsOnSale;
     }
 
     private function combineDetailResults(array $resultsSuppliers, array $structureSource, $repoData, array $giataCodes): array
@@ -376,27 +292,5 @@ class HotelContentApiService
         unset($result);
 
         return $contentResults;
-    }
-
-    private function resolveChannelAndForceParams(): array
-    {
-        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
-        $channel = Channel::where('token_id', $token_id)->first();
-
-        $forceVerified = false;
-        $forceOnSale = false;
-        $blueprintExists = request('blueprint_exists', true);
-
-        if ($channel && $channel->accept_special_params) {
-            $forceVerified = request('force_verified_on', false);
-            $forceOnSale = request('force_on_sale_on', false);
-        }
-
-        return [
-            'force_verified' => $forceVerified,
-            'force_on_sale' => $forceOnSale,
-            'blueprint_exists' => $blueprintExists,
-            'channel' => $channel,
-        ];
     }
 }

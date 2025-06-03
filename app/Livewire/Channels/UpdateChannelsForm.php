@@ -39,10 +39,6 @@ class UpdateChannelsForm extends Component implements HasForms
                 TextInput::make('description')
                     ->required()
                     ->maxLength(191),
-                Toggle::make('accept_special_params')
-                    ->label('Allow Special API Parameters')
-                    ->helperText('If enabled, this channel will accept "force_on_sale_on" and "force_verified_on" filters from the API.')
-                    ->default(false),
             ])
             ->statePath('data')
             ->model($this->record);
