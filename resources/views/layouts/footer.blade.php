@@ -7,9 +7,9 @@
             <script>
                 document.write(new Date().getFullYear());
             </script>
-            TerraMare
+            CabinSelect
         </div>
-        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-mandarin-500 underline">TerraMare API</a>
+        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-mandarin-500 underline">CabinSelect API</a>
         </div>
     </div>
 </footer>
