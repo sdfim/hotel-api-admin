@@ -70,25 +70,9 @@ class HbsiHotelController
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {
-            // Filter hotel IDs based on filtered_giata_ids if available
-            $filteredHotelIds = [];
-            if (isset($filters['filtered_giata_ids']) && !empty($filters['filtered_giata_ids'])) 
-            {
-                foreach ($hotelData['data'] as $hotelId => $data) 
-                {
-                    if (in_array($data['giata'], $filters['filtered_giata_ids'])) 
-                    {
-                        $filteredHotelIds[] = $hotelId;
-                    }
-                }
-            } 
-            else 
-            {
-                $filteredHotelIds = array_keys($hotelData['data']);
-            }
+            $hotelIds = array_keys($hotelData['data']);
 
-            if (empty($filteredHotelIds)) 
-            {
+            if (empty($hotelIds)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -100,10 +84,9 @@ class HbsiHotelController
             }
 
             /** get PriceData from HBSI */
-            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($filteredHotelIds, $filters, $searchInspector);
+            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
 
-            if (isset($xmlPriceData['error'])) 
-            {
+            if (isset($xmlPriceData['error'])) {
                 return [
                     'error' => $xmlPriceData['error'],
                     'original' => [
@@ -117,12 +100,10 @@ class HbsiHotelController
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $arrayResponse = $this->object2array($response);
-            if (isset($arrayResponse['Errors'])) 
-            {
+            if (isset($arrayResponse['Errors'])) {
                 Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
             }
-            if (! isset($arrayResponse['RoomStays']['RoomStay'])) 
-            {
+            if (! isset($arrayResponse['RoomStays']['RoomStay'])) {
                 return [
                     'original' => [
                         'request' => [],

@@ -43,8 +43,8 @@ class ExpediaHotelController implements SupplierControllerInterface
         try {
             $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $expedia = new ExpediaContent();
-            $geography = new Geography();
+            $expedia = new ExpediaContent;
+            $geography = new Geography;
 
             // $filters['ids'] - array of Expedia property ids
             // $filters['giata_ids'] - array of Giata ids
@@ -165,37 +165,7 @@ class ExpediaHotelController implements SupplierControllerInterface
     public function price(array $filters, array $searchInspector, array $preSearchData): ?array
     {
         try {
-            if (empty($preSearchData['ids'])) 
-            {
-                return [
-                    'original' => [
-                        'request' => [],
-                        'response' => [],
-                    ],
-                    'array' => [],
-                    'total_pages' => 0,
-                ];
-            }
-
-            // Filter IDs based on filtered_giata_ids if available
-            $filteredIds = [];
-            if (isset($filters['filtered_giata_ids']) && !empty($filters['filtered_giata_ids'])) 
-            {
-                $mappings = $this->mappingCacheService->getMappingsExpediaHashMap();
-                foreach ($preSearchData['ids'] as $id) 
-                {
-                    if (isset($mappings[$id]) && in_array($mappings[$id], $filters['filtered_giata_ids'])) {
-                        $filteredIds[] = $id;
-                    }
-                }
-            } 
-            else 
-            {
-                $filteredIds = $preSearchData['ids'];
-            }
-
-            if (empty($filteredIds)) 
-            {
+            if (empty($preSearchData['ids'])) {
                 return [
                     'original' => [
                         'request' => [],
@@ -207,7 +177,7 @@ class ExpediaHotelController implements SupplierControllerInterface
             }
 
             // get PriceData from RapidAPI Expedia using filtered IDs
-            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($filteredIds, $filters, $searchInspector);
+            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters, $searchInspector);
 
             $output = [];
             // add price to response
