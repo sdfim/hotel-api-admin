@@ -185,24 +185,6 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(InformationalService::class))
-                    <li>
-                        <a href="{{ Route('informational-services.index') }}"
-                           class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-information"></i>
-                            <span data-key="t-property-weighting">Informational Service</span>
-                        </a>
-                    </li>
-                @endif
-                {{--                @if($canView(TravelAgencyCommission::class))--}}
-                {{--                    <li>--}}
-                {{--                        <a href="{{ Route('travel-agency-commission.index') }}"--}}
-                {{--                           class="{{ ClassHelper::sidebarPointClass() }}">--}}
-                {{--                            <i class="dripicons-lifting"></i>--}}
-                {{--                            <span data-key="t-property-weighting">Agency Commissions</span>--}}
-                {{--                        </a>--}}
-                {{--                    </li>--}}
-                {{--                @endif--}}
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"

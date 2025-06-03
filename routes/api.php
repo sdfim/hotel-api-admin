@@ -34,8 +34,4 @@ ContentRepositoryApiRoutes::routes();
 
 InsuranceApiRoutes::routes();
 
-InformativeServicesApiRoutes::routes();
-
 ChannelsApiRoutes::routes();
-
-Route::middleware('auth:sanctum')->get('/v1/test-connection', [DummyHealthController::class, 'check']);
