@@ -227,22 +227,6 @@
                     </li>
                 @endif
 
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-contract-2"></i>
-                        <span data-key="t-property-mapping">Property Mapping</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('expedia.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Expedia
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
                 @if($canView(ApiExceptionReport::class))
                     <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"
@@ -264,35 +248,52 @@
                         </ul>
                     </li>
                 @endif
-                @if($canView(ImageGallery::class) || $canView(Image::class))
-                    <li>
-                        <a href="javascript: void(0);" aria-expanded="false"
-                           class="{{ ClassHelper::sidebarParrentClass() }}">
-                            <i class="dripicons-photo-group"></i>
-                            <span>Image Galleries</span>
-                        </a>
-                        <ul>
-                            @if($canView(ImageGallery::class))
-                                <li>
-                                    <a href="{{ Route('image-galleries.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-view-thumb"></i>
-                                        <span>Galleries</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(Image::class))
-                                <li>
-                                    <a href="{{ Route('images.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-photo"></i>
-                                        <span>Images</span>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </li>
-                @endif
+{{--                @if($canView(ImageGallery::class) || $canView(Image::class))--}}
+{{--                    <li>--}}
+{{--                        <a href="javascript: void(0);" aria-expanded="false"--}}
+{{--                           class="{{ ClassHelper::sidebarParrentClass() }}">--}}
+{{--                            <i class="dripicons-photo-group"></i>--}}
+{{--                            <span>Image Galleries</span>--}}
+{{--                        </a>--}}
+{{--                        <ul>--}}
+{{--                            @if($canView(ImageGallery::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('image-galleries.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-view-thumb"></i>--}}
+{{--                                        <span>Galleries</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(Image::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('images.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-photo"></i>--}}
+{{--                                        <span>Images</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                        </ul>--}}
+{{--                    </li>--}}
+{{--                @endif--}}
+
+                <li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-contract-2"></i>
+                        <span data-key="t-property-mapping">Content Suppliers</span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('expedia.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Expedia
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 @if($canView(Property::class))
                     <li>
                         <a href="{{ Route('properties.index') }}"
@@ -311,81 +312,81 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(Vendor::class)
-                    || $canView(Product::class)
-                    || $canView(InsuranceProviderDocumentation::class)
-                    || $canView(InsuranceRestriction::class)
-                    || $canView(InsuranceRateTier::class)
-                    || $canView(InsurancePlan::class))
-                    <li>
-                        <a href="javascript: void(0);" aria-expanded="false"
-                           class="{{ ClassHelper::sidebarParrentClass() }}">
-                            <i class="dripicons-graduation"></i>
-                            <span>Supplier Repository</span>
-                        </a>
-                        <ul>
-                            @if($canView(Vendor::class))
-                                <li>
-                                    <a href="{{ Route('vendor-repository.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-rocket"></i>
-                                        <span>Vendors</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(Product::class))
-                                <li>
-                                    <a href="javascript: void(0);" aria-expanded="false"
-                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">
-                                        <i class="dripicons-trophy"></i>
-                                        <span data-key="t-products">Products</span>
-                                    </a>
-                                    <ul>
-                                        <li>
-                                            <a href="{{ Route('hotel-repository.index') }}"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-store"></i>
-                                                <span>Hotels</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-web"></i>
-                                                <span>Tours</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-suitcase"></i>
-                                                <span>Transfers</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            @endif
-                            @if($canView(Product::class))
-                                <li>
-                                    <a href="{{ Route('pd-grid.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-to-do"></i>
-                                        <span>PD Grid</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(InsurancePlan::class))
-                                <li>
-                                    <a href="{{ Route('insurance-plans.index') }}"
-                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-pill"></i>
-                                        <span>Insurance</span>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </li>
-                @endif
+{{--                @if($canView(Vendor::class)--}}
+{{--                    || $canView(Product::class)--}}
+{{--                    || $canView(InsuranceProviderDocumentation::class)--}}
+{{--                    || $canView(InsuranceRestriction::class)--}}
+{{--                    || $canView(InsuranceRateTier::class)--}}
+{{--                    || $canView(InsurancePlan::class))--}}
+{{--                    <li>--}}
+{{--                        <a href="javascript: void(0);" aria-expanded="false"--}}
+{{--                           class="{{ ClassHelper::sidebarParrentClass() }}">--}}
+{{--                            <i class="dripicons-graduation"></i>--}}
+{{--                            <span>Supplier Repository</span>--}}
+{{--                        </a>--}}
+{{--                        <ul>--}}
+{{--                            @if($canView(Vendor::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('vendor-repository.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-rocket"></i>--}}
+{{--                                        <span>Vendors</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(Product::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="javascript: void(0);" aria-expanded="false"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">--}}
+{{--                                        <i class="dripicons-trophy"></i>--}}
+{{--                                        <span data-key="t-products">Products</span>--}}
+{{--                                    </a>--}}
+{{--                                    <ul>--}}
+{{--                                        <li>--}}
+{{--                                            <a href="{{ Route('hotel-repository.index') }}"--}}
+{{--                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">--}}
+{{--                                                <i class="dripicons-store"></i>--}}
+{{--                                                <span>Hotels</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li>--}}
+{{--                                            <a href="#"--}}
+{{--                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">--}}
+{{--                                                <i class="dripicons-web"></i>--}}
+{{--                                                <span>Tours</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li>--}}
+{{--                                            <a href="#"--}}
+{{--                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">--}}
+{{--                                                <i class="dripicons-suitcase"></i>--}}
+{{--                                                <span>Transfers</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    </ul>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(Product::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('pd-grid.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-to-do"></i>--}}
+{{--                                        <span>PD Grid</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(InsurancePlan::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('insurance-plans.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-pill"></i>--}}
+{{--                                        <span>Insurance</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                        </ul>--}}
+{{--                    </li>--}}
+{{--                @endif--}}
                 @can('statistic-charts')
                     <li>
                         <a href="{{ Route('statistic-charts') }}"
