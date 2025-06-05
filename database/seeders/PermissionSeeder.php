@@ -11,6 +11,7 @@ class PermissionSeeder extends Seeder
     private static array $prefixPermissions = [
         'channel',
         'pricing_rule',
+        'mapping_room',
         'supplier',
         'general_configuration',
         'giata_geography',

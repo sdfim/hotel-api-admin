@@ -29,6 +29,7 @@
 		"league/flysystem-aws-s3-v3": "^3.16",
 		"livewire/livewire": "^3.3",
 		"opcodesio/log-viewer": "^3.4",
+		"openai-php/laravel": "^0.13.0",
 		"opensearch-project/opensearch-php": "^2.2",
 		"psr/simple-cache": "^3.0",
 		"pxlrbt/filament-excel": "^2.4",

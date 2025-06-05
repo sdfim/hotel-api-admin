@@ -242,6 +242,7 @@
                         </li>
                     </ul>
                 </li>
+
                 @if($canView(ApiExceptionReport::class))
                     <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"
@@ -298,6 +299,15 @@
                            class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-map"></i>
                             <span data-key="t-property-mapping">Properties</span>
+                        </a>
+                    </li>
+                @endif
+                @if($canView(\App\Models\MappingRoom::class))
+                    <li>
+                        <a href="{{ Route('mapping-room.index') }}"
+                           class="{{ ClassHelper::sidebarPointClass() }}">
+                            <i class="dripicons-link"></i>
+                            <span data-key="t-mapping-room">Mapping Rooms</span>
                         </a>
                     </li>
                 @endif

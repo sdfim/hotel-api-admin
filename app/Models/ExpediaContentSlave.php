@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpediaContentSlave extends Model
 {
@@ -66,5 +67,10 @@ class ExpediaContentSlave extends Model
             'spoken_languages' => 'array',
             'all_inclusive' => 'array',
         ];
+    }
+
+    public function mapperGiataExpedia(): HasMany
+    {
+        return $this->hasMany(Mapping::class, 'supplier_id', 'expedia_property_id')->expedia();
     }
 }

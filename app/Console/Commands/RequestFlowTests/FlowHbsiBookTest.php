@@ -182,19 +182,7 @@ class FlowHbsiBookTest extends Command
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
-
             $room['adults'] = rand(1, 2);
-
-            //            $children = rand(0, 2);
-            //            $children_ages = [];
-            //            if ($children > 0) {
-            //                foreach (range(1, $children) as $index) {
-            //                    $children_ages[] = rand(1, 15);
-            //                }
-            //                $room['children'] = $children;
-            //                $room['children_ages'] = $children_ages;
-            //            }
-
             $occupancy[] = $room;
         }
 
