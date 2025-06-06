@@ -84,8 +84,7 @@ class Property extends Model
     public function hbsi(): HasOne
     {
         return $this->hasOne(Mapping::class, 'giata_id', 'code')
-            ->hBSI()
-            ->connection(config('database.connections.mysql_cache'));
+            ->hBSI();
     }
 
     public function location(): HasOne

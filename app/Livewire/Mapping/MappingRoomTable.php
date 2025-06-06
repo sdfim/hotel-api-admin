@@ -90,6 +90,9 @@ class MappingRoomTable extends Component implements HasForms, HasTable
                                 $result = Property::select(
                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                                     ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                    ->whereHas('mappings', function ($query) {
+                                        $query->where('supplier', 'HBSI');
+                                    })
                                     ->limit(100);
 
                                 return $result->pluck('full_name', 'code')
