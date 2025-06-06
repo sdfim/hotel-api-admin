@@ -56,8 +56,7 @@ trait DepositFieldTrait
 
                             return $properties;
                         })
-                        ->required()
-                        ->default($this->giataCode),
+                        ->required(),
                 ])
                 ->columns(1),
 

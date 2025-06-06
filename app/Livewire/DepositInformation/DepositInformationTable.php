@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRate;
 
 class DepositInformationTable extends Component implements HasForms, HasTable
 {
@@ -42,12 +41,6 @@ class DepositInformationTable extends Component implements HasForms, HasTable
     {
         $this->giataCode = $giata ? $giata->code : 0;
         $this->rateId = $rateId;
-//        $rate = HotelRate::where('id', $rateId)->first();
-        $this->title = 'Deposit Information for '.($giata ? $giata->name : 'Unknown Property');
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-//            $this->title .= ' - Rate Name: '.$rate->name;
-        }
     }
 
     public function table(Table $table): Table
@@ -71,16 +64,16 @@ class DepositInformationTable extends Component implements HasForms, HasTable
             })
             ->deferLoading()
             ->columns([
-//                TextColumn::make('level')
-//                    ->label('Level')
-//                    ->badge()
-//                    ->getStateUsing(function ($record) {
-//                        return ($this->giataCode && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
-//                    })
-//                    ->colors([
-//                        'primary' => 'Hotel',
-//                        'warning' => 'Rate',
-//                    ]),
+                //                TextColumn::make('level')
+                //                    ->label('Level')
+                //                    ->badge()
+                //                    ->getStateUsing(function ($record) {
+                //                        return ($this->giataCode && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
+                //                    })
+                //                    ->colors([
+                //                        'primary' => 'Hotel',
+                //                        'warning' => 'Rate',
+                //                    ]),
                 TextColumn::make('giata.name')->label('Hotel')->wrap()->searchable(),
                 TextColumn::make('giata_code')->label('Giata Code')->searchable(),
                 TextColumn::make('name')->label('Name')->wrap()->searchable(),
@@ -110,7 +103,7 @@ class DepositInformationTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->modalHeading(new HtmlString("Edit {$this->title}"))
+                        ->modalHeading(fn ($record) => new HtmlString("Edit Deposit Information for {$record->giata->name}"))
                         ->tooltip('Edit Deposit Information')
                         ->form(fn ($record) => $this->schemeForm($record, true))
                         ->fillForm(function ($record) {
@@ -142,7 +135,7 @@ class DepositInformationTable extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->modalHeading(new HtmlString("Create {$this->title}"))
+                    ->modalHeading(new HtmlString('Create Deposit Information'))
                     ->form($this->schemeForm(null, true))
                     ->modalWidth('7xl')
                     ->createAnother(false)
