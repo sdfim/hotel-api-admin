@@ -12,6 +12,7 @@ class PermissionSeeder extends Seeder
         'channel',
         'pricing_rule',
         'mapping_room',
+        'deposit-information',
         'supplier',
         'general_configuration',
         'giata_geography',

@@ -185,6 +185,17 @@
                         </a>
                     </li>
                 @endif
+
+                @if($canView(\App\Models\DepositInformation::class))
+                    <li>
+                        <a href="{{ Route('deposit-information.index') }}"
+                           class="{{ ClassHelper::sidebarPointClass() }}">
+                            <i class="dripicons-archive"></i>
+                            <span data-key="t-deposit-information"> Deposit Information</span>
+                        </a>
+                    </li>
+                @endif
+
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -194,6 +205,7 @@
                         </a>
                     </li>
                 @endif
+
                 @if($canView(ApiSearchInspector::class) || $canView(ApiBookingInspector::class) || $canView(ApiBookingItem::class))
                     <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show' || Route::currentRouteName() == 'booking-items.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"

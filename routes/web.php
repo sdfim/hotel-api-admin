@@ -23,6 +23,7 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMapping
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigRoomBedTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
+use Modules\AdministrationSuite\Http\Controllers\DepositInformationController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
 use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
@@ -128,6 +129,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('properties', PropertiesController::class)->only('index');
         Route::resource('ice-portal', IcePortalController::class)->only('index');
         Route::resource('expedia', ExpediaController::class)->only('index');
+        Route::resource('deposit-information', DepositInformationController::class)->only('index');
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
