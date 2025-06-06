@@ -30,10 +30,10 @@ trait DepositFieldTrait
         return [
             Hidden::make('rate_id')->default($this->rateId),
 
-            Fieldset::make('Giata Code Selection')
+            Fieldset::make('Property Selection')
                 ->schema([
                     Select::make('giata_code')
-                        ->label('Giata Code')
+                        ->label('Giata Code / Property Name')
                         ->searchable()
                         ->getSearchResultsUsing(function (string $search): ?array {
                             $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
