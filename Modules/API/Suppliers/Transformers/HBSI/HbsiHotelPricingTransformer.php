@@ -402,8 +402,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomDescription = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.description", $roomDescription);
 
         $roomResponse = RoomResponseFactory::create();
-        $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
-        $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomName);

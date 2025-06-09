@@ -2,12 +2,12 @@
 
 namespace Modules\API\Suppliers\Transformers;
 
+use App\Models\DepositInformation;
+use App\Models\MappingRoom;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
-use Modules\Enums\ContentSourceEnum;
-use Modules\HotelContentRepository\Models\Hotel;
 
 class BaseHotelPricingTransformer
 {
@@ -41,10 +41,7 @@ class BaseHotelPricingTransformer
 
     protected array $exclusionRoomTypes = [];
 
-    protected array $query = [
-        'force_on_sale' => false,
-        'force_verified' => false,
-    ];
+    protected array $query = [];
 
     /**
      * Fetches and processes supplier repository data.
@@ -81,42 +78,11 @@ class BaseHotelPricingTransformer
     private function processSupplierData(array $giataIds): array
     {
         // Fetch and process data
-        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
+        $depositInformationData = DepositInformation::whereIn('giata_code', $giataIds)->get();
 
-        $this->ultimateAmenities = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        $this->depositInformation = $depositInformationData->mapWithKeys(function ($hotel) {
             return [
-                $hotel->giata_code => $hotel->product?->affiliations->map(function ($affiliation) {
-                    return [
-                        'rate_code' => $affiliation->rate?->code,
-                        'unified_room_code' => $affiliation->room?->external_code,
-                        'start_date' => $affiliation->start_date,
-                        'end_date' => $affiliation->end_date,
-                        'amenities' => $affiliation->amenities->map(function ($amenity) {
-                            $amenityData = [
-                                'name' => $amenity->amenity->name,
-                                'consortia' => $amenity->consortia,
-                                'is_paid' => $amenity->is_paid,
-                                'min_night_stay' => $amenity->min_night_stay,
-                                'max_night_stay' => $amenity->max_night_stay,
-                                'priority_rooms' => (! empty($amenity->priority_rooms))
-                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
-                                    : [],
-                            ];
-                            if ($amenity->is_paid) {
-                                $amenityData['price'] = $amenity->price;
-                                $amenityData['apply_type'] = $amenity->apply_type;
-                            }
-
-                            return $amenityData;
-                        })->toArray(),
-                    ];
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product?->depositInformations->map(function ($depositInformation) use ($hotel) {
+                $hotel->giata_code => $hotel->depositInformations->map(function ($depositInformation) use ($hotel) {
                     return array_merge(
                         $depositInformation->toArray(),
                         [
@@ -128,87 +94,21 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-        $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
-                    if (! empty($room->external_code)) {
-                        return [
-                            $room->external_code => [
-                                'description' => $room->description,
-                                'name' => $room->name,
-                            ],
-                        ];
-                    }
-
-                    return [];
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->repoTaxFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product->feeTaxes->groupBy('action_type')->map(function ($group) {
-                    return $group->mapWithKeys(function ($feeTax) {
-                        $feeTaxData = $feeTax->toArray();
-                        $feeTaxData['rate_code'] = null;
-                        if ($feeTax->rate_id !== null) {
-                            $feeTaxData['rate_code'] = $feeTax->rate->code;
-                        }
-                        $feeTaxData['unified_room_code'] = null;
-                        if ($feeTax->room_id !== null) {
-                            $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
-                        }
-
-                        return [$feeTax->id => $feeTaxData];
-                    })->toArray();
-                })->toArray(),
-            ];
-        })->toArray();
+        $unifiedRoomCodesData = MappingRoom::whereIn('giata_id', $giataIds)->get();
 
         $this->unifiedRoomCodes = [];
-        foreach ($supplierRepositoryData as $hotel) {
-            // Skip hotels that are not on sale if force_on_sale is false
-            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
-                continue;
-            }
-
-            $hbsiHotelData = $expediaHotelData = [
-                'hotel_code' => $hotel->giata_code,
-                'rooms' => [],
-            ];
-            foreach ($hotel->rooms as $room) {
-                $hbsiCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::HBSI->value;
-                })->first()['code'] ?? null;
-                $expediaCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::EXPEDIA->value;
-                })->first()['code'] ?? null;
-                if ($hbsiCode) {
-                    $hbsiHotelData['rooms'][$hbsiCode] = $room->external_code;
-                }
-                if ($expediaCode) {
-                    $expediaHotelData['rooms'][$expediaCode] = $room->external_code;
-                }
-            }
-            $this->unifiedRoomCodes[ContentSourceEnum::HBSI->value][$hotel->giata_code] = $hbsiHotelData['rooms'];
-            $this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value][$hotel->giata_code] = $expediaHotelData['rooms'];
+        foreach ($unifiedRoomCodesData as $hotel) {
+            $this->unifiedRoomCodes[$hotel->supplier][$hotel->giata_id][$hotel->supplier_room_code] = $hotel->unified_room_code;
         }
 
         return [
-            'ultimateAmenities' => $this->ultimateAmenities,
             'depositInformation' => $this->depositInformation,
-            'mapperSupplierRepository' => $this->mapperSupplierRepository,
-            'repoTaxFees' => $this->repoTaxFees,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
         ];
     }
 
     private function setPropertiesFromCache(array $cachedData): void
     {
-        $this->ultimateAmenities = $cachedData['ultimateAmenities'];
-        $this->depositInformation = $cachedData['depositInformation'];
-        $this->mapperSupplierRepository = $cachedData['mapperSupplierRepository'];
-        $this->repoTaxFees = $cachedData['repoTaxFees'];
         $this->unifiedRoomCodes = $cachedData['unifiedRoomCodes'];
     }
 
@@ -219,10 +119,7 @@ class BaseHotelPricingTransformer
         $this->checkin = Arr::get($query, 'checkin', Carbon::today()->toDateString());
         $this->checkout = Arr::get($query, 'checkout', Carbon::today()->toDateString());
 
-        $this->query = array_merge([
-            'force_on_sale' => false,
-            'force_verified' => false,
-        ], $query);
+        $this->query = $query;
 
         $cacheKey = 'pricing_data_'.md5(json_encode([$giataIds, $search_id]));
 

@@ -455,11 +455,9 @@ class RoomResponse extends BaseResponse
     public function toArray(): array
     {
         return [
-            'amenities' => $this->getAmenities(),
-            'capacity' => $this->getCapacity(),
             'unified_room_code' => $this->getUnifiedRoomCode(),
-            'giata_room_code' => $this->getGiataRoomCode(),
-            'giata_room_name' => $this->getGiataRoomName(),
+//            'giata_room_code' => $this->getGiataRoomCode(),
+//            'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
             'supplier_room_id' => $this->getSupplierRoomCode(),
@@ -468,6 +466,8 @@ class RoomResponse extends BaseResponse
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'room_description' => $this->getRoomDescription(),
+            'amenities' => $this->getAmenities(),
+            'capacity' => $this->getCapacity(),
             'rate_id' => $this->getRateId(),
             'rate_plan_code' => $this->getRatePlanCode() ?? '',
             'rate_name' => $this->getRateName(),

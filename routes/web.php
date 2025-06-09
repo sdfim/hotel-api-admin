@@ -43,19 +43,6 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
-use Modules\HotelContentRepository\Http\Controllers\ActivityController;
-use Modules\HotelContentRepository\Http\Controllers\HotelController;
-use Modules\HotelContentRepository\Http\Controllers\HotelRateController;
-use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
-use Modules\HotelContentRepository\Http\Controllers\ImageController;
-use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
-use Modules\HotelContentRepository\Http\Controllers\PdGridController;
-use Modules\HotelContentRepository\Http\Controllers\ProductController;
-use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
-use Modules\HotelContentRepository\Http\Controllers\VendorController;
-use Modules\Insurance\Http\Controllers\InsuranceDocumentationsController;
-use Modules\Insurance\Http\Controllers\InsurancePlansController;
-use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,20 +124,6 @@ Route::prefix('admin')->group(function () {
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
-        Route::resource('hotel-repository', HotelController::class);
-        Route::resource('product-repository', ProductController::class);
-        Route::resource('vendor-repository', VendorController::class);
-        Route::resource('hotel-rooms', HotelRoomController::class)->only(['index']);
-        Route::resource('hotel-rates', HotelRateController::class);
-        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
-
-        Route::resource('pd-grid', PdGridController::class)->only(['index']);
-
-        Route::resource('/insurance-providers-documentation', InsuranceDocumentationsController::class)->only(['index']);
-        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index']);
-        Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index']);
-        Route::resource('/insurance-plans', InsurancePlansController::class)->only(['index']);
-
         Route::prefix('configurations')->name('configurations.')->group(function () {
             Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
             Route::resource('attribute-categories', ConfigAttributeCategoryController::class)->only(['index', 'create', 'edit']);
@@ -166,9 +139,6 @@ Route::prefix('admin')->group(function () {
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
             Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
         });
-
-        Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);
-        Route::resource('images', ImageController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

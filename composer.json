@@ -52,7 +52,6 @@
 		"psr-4": {
 			"App\\": "app/",
 			"Modules\\": "Modules/",
-			"Modules\\HotelContentRepository\\Models\\Factories\\": "Modules/HotelContentRepository/Models/Factories/",
 			"Database\\Factories\\": "database/factories/",
 			"Database\\Seeders\\": "database/seeders/"
 		}

@@ -4,11 +4,8 @@ use App\Http\Controllers\DummyHealthController;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\Channels\routes\ChannelsApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
-use Modules\API\ContentRepositoryAPI\routes\ContentRepositoryApiRoutes;
-use Modules\API\ContentRepositoryAPI\routes\InformativeServicesApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\Report\routes\ReportApiRoutes;
-use Modules\Insurance\routes\InsuranceApiRoutes;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,9 +26,5 @@ PricingApiRoutes::routes();
 BookingApiRoutes::routes();
 
 ReportApiRoutes::routes();
-
-ContentRepositoryApiRoutes::routes();
-
-InsuranceApiRoutes::routes();
 
 ChannelsApiRoutes::routes();

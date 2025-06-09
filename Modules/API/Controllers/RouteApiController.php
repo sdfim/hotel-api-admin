@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
-use Modules\API\Controllers\ApiHandlers\HotelApiHandlerV1;
 use Modules\API\Requests\DetailHotelRequest;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
@@ -22,7 +21,6 @@ class RouteApiController extends Controller
         private HotelApiHandler $hotelApiHandler,
         private FlightApiHandler $flightApiHandler,
         private ComboApiHandler $comboApiHandler,
-        private HotelApiHandlerV1 $hotelApiHandlerV1,
     ) {}
 
     /**
@@ -51,7 +49,6 @@ class RouteApiController extends Controller
         $routeVersion = str_contains($route, 'v1') ? 'v1' : 'v0';
 
         $handler = match ([TypeEnum::from($type), $routeVersion]) {
-            [TypeEnum::HOTEL, 'v1'] => $this->hotelApiHandlerV1,
             [TypeEnum::HOTEL, 'v0'] => $this->hotelApiHandler,
             [TypeEnum::FLIGHT, 'v0'] => $this->flightApiHandler,
             [TypeEnum::COMBO, 'v0'] => $this->comboApiHandler,
