@@ -247,7 +247,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     {
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
-        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+        $roomName = $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '';
         // exclude room types and names from the response according to excludeRules
         if (in_array($roomType, $this->exclusionRoomTypes) || in_array($roomName, $this->exclusionRoomNames)) {
             return [];
@@ -399,7 +399,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
             : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
-        $roomDescription = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.description", $roomDescription);
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setPenaltyDate($penaltyDate);
@@ -423,25 +422,9 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($ratePlanCode);
 
-        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
-            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
-        ))->filter(function ($amenity) use ($unifiedRoomCode) {
-            return (empty($amenity['drivers']) || in_array(SupplierNameEnum::HBSI->value, $amenity['drivers'], true))
-                && (empty($amenity['priority_rooms']) || in_array($unifiedRoomCode, $amenity['priority_rooms'], true));
-        })->map(function ($amenity) {
-            unset($amenity['drivers']);
-            unset($amenity['priority_rooms']);
-
-            return $amenity;
-        })->toArray();
-        $roomUltimateAmenities = array_values($roomUltimateAmenities);
-        $feesUltimateAmenities = $this->ultimateAmenityResolver->getFeesUltimateAmenities(
-            $roomUltimateAmenities, $numberOfPassengers, $this->checkin, $this->checkout);
-        $totalFeesUltimateAmenities = $this->ultimateAmenityResolver->getTotalFeesAmount($feesUltimateAmenities) ?? 0.0;
-
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
-        $roomResponse->setTotalFees($pricingRulesApplier['total_fees'] + $totalFeesUltimateAmenities);
+        $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
@@ -462,15 +445,12 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             $this->meal_plans_available[] = $mealPlanName;
         }
 
-        $roomResponse->setAmenities($roomUltimateAmenities);
-
         if (config('supplier-repository.use_repo_tax_fees')) {
             $breakdown = $this->taxAndFeeResolver->getTransformedBreakdown($rateToApply['transformedRates'], $this->fees);
         } else {
             $breakdown = $this->getBreakdown($rateToApply);
         }
 
-        $breakdown['fees'] = array_merge($breakdown['fees'], array_values($feesUltimateAmenities));
         $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
