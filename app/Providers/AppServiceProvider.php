@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/admin/vendor-repository';
+    public const HOME = '/admin/properties';
 
     /**
      * Register any application services.

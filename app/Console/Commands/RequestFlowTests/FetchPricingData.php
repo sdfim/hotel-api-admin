@@ -23,6 +23,27 @@ class FetchPricingData extends Command
         $giata_id = $this->argument('giata_id') ?? 21569211;
         $giata_id = is_numeric($giata_id) ? (int) $giata_id : $giata_id;
 
+        // Expedia
+        $expediaRooms = ExpediaContentSlave::whereHas('mapperGiataExpedia', function ($query) use ($giata_id) {
+            $query->where('giata_id', $giata_id);
+        })
+            ->get()
+            ->pluck('rooms')
+            ->toArray();
+
+        $expediaRoomsData = [];
+        foreach ($expediaRooms[0] as $index => $room) {
+            $expediaRoomsData[] = [
+                $room['name'] => $index,
+            ];
+        }
+
+        if (empty($expediaRoomsData)) {
+            $this->error('No content supplier data found. Terminating execution.');
+
+            return 1; // Exit the command with an error code
+        }
+
         $requestData = [
             'type' => 'hotel',
             'rating' => 2,
@@ -46,8 +67,6 @@ class FetchPricingData extends Command
             return 1;
         }
 
-        $roomsFound = 0;
-
         $responseData = $response->json();
 
         $roomGroups = Arr::get($responseData, 'data.results.0.room_groups', []);
@@ -59,16 +78,16 @@ class FetchPricingData extends Command
                 foreach ($roomGroup['rooms'] as $room) {
                     if (isset($room['supplier_room_name']) && isset($room['room_type'])) {
                         $dataPricingSupplier[] = [
-                            $room['supplier_room_name'] => 'URC-'.$room['room_type'],
+                            $room['supplier_room_name'] => 'URC-'.$giata_id.'-'.$room['room_type'],
                         ];
                     }
                     try {
                         MappingRoom::updateOrCreate(
                             [
-                                'giata_id' => $requestData['giata_ids'][0] ?? null,
+                                'giata_id' => $giata_id,
                                 'supplier' => $requestData['supplier'] ?? '',
                                 'supplier_room_code' => $room['room_type'] ?? '',
-                                'unified_room_code' => 'URC-'.$room['room_type'] ?? '',
+                                'unified_room_code' => 'URC-'.$giata_id.'-'.$room['room_type'] ?? '',
                             ],
                             [
                                 'supplier_room_name' => $room['supplier_room_name'] ?? '',
@@ -87,73 +106,102 @@ class FetchPricingData extends Command
                         continue;
                     }
 
-                    $roomsFound++;
                     logger()->info('Room saved: ', [
                         'giata_id' => $giata_id,
                         'supplier' => $requestData['supplier'] ?? '',
                         'supplier_room_code' => $room['room_type'] ?? '',
-                        'unified_room_code' => 'URC-'.$room['room_type'] ?? '',
+                        'unified_room_code' => 'URC-'.$giata_id.'-'.$room['room_type'] ?? '',
                     ]);
                 }
             }
         }
 
-        // Expedia
-        $expediaRooms = ExpediaContentSlave::whereHas('mapperGiataExpedia', function ($query) use ($giata_id) {
-            $query->where('giata_id', $giata_id);
-        })
-            ->get()
-            ->pluck('rooms')
-            ->toArray();
-
-        $expediaRoomsData = [];
-        foreach ($expediaRooms[0] as $index => $room) {
-            $expediaRoomsData[] = [
-                $room['name'] => $index,
-            ];
-        }
+        $dataPricingSupplier = array_values($dataPricingSupplier);
+        $roomsFound = count($dataPricingSupplier);
 
         $responseOpenAI = OpenAI::chat()->create([
-            'model' => 'gpt-4',
+            //            'model' => 'gpt-4',
+            'model' => 'gpt-4.1-mini',
+            //            'model' => 'gpt-3.5-turbo',
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'Ты помощник-программист. Твоя задача — семантически сопоставить названия из двух массивов.',
+                    'content' => 'You are a programming assistant. Your task is to semantically match names from two arrays.',
                 ],
                 [
                     'role' => 'user',
                     'content' => <<<EOT
-У тебя есть два массива.
+You have two arrays.
 
-Первый:
+First:
 [
     {$this->formatArrayForPrompt($dataPricingSupplier)}
 ]
 
-Второй:
+Second:
 [
     {$this->formatArrayForPrompt($expediaRoomsData)}
 ]
 
-Найди семантические совпадения между названиями из второго массива и названиями из первого.
+Find semantic matches between names from the second array and names from the first array.
 
-Верни массив, где:
-- ключи — названия из второго массива
-- значения — соответствующие коды из первого массива
+Return an array where:
+- keys are names from the second array
+- values are corresponding codes from the first array
 
-Включай только те, для которых есть очевидное совпадение. Вернуть нужно только массив, без дополнительного текста.
+Include only those with obvious matches. Return only the array as a valid JSON object, not an array of objects.
+The format should be a single JSON object like this:
+{
+  "Room name 1": "CODE1",
+  "Room name 2": "CODE2"
+}
+Do not return an array of objects like [{"key": "value"}, {"key2": "value2"}].
 EOT
                 ],
             ],
         ]);
 
         $matches = $responseOpenAI['choices'][0]['message']['content'];
-        $parsed = json_decode($matches, true);
+
+        $parsed = json_decode($matches, true) ?? [];
         $flattened = [];
-        foreach ($parsed as $item) {
-            $flattened += $item;
+
+        logger()->info('OpenAI response: ', [
+            'matches' => $matches,
+            'parsed' => $parsed,
+            'response' => $responseOpenAI,
+            'giata_id' => $giata_id,
+            'expediaRoomsData' => $expediaRoomsData,
+            'dataPricingSupplier' => $dataPricingSupplier,
+        ]);
+
+        // Handle different response formats
+        if (is_array($parsed)) {
+            // If we have a non-empty array and the first element is not an array,
+            // it's already a flattened associative array with key-value pairs
+            $firstValue = reset($parsed);
+            $firstKey = key($parsed);
+
+            if (! empty($parsed) && is_string($firstKey) && is_string($firstValue)) {
+                // Response is already a flat associative array, use it directly
+                $flattened = $parsed;
+            } else {
+                // Handle array of objects format [{"key": "value"}, {"key2": "value2"}]
+                foreach ($parsed as $item) {
+                    if (is_array($item)) {
+                        $flattened += $item;
+                    }
+                }
+            }
+        } else {
+            $this->error('Invalid response format from OpenAI API');
+            logger()->error('Invalid response format from OpenAI API', [
+                'matches' => $matches,
+                'parsed' => $parsed,
+            ]);
         }
 
+        $countSave = 0;
         foreach ($expediaRoomsData as $room) {
             if (isset($flattened[key($room)])) {
                 $unifiedRoomCode = $flattened[key($room)];
@@ -169,6 +217,7 @@ EOT
                         'match_percentage' => 90,
                     ]
                 );
+                $countSave++;
             }
         }
 
