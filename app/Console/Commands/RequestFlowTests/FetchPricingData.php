@@ -17,8 +17,8 @@ class FetchPricingData extends Command
 
     public function handle()
     {
-        $checkin = now()->addDays(60)->format('Y-m-d');
-        $checkout = now()->addDays(61)->format('Y-m-d');
+        $checkin = now()->addDays(70)->format('Y-m-d');
+        $checkout = now()->addDays(71)->format('Y-m-d');
 
         $giata_id = $this->argument('giata_id') ?? 21569211;
         $giata_id = is_numeric($giata_id) ? (int) $giata_id : $giata_id;
@@ -78,7 +78,7 @@ class FetchPricingData extends Command
                 foreach ($roomGroup['rooms'] as $room) {
                     if (isset($room['supplier_room_name']) && isset($room['room_type'])) {
                         $dataPricingSupplier[] = [
-                            $room['supplier_room_name'] => 'URC-'.$giata_id.'-'.$room['room_type'],
+                            $room['supplier_room_name'] => 'IBS-'.$giata_id.'-'.$room['room_type'],
                         ];
                     }
                     try {
@@ -87,7 +87,7 @@ class FetchPricingData extends Command
                                 'giata_id' => $giata_id,
                                 'supplier' => $requestData['supplier'] ?? '',
                                 'supplier_room_code' => $room['room_type'] ?? '',
-                                'unified_room_code' => 'URC-'.$giata_id.'-'.$room['room_type'] ?? '',
+                                'unified_room_code' => 'IBS-'.$giata_id.'-'.$room['room_type'] ?? '',
                             ],
                             [
                                 'supplier_room_name' => $room['supplier_room_name'] ?? '',
@@ -110,7 +110,7 @@ class FetchPricingData extends Command
                         'giata_id' => $giata_id,
                         'supplier' => $requestData['supplier'] ?? '',
                         'supplier_room_code' => $room['room_type'] ?? '',
-                        'unified_room_code' => 'URC-'.$giata_id.'-'.$room['room_type'] ?? '',
+                        'unified_room_code' => 'IBS-'.$giata_id.'-'.$room['room_type'] ?? '',
                     ]);
                 }
             }
@@ -144,6 +144,15 @@ Second:
 ]
 
 Find semantic matches between names from the second array and names from the first array.
+Names may have slight differences in wording but refer to the same concept. Consider the following when matching:
+Words like “Suite” can be optional and may be missing in one of the arrays.
+Word order may differ (e.g., "Master Ocean Front" vs "Ocean Front Master").
+Matching should be based on meaning, not exact wording.
+Synonyms or near-synonyms (e.g., "View" vs "Vista", if applicable) can be treated as equal.
+Ignore extra descriptive words that do not change the core meaning.
+Examples:
+"Master Suite Ocean Front" matches "Master Ocean Front"
+"Master Suite Ocean View" matches "Master Ocean View"
 
 Return an array where:
 - keys are names from the second array
@@ -162,6 +171,11 @@ EOT
         ]);
 
         $matches = $responseOpenAI['choices'][0]['message']['content'];
+
+        // Extract JSON content if wrapped in markdown code blocks
+        if (preg_match('/```(?:json)?\s*([\s\S]*?)```/m', $matches, $extractedJson)) {
+            $matches = $extractedJson[1];
+        }
 
         $parsed = json_decode($matches, true) ?? [];
         $flattened = [];
