@@ -65,7 +65,7 @@ Route::fallback(function () {
 });
 
 Route::get('/admin/', fn () => Auth::check()
-    ? redirect()->route('vendor-repository.index')
+    ? redirect()->route('properties.index')
     : redirect()->route('login')
 )->name('root');
 
