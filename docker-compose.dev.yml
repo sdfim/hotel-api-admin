@@ -13,7 +13,7 @@ services:
       php.opcache.enable_cli: 1
       php.variables_order: EGPCS
       SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
-      PHP_IDE_CONFIG: 'serverName=ujv.loc'
+      PHP_IDE_CONFIG: 'serverName=fora.loc'
       XDEBUG_MODE: develop,debug,coverage
       XDEBUG_START_WITH_REQUEST: yes
       XDEBUG_CLIENT_HOST: docker.for.mac.localhost
@@ -30,7 +30,7 @@ services:
     volumes:
       - ./:/app
     networks:
-      - ujv-network
+      - fora-network
     depends_on:
       - mysql
       - redis
@@ -53,7 +53,7 @@ services:
     volumes:
       - 'booking-engine-mysql:/var/lib/mysql'
     networks:
-      - ujv-network
+      - fora-network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-pmysqlpasswdroot" ]
       retries: 3
@@ -66,7 +66,7 @@ services:
     ports:
       - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
-      - ujv-network
+      - fora-network
     volumes:
       - 'booking-engine-redis:/data'
     healthcheck:
@@ -75,7 +75,7 @@ services:
       timeout: 5s
 
 networks:
-  ujv-network:
+  fora-network:
     driver: bridge
 
 volumes:

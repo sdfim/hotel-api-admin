@@ -305,12 +305,6 @@
                                                 Main Documentation
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class() }}">
-                                                Supplier Repository
-                                            </a>
-                                        </li>
                                     </ul>
                                 </li>
                             @endcan

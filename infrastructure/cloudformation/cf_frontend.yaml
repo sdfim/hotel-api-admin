@@ -3,7 +3,7 @@ Conditions:
   IsFirstFrontend: !Equals
     - !Ref 'FirstFrontendDeploy'
     - 'true'
-Description: Cloudformation template to create ujv resources
+Description: Cloudformation template to create TerraMare resources
 Outputs:
   CloudfrontUrl:
     Description: Cloudfront URL

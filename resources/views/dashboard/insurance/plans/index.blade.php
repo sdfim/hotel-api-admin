@@ -41,7 +41,6 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Admin</a></li>
-                {{--                        <li class="breadcrumb-item"><a href="{{ route('supplier-repository.index') }}">Supplier Repository</a></li>--}}
                 <li class="breadcrumb-item"><a href="{{ route('insurance-plans.index') }}">Insurance</a></li>
             </ol>
         </nav>

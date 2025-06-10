@@ -7,8 +7,8 @@ cf_backend.yaml - this is the template that creates all needed resources and ser
     GitHubBackendBranch - Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     DockerHubUsername - DockerHub username for pulling base images
     DockerHubPassword - DockerHub password for pulling base images
-    GhConnectionArn - ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html), it should be created manually before deploying the template. 
- 
+    GhConnectionArn - ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html), it should be created manually before deploying the template.
+
  cf_frontend.yaml - this is a template that creates frontend resources. It can be run in two ways ("modes"):
      1. A first deployment of the frontend in the current namespace (APPNAME). Along with Cloudfront other required resources are also created, these resources are used by all subsequent cloudfront distributions. In this "mode" template you should provide such parameters:
          APPNAME - the same value for all 3 templates in an application or application environment
@@ -23,20 +23,20 @@ cf_backend.yaml - this is the template that creates all needed resources and ser
 Please notice, by default the only cloudfront distribution that is being invalidated automatically (on code change in repository) is the one created in the first frontend deployment. To add others just go to CodeBuild and add a command(s) in the end of Buildspec:
     aws cloudfront create-invalidation --distribution-id <Cloudfront Distribution ID> --paths "/*"
 
-   
-All templates should be deployed with exact the same parameter APPNAME. Please wait around 3-5 minutes before running the main templates after the deployment of the template cf_helper_initial.yaml is finished. 
+
+All templates should be deployed with exact the same parameter APPNAME. Please wait around 3-5 minutes before running the main templates after the deployment of the template cf_helper_initial.yaml is finished.
 
 
 Example of usage:
 
 # Deploy only once before running other templates.
-aws --region us-east-2 cloudformation deploy --template-file cf_helper_initial.yaml --stack-name ujv-stage-initial-helper --parameter-overrides APPNAME=ujv-stage --capabilities CAPABILITY_NAMED_IAM
+aws --region us-east-1 cloudformation deploy --template-file cf_helper_initial.yaml --stack-name fora-stage-initial-helper --parameter-overrides APPNAME=fora-stage --capabilities CAPABILITY_NAMED_IAM
 
 # Deploy a backend
-aws --region us-east-2 cloudformation deploy --template-file cf_backend.yaml --s3-bucket ujv-stage-cf-template --stack-name ujv-backend-stage --parameter-overrides APPNAME=ujv-stage GitHubBackendRepo=example-gh-user/ujv-api GitHubBackendBranch=dev DockerHubUsername=dh-username DockerHubPassword=dh-password GhConnectionArn=arn:aws:codestar-connections:us-east-2:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a --capabilities CAPABILITY_NAMED_IAM
+aws --region us-east-1 cloudformation deploy --template-file cf_backend.yaml --s3-bucket fora-stage-cf-template --stack-name fora-backend-stage --parameter-overrides APPNAME=fora-stage GitHubBackendRepo=example-gh-user/fora-api GitHubBackendBranch=dev DockerHubUsername=dh-username DockerHubPassword=dh-password GhConnectionArn=arn:aws:codestar-connections:us-east-1:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a --capabilities CAPABILITY_NAMED_IAM
 
 # First deployment of a frontend
-aws --region us-east-2 cloudformation deploy --template-file cf_frontend.yaml --stack-name ujv-frontend-stage --parameter-overrides APPNAME=ujv-stage GitHubFrontendRepo=example-gh-user/ujv-frontend GitHubFrontendBranch=main GhConnectionArn=arn:aws:codestar-connections:us-east-2:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a BackendStackName=ujv-backend-stage FirstFrontendDeploy=true --capabilities CAPABILITY_NAMED_IAM
+aws --region us-east-1 cloudformation deploy --template-file cf_frontend.yaml --stack-name fora-frontend-stage --parameter-overrides APPNAME=fora-stage GitHubFrontendRepo=example-gh-user/fora-frontend GitHubFrontendBranch=main GhConnectionArn=arn:aws:codestar-connections:us-east-1:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a BackendStackName=fora-backend-stage FirstFrontendDeploy=true --capabilities CAPABILITY_NAMED_IAM
 
 # The second frontend deployment. It will deploy only Cloudfront distribution, all other needed resources were deployed in a previous (first) deployment of the frontend.
-aws --region us-east-2 cloudformation deploy --template-file cf_frontend.yaml --stack-name ujv-frontend2-stage --parameter-overrides APPNAME=ujv-stage BackendStackName=ujv-backend-stage
+aws --region us-east-1 cloudformation deploy --template-file cf_frontend.yaml --stack-name fora-frontend2-stage --parameter-overrides APPNAME=fora-stage BackendStackName=fora-backend-stage

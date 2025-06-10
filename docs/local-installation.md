@@ -42,7 +42,7 @@ php artisan download-giata-data
 * At this point everything should up & running.
   * Head to https://obe.travelagentadmin.test/admin
     * You should be automatically presented with the login page. Default credentials:
-      * Username: `admin@ujv.com`
+      * Username: `admin@terramare.com`
       * Password: `C5EV0gEU9OnlS5r`
       * Password: `C5EV0gEU9OnlS5r`
       * See [UsersSeeder.php](../database/seeders/UserSeeder.php)

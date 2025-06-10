@@ -323,21 +323,21 @@ The provided sample should be used when running tests with `RDS` database in the
 DB_CONNECTION=mysql
 DB_HOST=host.docker.internal
 DB_PORT=3306
-DB_DATABASE=ujv_test
+DB_DATABASE=fora_test
 DB_USERNAME=admin
 DB_PASSWORD=mysqlsecretpasswd
 
 SUPPLIER_CONTENT_DB_CONNECTION=mysql_cache
-SUPPLIER_CONTENT_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
+SUPPLIER_CONTENT_DB_HOST=fora-rds-db.************.us-east-1.rds.amazonaws.com
 SUPPLIER_CONTENT_DB_PORT=3306
-SUPPLIER_CONTENT_DB_DATABASE=ujv_api
+SUPPLIER_CONTENT_DB_DATABASE=fora_api
 SUPPLIER_CONTENT_DB_USERNAME=admin
 SUPPLIER_CONTENT_DB_PASSWORD=rds-password
 
 #SUPPLIER_CONTENT_DB_CONNECTION=mysql_cache
 #SUPPLIER_CONTENT_DB_HOST=host.docker.internal
 #SUPPLIER_CONTENT_DB_PORT=3306
-#SUPPLIER_CONTENT_DB_DATABASE=ujv_aws_test
+#SUPPLIER_CONTENT_DB_DATABASE=fora_aws_test
 #SUPPLIER_CONTENT_DB_USERNAME=admin
 #SUPPLIER_CONTENT_DB_PASSWORD=mysqlsecretpasswd
 ```
@@ -349,21 +349,21 @@ database in the second database connection:
 DB_CONNECTION=mysql
 DB_HOST=host.docker.internal
 DB_PORT=3306
-DB_DATABASE=ujv_test
+DB_DATABASE=fora_test
 DB_USERNAME=admin
 DB_PASSWORD=mysqlsecretpasswd
 
 #SUPPLIER_CONTENT_DB_CONNECTION=mysql_cache
-#SUPPLIER_CONTENT_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
+#SUPPLIER_CONTENT_DB_HOST=fora-rds-db.************.us-east-1.rds.amazonaws.com
 #SUPPLIER_CONTENT_DB_PORT=3306
-#SUPPLIER_CONTENT_DB_DATABASE=ujv_api
+#SUPPLIER_CONTENT_DB_DATABASE=fora_api
 #SUPPLIER_CONTENT_DB_USERNAME=admin
 #SUPPLIER_CONTENT_DB_PASSWORD=rds-password
 
 SUPPLIER_CONTENT_DB_CONNECTION=mysql_cache
 SUPPLIER_CONTENT_DB_HOST=host.docker.internal
 SUPPLIER_CONTENT_DB_PORT=3306
-SUPPLIER_CONTENT_DB_DATABASE=ujv_aws_test
+SUPPLIER_CONTENT_DB_DATABASE=fora_aws_test
 SUPPLIER_CONTENT_DB_USERNAME=admin
 SUPPLIER_CONTENT_DB_PASSWORD=mysqlsecretpasswd
 ```

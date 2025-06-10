@@ -10,7 +10,7 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_DATABASE: ujv
+      DB_DATABASE: fora
       DB_USERNAME: admin
       DB_PASSWORD: mysqlsecretpasswd
       REDIS_HOST: redis
@@ -35,7 +35,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: ujv
+      MYSQL_DATABASE: fora
       MYSQL_USER: admin
       MYSQL_PASSWORD: mysqlsecretpasswd
       MYSQL_ROOT_PASSWORD: mysqlpasswdroot

@@ -5,7 +5,7 @@ services:
     image: ankane/pgvector
     container_name: postgres_db
     environment:
-      POSTGRES_DB: ujv_api
+      POSTGRES_DB: fora_api
       POSTGRES_USER: user
       POSTGRES_PASSWORD: usersecret
     volumes:

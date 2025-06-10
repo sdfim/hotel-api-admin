@@ -36,11 +36,6 @@ class Channel extends Authenticatable
         return $this->belongsTo(Sanctum::$personalAccessTokenModel);
     }
 
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'pd_product_channel');
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
