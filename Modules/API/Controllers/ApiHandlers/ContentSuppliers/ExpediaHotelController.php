@@ -118,11 +118,6 @@ class ExpediaHotelController implements SupplierControllerInterface
             $totalPages = ceil($count / $resultsPerPage);
 
             $results = $queryBuilder->cursor();
-            /*
-            $results = $queryBuilder->offset($resultsPerPage * ($page - 1))
-                ->limit($resultsPerPage)
-                ->cursor();
-                */
             $ids = collect($results)->pluck('property_id')->toArray();
 
             $results = ExpediaRepository::dtoDbToResponse($results, $fields);
@@ -212,27 +207,13 @@ class ExpediaHotelController implements SupplierControllerInterface
 
     public function detail(Request $request): object
     {
-        /*
-        $expedia_id = MapperExpediaGiata::where('giata_id', $request->get('property_id'))
-            ->select('expedia_id')
-            ->first()?->expedia_id;
-
-        // Detail request example
-        if ($expedia_id !== null)
-        {
-            $response = (new RapidClient())->get("v3/properties/content", [
-                'property_id' => $expedia_id,
-                'language' => 'en-US',
-                'supply_source' => 'expedia',
-            ]);
-
-            \Log::debug('### DETAIL RESPONSE ### ');
-            $content = json_decode($response->getBody()->getContents(), true);
-
-            \Log::debug(json_encode($content));
+        if ($request->has('property_ids')) {
+            $propertyIds = explode(',', $request->get('property_ids'));
+        } else {
+            $propertyIds = [$request->get('property_id')];
         }
-        */
-        $results = ExpediaRepository::getDetailByGiataId($request->get('property_id'));
+
+        $results = ExpediaRepository::getDetailByGiataIds($propertyIds);
 
         return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());
     }

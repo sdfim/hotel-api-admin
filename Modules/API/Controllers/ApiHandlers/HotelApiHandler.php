@@ -7,6 +7,7 @@ use App\Jobs\SaveSearchInspectorByCacheKey;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository;
+use App\Services\SupplierInterface;
 use App\Traits\Timer;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -186,64 +187,31 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
         try {
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
-            $roomTypeCodes = $request->input('room_type_codes') ?? [];
             $keyDetail = $request->type.':contentDetail:'.http_build_query(Arr::dot($request->all()));
 
             if (Cache::has($keyDetail.':dataResponse') && Cache::has($keyDetail.':clientResponse')) {
-                $dataResponse = Cache::get($keyDetail.':dataResponse');
                 $clientResponse = Cache::get($keyDetail.':clientResponse');
             } else {
-                $dataResponse = [];
                 $clientResponse = [];
+                $giataCodes = $request->input('property_ids')
+                    ? explode(',', $request->input('property_ids'))
+                    : ($request->input('property_id') ? [$request->input('property_id')] : []);
                 foreach ($supplierNames as $supplierName) {
                     if (isset($request->supplier) && $request->supplier != $supplierName) {
                         continue;
                     }
-                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
-                        $data = $this->expedia->detail($request);
-                        $dataResponse[$supplierName] = $data;
-                        $dataForTransformer = [];
-                        if ($data->first() !== null) {
-                            $dataForTransformer = json_decode(json_encode($data->first()->toArray()), true);
-                        }
-                        $clientResponse[$supplierName] = count($dataForTransformer) > 0
-                            ? $this->expediaHotelContentDetailTransformer->ExpediaToContentDetailResponse($dataForTransformer, $request->input('property_id'))
-                            : [];
-                    }
-                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
-                        $data = $this->icePortal->detail($request);
-                        $dataResponse[$supplierName] = $data;
-                        $clientResponse[$supplierName] = count($data) > 0
-                            ? $this->hbsiHotelContentDetailTransformer->HbsiToContentDetailResponse((object) $data, $request->input('property_id'), $roomTypeCodes)
-                            : [];
-                    }
-                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HILTON) {
-                        $data = $this->hiltonHotel->detail($request);
-                        $dataResponse[$supplierName] = $data;
-                        $clientResponse[$supplierName] = count($data) > 0
-                            ? $this->hiltonHotelContentDetailTransformer->HiltonToContentDetailResponse((object) $data->first(), $request->input('property_id'))
-                            : [];
-                    }
+
+                    $supplierService = app(SupplierInterface::class, ['supplier' => $supplierName]);
+                    $clientResponse[$supplierName] = $supplierService->getResults($giataCodes);
                 }
 
-                Cache::put($keyDetail.':dataResponse', $dataResponse, now()->addMinutes(self::TTL));
                 Cache::put($keyDetail.':clientResponse', $clientResponse, now()->addMinutes(self::TTL));
             }
 
-            if ($request->input('supplier_data') == 'true') {
-                $results = $dataResponse;
-            } else {
-                $results = $clientResponse;
-            }
+            $results = $clientResponse;
 
-            if (count($supplierNames) > 1) {
-                $contentSupplier = $request->supplier ?? 'Expedia';
-                $results['general'] = $results[$contentSupplier] ?? [];
-            } else {
-                $results['general'] = $results[$supplierNames[0]] ?? [];
-                unset($results[$supplierNames[0]]);
-                $contentSupplier = $supplierNames[0];
-            }
+            $contentSupplier = $request->supplier ?? SupplierNameEnum::EXPEDIA->value;
+            $results = $results[$contentSupplier] ?? [];
 
             $end = microtime(true);
             $executionTime = ($end - $start) * 1000;

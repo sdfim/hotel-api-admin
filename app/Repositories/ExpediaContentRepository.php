@@ -77,19 +77,19 @@ class ExpediaContentRepository
     /**
      * @return mixed
      */
-    public static function getDetailByGiataId($giata_id): object
+    public static function getDetailByGiataIds(array $giata_ids)
     {
         $mainDB = config('database.connections.mysql.database');
 
         return ExpediaContent::leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-            ->where('property_id', function ($query) use ($giata_id, $mainDB) {
+            ->whereIn('property_id', function ($query) use ($giata_ids, $mainDB) {
                 $query->from($mainDB.'.mappings')
                     ->leftJoin('properties', $mainDB.'.mappings.giata_id', '=', 'properties.code')
                     ->select($mainDB.'.mappings.supplier_id')
-                    ->where($mainDB.'.mappings.giata_id', $giata_id)
-                    ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value)
-                    ->limit(1);
-            })->get();
+                    ->whereIn($mainDB.'.mappings.giata_id', $giata_ids)
+                    ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value);
+            })
+            ->get();
     }
 
     public static function getHotelNameByHotelId(int $hotel_id): string

@@ -46,18 +46,16 @@ class RouteApiController extends Controller
 
         $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
-        $routeVersion = str_contains($route, 'v1') ? 'v1' : 'v0';
-
-        $handler = match ([TypeEnum::from($type), $routeVersion]) {
-            [TypeEnum::HOTEL, 'v0'] => $this->hotelApiHandler,
-            [TypeEnum::FLIGHT, 'v0'] => $this->flightApiHandler,
-            [TypeEnum::COMBO, 'v0'] => $this->comboApiHandler,
+        $handler = match (TypeEnum::from($type)) {
+            TypeEnum::HOTEL => $this->hotelApiHandler,
+            TypeEnum::FLIGHT => $this->flightApiHandler,
+            TypeEnum::COMBO => $this->comboApiHandler,
         };
 
         return match (RouteEnum::from($route)) {
-            RouteEnum::ROUTE_SEARCH, RouteEnum::ROUTE_SEARCH_V1 => $handler->search($this->searchRequest($type)),
-            RouteEnum::ROUTE_DETAIL, RouteEnum::ROUTE_DETAIL_V1 => $handler->detail($this->detailRequest($type)),
-            RouteEnum::ROUTE_PRICE, RouteEnum::ROUTE_PRICE_V1 => $handler->price($this->priceRequest($type), $suppliersIds),
+            RouteEnum::ROUTE_SEARCH => $handler->search($this->searchRequest($type)),
+            RouteEnum::ROUTE_DETAIL => $handler->detail($this->detailRequest($type)),
+            RouteEnum::ROUTE_PRICE => $handler->price($this->priceRequest($type), $suppliersIds),
         };
     }
 
