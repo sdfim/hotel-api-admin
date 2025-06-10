@@ -35,10 +35,6 @@ use Symfony\Component\HttpFoundation\StreamedJsonResponse;
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
  * @OA\Tag(
- *       name="Booking API | Insurance and Informational Services",
- *       description="API Endpoints for Insurance and Informational Services"
- *  ),
- * @OA\Tag(
  *   name="Booking API | Booking",
  *   description="API Endpoints of Booking (reservation)"
  * ),

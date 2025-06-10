@@ -19,27 +19,6 @@ return [
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
                 'annotations' => [
                     base_path('Modules/API'),
-                    base_path('Modules/Addons/API'),
-                    base_path('Modules/Insurance/API'),
-                ],
-            ],
-        ],
-        'content_repository' => [
-            'api' => [
-                'title' => 'Content Repository API',
-            ],
-            'routes' => [
-                'api' => 'admin/api/doc-content-repository',
-                'docs' => 'docs-cr',
-                'oauth2_callback' => 'sr/oauth2-callback',
-            ],
-            'paths' => [
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
-                'docs_json' => 'api-docs-cr.json',
-                'docs_yaml' => 'api-docs-cr.yaml',
-                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
-                'annotations' => [
-                    base_path('Modules/HotelContentRepository/API'),
                 ],
             ],
         ],
