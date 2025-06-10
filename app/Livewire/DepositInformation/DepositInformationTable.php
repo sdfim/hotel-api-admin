@@ -22,12 +22,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Modules\HotelContentRepository\Livewire\HasProductActions;
 
 class DepositInformationTable extends Component implements HasForms, HasTable
 {
     use DepositFieldTrait;
-    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
 
