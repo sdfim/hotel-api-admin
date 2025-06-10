@@ -92,8 +92,6 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-        dd($this->depositInformation);
-
         $unifiedRoomCodesData = MappingRoom::whereIn('giata_id', $giataIds)->get();
 
         $this->unifiedRoomCodes = [];
