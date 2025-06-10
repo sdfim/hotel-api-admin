@@ -80,19 +80,19 @@ class BaseHotelPricingTransformer
         // Fetch and process data
         $depositInformationData = DepositInformation::whereIn('giata_code', $giataIds)->get();
 
-        $this->depositInformation = $depositInformationData->mapWithKeys(function ($hotel) {
+        $this->depositInformation = $depositInformationData->mapWithKeys(function ($depositInformation) {
             return [
-                $hotel->giata_code => $hotel->depositInformations->map(function ($depositInformation) use ($hotel) {
-                    return array_merge(
-                        $depositInformation->toArray(),
-                        [
-                            'conditions' => $depositInformation->conditions->toArray(),
-                            'hotel' => $hotel,
-                        ]
-                    );
-                })->toArray(),
+                $depositInformation->giata_code => array_merge(
+                    $depositInformation->toArray(),
+                    [
+                        'conditions' => $depositInformation->conditions->toArray(),
+                        'hotel' => $depositInformation->name,
+                    ]
+                ),
             ];
         })->toArray();
+
+        dd($this->depositInformation);
 
         $unifiedRoomCodesData = MappingRoom::whereIn('giata_id', $giataIds)->get();
 
