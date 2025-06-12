@@ -36,6 +36,10 @@ Mappings:
       ami: ami-02cc6142066a5587f
     us-west-2:
       ami: ami-0895022f3dac85884
+Conditions:
+  HasAdminPanelUrl: !Not [!Equals [!Ref AppUrlAdminPanel, '']]
+  HasContentApiUrl: !Not [!Equals [!Ref AppUrlContentApi, '']]
+  HasPricingApiUrl: !Not [!Equals [!Ref AppUrlPricingApi, '']]
 Outputs:
   BookingAdminUrl:
     Export:
@@ -74,79 +78,20 @@ Outputs:
     Value: !Ref 'S3CodePipelineBucket'
 Parameters:
   APPNAME:
-    Default: 'obe'
+    Default: 'fora-stage'
     Description: Name of the app, it is used to construct resources names
     Type: String
   AppUrlPricingApi:
-    Default: 'https://book.engine.travelagentadmin.net'
+    Default: 'https://stage-book.fora.kslndr.tech'
     Description: URL for the Booking/Pricing API
     Type: String
   AppUrlContentApi:
-    Default: 'https://content.engine.travelagentadmin.net'
+    Default: 'https://stage-content.fora.kslndr.tech'
     Description: URL for the Content API
     Type: String
   AppUrlAdminPanel:
-    Default: 'https://admin-panel.engine.travelagentadmin.net'
+    Default: 'https://stage-admin-panel.fora.kslndr.tech'
     Description: URL for the Admin Panel
-    Type: String
-  BookingSupplierExpediaApiKey:
-    Description: Expedia Api Key
-    Type: String
-  BookingSupplierExpediaSharedSecret:
-    Description: Expedia Api Key
-    Type: String
-  BookingSupplierExpediaBaseUrl:
-    Description: Expedia Endpoint
-    Type: String
-  BookingSupplierHbsiUsername:
-    Description: HBSI Username
-    Type: String
-  BookingSupplierHbsiPassword:
-    Description: HBSI Username
-    Type: String
-  BookingSupplierHbsiChannelIdentifierId:
-    Description: HBSI Channel ID
-    Type: String
-  BookingSupplierHbsiSearchBookUrl:
-    Description: HBSI Search/Book URL
-    Type: String
-  BookingSupplierHbsiTarget:
-    Description: HBSI Environment Target (Test/Production)
-    Type: String
-  BookingSupplierHbsiComponentInfoId:
-    Description: HBSI Component Info ID
-    Type: String
-  BookingSupplierIcePortalClientId:
-    Description: Ice Portal Client ID
-    Type: String
-  BookingSupplierIcePortalClientSecret:
-    Description: Ice Portal Client Secret
-    Type: String
-  BookingSupplierIcePortalBaseUrl:
-    Description: Ice Portal Endpoint
-    Type: String
-  BookingSupplierIcePortalTokenUrl:
-    Description: Ice Portal Token Url
-    Type: String
-  CacheDriver:
-    Description: The driver to use for Cache
-    Type: String
-    Default: 'file'
-  CacheStore:
-    Description: The store to use for Cache
-    Type: String
-    Default: 'redis'
-  DbConnection:
-    Default: 'mysql'
-    Description: Db connection (mysql)
-    Type: String
-  DbDatabase:
-    Default: booking_engine
-    Description: Mysql database name (DB_DATABASE)
-    Type: String
-  DbSupplierContentDatabase:
-    Default: booking_engine_supplier_content
-    Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
   DockerHubPassword:
     Description: DockerHub password for pulling base images
@@ -161,55 +106,16 @@ Parameters:
   GhConnectionArn:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
-  GiataPoiBaseUri:
-    Description: GIATA POI Base Uri
-    Type: String
-  GiataPoiUsername:
-    Description: GIATA POI Username
-    Type: String
-  GiataPoiPassword:
-    Description: GIATA POI Password
-    Type: String
-  GiataMainBaseUri:
-    Description: GIATA Main Base Uri
-    Type: String
-  GiataMainUsername:
-    Description: GIATA Main Usename
-    Type: String
-  GiataMainPassword:
-    Description: GIATA Main Password
-    Type: String
-  HiltonClientId:
-    Description: Hilton Client Id
-    Type: String
-  HiltonClientSecret:
-    Description: Hilton Client Secret
-    Type: String
-  GoogleApiDeveloperKey:
-    Description: Google API Developer Key
-    Type: String
   GitHubBackendBranch:
-    Default: 'master'
+    Default: 'dev'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
-  LogChannel:
-    Description: Channel for Logging
-    Type: String
-    Default: 'stack'
-  LogAwsCloudwatchAccessKeyId:
-    Description: Aws Access Key ID for Cloudwatch logging
-    Type: String
-    Default: ''
-  LogAwsCloudwatchSecretAccessKey:
-    Description: Aws Access Key Secret for Cloudwatch logging
-    Type: String
-    Default: ''
   GitHubBackendRepo:
-    Default: 'ultimatejetvacations/booking_engine'
+    Default: 'sdfim/fora'
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
     Type: String
   RabbitMqEngineVer:
-    Default: 3.11.20
+    Default: 3.13 # Corrected RabbitMQ version
     Description: Engine version for RabbitMQ
     Type: String
   RdsDbAllocatedStorage:
@@ -258,8 +164,12 @@ Parameters:
       - db.t2.large
       - db.t2.xlarge
       - db.t2.2xlarge
+      - db.t3.micro # Added compatible t3 instance type
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
     ConstraintDescription: must select a valid database instance type.
-    Default: db.t2.medium
+    Default: db.t3.medium
     Description: Database instance class
     Type: String
   VPCCIDR:
@@ -269,6 +179,14 @@ Parameters:
     Description: IP Address range for the VPC
     MaxLength: '18'
     MinLength: '9'
+    Type: String
+  DbDatabase:
+    Default: fora_stage_engine
+    Description: Mysql database name (DB_DATABASE)
+    Type: String
+  DbSupplierContentDatabase:
+    Default: fora_stage_supplier_content
+    Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
 Resources:
   AppRunerSecurityGroup:
@@ -319,65 +237,68 @@ Resources:
             Port: '80'
             RuntimeEnvironmentVariables:
               - Name: APP_URL
-                Value: !Ref 'AppUrlAdminPanel'
+                Value: !If
+                  - HasAdminPanelUrl
+                  - !Ref 'AppUrlAdminPanel'
+                  - !GetAtt 'AppRunnerBookingAdminApiSvc.ServiceUrl'
               - Name: AWS_BUCKET
-                Value: !Ref 'S3StorageBucket'
+                Value: 'fora-stage-storage-bucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
-                Value: !Ref 'BookingSupplierHbsiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
               - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
-                Value: !Ref 'BookingSupplierHbsiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
-                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
               - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
-                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
-                Value: !Ref 'BookingSupplierHbsiTarget'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
-                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
               - Name: CACHE_DRIVER
-                Value: !Ref 'CacheDriver'
+                Value: 'file'
               - Name: CACHE_STORE
-                Value: !Ref 'CacheStore'
+                Value: 'redis'
               - Name: SUPPLIER_EXPEDIA_API_KEY
-                Value: !Ref 'BookingSupplierExpediaApiKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
-                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
               - Name: SUPPLIER_EXPEDIA_BASE_URL
-                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
-                Value: !Ref 'BookingSupplierIcePortalClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
-                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
               - Name: SUPPLIER_ICE_PORTAL_BASE_URL
-                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
-                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
               - Name: GIATA_POI_BASE_URI
-                Value: !Ref 'GiataPoiBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_BASE_URI}}'
               - Name: GIATA_POI_USERNAME
-                Value: !Ref 'GiataPoiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_USERNAME}}'
               - Name: GIATA_POI_PASSWORD
-                Value: !Ref 'GiataPoiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_PASSWORD}}'
               - Name: GIATA_MAIN_BASE_URI
-                Value: !Ref 'GiataMainBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_BASE_URI}}'
               - Name: GIATA_MAIN_USERNAME
-                Value: !Ref 'GiataMainUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_USERNAME}}'
               - Name: GIATA_MAIN_PASSWORD
-                Value: !Ref 'GiataMainPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_PASSWORD}}'
               - Name: HILTON_CLIENT_ID
-                Value: !Ref 'HiltonClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_ID}}'
               - Name: HILTON_CLIENT_SECRET
-                Value: !Ref 'HiltonClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
-                Value: !Ref 'GoogleApiDeveloperKey'
-              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
-                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
-              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
-                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID # Updated to snake_case
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY # Updated to snake_case
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
-                Value: !Ref 'LogChannel'
+                Value: 'daily'
               - Name: DB_CONNECTION
-                Value: !Ref 'DbConnection'
+                Value: 'mysql'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -483,65 +404,68 @@ Resources:
             Port: '80'
             RuntimeEnvironmentVariables:
               - Name: APP_URL
-                Value: !Ref 'AppUrlContentApi'
+                Value: !If
+                  - HasContentApiUrl
+                  - !Ref 'AppUrlContentApi'
+                  - !GetAtt 'AppRunnerClientApiSvc.ServiceUrl'
               - Name: AWS_BUCKET
-                Value: !Ref 'S3StorageBucket'
+                Value: 'fora-stage-storage-bucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
-                Value: !Ref 'BookingSupplierHbsiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
               - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
-                Value: !Ref 'BookingSupplierHbsiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
-                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
               - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
-                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
-                Value: !Ref 'BookingSupplierHbsiTarget'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
-                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
               - Name: CACHE_DRIVER
-                Value: !Ref 'CacheDriver'
+                Value: 'file'
               - Name: CACHE_STORE
-                Value: !Ref 'CacheStore'
+                Value: 'redis'
               - Name: SUPPLIER_EXPEDIA_API_KEY
-                Value: !Ref 'BookingSupplierExpediaApiKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
-                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
               - Name: SUPPLIER_EXPEDIA_BASE_URL
-                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
-                Value: !Ref 'BookingSupplierIcePortalClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
-                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
               - Name: SUPPLIER_ICE_PORTAL_BASE_URL
-                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
-                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
               - Name: GIATA_POI_BASE_URI
-                Value: !Ref 'GiataPoiBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_BASE_URI}}'
               - Name: GIATA_POI_USERNAME
-                Value: !Ref 'GiataPoiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_USERNAME}}'
               - Name: GIATA_POI_PASSWORD
-                Value: !Ref 'GiataPoiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_PASSWORD}}'
               - Name: GIATA_MAIN_BASE_URI
-                Value: !Ref 'GiataMainBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_BASE_URI}}'
               - Name: GIATA_MAIN_USERNAME
-                Value: !Ref 'GiataMainUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_USERNAME}}'
               - Name: GIATA_MAIN_PASSWORD
-                Value: !Ref 'GiataMainPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_PASSWORD}}'
               - Name: HILTON_CLIENT_ID
-                Value: !Ref 'HiltonClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_ID}}'
               - Name: HILTON_CLIENT_SECRET
-                Value: !Ref 'HiltonClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
-                Value: !Ref 'GoogleApiDeveloperKey'
-              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
-                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
-              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
-                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
-                Value: !Ref 'LogChannel'
+                Value: 'daily'
               - Name: DB_CONNECTION
-                Value: !Ref 'DbConnection'
+                Value: 'mysql'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -671,7 +595,23 @@ Resources:
                   - - !GetAtt 'S3StorageBucket.Arn'
                     - /*
                 Sid: s3access
-          PolicyName: s3-access
+              - Action: # Added permissions for Secrets Manager dynamic references
+                  - secretsmanager:GetSecretValue
+                Effect: Allow
+                Resource:
+                  - !Join
+                    - ':'
+                    - - 'arn:aws:secretsmanager'
+                      - !Ref 'AWS::Region'
+                      - !Ref 'AWS::AccountId'
+                      - 'secret:'
+                      - !Join # Dynamically build secret name
+                        - '-'
+                        - - !Ref 'APPNAME'
+                          - envs
+                      - '*' # Wildcard for suffix
+                Sid: SecretsManagerAccess
+          PolicyName: s3-and-secrets-access
       RoleName: !Join
         - '-'
         - - !Ref 'APPNAME'
@@ -704,65 +644,68 @@ Resources:
             Port: '80'
             RuntimeEnvironmentVariables:
               - Name: APP_URL
-                Value: !Ref 'AppUrlPricingApi'
+                Value: !If
+                  - HasPricingApiUrl
+                  - !Ref 'AppUrlPricingApi'
+                  - !GetAtt 'AppRunnerPricingApiSvc.ServiceUrl'
               - Name: AWS_BUCKET
-                Value: !Ref 'S3StorageBucket'
+                Value: 'fora-stage-storage-bucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
-                Value: !Ref 'BookingSupplierHbsiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
               - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
-                Value: !Ref 'BookingSupplierHbsiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
-                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
               - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
-                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
-                Value: !Ref 'BookingSupplierHbsiTarget'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
-                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
               - Name: CACHE_DRIVER
-                Value: !Ref 'CacheDriver'
+                Value: 'file'
               - Name: CACHE_STORE
-                Value: !Ref 'CacheStore'
+                Value: 'redis'
               - Name: SUPPLIER_EXPEDIA_API_KEY
-                Value: !Ref 'BookingSupplierExpediaApiKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
-                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
               - Name: SUPPLIER_EXPEDIA_BASE_URL
-                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
-                Value: !Ref 'BookingSupplierIcePortalClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
-                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
               - Name: SUPPLIER_ICE_PORTAL_BASE_URL
-                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
-                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
               - Name: GIATA_POI_BASE_URI
-                Value: !Ref 'GiataPoiBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_BASE_URI}}'
               - Name: GIATA_POI_USERNAME
-                Value: !Ref 'GiataPoiUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_USERNAME}}'
               - Name: GIATA_POI_PASSWORD
-                Value: !Ref 'GiataPoiPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_PASSWORD}}'
               - Name: GIATA_MAIN_BASE_URI
-                Value: !Ref 'GiataMainBaseUri'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_BASE_URI}}'
               - Name: GIATA_MAIN_USERNAME
-                Value: !Ref 'GiataMainUsername'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_USERNAME}}'
               - Name: GIATA_MAIN_PASSWORD
-                Value: !Ref 'GiataMainPassword'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_PASSWORD}}'
               - Name: HILTON_CLIENT_ID
-                Value: !Ref 'HiltonClientId'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_ID}}'
               - Name: HILTON_CLIENT_SECRET
-                Value: !Ref 'HiltonClientSecret'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
-                Value: !Ref 'GoogleApiDeveloperKey'
-              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
-                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
-              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
-                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
+                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
-                Value: !Ref 'LogChannel'
+                Value: 'daily'
               - Name: DB_CONNECTION
-                Value: !Ref 'DbConnection'
+                Value: 'mysql'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -879,8 +822,8 @@ Resources:
             - ''
             - 'env:'
             - '  secrets-manager:'
-            - '    DOCKERHUB_USERNAME: "/dockerhub/booking-engine/creds:username"'
-            - '    DOCKERHUB_PASS: "/dockerhub/booking-engine/creds:password"'
+            - '    DOCKERHUB_USERNAME: "/dockerhub/fora/creds:username"'
+            - '    DOCKERHUB_PASS: "/dockerhub/fora/creds:password"'
             - '  parameter-store:'
             - !Join
               - ''
@@ -958,8 +901,11 @@ Resources:
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "python3 set_envs_from_secrets.py '
                 - !Ref 'AWS::Region'
                 - ' '
-                - !Ref 'APPNAME'
-                - -envs"
+                - !Join # Dynamically pass the secret name to the script
+                  - '-'
+                  - - !Ref 'APPNAME'
+                    - envs
+                - '"'
             - !Join
               - ''
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker rm -f '
@@ -1007,6 +953,17 @@ Resources:
                 Effect: Allow
                 Resource:
                   - !Ref 'SecretDockerHubCreds'
+                  - !Join # Dynamically build secret name
+                    - ':'
+                    - - 'arn:aws:secretsmanager'
+                      - !Ref 'AWS::Region'
+                      - !Ref 'AWS::AccountId'
+                      - 'secret:'
+                      - !Join # Dynamically build secret name
+                        - '-'
+                        - - !Ref 'APPNAME'
+                          - envs
+                      - '*' # Wildcard for suffix
                 Sid: secretsread
               - Action:
                   - ssm:GetParameters
@@ -1693,180 +1650,9 @@ Resources:
         - - !Ref 'APPNAME'
           - storage-bucket
     Type: AWS::S3::Bucket
-  SecretAppEnvs:
-    DeletionPolicy: Delete
-    Properties:
-      Name: !Join
-        - '-'
-        - - !Ref 'APPNAME'
-          - envs
-      SecretString: !Join
-        - ''
-        - - '{"AWS_BUCKET":"'
-          - !Ref 'S3StorageBucket'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_USERNAME":"'
-          - !Ref 'BookingSupplierHbsiUsername'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_PASSWORD":"'
-          - !Ref 'BookingSupplierHbsiPassword'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID":"'
-          - !Ref 'BookingSupplierHbsiChannelIdentifierId'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL":"'
-          - !Ref 'BookingSupplierHbsiSearchBookUrl'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_TARGET":"'
-          - !Ref 'BookingSupplierHbsiTarget'
-          - '",'
-          - '"BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID":"'
-          - !Ref 'BookingSupplierHbsiComponentInfoId'
-          - '",'
-          - '"CACHE_DRIVER":"'
-          - !Ref 'CacheDriver'
-          - '",'
-          - '"CACHE_STORE":"'
-          - !Ref 'CacheStore'
-          - '",'
-          - '"SUPPLIER_EXPEDIA_API_KEY":"'
-          - !Ref 'BookingSupplierExpediaApiKey'
-          - '",'
-          - '"SUPPLIER_EXPEDIA_SHARED_SECRET":"'
-          - !Ref 'BookingSupplierExpediaSharedSecret'
-          - '",'
-          - '"SUPPLIER_EXPEDIA_BASE_URL":"'
-          - !Ref 'BookingSupplierExpediaBaseUrl'
-          - '",'
-          - '"SUPPLIER_ICE_PORTAL_CLIENT_ID":"'
-          - !Ref 'BookingSupplierIcePortalClientId'
-          - '",'
-          - '"SUPPLIER_ICE_PORTAL_CLIENT_SECRET":"'
-          - !Ref 'BookingSupplierIcePortalClientSecret'
-          - '",'
-          - '"SUPPLIER_ICE_PORTAL_BASE_URL":"'
-          - !Ref 'BookingSupplierIcePortalBaseUrl'
-          - '",'
-          - '"SUPPLIER_ICE_PORTAL_TOKEN_URL":"'
-          - !Ref 'BookingSupplierIcePortalTokenUrl'
-          - '",'
-          - '"GIATA_POI_BASE_URI":"'
-          - !Ref 'GiataPoiBaseUri'
-          - '",'
-          - '"GIATA_POI_USERNAME":"'
-          - !Ref 'GiataPoiUsername'
-          - '",'
-          - '"GIATA_POI_PASSWORD":"'
-          - !Ref 'GiataPoiPassword'
-          - '",'
-          - '"GIATA_MAIN_BASE_URI":"'
-          - !Ref 'GiataMainBaseUri'
-          - '",'
-          - '"GIATA_MAIN_USERNAME":"'
-          - !Ref 'GiataMainUsername'
-          - '",'
-          - '"GIATA_MAIN_PASSWORD":"'
-          - !Ref 'GiataMainPassword'
-          - '",'
-          - '"HILTON_CLIENT_ID":"'
-          - !Ref 'HiltonClientId'
-          - '",'
-          - '"HILTON_CLIENT_SECRET":"'
-          - !Ref 'HiltonClientSecret'
-          - '",'
-          - '"GOOGLE_API_DEVELOPER_KEY":"'
-          - !Ref 'GoogleApiDeveloperKey'
-          - '",'
-          - '"LOG_AWSCLOUDWATCH_ACCESSKEYID":"'
-          - !Ref 'LogAwsCloudwatchAccessKeyId'
-          - '",'
-          - '"LOG_AWSCLOUDWATCH_SECRETACCESSKEY":"'
-          - !Ref 'LogAwsCloudwatchSecretAccessKey'
-          - '",'
-          - '"LOG_CHANNEL":"'
-          - !Ref 'LogChannel'
-          - '",'
-          - '"DB_CONNECTION":"'
-          - !Ref 'DbConnection'
-          - '",'
-          - '"DB_DATABASE":"'
-          - !Ref 'DbDatabase'
-          - '",'
-          - '"DB_HOST":"'
-          - !GetAtt 'RdsMysql.Endpoint.Address'
-          - '",'
-          - '"DB_PASSWORD":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretRdsMasterCreds'
-              - :SecretString:password}}
-          - '",'
-          - '"DB_PORT":"3306",'
-          - '"DB_USERNAME":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretRdsMasterCreds'
-              - :SecretString:username}}
-          - '",'
-          - '"RABBITMQ_HOST":"'
-          - !Join
-            - ''
-            - !Split
-              - :5671
-              - !Join
-                - ''
-                - !Split
-                  - amqps://
-                  - !Select
-                    - 0
-                    - !GetAtt 'RabbitMqBroker.AmqpEndpoints'
-          - '",'
-          - '"RABBITMQ_LOGIN":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretMqCreds'
-              - :SecretString:username}}
-          - '",'
-          - '"RABBITMQ_PASSWORD":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretMqCreds'
-              - :SecretString:password}}
-          - '",'
-          - '"RABBITMQ_PORT":"5671",'
-          - '"REDIS_HOST":"'
-          - !GetAtt 'RedisCache.RedisEndpoint.Address'
-          - '",'
-          - '"SUPPLIER_CONTENT_DB_DATABASE":"'
-          - !Ref 'DbSupplierContentDatabase'
-          - '",'
-          - '"SUPPLIER_CONTENT_DB_HOST":"'
-          - !GetAtt 'RdsMysql.Endpoint.Address'
-          - '",'
-          - '"SUPPLIER_CONTENT_DB_PASSWORD":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretRdsMasterCreds'
-              - :SecretString:password}}
-          - '",'
-          - '"SUPPLIER_CONTENT_DB_PORT":"3306",'
-          - '"SUPPLIER_CONTENT_DB_USERNAME":"'
-          - !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretRdsMasterCreds'
-              - :SecretString:username}}
-          - '",'
-          - '"FILESYSTEM_DISK":"s3"}'
-    Type: AWS::SecretsManager::Secret
   SecretDockerHubCreds:
     Properties:
-      Name: /dockerhub/booking-engine/creds
+      Name: /dockerhub/fora/creds
       SecretString: !Join
         - ''
         - - '{"username":"'
@@ -2036,4 +1822,3 @@ Resources:
       InternetGatewayId: !Ref 'InternetGateway'
       VpcId: !Ref 'VPC'
     Type: AWS::EC2::VPCGatewayAttachment
-
