@@ -1,26 +1,8 @@
 ## Summary
 ### Ticket Link
-* 
-### Changes:
-*
-### Fixes:
-*
-### Screenshots:
 *
 
---------
+### Changes
+*
 
 ## Deployment Steps
-
-### Purge Files:
-*
-
-### Run queries:
-```
-- 
-```
-### Update Env:
-```
-ENV=
-```
-

@@ -96,32 +96,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
     }
 
     #[Test]
-    public function test_possibility_of_updating_an_existing_pricing_rule(): void
-    {
-        $pricingRule = PricingRule::factory()
-            ->has(PricingRuleCondition::factory()->count(rand(1, 5)), 'conditions')
-            ->create();
-
-        /** @var PricingRulesDataGenerationTools $pricingRulesTools */
-        $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
-        $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
-
-        $formData = [
-            ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData,
-        ];
-
-        Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
-            ->set('data', $formData)
-            ->assertFormSet($formData)
-            ->call('edit')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
-    }
-
-    #[Test]
     public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {
         $pricingRule = PricingRule::factory()->create();

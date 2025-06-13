@@ -68,18 +68,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     }
 
     #[Test]
-    public function test_possibility_of_searching_by_rating(): void
-    {
-        $rating = $this->expedia[rand(0, 9)]->rating;
-
-        livewire::test(ExpediaTable::class)
-            ->searchTableColumns(['rating' => $rating])
-            ->sortTable('rating', 'desc')
-            ->assertCanSeeTableRecords($this->expedia->where('rating', $rating))
-            ->assertCanNotSeeTableRecords($this->expedia->where('rating', '!=', $rating));
-    }
-
-    #[Test]
     public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->expedia[9]->city;

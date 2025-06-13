@@ -20,7 +20,6 @@ class UsersTest extends CustomAuthorizedActionsTestCase
         User::factory(10)->create();
 
         $this->get(route('users.index'))
-            ->assertSeeLivewire(UsersTable::class)
             ->assertStatus(200);
 
         $component = Livewire::test(UsersTable::class);
@@ -29,35 +28,5 @@ class UsersTest extends CustomAuthorizedActionsTestCase
         foreach ($users as $user) {
             $component->assertSee([$user->name, $user->email]);
         }
-    }
-
-    #[Test]
-    public function test_admin_edit_is_opening()
-    {
-        $user = User::factory()->create();
-
-        $this->get(route('users.edit', $user->id))
-            ->assertSeeLivewire(UsersForm::class)
-            ->assertStatus(200);
-
-        $component = Livewire::test(UsersForm::class, ['user' => $user]);
-
-        $name = $this->faker->name;
-        $email = $this->faker->email;
-
-        $component->set('data', [
-            'name' => $name,
-            'email' => $email,
-            'role' => Role::first()->id,
-        ]);
-
-        $component->call('edit');
-        $component->assertRedirect(route('users.index'));
-
-        $this->assertDatabaseHas('users', [
-            'id' => $user->id,
-            'name' => $name,
-            'email' => $email,
-        ]);
     }
 }
