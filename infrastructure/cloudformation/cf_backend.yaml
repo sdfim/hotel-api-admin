@@ -3,39 +3,39 @@ Description: Cloudformation template to create TerraMare resources
 Mappings:
   EC2TasksAmi:
     ap-northeast-1:
-      ami: ami-0d889f77081190db1
+      ami: ami-03dceaabddf8c0966
     ap-northeast-2:
-      ami: ami-04599ab1182cd7961
+      ami: ami-0f3a440bbcff3d043
     ap-northeast-3:
-      ami: ami-01e0df0a0565a5805
+      ami: ami-0c8a8f0eaddd81903
     ap-south-1:
-      ami: ami-0187337106779cdf8
+      ami: ami-02e94b011299ef128
     ap-southeast-1:
-      ami: ami-0eb4694aa6f249c52
+      ami: ami-0ef97e9160e5d4952
     ap-southeast-2:
-      ami: ami-09ccb67fcbf1d625c
+      ami: ami-0b55fc9b052b40d57
     ca-central-1:
-      ami: ami-09ca61dde3dc883d0
+      ami: ami-0a2e7efb4257c0907
     eu-central-1:
-      ami: ami-0f318687928e8af0b
+      ami: ami-0292f851d2fba775b
     eu-north-1:
-      ami: ami-0208423bef18c17d1
+      ami: ami-0d0b75c8c47ed0edf
     eu-west-1:
-      ami: ami-013898da85dead62b
+      ami: ami-06f0f1fe4bb17f237
     eu-west-2:
-      ami: ami-0f8f99aa5fa000138
+      ami: ami-0cf8300405e277fd2
     eu-west-3:
-      ami: ami-0dfdff9941ebfbd48
+      ami: ami-0c9bcf3849a325e64
     sa-east-1:
-      ami: ami-01bd314e606621640
+      ami: ami-0af6e14150249b8d8
     us-east-1:
-      ami: ami-07761f3ae34c4478d
+      ami: ami-0440d3b780d96b29d
     us-east-2:
-      ami: ami-0c7f9161f8491665f
+      ami: ami-0c20d88b0021158c6
     us-west-1:
-      ami: ami-02cc6142066a5587f
+      ami: ami-02d3fd86e6a2f5122
     us-west-2:
-      ami: ami-0895022f3dac85884
+      ami: ami-0cf3dba8939e9f227
 Conditions:
   HasAdminPanelUrl: !Not [!Equals [!Ref AppUrlAdminPanel, '']]
   HasContentApiUrl: !Not [!Equals [!Ref AppUrlContentApi, '']]
@@ -889,7 +889,7 @@ Resources:
             - '      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
             - '      - if [ $(echo $SSH_KEY | wc -l) -gt 1 ]; then echo $SSH_KEY > sshkey.pem; else echo $SSH_KEY | sed ''s/\(KEY----- \)/\1\n/'' | sed ''s/\(-----END\)/\n\1/'' > sshkey.pem; fi'
             - '      - chmod 400 sshkey.pem'
-            - '      - ssh-keyscan -t rsa $TASKS_EC2_IP >> ~/.ssh/known_hosts'
+            - '      - ssh-keyscan $TASKS_EC2_IP >> ~/.ssh/known_hosts'
             - !Join
               - ''
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "aws ecr get-login-password --region '
@@ -1359,11 +1359,12 @@ Resources:
           - "\n"
           - - '#! /bin/sh'
             - yum update -y
-            - amazon-linux-extras install docker
+            - dnf install -y docker
             - service docker start
             - usermod -a -G docker ec2-user
             - chkconfig docker on
-            - pip3 install botocore aws_secretsmanager_caching
+            - dnf install -y python3-pip
+            - pip3 install boto3 aws_secretsmanager_caching
             - cat <<EOF >/home/ec2-user/set_envs_from_secrets.py
             - import sys
             - import json
