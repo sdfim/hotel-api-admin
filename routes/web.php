@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
@@ -9,19 +10,6 @@ use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeCategoryController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigContactInformationDepartmentController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMappingOwnerController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigRoomBedTypeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\DepositInformationController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
@@ -30,7 +18,6 @@ use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IcePortalController;
-use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\MappingRoomController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
@@ -123,22 +110,6 @@ Route::prefix('admin')->group(function () {
         Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
-
-        Route::prefix('configurations')->name('configurations.')->group(function () {
-            Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
-            Route::resource('attribute-categories', ConfigAttributeCategoryController::class)->only(['index', 'create', 'edit']);
-            Route::resource('amenities', ConfigAmenityController::class)->only(['index', 'create', 'edit']);
-            Route::resource('consortia', ConfigConsortiumController::class)->only(['index', 'create', 'edit']);
-            Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
-            Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
-            Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
-            Route::resource('room-bed-types', ConfigRoomBedTypeController::class)->only(['index', 'create', 'edit']);
-            Route::resource('contact-information-departments', ConfigContactInformationDepartmentController::class)->only(['index', 'create', 'edit']);
-            Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
-            Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
-            Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
-            Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
-        });
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

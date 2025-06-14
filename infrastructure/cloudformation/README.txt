@@ -35,6 +35,8 @@ aws --region us-east-1 cloudformation deploy --template-file cf_helper_initial.y
 # Deploy a backend
 aws --region us-east-1 cloudformation deploy --template-file cf_backend.yaml --s3-bucket fora-stage-cf-template --stack-name fora-backend-stage --parameter-overrides APPNAME=fora-stage GitHubBackendRepo=example-gh-user/fora-api GitHubBackendBranch=dev DockerHubUsername=dh-username DockerHubPassword=dh-password GhConnectionArn=arn:aws:codestar-connections:us-east-1:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a --capabilities CAPABILITY_NAMED_IAM
 
+aws --region us-east-1 cloudformation delete-stack --stack-name fora-stage-initial-helper
+
 # First deployment of a frontend
 aws --region us-east-1 cloudformation deploy --template-file cf_frontend.yaml --stack-name fora-frontend-stage --parameter-overrides APPNAME=fora-stage GitHubFrontendRepo=example-gh-user/fora-frontend GitHubFrontendBranch=main GhConnectionArn=arn:aws:codestar-connections:us-east-1:925811392742:connection/273e2f2e-13a7-4482-a3c7-bd94241bc65a BackendStackName=fora-backend-stage FirstFrontendDeploy=true --capabilities CAPABILITY_NAMED_IAM
 

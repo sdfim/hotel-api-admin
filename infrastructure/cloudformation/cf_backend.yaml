@@ -82,15 +82,15 @@ Parameters:
     Description: Name of the app, it is used to construct resources names
     Type: String
   AppUrlPricingApi:
-    Default: 'https://stage-book.fora.kslndr.tech'
+    Default: ''
     Description: URL for the Booking/Pricing API
     Type: String
   AppUrlContentApi:
-    Default: 'https://stage-content.fora.kslndr.tech'
+    Default: ''
     Description: URL for the Content API
     Type: String
   AppUrlAdminPanel:
-    Default: 'https://stage-admin-panel.fora.kslndr.tech'
+    Default: ''
     Description: URL for the Admin Panel
     Type: String
   DockerHubPassword:
@@ -1340,12 +1340,12 @@ Resources:
       InstanceType: !Ref 'EC2TasksInstanceType'
       KeyName: !Ref 'EC2TasksKeyPair'
       NetworkInterfaces:
-        - AssociatePublicIpAddress: false
+        - AssociatePublicIpAddress: true # Изменено с false на true
           DeleteOnTermination: true
           DeviceIndex: '0'
           GroupSet:
             - !Ref 'EC2TasksSecurityGroup'
-          SubnetId: !Ref 'SubnetPrivate1'
+          SubnetId: !Ref 'SubnetPublic1' # Изменено с SubnetPrivate1 на SubnetPublic1
       Tags:
         - Key: Application
           Value: !Ref 'AWS::StackName'
@@ -1354,6 +1354,8 @@ Resources:
             - '-'
             - - !Ref 'APPNAME'
               - tasks
+        - Key: UserDataVersion
+          Value: 202506131800
       UserData: !Base64
         Fn::Join:
           - "\n"
@@ -1363,8 +1365,10 @@ Resources:
             - service docker start
             - usermod -a -G docker ec2-user
             - chkconfig docker on
-            - dnf install -y python3-pip
-            - pip3 install boto3 aws_secretsmanager_caching
+            - dnf install -y python3-pip python3-setuptools python3-devel gcc
+            - pip3 install --upgrade pip
+            - pip3 install boto3 botocore aws_secretsmanager_caching
+            - echo "botocore installed"
             - cat <<EOF >/home/ec2-user/set_envs_from_secrets.py
             - import sys
             - import json
@@ -1402,6 +1406,10 @@ Resources:
         - FromPort: '22'
           IpProtocol: tcp
           SourceSecurityGroupId: !Ref 'CodeBuildBackendSG'
+          ToPort: '22'
+        - FromPort: '22'
+          IpProtocol: tcp
+          CidrIp: 217.119.69.62/32
           ToPort: '22'
       VpcId: !Ref 'VPC'
     Type: AWS::EC2::SecurityGroup
