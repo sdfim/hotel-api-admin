@@ -20,6 +20,8 @@
     --theme-color: #D97706;
     --theme-light-color: #fbbf8f;
 
+    --theme-background-color: #b5d2e9;
+
     --grey-color : #e4e4e7;
     --grey-light-color : #fafafa;
 
@@ -87,7 +89,7 @@
 }
 
 .border-b {
-    background-color: var(--white-color);
+    background-color: var(--theme-background-color);
 }
 
 .page-content {

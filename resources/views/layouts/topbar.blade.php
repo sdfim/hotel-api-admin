@@ -15,32 +15,32 @@
     <!-- Right section: search + user -->
     <div class="flex items-center space-x-2 px-4">
         <!-- Search (Filament-style) -->
-        <form action="#" method="GET">
-            <div class="flex w-64 items-center gap-2 overflow-hidden rounded-lg border border-gray-300 bg-white px-3 transition-all"
-                 :class="focused ? 'ring-2 ring-primary-500 border-primary-500' : ''"
-                 @click="focused = true"
-                 @click.away="focused = false">
-                <span class="text-gray-500 dark:text-gray-400">
-                    <i data-feather="search" class="h-4 w-4"></i>
-                </span>
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Search"
-                    x-model="query"
-                    class="w-full border-none bg-transparent text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-0 dark:text-gray-200 dark:placeholder-gray-400"
-                    @focus="focused = true"
-                />
-                <button
-                    x-show="query.length > 0"
-                    x-cloak
-                    @click.prevent="query = ''; focused = false"
-                    type="button"
-                    class="text-gray-400 hover:text-gray-500">
-                    <i data-feather="x" class="h-4 w-4"></i>
-                </button>
-            </div>
-        </form>
+{{--        <form action="#" method="GET">--}}
+{{--            <div class="flex w-64 items-center gap-2 overflow-hidden rounded-lg border border-gray-300 bg-white px-3 transition-all"--}}
+{{--                 :class="focused ? 'ring-2 ring-primary-500 border-primary-500' : ''"--}}
+{{--                 @click="focused = true"--}}
+{{--                 @click.away="focused = false">--}}
+{{--                <span class="text-gray-500 dark:text-gray-400">--}}
+{{--                    <i data-feather="search" class="h-4 w-4"></i>--}}
+{{--                </span>--}}
+{{--                <input--}}
+{{--                    type="text"--}}
+{{--                    name="search"--}}
+{{--                    placeholder="Search"--}}
+{{--                    x-model="query"--}}
+{{--                    class="w-full border-none bg-transparent text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-0 dark:text-gray-200 dark:placeholder-gray-400"--}}
+{{--                    @focus="focused = true"--}}
+{{--                />--}}
+{{--                <button--}}
+{{--                    x-show="query.length > 0"--}}
+{{--                    x-cloak--}}
+{{--                    @click.prevent="query = ''; focused = false"--}}
+{{--                    type="button"--}}
+{{--                    class="text-gray-400 hover:text-gray-500">--}}
+{{--                    <i data-feather="x" class="h-4 w-4"></i>--}}
+{{--                </button>--}}
+{{--            </div>--}}
+{{--        </form>--}}
 
         <!-- User dropdown -->
         <div class="relative" x-data="{ open: false }" @click.away="open = false">
