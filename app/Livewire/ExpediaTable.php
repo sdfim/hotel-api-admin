@@ -81,9 +81,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                         default => 'gray',
                     })
                     ->toggleable(),
-                ViewColumn::make('edit')
-                    ->view('dashboard.expedia.column.add-giata')
-                    ->toggleable(),
             ])
             ->headerActions([
                 ExportAction::make()->exports([
