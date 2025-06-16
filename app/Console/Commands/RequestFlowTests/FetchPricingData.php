@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\RequestFlowTests;
 
+use App\Models\Channel;
 use App\Models\ExpediaContentSlave;
 use App\Models\MappingRoom;
 use Illuminate\Console\Command;
@@ -56,8 +57,14 @@ class FetchPricingData extends Command
 
         logger()->info('Fetch pricing data from the API', $requestData);
 
-        $client = Http::withToken(env('TEST_TOKEN'));
-        $baseUri = env('BASE_URI_FLOW_HBSI_BOOK_TEST');
+        $token = Channel::first()->access_token;
+        if (! $token) {
+            $this->error('No access token found for the channel. Please check your configuration.');
+
+            return 1; // Exit the command with an error code
+        }
+        $client = Http::withToken($token);
+        $baseUri = env('APP_URL');
 
         $response = $client->post($baseUri.'/api/pricing/search', $requestData);
 
