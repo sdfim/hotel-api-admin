@@ -17,6 +17,7 @@
     use App\Models\InformationalService;
     use App\Models\Property;
     use App\Models\ExpediaContent;
+    use App\Models\IcePortalProperty;
     use App\Models\GiataGeography;
     use App\Models\Team;
     use App\Helpers\ClassHelper;
@@ -223,6 +224,12 @@
                             <a href="{{ Route('expedia.index') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                 Expedia
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('ice-portal.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Ice Portal
                             </a>
                         </li>
                     </ul>
