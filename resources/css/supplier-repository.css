@@ -99,7 +99,8 @@
 
 .vertical-menu {
     --tw-bg-opacity: 1;
-    background-color: #e4e4e74f;
+    /*background-color: #e4e4e74f;*/
+    background-color: #ffffff;
 }
 
 .navbar-brand {
