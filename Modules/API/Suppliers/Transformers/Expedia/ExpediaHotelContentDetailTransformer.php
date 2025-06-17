@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Transformers\Expedia;
 
+use App\Models\MappingRoom;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
@@ -18,6 +19,10 @@ class ExpediaHotelContentDetailTransformer
         $hotelImages = $this->extractHotelImages($supplierResponse);
         $address = $this->constructAddress($supplierResponse);
         $totalRooms = $this->calculateTotalRooms($supplierResponse);
+        $unifiedRoomCodes = MappingRoom::where('supplier', SupplierNameEnum::EXPEDIA->value)
+            ->where('giata_id', $giata_id)
+            ->pluck('unified_room_code', 'supplier_room_code')
+            ->toArray();
 
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
@@ -83,10 +88,12 @@ class ExpediaHotelContentDetailTransformer
                         $images[] = Arr::get($image, 'links.350px.href', '');
                     }
                 }
+                $supplierRoomCode = Arr::get($room, 'id', 0);
                 $roomResponse = ContentDetailRoomsResponseFactory::create();
                 $roomResponse->setContentSupplier(SupplierNameEnum::EXPEDIA->value);
-                $roomResponse->setSupplierRoomId(Arr::get($room, 'id', 0));
+                $roomResponse->setSupplierRoomId($supplierRoomCode);
                 $roomResponse->setUnifiedRoomCode(Arr::get($room, 'id', ''));
+                $roomResponse->setUnifiedRoomCode(Arr::get($unifiedRoomCodes, $supplierRoomCode, ''));
                 $roomResponse->setSupplierRoomName(Arr::get($room, 'name', ''));
                 $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
                     return [
@@ -117,6 +124,7 @@ class ExpediaHotelContentDetailTransformer
         } else {
             \Log::error('ExpediaHotelContentDetailTransformer | Probably an error with the expedia_content_slave table');
         }
+
         return $hotelImages;
     }
 
@@ -128,6 +136,7 @@ class ExpediaHotelContentDetailTransformer
         if ($postalCode = Arr::get($supplierResponse, 'address.postal_code')) {
             $address .= " - $postalCode";
         }
+
         return $address;
     }
 
@@ -142,6 +151,7 @@ class ExpediaHotelContentDetailTransformer
                 break;
             }
         }
+
         return $totalRooms;
     }
 }
