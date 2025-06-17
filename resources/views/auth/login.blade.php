@@ -9,7 +9,7 @@
     <div class="container-fluid">
         <div class="h-screen md:overflow-hidden">
             <div class="flex flex-col items-center w-full">
-                <div class="card flex flex-col mx-5 mt-10 p-10">
+                <div class="card flex flex-col mx-5 mt-10 p-10" style="min-width: 500px;">
                     <div class="mx-auto mb-4">
                         <a href="{{ url('index') }}" class="">
                             <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
@@ -105,8 +105,7 @@
                             <script>
                                 document.write(new Date().getFullYear())
                             </script>
-                            TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                            by TerraMare API
+                            <a href="https://www.cabinselect.com/" class="text-mandarin-500 underline">CabinSelect</a>
                         </p>
                     </div>
                 </div>

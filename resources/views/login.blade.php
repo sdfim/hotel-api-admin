@@ -106,8 +106,7 @@
                                     <script>
                                         document.write(new Date().getFullYear())
                                     </script>
-                                    TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by TerraMare API
+                                    <a href="https://www.cabinselect.com/" class="text-mandarin-500 underline">CabinSelect</a>
                                 </p>
                             </div>
                         </div>

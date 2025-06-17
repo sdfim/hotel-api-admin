@@ -52,7 +52,7 @@
                             <div class=" text-center">
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>document.write(new Date().getFullYear())</script>
-                                    TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i> by TerraMare API
+                                    CabinSelect
                                 </p>
                             </div>
                         </div>

@@ -68,8 +68,7 @@
                                     <script>
                                         document.write(new Date().getFullYear())
                                     </script>
-                                    TerraMare . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by TerraMare API
+                                    CabinSelect
                                 </p>
                             </div>
                         </div>
