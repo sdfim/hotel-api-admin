@@ -2,6 +2,7 @@
 
 use App\Support\Services\Logging\Drivers\AwsCloudwatchLogHandler;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\StreamHandler;
 
 return [
 
@@ -30,6 +31,19 @@ return [
             'processors' => [
                 \App\Support\Services\Logging\Processors\LogCommandInformationProcessor::class,
             ],
+        ],
+
+        'stderr' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+            'formatter' => JsonFormatter::class,
+            'formatter_with' => [
+                'includeStacktraces' => true,
+            ],
+            'level' => env('LOG_LEVEL', 'debug'),
         ],
     ],
 
