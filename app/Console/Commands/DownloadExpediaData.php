@@ -139,11 +139,9 @@ class DownloadExpediaData extends Command
             'payment_terms' => $this->paymentTerms,
         ];
         try {
-            dump(self::PROPERTY_CONTENT_PATH.$this->type, $queryParams);
             $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH.$this->type, $queryParams);
             $propertyContents = $response->getBody()->getContents();
             $url = json_decode($propertyContents, true)['href'];
-            dd($url);
         } catch (Exception $e) {
             $this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
                 'getMessage' => $e->getMessage(),
