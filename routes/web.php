@@ -52,7 +52,7 @@ Route::fallback(function () {
 });
 
 Route::get('/admin/', fn () => Auth::check()
-    ? redirect()->route('properties.index')
+    ? redirect()->route('reservations.index')
     : redirect()->route('login')
 )->name('root');
 
