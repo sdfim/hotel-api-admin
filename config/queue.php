@@ -86,10 +86,6 @@ return [
                 ],
             ],
             'worker' => env('RABBITMQ_WORKER', 'default'),
-            'ssl_options' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ],
         ],
 
     ],

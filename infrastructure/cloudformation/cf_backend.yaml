@@ -1382,21 +1382,27 @@ Resources:
             - import json
             - import botocore.session
             - from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
-            - 'if len(sys.argv) != 3:'
-            - '    print(''Exactly 2 arguments are required!'')'
+            - 'if len(sys.argv) < 3:'
+            - '    print(''At least 2 arguments are required: region and at least one secret name.'')'
             - '    exit(1)'
             - region = sys.argv[1]
-            - secret_name = sys.argv[2]
+            - secret_names = sys.argv[2:]
             - client = botocore.session.get_session().create_client('secretsmanager', region_name=region)
             - cache_config = SecretCacheConfig()
             - cache = SecretCache(config=cache_config, client=client)
-            - secret = cache.get_secret_string(secret_name)
-            - secret_dict = json.loads(secret)
-            - 'with open(''.tasks.env'', ''w'') as env_file:'
-            - '    for key in secret_dict:'
-            - '        env_file.write(f''{key}="{secret_dict[key]}"\n'')'
+            - "with open('.tasks.env', 'w') as env_file:"
+            - "    for secret_name in secret_names:"
+            - "        try:"
+            - "            secret = cache.get_secret_string(secret_name)"
+            - "            secret_dict = json.loads(secret)"
+            - "            for key in secret_dict:"
+            - "                env_file.write(f'{key}=\"{secret_dict[key]}\"\\n')"
+            - "            print(f\"Successfully loaded secrets from: {secret_name}\")"
+            - "        except Exception as e:"
+            - "            print(f\"Error loading secret {secret_name}: {e}\")"
             - EOF
             - chown ec2-user /home/ec2-user/set_envs_from_secrets.py
+            - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "python3 /home/ec2-user/set_envs_from_secrets.py $(Ref 'AWS::Region') $(Join '-' [!Ref 'APPNAME', 'envs']) $(Join '-' [!Ref 'APPNAME', 'rds-creds']) $(Join '-' [!Ref 'APPNAME', 'rabbitmq-creds'])"
     Type: AWS::EC2::Instance
   EC2TasksKeyPair:
     DeletionPolicy: Delete
