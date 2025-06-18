@@ -5,6 +5,7 @@ use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
@@ -42,6 +43,16 @@ use Modules\AdministrationSuite\Http\Controllers\UsersController;
 |
 */
 Route::get('/phpinfo', fn () => phpinfo());
+
+Route::get('/test-redis', function () {
+    try {
+        Redis::set('ping', 'pong');
+
+        return Redis::get('ping');
+    } catch (\Exception $e) {
+        return response($e->getMessage(), 500);
+    }
+});
 
 Route::fallback(function () {
     if (! request()->is('api/*')) {

@@ -17,7 +17,7 @@ return [
                     'key' => env('LOG_AWSCLOUDWATCH_ACCESSKEYID', ''),
                     'secret' => env('LOG_AWSCLOUDWATCH_SECRETACCESSKEY', ''),
                 ],
-                'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/booking-engine'),
+                'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/fora-stage-booking-admin-api'),
                 'stream' => date('Y-m-d'),
                 'retention' => env('LOG_CLOUDWATCH_RETENTION_DAYS', 30),
                 'batchSize' => env('LOG_CLOUDWATCH_BATCH_SIZE', 1000),
