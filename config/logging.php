@@ -17,6 +17,9 @@ return [
                 'stream' => date('Y-m-d'),
                 'retention' => env('LOG_CLOUDWATCH_RETENTION_DAYS', 30),
                 'batchSize' => env('LOG_CLOUDWATCH_BATCH_SIZE', 1000),
+                'credentials' => [
+                    'use_aws_environment_credentials' => true,
+                ],
             ],
             'level' => env('LOG_LEVEL', 'debug'),
             'region' => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),

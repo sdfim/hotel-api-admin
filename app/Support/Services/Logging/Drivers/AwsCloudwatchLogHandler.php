@@ -5,7 +5,6 @@ namespace App\Support\Services\Logging\Drivers;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Aws\CloudWatchLogs\Exception\CloudWatchLogsException;
 use DateTime;
-use Exception;
 use InvalidArgumentException;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
@@ -16,21 +15,35 @@ use Monolog\LogRecord;
 class AwsCloudwatchLogHandler extends AbstractProcessingHandler
 {
     public const EVENT_SIZE_LIMIT = 262118; // 256 KB - reserved 26
+
     public const RPS_LIMIT = 5;
 
     private int $batchSize;
+
     private array $buffer = [];
+
     private CloudWatchLogsClient $client;
+
     private bool $createGroup;
+
     private int $currentDataAmount = 0;
+
     private int $dataAmountLimit = 1048576;
+
     private string $group;
+
     private bool $initialized = false;
+
     private int $remainingRequests = self::RPS_LIMIT;
+
     private int $retention;
+
     private DateTime $savedTime;
+
     private string $sequenceToken;
+
     private string $stream;
+
     private array $tags;
 
     public function __construct(
@@ -50,7 +63,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
         }
 
         $this->client = new CloudWatchLogsClient([
-            'region'  => $region,
+            'region' => $region,
             'version' => $version,
             // credentials удалены — AWS SDK сам использует IAM роль
         ]);
@@ -64,7 +77,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
 
         parent::__construct($level, $bubble);
 
-        $this->savedTime = new DateTime();
+        $this->savedTime = new DateTime;
     }
 
     public function close(): void
@@ -102,7 +115,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
 
     private function checkThrottle(): void
     {
-        $current = new DateTime();
+        $current = new DateTime;
         $diff = $current->diff($this->savedTime, true)->s;
         $sameSecond = $diff === 0;
 
@@ -115,7 +128,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
             $this->remainingRequests = self::RPS_LIMIT;
         }
 
-        $this->savedTime = new DateTime();
+        $this->savedTime = new DateTime;
     }
 
     private function flushBuffer(): void

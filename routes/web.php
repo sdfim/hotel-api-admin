@@ -54,6 +54,11 @@ Route::get('/test-redis', function () {
     }
 });
 
+Route::get('/log-test', function () {
+    logger()->info('Test log from Laravel to CloudWatch');
+    return 'Log sent';
+});
+
 Route::fallback(function () {
     if (! request()->is('api/*')) {
         return redirect()->route('root');
