@@ -85,6 +85,11 @@ return [
                     'vhost' => env('RABBITMQ_VHOST', '/'),
                 ],
             ],
+            'ssl_options' => [
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false,
+            ],
             'worker' => env('RABBITMQ_WORKER', 'default'),
         ],
 
