@@ -85,6 +85,7 @@ return [
                     'vhost' => env('RABBITMQ_VHOST', '/'),
                 ],
             ],
+            'secure' => env('DEFAULT_RABBITMQ_SECURE', 'yes'), // here should be provided 'yes' or 'no'
             'ssl_options' => [
                 'verify_peer' => true,
                 'verify_peer_name' => true,
