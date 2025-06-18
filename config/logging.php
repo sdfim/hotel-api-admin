@@ -13,11 +13,7 @@ return [
             'handler_with' => [
                 'region'      => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
                 'version'     => env('LOG_CLOUDWATCH_VERSION', 'latest'),
-                'credentials' => [
-                    'key' => env('LOG_AWSCLOUDWATCH_ACCESSKEYID', ''),
-                    'secret' => env('LOG_AWSCLOUDWATCH_SECRETACCESSKEY', ''),
-                ],
-                'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/fora-stage-booking-admin-api'),
+                'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/fora-stage-engine'),
                 'stream' => date('Y-m-d'),
                 'retention' => env('LOG_CLOUDWATCH_RETENTION_DAYS', 30),
                 'batchSize' => env('LOG_CLOUDWATCH_BATCH_SIZE', 1000),
