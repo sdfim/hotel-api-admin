@@ -1,41 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Cloudformation template to create TerraMare resources
-Mappings:
-  EC2TasksAmi:
-    ap-northeast-1:
-      ami: ami-03dceaabddf8c0966
-    ap-northeast-2:
-      ami: ami-0f3a440bbcff3d043
-    ap-northeast-3:
-      ami: ami-0c8a8f0eaddd81903
-    ap-south-1:
-      ami: ami-02e94b011299ef128
-    ap-southeast-1:
-      ami: ami-0ef97e9160e5d4952
-    ap-southeast-2:
-      ami: ami-0b55fc9b052b40d57
-    ca-central-1:
-      ami: ami-0a2e7efb4257c0907
-    eu-central-1:
-      ami: ami-0292f851d2fba775b
-    eu-north-1:
-      ami: ami-0d0b75c8c47ed0edf
-    eu-west-1:
-      ami: ami-06f0f1fe4bb17f237
-    eu-west-2:
-      ami: ami-0cf8300405e277fd2
-    eu-west-3:
-      ami: ami-0c9bcf3849a325e64
-    sa-east-1:
-      ami: ami-0af6e14150249b8d8
-    us-east-1:
-      ami: ami-0440d3b780d96b29d
-    us-east-2:
-      ami: ami-0c20d88b0021158c6
-    us-west-1:
-      ami: ami-02d3fd86e6a2f5122
-    us-west-2:
-      ami: ami-0cf3dba8939e9f227
 Conditions:
   HasAdminPanelUrl: !Not [!Equals [!Ref AppUrlAdminPanel, '']]
   HasContentApiUrl: !Not [!Equals [!Ref AppUrlContentApi, '']]
@@ -188,6 +152,9 @@ Parameters:
     Default: fora_stage_supplier_content
     Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64'
 Resources:
   AppRunerSecurityGroup:
     DeletionPolicy: Delete
@@ -1332,6 +1299,7 @@ Resources:
           - ec2-tasks-role
     Type: AWS::IAM::Role
   EC2Tasks:
+    Type: AWS::EC2::Instance
     DeletionPolicy: Delete
     Properties:
       BlockDeviceMappings:
@@ -1341,19 +1309,16 @@ Resources:
             VolumeSize: 60
             VolumeType: gp2
       IamInstanceProfile: !Ref 'TasksInstanceProfile'
-      ImageId: !FindInMap
-        - EC2TasksAmi
-        - !Ref 'AWS::Region'
-        - ami
+      ImageId: !Ref LatestAmiId
       InstanceType: !Ref 'EC2TasksInstanceType'
       KeyName: !Ref 'EC2TasksKeyPair'
       NetworkInterfaces:
-        - AssociatePublicIpAddress: true # Изменено с false на true
+        - AssociatePublicIpAddress: true
           DeleteOnTermination: true
           DeviceIndex: '0'
           GroupSet:
             - !Ref 'EC2TasksSecurityGroup'
-          SubnetId: !Ref 'SubnetPublic1' # Изменено с SubnetPrivate1 на SubnetPublic1
+          SubnetId: !Ref 'SubnetPublic1'
       Tags:
         - Key: Application
           Value: !Ref 'AWS::StackName'
@@ -1365,45 +1330,93 @@ Resources:
         - Key: UserDataVersion
           Value: 202506131800
       UserData: !Base64
-        Fn::Join:
-          - "\n"
-          - - '#! /bin/sh'
-            - yum update -y
-            - dnf install -y docker
-            - service docker start
-            - usermod -a -G docker ec2-user
-            - chkconfig docker on
-            - dnf install -y python3-pip python3-setuptools python3-devel gcc
-            - pip3 install --upgrade pip
-            - pip3 install boto3 botocore aws_secretsmanager_caching
-            - echo "botocore installed"
-            - cat <<EOF >/home/ec2-user/set_envs_from_secrets.py
-            - import sys
-            - import json
-            - import botocore.session
-            - from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
-            - 'if len(sys.argv) < 3:'
-            - '    print(''At least 2 arguments are required: region and at least one secret name.'')'
-            - '    exit(1)'
-            - region = sys.argv[1]
-            - secret_names = sys.argv[2:]
-            - client = botocore.session.get_session().create_client('secretsmanager', region_name=region)
-            - cache_config = SecretCacheConfig()
-            - cache = SecretCache(config=cache_config, client=client)
-            - "with open('.tasks.env', 'w') as env_file:"
-            - "    for secret_name in secret_names:"
-            - "        try:"
-            - "            secret = cache.get_secret_string(secret_name)"
-            - "            secret_dict = json.loads(secret)"
-            - "            for key in secret_dict:"
-            - "                env_file.write(f'{key}=\"{secret_dict[key]}\"\\n')"
-            - "            print(f\"Successfully loaded secrets from: {secret_name}\")"
-            - "        except Exception as e:"
-            - "            print(f\"Error loading secret {secret_name}: {e}\")"
-            - EOF
-            - chown ec2-user /home/ec2-user/set_envs_from_secrets.py
-            - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "python3 /home/ec2-user/set_envs_from_secrets.py $(Ref 'AWS::Region') $(Join '-' [!Ref 'APPNAME', 'envs']) $(Join '-' [!Ref 'APPNAME', 'rds-creds']) $(Join '-' [!Ref 'APPNAME', 'rabbitmq-creds'])"
-    Type: AWS::EC2::Instance
+        'Fn::Join':
+          - ''
+          - # Обязательная строка для bash скрипта
+            - '#!/bin/bash -xe'
+            # Установка pip-пакета aws-secretsmanager-caching.
+            - 'pip3 install aws-secretsmanager-caching'
+
+            # Внедряем содержимое Python-скрипта set_envs_from_secrets.py
+            - |
+              sudo -u ec2-user bash -c 'cat > /home/ec2-user/set_envs_from_secrets.py << "EOF"
+              import sys
+              import json
+              import botocore.session
+              from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
+
+              if len(sys.argv) < 3:
+                  print("At least 2 arguments are required: region and at least one secret name.", file=sys.stderr)
+                  sys.exit(1)
+              region = sys.argv[1]
+              secret_names = sys.argv[2:]
+
+              client = botocore.session.get_session().create_client("secretsmanager", region_name=region)
+              cache_config = SecretCacheConfig()
+              cache = SecretCache(config=cache_config, client=client)
+
+              output_file_path = "/home/ec2-user/.tasks.env"
+
+              with open(output_file_path, "w") as env_file: # Режим 'w' (write) перезаписывает файл
+                  for secret_name in secret_names:
+                      try:
+                          secret = cache.get_secret_string(secret_name)
+                          secret_dict = json.loads(secret)
+                          for key in secret_dict:
+                              value = str(secret_dict[key]).replace("\"", "\\\"")
+                              env_file.write(f"{key}=\\\"{value}\\\"\\n")
+                          print(f"Successfully loaded secrets from: {secret_name}")
+                      except Exception as e:
+                          print(f"Error loading secret {secret_name}: {e}", file=sys.stderr)
+              EOF'
+
+            # Установка прав доступа и владельца для созданного скрипта
+            - 'sudo chmod 755 /home/ec2-user/set_envs_from_secrets.py'
+            - 'sudo chown ec2-user:ec2-user /home/ec2-user/set_envs-from_secrets.py'
+
+            # --- Шаг 1: Запускаем Python-скрипт для записи секретов ---
+            - !Join
+              - ''
+              - - 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py '
+                - !Ref "AWS::Region"
+                - ' '
+                - !Join [ "-", [ !Ref "APPNAME", "envs" ] ]
+                - ' '
+                - !Join [ "-", [ !Ref "APPNAME", "rds-creds" ] ]
+                - ' '
+                - !Join [ "-", [ !Ref "APPNAME", "rabbitmq-creds" ] ]
+                - "\n"
+
+            # --- Шаг 2: Добавляем статические и динамические переменные окружения в тот же файл .tasks.env ---
+            - 'sudo -u ec2-user bash -c ''echo "CACHE_DRIVER=\"redis\"" >> /home/ec2-user/.tasks.env'''
+            - 'sudo -u ec2-user bash -c ''echo "CACHE_STORE=\"redis\"" >> /home/ec2-user/.tasks.env'''
+            - 'sudo -u ec2-user bash -c ''echo "QUEUE_CONNECTION=\"rabbitmq\"" >> /home/ec2-user/.tasks.env'''
+            - 'sudo -u ec2-user bash -c ''echo "LOG_CHANNEL=\"cloudwatch\"" >> /home/ec2-user/.tasks.env'''
+            - 'sudo -u ec2-user bash -c ''echo "RABBITMQ_PORT=\"5671\"" >> /home/ec2-user/.tasks.env'''
+
+            # REDIS_HOST - !GetAtt будет разрешен CloudFormation
+            - !Join
+              - ''
+              - - 'sudo -u ec2-user bash -c ''echo "REDIS_HOST="'
+                - !GetAtt 'RedisCache.RedisEndpoint.Address' # CloudFormation разрешит это в адрес
+                - '" >> /home/ec2-user/.tasks.env'''
+
+            # RABBITMQ_HOST - сложный !Join будет разрешен CloudFormation
+            - !Join
+              - ''
+              - - 'sudo -u ec2-user bash -c ''echo "RABBITMQ_HOST="'
+                - !Join # Это полное выражение для RABBITMQ_HOST
+                  - ''
+                  - !Split
+                    - ':5671' # Сплитуем по :5671
+                    - !Join
+                      - ''
+                      - !Split
+                        - 'amqps://' # Сплитуем по amqps://
+                        - !Select
+                          - 0
+                          - !GetAtt 'RabbitMqBroker.AmqpEndpoints' # Получаем список эндпоинтов
+                - '" >> /home/ec2-user/.tasks.env'''
   EC2TasksKeyPair:
     DeletionPolicy: Delete
     Properties:
