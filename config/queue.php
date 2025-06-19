@@ -75,27 +75,33 @@ return [
         'rabbitmq' => [
             'driver' => 'rabbitmq',
             'queue' => env('RABBITMQ_QUEUE', 'default'),
-            'connection' => PhpAmqpLib\Connection\AMQPLazyConnection::class,
+
+            'factory_class' => PhpAmqpLib\Connection\AMQPConnectionFactory::class,
+
             'hosts' => [
                 [
                     'host' => env('RABBITMQ_HOST', '127.0.0.1'),
-                    'port' => env('RABBITMQ_PORT', 5672),
+                    'port' => env('RABBITMQ_PORT', 5671),
                     'user' => env('RABBITMQ_USER', 'guest'),
                     'password' => env('RABBITMQ_PASSWORD', 'guest'),
                     'vhost' => env('RABBITMQ_VHOST', '/'),
                 ],
             ],
-            'secure' => env('DEFAULT_RABBITMQ_SECURE', 'yes'), // here should be provided 'yes' or 'no'
+
+            'options' => [
+                'ssl' => [
+                    'enabled' => true, // важно для TLS
+                ],
+                'connection' => [
+                    'is_lazy' => true,
+                ],
+            ],
+
             'ssl_options' => [
-                'cafile' => env('RABBITMQ_SSL_CAFILE', null),
-                'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
-                'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
-                'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
-                'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', true),
+                'verify_peer' => true,
                 'verify_peer_name' => true,
                 'allow_self_signed' => false,
             ],
-            'worker' => env('RABBITMQ_WORKER', 'default'),
         ],
 
     ],
