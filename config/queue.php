@@ -75,33 +75,17 @@ return [
         'rabbitmq' => [
             'driver' => 'rabbitmq',
             'queue' => env('RABBITMQ_QUEUE', 'default'),
-
-            'factory_class' => PhpAmqpLib\Connection\AMQPConnectionFactory::class,
-
+            'factory' => \PhpAmqpLib\Connection\AMQPConnectionFactory::class,
             'hosts' => [
                 [
                     'host' => env('RABBITMQ_HOST', '127.0.0.1'),
-                    'port' => env('RABBITMQ_PORT', 5671),
+                    'port' => env('RABBITMQ_PORT', 5672),
                     'user' => env('RABBITMQ_USER', 'guest'),
                     'password' => env('RABBITMQ_PASSWORD', 'guest'),
                     'vhost' => env('RABBITMQ_VHOST', '/'),
                 ],
             ],
-
-            'options' => [
-                'ssl' => [
-                    'enabled' => true, // важно для TLS
-                ],
-                'connection' => [
-                    'is_lazy' => true,
-                ],
-            ],
-
-            'ssl_options' => [
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-                'allow_self_signed' => false,
-            ],
+            'secure' => 'yes',
         ],
 
     ],
