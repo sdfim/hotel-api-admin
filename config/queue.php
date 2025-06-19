@@ -87,7 +87,11 @@ return [
             ],
             'secure' => env('DEFAULT_RABBITMQ_SECURE', 'yes'), // here should be provided 'yes' or 'no'
             'ssl_options' => [
-                'verify_peer' => true,
+                'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
+                'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', true),
                 'verify_peer_name' => true,
                 'allow_self_signed' => false,
             ],
