@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Services\ScheduledTaskService;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,16 +32,21 @@ Artisan::command('obe {scenario} {action}', function () {
     $this->info($client->execute($scenario, $action));
 });
 
-// Download Content Suppliers Data into the DB
-// Expedia Content download archive, unzip, parse json, write to DB
-Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
-// Hilton Content download to DB
-Schedule::command('hilton:fetch-properties', ['--limit' => 50])->weeklyOn(6, '05:00');
-// Download IcePortal data to DB
-Schedule::command('download-iceportal-data')->weeklyOn(6, '06:00');
+// Use dynamic scheduling from the database
+app(ScheduledTaskService::class)->registerTasks(app(Schedule::class));
 
-// Download and process Giata data including Mapping Expedia, HBSI, IcePortal
-Schedule::command('download-giata-data')->weeklyOn(7, '05:00');
+// Legacy static schedules - these will be removed once migration to the database is complete
+// Uncomment if needed during transition
+//// Download Content Suppliers Data into the DB
+//// Expedia Content download archive, unzip, parse json, write to DB
+//Schedule::command('download-expedia-data content 12345')->weeklyOn(0, '01:00');
+//// Hilton Content download to DB
+//Schedule::command('hilton:fetch-properties', ['--limit' => 50])->weeklyOn(6, '05:00');
+//// Download IcePortal data to DB
+//Schedule::command('download-iceportal-data')->weeklyOn(4, '01:00');
+//
+//// Download and process Giata data including Mapping Expedia, HBSI, IcePortal
+//Schedule::command('download-giata-data')->weeklyOn(4, '04:00');
 
 Schedule::command('purge-baskets')->cron('0 1 * * *');
 Schedule::command('purge-inspectors')->cron('0 1 * * *');

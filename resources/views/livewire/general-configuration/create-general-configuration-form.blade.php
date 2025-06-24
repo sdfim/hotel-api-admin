@@ -2,12 +2,14 @@
 
 <div>
     @canany(['update', 'create'], GeneralConfiguration::class)
-        <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: var(--theme-color);">
-            {{ __('Clear Search Cache') }}
-        </x-button>
-        <x-button class="mt-4 mb-8" wire:click="clearMappingCache" style="background-color: var(--theme-color);">
-            {{ __('Clear Mapping Cache') }}
-        </x-button>
+        <div class="flex justify-end mb-8 space-x-2">
+            <x-button class="py-1 px-3 text-sm" wire:click="clearCache" style="background-color: var(--theme-color);">
+                {{ __('Clear Search Cache') }}
+            </x-button>
+            <x-button class="py-1 px-3 text-sm" wire:click="clearMappingCache" style="background-color: var(--theme-color);">
+                {{ __('Clear Mapping Cache') }}
+            </x-button>
+        </div>
     @endcan
 
     <form wire:submit="save">
@@ -47,4 +49,3 @@
         }, 500);
     });
 </script>
-
