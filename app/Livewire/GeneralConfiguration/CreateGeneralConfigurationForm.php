@@ -40,7 +40,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
     {
         if (! empty($general_configuration->toArray())) {
             $this->record = $general_configuration;
-            $this->form->fill($this->record->attributesToArray());
+            $data = $this->record->attributesToArray();
+            if (isset($data['content_supplier'])) {
+                $data['content_supplier'] = explode(',', $data['content_supplier']);
+            }
+            $this->form->fill($data);
         } else {
             $this->create = false;
             $this->form->fill();
@@ -75,7 +79,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->required(),
                 Select::make('content_supplier')
                     ->label('Include this supplier in your search as a content supplier (ContentApi)')
-                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Hilton' => 'Hilton', 'Expedia, IcePortal, Hilton' => 'Expedia, IcePortal, Hilton'])
+                    ->multiple()
+                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Hilton' => 'Hilton'])
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
@@ -107,12 +112,14 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         $request = (object) $this->form->getState();
         $general_configuration = GeneralConfiguration::get();
 
+        $contentSupplier = implode(',', $request->content_supplier);
+
         if (count($general_configuration) === 0) {
             $general_configuration_row = new GeneralConfiguration;
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;
-            $general_configuration_row->content_supplier = $request->content_supplier;
+            $general_configuration_row->content_supplier = $contentSupplier;
             $general_configuration_row->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration_row->star_ratings = $request->star_ratings;
             $general_configuration_row->stop_bookings = $request->stop_bookings;
@@ -125,7 +132,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration[0]->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration[0]->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration[0]->currently_suppliers = $request->currently_suppliers;
-            $general_configuration[0]->content_supplier = $request->content_supplier;
+            $general_configuration[0]->content_supplier = $contentSupplier;
             $general_configuration[0]->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration[0]->star_ratings = $request->star_ratings;
             $general_configuration[0]->stop_bookings = $request->stop_bookings;
