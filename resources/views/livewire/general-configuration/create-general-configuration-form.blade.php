@@ -3,10 +3,10 @@
 <div>
     @canany(['update', 'create'], GeneralConfiguration::class)
         <div class="flex justify-end mb-8 space-x-2">
-            <x-button class="py-1 px-3 text-sm" wire:click="clearCache" style="background-color: var(--theme-color);">
+            <x-button class="py-1 px-3 text-sm" wire:click="clearCache" style="background-color: var(--theme-color); height: 33px;">
                 {{ __('Clear Search Cache') }}
             </x-button>
-            <x-button class="py-1 px-3 text-sm" wire:click="clearMappingCache" style="background-color: var(--theme-color);">
+            <x-button class="py-1 px-3 text-sm" wire:click="clearMappingCache" style="background-color: var(--theme-color); height: 33px;">
                 {{ __('Clear Mapping Cache') }}
             </x-button>
         </div>
