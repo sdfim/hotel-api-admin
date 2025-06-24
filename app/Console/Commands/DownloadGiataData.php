@@ -4,33 +4,71 @@ namespace App\Console\Commands;
 
 use App\Models\Mapping;
 use App\Models\Property;
+use App\Models\Supplier;
+use App\Traits\ExceptionReportTrait;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
+use Modules\Inspector\ExceptionReportController;
 
 class DownloadGiataData extends Command
 {
+    use ExceptionReportTrait;
+
     protected $signature = 'download-giata-data';
 
     protected $description = 'Import XML data from a URL, wrtite to DB';
 
     protected float|string $current_time;
 
+    protected array $execution_times = [];
+
+    protected int $giata_id = 0;
+
+    protected ?string $report_id;
+
+    public function __construct(
+        protected ExceptionReportController $apiExceptionReport
+    ) {
+        parent::__construct();
+        $this->execution_times['main'] = microtime(true);
+        $this->execution_times['step'] = microtime(true);
+        $this->execution_times['report'] = microtime(true);
+    }
+
     public function handle(): void
     {
         // Property::truncate();
+        $this->giata_id = Supplier::where('name', 'Giata')->first()?->id ?? 0;
+        $this->report_id = Str::uuid()->toString();
+
+        $this->saveSuccessReport('DownloadGiataData', 'Start downloading data', json_encode([
+            'execution_time' => $this->executionTime('report').' sec',
+        ]));
 
         $this->current_time = microtime(true);
+
+        // Статистика для итоговых отчетов
+        $statsProperties = 0;
+        $statsHBSI = 0;
+        $statsExpedia = 0;
+        $statsIcePortal = 0;
 
         $batch = 1;
         $url = config('giata.main.base_uri').'properties';
         $username = config('giata.main.username');
         $password = config('giata.main.password');
+
+        $this->saveSuccessReport('DownloadGiataData', 'Start downloading data', json_encode([
+            'url' => $url,
+            'execution_time' => $this->executionTime('report').' sec',
+        ]));
 
         // Create a Guzzle HTTP client instance
         $client = new Client([
@@ -55,7 +93,13 @@ class DownloadGiataData extends Command
 
                     $this->info('Get XML BATCH: '.$batch.' in '.$this->executionTime().' seconds');
 
-                    $url = $this->parseXMLToDb($textXML);
+                    list($url, $batchStats) = $this->parseXMLToDb($textXML, $batch);
+
+                    // Агрегируем статистику из каждой пачки
+                    $statsProperties += $batchStats['properties'] ?? 0;
+                    $statsHBSI += $batchStats['hbsi'] ?? 0;
+                    $statsExpedia += $batchStats['expedia'] ?? 0;
+                    $statsIcePortal += $batchStats['iceportal'] ?? 0;
 
                     $this->info('parseXMLToDb BATCH: '.$batch.' in '.$this->executionTime().' seconds');
 
@@ -66,10 +110,23 @@ class DownloadGiataData extends Command
                     $this->warn('-----------------------------------');
 
                 } else {
-                    $this->error('Error importing XML data. HTTP status code: '.$response->getStatusCode());
+                    $error = 'Error importing XML data. HTTP status code: '.$response->getStatusCode();
+                    $this->error($error);
+                    $this->saveErrorReport('DownloadGiataData', 'HTTP Error', json_encode([
+                        'batch' => $batch,
+                        'status_code' => $response->getStatusCode(),
+                        'execution_time' => $this->executionTime('report').' sec',
+                    ]));
                 }
             } catch (Exception|GuzzleException $e) {
-                $this->error('Error importing XML data: '.$e->getMessage());
+                $error = 'Error importing XML data: '.$e->getMessage();
+                $this->error($error);
+                $this->saveErrorReport('DownloadGiataData', 'Exception', json_encode([
+                    'batch' => $batch,
+                    'getMessage' => $e->getMessage(),
+                    'getTraceAsString' => $e->getTraceAsString(),
+                    'execution_time' => $this->executionTime('report').' sec',
+                ]));
             }
         }
 
@@ -77,17 +134,35 @@ class DownloadGiataData extends Command
         DB::connection('mysql_cache')->setEventDispatcher($eventDispatcher);
         DB::enableQueryLog();
 
+        // Добавляем финальный отчет со статистикой по поставщикам
+        $this->saveSuccessReport('DownloadGiataData', 'All data processed successfully', json_encode([
+            'total_batches' => $batch - 1,
+            'total_execution_time' => (microtime(true) - $this->execution_times['main']).' sec',
+            'memory_peak_usage' => (memory_get_peak_usage() / 1024 / 1024).' MB',
+            'total_properties' => $statsProperties,
+            'suppliers_mapping_stats' => [
+                'hbsi' => $statsHBSI,
+                'expedia' => $statsExpedia,
+                'iceportal' => $statsIcePortal,
+            ]
+        ]));
     }
 
-    private function executionTime(): float|string
+    private function executionTime(string $key = null): float|string
     {
+        if ($key) {
+            $execution_time = (microtime(true) - $this->execution_times[$key]);
+            $this->execution_times[$key] = microtime(true);
+            return $execution_time;
+        }
+
         $execution_time = (microtime(true) - $this->current_time);
         $this->current_time = microtime(true);
 
         return $execution_time;
     }
 
-    private function parseXMLToDb(string $text): bool|string
+    private function parseXMLToDb(string $text, int $batch): array
     {
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
 
@@ -205,7 +280,14 @@ class DownloadGiataData extends Command
             Log::error('ImportJsonlData insert Property ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
-            return false;
+            $this->saveErrorReport('DownloadGiataData', 'Error inserting properties', json_encode([
+                'batch' => $batch,
+                'getMessage' => $e->getMessage(),
+                'getTraceAsString' => $e->getTraceAsString(),
+                'execution_time' => $this->executionTime('report').' sec',
+            ]));
+
+            return [false, ['properties' => 0, 'hbsi' => 0, 'expedia' => 0, 'iceportal' => 0]];
         }
 
         try {
@@ -218,7 +300,14 @@ class DownloadGiataData extends Command
             Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
-            return false;
+            $this->saveErrorReport('DownloadGiataData', 'Error inserting HBSI mappings', json_encode([
+                'batch' => $batch,
+                'getMessage' => $e->getMessage(),
+                'getTraceAsString' => $e->getTraceAsString(),
+                'execution_time' => $this->executionTime('report').' sec',
+            ]));
+
+            return [false, ['properties' => count($batchData), 'hbsi' => 0, 'expedia' => 0, 'iceportal' => 0]];
         }
 
         try {
@@ -231,7 +320,14 @@ class DownloadGiataData extends Command
             Log::error('ImportJsonlData insert Mapping for Expedia', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
-            return false;
+            $this->saveErrorReport('DownloadGiataData', 'Error inserting Expedia mappings', json_encode([
+                'batch' => $batch,
+                'getMessage' => $e->getMessage(),
+                'getTraceAsString' => $e->getTraceAsString(),
+                'execution_time' => $this->executionTime('report').' sec',
+            ]));
+
+            return [false, ['properties' => count($batchData), 'hbsi' => count($batchDataMapperHbsi), 'expedia' => 0, 'iceportal' => 0]];
         }
 
         try {
@@ -244,9 +340,17 @@ class DownloadGiataData extends Command
             Log::error('ImportJsonlData insert Mapping for Ice Portal', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
-            return false;
+            $this->saveErrorReport('DownloadGiataData', 'Error inserting IcePortal mappings', json_encode([
+                'batch' => $batch,
+                'getMessage' => $e->getMessage(),
+                'getTraceAsString' => $e->getTraceAsString(),
+                'execution_time' => $this->executionTime('report').' sec',
+            ]));
+
+            return [false, ['properties' => count($batchData), 'hbsi' => count($batchDataMapperHbsi), 'expedia' => count($batchDataMapperExpedia), 'iceportal' => 0]];
         }
 
+        $url = false;
         try {
             $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
             $url_arr = explode('"', $url_next);
@@ -254,13 +358,20 @@ class DownloadGiataData extends Command
             $this->comment('Get next url: '.$url);
         } catch (Exception $e) {
             $this->comment('Url not found - all data retrieved. This is the last batch');
-
-            return false;
         }
+
+        // Собираем статистические данные для этого батча
+        $stats = [
+            'properties' => count($batchData),
+            'hbsi' => count($batchDataMapperHbsi),
+            'expedia' => count($batchDataMapperExpedia),
+            'iceportal' => count($batchDataMapperIcePortal)
+        ];
 
         unset($batchData, $batchDataMapperHbsi, $batchDataMapperExpedia, $propertyIds, $properties, $xml, $xmlContent);
 
-        return $url;
+        // Возвращаем массив с URL и статистикой
+        return [$url, $stats];
     }
 
     private function processProperty($property, $key)

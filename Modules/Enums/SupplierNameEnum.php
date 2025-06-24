@@ -8,6 +8,7 @@ enum SupplierNameEnum: string
     case HBSI = 'HBSI';
     case ICE_PORTAL = 'IcePortal';
     case HILTON = 'Hilton';
+    case GIATA = 'Giata';
 
     public static function getValues(): array
     {
