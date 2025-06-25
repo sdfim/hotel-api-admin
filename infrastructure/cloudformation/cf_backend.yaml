@@ -1387,6 +1387,7 @@ Resources:
                   rabbitmq_secret = json.loads(rabbitmq_secret_value)
                   env_vars["RABBITMQ_USER"] = rabbitmq_secret.get('username')
                   env_vars["RABBITMQ_PASSWORD"] = rabbitmq_secret.get('password')
+                  env_vars["RABBITMQ_PORT"] = "5671"
                   print(f"Successfully loaded RabbitMQ secrets from: {rabbitmq_secret_name}")
                 except Exception as e:
                   print(f"Error loading RabbitMQ secret {rabbitmq_secret_name}: {e}", file=sys.stderr)

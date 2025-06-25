@@ -15,7 +15,16 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
     && docker-php-ext-install gd
 
-RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli && docker-php-ext-install zip && docker-php-ext-configure intl && docker-php-ext-install intl && pecl install redis && docker-php-ext-enable redis && docker-php-ext-install bcmath && docker-php-ext-install sockets && docker-php-ext-configure sockets
+RUN docker-php-ext-install pdo_mysql && \
+    docker-php-ext-install mysqli && \
+    docker-php-ext-install zip && \
+    docker-php-ext-configure intl && \
+    docker-php-ext-install intl && \
+    pecl install redis-5.3.7 && \
+    docker-php-ext-enable redis && \
+    docker-php-ext-install bcmath && \
+    docker-php-ext-install sockets && \
+    docker-php-ext-configure sockets
 
 # Install Imagick
 RUN apt-get update \
@@ -64,4 +73,3 @@ RUN php artisan key:generate
 EXPOSE 80
 
 CMD ["apache2-foreground"]
-# ENTRYPOINT ["entrypoint.sh"]
