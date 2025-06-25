@@ -37,5 +37,21 @@ class SuppliersSeeder extends Seeder
                 'description' => 'Hilton Supplier',
             ]
         );
+
+        Supplier::updateOrCreate(
+            ['name' => SupplierNameEnum::GIATA->value],
+            [
+                'product_type' => [TypeRequestEnum::HOTEL->value],
+                'description' => 'Hilton Supplier',
+            ]
+        );
+
+        Supplier::updateOrCreate(
+            ['name' => SupplierNameEnum::ICE_PORTAL->value],
+            [
+                'product_type' => [TypeRequestEnum::HOTEL->value],
+                'description' => 'IcePortal Supplier',
+            ]
+        );
     }
 }
