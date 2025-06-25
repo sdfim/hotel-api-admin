@@ -1350,6 +1350,13 @@ Resources:
                 output_file_path = "/home/ec2-user/.tasks.env"
 
                 env_vars = {
+                  "FILESYSTEM_DISK": "s3",
+                  "AWS_BUCKET": "fora-stage-storage-bucket",
+                  "AWS_DEFAULT_REGION": region,
+                  "CACHE_DRIVER": "redis",
+                  "CACHE_STORE": "redis",
+                  "QUEUE_CONNECTION": "rabbitmq",
+                  "REDIS_PORT": "6379",
                   "DB_CONNECTION": "mysql",
                   "DB_DATABASE": os.environ.get('DB_DATABASE', 'fora_stage_engine'),
                   "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get('SUPPLIER_CONTENT_DB_DATABASE', 'fora_stage_supplier_content'),
@@ -1378,7 +1385,7 @@ Resources:
                 try:
                   rabbitmq_secret_value = cache.get_secret_string(rabbitmq_secret_name)
                   rabbitmq_secret = json.loads(rabbitmq_secret_value)
-                  env_vars["RABBITMQ_USERNAME"] = rabbitmq_secret.get('username')
+                  env_vars["RABBITMQ_USER"] = rabbitmq_secret.get('username')
                   env_vars["RABBITMQ_PASSWORD"] = rabbitmq_secret.get('password')
                   print(f"Successfully loaded RabbitMQ secrets from: {rabbitmq_secret_name}")
                 except Exception as e:
@@ -1400,16 +1407,6 @@ Resources:
             - "\n"
             # Only passing app_name and AWS::Region now, rabbitmq_secret_name is derived inside the Python script
             - !Sub 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region}'
-            - "\n"
-            # Add static environment variables to .tasks.env
-            - |
-              sudo -u ec2-user bash -c 'cat >> /home/ec2-user/.tasks.env << "STATIC_VARS_EOF"
-              CACHE_DRIVER="redis"
-              CACHE_STORE="redis"
-              QUEUE_CONNECTION="rabbitmq"
-              LOG_CHANNEL="cloudwatch"
-              RABBITMQ_PORT="5671"
-              STATIC_VARS_EOF'
             - "\n"
             - 'RABBITMQ_HOST_RAW="'
             - !Select [ 0, !GetAtt 'RabbitMqBroker.AmqpEndpoints' ]
@@ -1455,7 +1452,7 @@ Resources:
           ToPort: '22'
         - FromPort: '22'
           IpProtocol: tcp
-          CidrIp: 217.119.69.62/32
+          CidrIp: 217.119.69.6/32
           ToPort: '22'
       VpcId: !Ref 'VPC'
     Type: AWS::EC2::SecurityGroup
