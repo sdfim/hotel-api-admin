@@ -25,7 +25,15 @@ RUN git clone https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis &&
     docker-php-ext-install -j$(nproc) /usr/src/php/ext/redis && \
     docker-php-ext-enable redis
 
-RUN pecl install imagick && docker-php-ext-enable imagick
+# Install Imagick
+RUN apt-get update \
+    && apt-get install -y imagemagick \
+    libmagickwand-dev \
+    libwebp-dev \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf && \
     a2enmod rewrite headers
