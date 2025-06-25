@@ -1330,116 +1330,94 @@ Resources:
             - |
               cat > /home/ec2-user/set_envs_from_secrets.py << 'EOF'
               import sys
-              import os
               import json
               import botocore.session
               from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
 
               def main():
-                  # Expecting app_name and region only.
-                  if len(sys.argv) < 3:
-                      print("Usage: python script.py <app_name> <region>", file=sys.stderr)
-                      sys.exit(1)
+                # Expecting app_name and region only. rabbitmq_secret_name will be derived.
+                if len(sys.argv) < 3:
+                  print("Usage: python script.py <app_name> <region>", file=sys.stderr)
+                  sys.exit(1)
 
-                  app_name = sys.argv[1]
-                  region = sys.argv[2]
+                app_name = sys.argv[1] # Get app_name from the first argument
+                region = sys.argv[2]   # Get region from the second argument
 
-                  client = botocore.session.get_session().create_client("secretsmanager", region_name=region)
-                  cache_config = SecretCacheConfig()
-                  cache = SecretCache(config=cache_config, client=client)
+                client = botocore.session.get_session().create_client("secretsmanager", region_name=region)
+                cache_config = SecretCacheConfig()
+                cache = SecretCache(config=cache_config, client=client)
 
-                  # Initialize dictionary to store all collected variables
-                  collected_env_vars = {}
+                output_file_path = "/home/ec2-user/.tasks.env"
 
-                  # Fetch 'envs' credentials and add them to collected_env_vars
-                  envs_secret_name = f"{app_name}-envs"
-                  try:
-                      secret_value = cache.get_secret_string(envs_secret_name)
-                      secret_dict = json.loads(secret_value)
-                      # Add all key-value pairs from the envs secret to the dictionary
-                      collected_env_vars.update(secret_dict)
-                      print(f"DEBUG: Successfully loaded secrets from: {envs_secret_name}", file=sys.stderr)
-                  except Exception as e:
-                      print(f"ERROR: Error loading secret {envs_secret_name}: {e}", file=sys.stderr)
-                      sys.exit(1) # Consider if this is truly critical or if a fallback is possible
+                env_vars = {
+                  "DB_CONNECTION": "mysql",
+                  "DB_DATABASE": os.environ.get('DB_DATABASE', 'fora_stage_engine'),
+                  "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get('SUPPLIER_CONTENT_DB_DATABASE', 'fora_stage_supplier_content'),
+                }
 
-                  # Fetch RDS credentials and add them to collected_env_vars
-                  rds_secret_name = f"{app_name}-rds-creds"
-                  try:
-                      rds_secret_value = cache.get_secret_string(rds_secret_name)
-                      rds_secret = json.loads(rds_secret_value)
-                      collected_env_vars.update({
-                          "DB_HOST": rds_secret.get("host"),
-                          "DB_PORT": str(rds_secret.get("port")),
-                          "DB_USERNAME": rds_secret.get("username"),
-                          "DB_PASSWORD": rds_secret.get("password"),
-                          "SUPPLIER_CONTENT_DB_HOST": rds_secret.get("host"),
-                          "SUPPLIER_CONTENT_DB_PORT": str(rds_secret.get("port")),
-                          "SUPPLIER_CONTENT_DB_USERNAME": rds_secret.get("username"),
-                          "SUPPLIER_CONTENT_DB_PASSWORD": rds_secret.get("password"),
-                      })
-                      print(f"DEBUG: Successfully loaded RDS secrets from: {rds_secret_name}", file=sys.stderr)
-                  except Exception as e:
-                      print(f"ERROR: Error loading RDS secret {rds_secret_name}: {e}", file=sys.stderr)
-                      sys.exit(1)
+                # Fetch RDS credentials
+                rds_secret_name = f"{app_name}-rds-creds"
+                try:
+                  rds_secret_value = cache.get_secret_string(rds_secret_name)
+                  rds_secret = json.loads(rds_secret_value)
+                  env_vars["DB_HOST"] = rds_secret.get('host')
+                  env_vars["DB_PORT"] = str(rds_secret.get('port'))
+                  env_vars["DB_USERNAME"] = rds_secret.get('username')
+                  env_vars["DB_PASSWORD"] = rds_secret.get('password')
+                  env_vars["SUPPLIER_CONTENT_DB_HOST"] = rds_secret.get('host')
+                  env_vars["SUPPLIER_CONTENT_DB_PORT"] = str(rds_secret.get('port'))
+                  env_vars["SUPPLIER_CONTENT_DB_USERNAME"] = rds_secret.get('username')
+                  env_vars["SUPPLIER_CONTENT_DB_PASSWORD"] = rds_secret.get('password')
+                  print(f"Successfully loaded RDS secrets from: {rds_secret_name}")
+                except Exception as e:
+                  print(f"Error loading RDS secret {rds_secret_name}: {e}", file=sys.stderr)
+                  sys.exit(1)
 
-                  # Fetch RabbitMQ credentials and add them to collected_env_vars
-                  rabbitmq_secret_name = f"{app_name}-rabbitmq-creds"
-                  try:
-                      rabbitmq_secret_value = cache.get_secret_string(rabbitmq_secret_name)
-                      rabbitmq_secret = json.loads(rabbitmq_secret_value)
-                      collected_env_vars.update({
-                          "RABBITMQ_USER": rabbitmq_secret.get("username"),
-                          "RABBITMQ_PASSWORD": rabbitmq_secret.get("password"),
-                      })
-                      print(f"DEBUG: Successfully loaded RabbitMQ secrets from: {rabbitmq_secret_name}", file=sys.stderr)
-                  except Exception as e:
-                      print(f"ERROR: Error loading RabbitMQ secret {rabbitmq_secret_name}: {e}", file=sys.stderr)
-                      sys.exit(1)
+                # Fetch RabbitMQ credentials (name is now derived internally)
+                rabbitmq_secret_name = f"{app_name}-rabbitmq-creds" # Derived from app_name
+                try:
+                  rabbitmq_secret_value = cache.get_secret_string(rabbitmq_secret_name)
+                  rabbitmq_secret = json.loads(rabbitmq_secret_value)
+                  env_vars["RABBITMQ_USERNAME"] = rabbitmq_secret.get('username')
+                  env_vars["RABBITMQ_PASSWORD"] = rabbitmq_secret.get('password')
+                  print(f"Successfully loaded RabbitMQ secrets from: {rabbitmq_secret_name}")
+                except Exception as e:
+                  print(f"Error loading RabbitMQ secret {rabbitmq_secret_name}: {e}", file=sys.stderr)
+                  sys.exit(1)
 
-                  # Print all collected environment variables to stdout in KEY="VALUE" format
-                  for key, value in collected_env_vars.items():
-                      escaped_value = str(value).replace('"', '\\"') # Escape double quotes within values
-                      sys.stdout.write(f'{key}="{escaped_value}"\n')
+                with open(output_file_path, "w") as env_file:
+                  for key, value in env_vars.items():
+                    env_file.write(f"{key}=\"{value}\"\n")
 
               if __name__ == "__main__":
-                  main()
+                import os
+                main()
               EOF
             - "\n"
             - 'chmod 755 /home/ec2-user/set_envs_from_secrets.py'
             - "\n"
             - 'chown ec2-user:ec2-user /home/ec2-user/set_envs_from_secrets.py'
             - "\n"
-            # Execute the Python script and capture its output into a temporary file
-            - !Sub 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region} > /home/ec2-user/.secrets_from_python.env'
+            # Only passing app_name and AWS::Region now, rabbitmq_secret_name is derived inside the Python script
+            - !Sub 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region}'
             - "\n"
-            # Start building the .tasks.env file with static and dynamically derived variables
-            - 'sudo -u ec2-user bash -c ''cat > /home/ec2-user/.tasks.env << "ALL_VARS_EOF"'
-            - 'FILESYSTEM_DISK="s3"'
-            - 'AWS_BUCKET="fora-stage-storage-bucket"' # Or derive this from !Ref 'S3StorageBucket'
-            - !Sub 'AWS_DEFAULT_REGION="${AWS::Region}"' # Explicitly set default region
-            - 'CACHE_DRIVER="redis"'
-            - 'CACHE_STORE="redis"'
-            - 'QUEUE_CONNECTION="rabbitmq"'
-            - 'LOG_CHANNEL="cloudwatch"'
-            - 'RABBITMQ_PORT="5671"'
-            # Dynamically derive REDIS_HOST here
-            - !Sub 'REDIS_HOST="${RedisCache.RedisEndpoint.Address}"'
-            - 'REDIS_PORT="6379"'
-            - 'ALL_VARS_EOF'''
+            # Add static environment variables to .tasks.env
+            - |
+              sudo -u ec2-user bash -c 'cat >> /home/ec2-user/.tasks.env << "STATIC_VARS_EOF"
+              CACHE_DRIVER="redis"
+              CACHE_STORE="redis"
+              QUEUE_CONNECTION="rabbitmq"
+              LOG_CHANNEL="cloudwatch"
+              RABBITMQ_PORT="5671"
+              STATIC_VARS_EOF'
             - "\n"
-            # Append the RabbitMQ Host (dynamically derived from CloudFormation)
-            # Create a shell variable 'RABBITMQ_ENDPOINT_VALUE' by directly resolving the CloudFormation intrinsic functions.
-            # Then use that shell variable for string manipulation.
-            - 'RABBITMQ_ENDPOINT_VALUE='
+            - 'RABBITMQ_HOST_RAW="'
             - !Select [ 0, !GetAtt 'RabbitMqBroker.AmqpEndpoints' ]
+            - '"'
             - "\n"
-            - 'RABBITMQ_HOST=$(echo ${RABBITMQ_ENDPOINT_VALUE} | sed -e "s/^amqps:\\/\\///" -e "s/:5671$//")'
+            - 'RABBITMQ_HOST=$(echo $RABBITMQ_HOST_RAW | sed -e "s/^amqps:\\/\\///" -e "s/:5671$//")'
             - "\n"
             - 'sudo -u ec2-user bash -c "echo RABBITMQ_HOST=\\\"$RABBITMQ_HOST\\\" >> /home/ec2-user/.tasks.env"'
-            - "\n"
-            # Append the secrets fetched by the Python script to the .tasks.env file
-            - 'sudo -u ec2-user cat /home/ec2-user/.secrets_from_python.env >> /home/ec2-user/.tasks.env'
             - "\n"
             - 'chown ec2-user:ec2-user /home/ec2-user/.tasks.env'
             - "\n"
@@ -1477,7 +1455,7 @@ Resources:
           ToPort: '22'
         - FromPort: '22'
           IpProtocol: tcp
-          CidrIp: 217.119.69.6/32
+          CidrIp: 217.119.69.62/32
           ToPort: '22'
       VpcId: !Ref 'VPC'
     Type: AWS::EC2::SecurityGroup
