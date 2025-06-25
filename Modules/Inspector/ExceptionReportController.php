@@ -13,7 +13,7 @@ class ExceptionReportController extends BaseInspectorController
     {
         try {
             $this->current_time = microtime(true);
-            $hash = md5($description.date('Y-m-d H:i:s'));
+            $hash = md5($description.date('Y-m-d H:i:s').microtime());
 
             $path = 'exception_report_'.$level.'/'.date('Y-m-d').'/'.$hash.'.json';
 

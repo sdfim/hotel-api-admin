@@ -3,13 +3,13 @@
 namespace App\Traits;
 
 /**
- * Трейт для создания отчетов об успешном выполнении и ошибках
- * в консольных командах загрузки данных.
+ * Trait for creating success and error reports
+ * in data loading console commands.
  */
 trait ExceptionReportTrait
 {
     /**
-     * Создает отчет об успешном выполнении операции
+     * Creates a report on the successful completion of an operation
      */
     private function saveSuccessReport(string $action, string $description, string $content): void
     {
@@ -17,7 +17,7 @@ trait ExceptionReportTrait
     }
 
     /**
-     * Создает отчет об ошибке выполнения операции
+     * Creates an error report for an operation
      */
     private function saveErrorReport(string $action, string $description, string $content): void
     {
@@ -25,7 +25,7 @@ trait ExceptionReportTrait
     }
 
     /**
-     * Базовый метод для создания отчетов
+     * Base method for creating reports
      */
     private function saveReport(string $action, string $description, string $content, string $level = 'error'): void
     {
@@ -47,8 +47,8 @@ trait ExceptionReportTrait
     }
 
     /**
-     * Получение ID поставщика для отчета
-     * Переопределите этот метод в классах, использующих трейт
+     * Get the supplier ID for the report
+     * Override this method in classes that use the trait
      */
     protected function getSupplierIdForReport(): int
     {
