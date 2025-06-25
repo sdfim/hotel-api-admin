@@ -2,6 +2,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Cloudformation template to create TerraMare resources
 Conditions:
   HasAdminPanelUrl: !Not [!Equals [!Ref AppUrlAdminPanel, '']]
+  HasContentApiUrl: !Not [!Equals [!Ref AppUrlContentApi, '']]
+  HasPricingApiUrl: !Not [!Equals [!Ref AppUrlPricingApi, '']]
 Outputs:
   BookingAdminUrl:
     Export:
@@ -10,6 +12,13 @@ Outputs:
         - - !Ref 'AWS::StackName'
           - BookingAdminUrl
     Value: !GetAtt 'AppRunnerBookingAdminApiSvc.ServiceUrl'
+  ClientApiUrl:
+    Export:
+      Name: !Join
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - ClientApiUrl
+    Value: !GetAtt 'AppRunnerClientApiSvc.ServiceUrl'
   CodePipelineRoleArn:
     Export:
       Name: !Join
@@ -17,6 +26,13 @@ Outputs:
         - - !Ref 'AWS::StackName'
           - CodePipelineRoleArn
     Value: !GetAtt 'CodePipelineFrontendRole.Arn'
+  PricingApiUrl:
+    Export:
+      Name: !Join
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - PricingApiUrl
+    Value: !GetAtt 'AppRunnerPricingApiSvc.ServiceUrl'
   S3CodePipelineBucket:
     Export:
       Name: !Join
@@ -26,7 +42,7 @@ Outputs:
     Value: !Ref 'S3CodePipelineBucket'
 Parameters:
   APPNAME:
-    Default: 'fora-stage'
+    Default: 'fora-prod'
     Description: Name of the app, it is used to construct resources names
     Type: String
   AppUrlPricingApi:
@@ -166,9 +182,9 @@ Resources:
     Properties:
       AutoScalingConfigurationArn: !GetAtt 'AppRunnerAutoScalingConf.AutoScalingConfigurationArn'
       InstanceConfiguration:
-        Cpu: 2 vCPU # Increased CPU
+        Cpu: 1 vCPU
         InstanceRoleArn: !GetAtt 'AppRunnerInstanceRole.Arn'
-        Memory: 4 GB # Increased Memory
+        Memory: 2 GB
       NetworkConfiguration:
         EgressConfiguration:
           EgressType: VPC
@@ -193,59 +209,226 @@ Resources:
                   - !Ref 'AppUrlAdminPanel'
                   - !GetAtt 'AppRunnerBookingAdminApiSvc.ServiceUrl'
               - Name: AWS_BUCKET
-                Value: 'fora-stage-storage-bucket'
+                Value: 'fora-prod-storage-bucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
               - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
               - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
               - Name: CACHE_DRIVER
                 Value: 'file'
               - Name: CACHE_STORE
                 Value: 'redis'
               - Name: SUPPLIER_EXPEDIA_API_KEY
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
               - Name: SUPPLIER_EXPEDIA_BASE_URL
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
               - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
               - Name: SUPPLIER_ICE_PORTAL_BASE_URL
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
               - Name: GIATA_POI_BASE_URI
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_BASE_URI}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_BASE_URI}}'
               - Name: GIATA_POI_USERNAME
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_USERNAME}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_USERNAME}}'
               - Name: GIATA_POI_PASSWORD
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_POI_PASSWORD}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_PASSWORD}}'
               - Name: GIATA_MAIN_BASE_URI
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_BASE_URI}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_BASE_URI}}'
               - Name: GIATA_MAIN_USERNAME
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_USERNAME}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_USERNAME}}'
               - Name: GIATA_MAIN_PASSWORD
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GIATA_MAIN_PASSWORD}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_PASSWORD}}'
               - Name: HILTON_CLIENT_ID
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_ID}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_ID}}'
               - Name: HILTON_CLIENT_SECRET
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:HILTON_CLIENT_SECRET}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
               - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID # Updated to snake_case
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
               - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY # Updated to snake_case
-                Value: '{{resolve:secretsmanager:fora-stage-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
+              - Name: LOG_CHANNEL
+                Value: 'daily'
+              - Name: DB_CONNECTION
+                Value: 'mysql'
+              - Name: DB_DATABASE
+                Value: !Ref 'DbDatabase'
+              - Name: DB_HOST
+                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+              - Name: DB_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:password}}
+              - Name: DB_PORT
+                Value: '3306'
+              - Name: DB_USERNAME
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:username}}
+              - Name: RABBITMQ_HOST
+                Value: !Join
+                  - ''
+                  - !Split
+                    - :5671
+                    - !Join
+                      - ''
+                      - !Split
+                        - amqps://
+                        - !Select
+                          - 0
+                          - !GetAtt 'RabbitMqBroker.AmqpEndpoints'
+              - Name: RABBITMQ_LOGIN
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretMqCreds'
+                    - :SecretString:username}}
+              - Name: RABBITMQ_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretMqCreds'
+                    - :SecretString:password}}
+              - Name: RABBITMQ_PORT
+                Value: '5671'
+              - Name: REDIS_HOST
+                Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
+              - Name: SUPPLIER_CONTENT_DB_DATABASE
+                Value: !Ref 'DbSupplierContentDatabase'
+              - Name: SUPPLIER_CONTENT_DB_HOST
+                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+              - Name: SUPPLIER_CONTENT_DB_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:password}}
+              - Name: SUPPLIER_CONTENT_DB_PORT
+                Value: '3306'
+              - Name: SUPPLIER_CONTENT_DB_USERNAME
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:username}}
+              - Name: FILESYSTEM_DISK
+                Value: s3
+              - Name: PORT
+                Value: '80'
+          ImageIdentifier: !Join
+            - ''
+            - - !Ref 'AWS::AccountId'
+              - .dkr.ecr.
+              - !Ref 'AWS::Region'
+              - .amazonaws.com/
+              - !Ref 'APPNAME'
+              - -api:latest
+          ImageRepositoryType: ECR
+    Type: AWS::AppRunner::Service
+  AppRunnerClientApiSvc:
+    DeletionPolicy: Delete
+    Properties:
+      AutoScalingConfigurationArn: !GetAtt 'AppRunnerAutoScalingConf.AutoScalingConfigurationArn'
+      InstanceConfiguration:
+        Cpu: 1 vCPU
+        InstanceRoleArn: !GetAtt 'AppRunnerInstanceRole.Arn'
+        Memory: 2 GB
+      NetworkConfiguration:
+        EgressConfiguration:
+          EgressType: VPC
+          VpcConnectorArn: !GetAtt 'AppRunnerVpcConnector.VpcConnectorArn'
+        IngressConfiguration:
+          IsPubliclyAccessible: true
+      ServiceName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - client-api
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          AccessRoleArn: !GetAtt 'AppRunnerEcrRole.Arn'
+        AutoDeploymentsEnabled: false
+        ImageRepository:
+          ImageConfiguration:
+            Port: '80'
+            RuntimeEnvironmentVariables:
+              - Name: APP_URL
+                Value: !If
+                  - HasContentApiUrl
+                  - !Ref 'AppUrlContentApi'
+                  - !GetAtt 'AppRunnerClientApiSvc.ServiceUrl'
+              - Name: AWS_BUCKET
+                Value: 'fora-prod-storage-bucket'
+              - Name: BOOKING_SUPPLIER_HBSI_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
+              - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
+              - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
+              - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
+              - Name: BOOKING_SUPPLIER_HBSI_TARGET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
+              - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
+              - Name: CACHE_DRIVER
+                Value: 'file'
+              - Name: CACHE_STORE
+                Value: 'redis'
+              - Name: SUPPLIER_EXPEDIA_API_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
+              - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
+              - Name: SUPPLIER_EXPEDIA_BASE_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
+              - Name: SUPPLIER_ICE_PORTAL_BASE_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
+              - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
+              - Name: GIATA_POI_BASE_URI
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_BASE_URI}}'
+              - Name: GIATA_POI_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_USERNAME}}'
+              - Name: GIATA_POI_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_PASSWORD}}'
+              - Name: GIATA_MAIN_BASE_URI
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_BASE_URI}}'
+              - Name: GIATA_MAIN_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_USERNAME}}'
+              - Name: GIATA_MAIN_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_PASSWORD}}'
+              - Name: HILTON_CLIENT_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_ID}}'
+              - Name: HILTON_CLIENT_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
                 Value: 'daily'
               - Name: DB_CONNECTION
@@ -409,6 +592,173 @@ Resources:
         - - !Ref 'APPNAME'
           - apprunner-role
     Type: AWS::IAM::Role
+  AppRunnerPricingApiSvc:
+    DeletionPolicy: Delete
+    Properties:
+      AutoScalingConfigurationArn: !GetAtt 'AppRunnerAutoScalingConf.AutoScalingConfigurationArn'
+      InstanceConfiguration:
+        Cpu: 1 vCPU
+        InstanceRoleArn: !GetAtt 'AppRunnerInstanceRole.Arn'
+        Memory: 2 GB
+      NetworkConfiguration:
+        EgressConfiguration:
+          EgressType: VPC
+          VpcConnectorArn: !GetAtt 'AppRunnerVpcConnector.VpcConnectorArn'
+        IngressConfiguration:
+          IsPubliclyAccessible: true
+      ServiceName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - pricing-api
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          AccessRoleArn: !GetAtt 'AppRunnerEcrRole.Arn'
+        AutoDeploymentsEnabled: false
+        ImageRepository:
+          ImageConfiguration:
+            Port: '80'
+            RuntimeEnvironmentVariables:
+              - Name: APP_URL
+                Value: !If
+                  - HasPricingApiUrl
+                  - !Ref 'AppUrlPricingApi'
+                  - !GetAtt 'AppRunnerPricingApiSvc.ServiceUrl'
+              - Name: AWS_BUCKET
+                Value: 'fora-prod-storage-bucket'
+              - Name: BOOKING_SUPPLIER_HBSI_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_USERNAME}}'
+              - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_PASSWORD}}'
+              - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID}}'
+              - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL}}'
+              - Name: BOOKING_SUPPLIER_HBSI_TARGET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_TARGET}}'
+              - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID}}'
+              - Name: CACHE_DRIVER
+                Value: 'file'
+              - Name: CACHE_STORE
+                Value: 'redis'
+              - Name: SUPPLIER_EXPEDIA_API_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_API_KEY}}'
+              - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_SHARED_SECRET}}'
+              - Name: SUPPLIER_EXPEDIA_BASE_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_EXPEDIA_BASE_URL}}'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_ID}}'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_CLIENT_SECRET}}'
+              - Name: SUPPLIER_ICE_PORTAL_BASE_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_BASE_URL}}'
+              - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:SUPPLIER_ICE_PORTAL_TOKEN_URL}}'
+              - Name: GIATA_POI_BASE_URI
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_BASE_URI}}'
+              - Name: GIATA_POI_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_USERNAME}}'
+              - Name: GIATA_POI_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_POI_PASSWORD}}'
+              - Name: GIATA_MAIN_BASE_URI
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_BASE_URI}}'
+              - Name: GIATA_MAIN_USERNAME
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_USERNAME}}'
+              - Name: GIATA_MAIN_PASSWORD
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GIATA_MAIN_PASSWORD}}'
+              - Name: HILTON_CLIENT_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_ID}}'
+              - Name: HILTON_CLIENT_SECRET
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
+              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
+              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
+                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
+              - Name: LOG_CHANNEL
+                Value: 'daily'
+              - Name: DB_CONNECTION
+                Value: 'mysql'
+              - Name: DB_DATABASE
+                Value: !Ref 'DbDatabase'
+              - Name: DB_HOST
+                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+              - Name: DB_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:password}}
+              - Name: DB_PORT
+                Value: '3306'
+              - Name: DB_USERNAME
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:username}}
+              - Name: RABBITMQ_HOST
+                Value: !Join
+                  - ''
+                  - !Split
+                    - :5671
+                    - !Join
+                      - ''
+                      - !Split
+                        - amqps://
+                        - !Select
+                          - 0
+                          - !GetAtt 'RabbitMqBroker.AmqpEndpoints'
+              - Name: RABBITMQ_LOGIN
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretMqCreds'
+                    - :SecretString:username}}
+              - Name: RABBITMQ_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretMqCreds'
+                    - :SecretString:password}}
+              - Name: RABBITMQ_PORT
+                Value: '5671'
+              - Name: REDIS_HOST
+                Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
+              - Name: SUPPLIER_CONTENT_DB_DATABASE
+                Value: !Ref 'DbSupplierContentDatabase'
+              - Name: SUPPLIER_CONTENT_DB_HOST
+                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+              - Name: SUPPLIER_CONTENT_DB_PASSWORD
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:password}}
+              - Name: SUPPLIER_CONTENT_DB_PORT
+                Value: '3306'
+              - Name: SUPPLIER_CONTENT_DB_USERNAME
+                Value: !Join
+                  - ''
+                  - - '{{resolve:secretsmanager:'
+                    - !Ref 'SecretRdsMasterCreds'
+                    - :SecretString:username}}
+              - Name: FILESYSTEM_DISK
+                Value: s3
+              - Name: PORT
+                Value: '80'
+          ImageIdentifier: !Join
+            - ''
+            - - !Ref 'AWS::AccountId'
+              - .dkr.ecr.
+              - !Ref 'AWS::Region'
+              - .amazonaws.com/
+              - !Ref 'APPNAME'
+              - -api:latest
+          ImageRepositoryType: ECR
+    Type: AWS::AppRunner::Service
   AppRunnerVpcConnector:
     DeletionPolicy: Delete
     Properties:
@@ -498,7 +848,15 @@ Resources:
             - !Join
               - ''
               - - '      - aws apprunner start-deployment --service-arn '
+                - !GetAtt 'AppRunnerPricingApiSvc.ServiceArn'
+            - !Join
+              - ''
+              - - '      - aws apprunner start-deployment --service-arn '
                 - !GetAtt 'AppRunnerBookingAdminApiSvc.ServiceArn'
+            - !Join
+              - ''
+              - - '      - aws apprunner start-deployment --service-arn '
+                - !GetAtt 'AppRunnerClientApiSvc.ServiceArn'
             - '      - docker build -t ${TASKS_REPO_NAME} -f infrastructure/docker/php-8.2/tasks.Dockerfile .'
             - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
             - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:latest'
@@ -993,7 +1351,7 @@ Resources:
 
                 env_vars = {
                   "FILESYSTEM_DISK": "s3",
-                  "AWS_BUCKET": "fora-stage-storage-bucket",
+                  "AWS_BUCKET": "fora-prod-storage-bucket",
                   "AWS_DEFAULT_REGION": region,
                   "CACHE_DRIVER": "redis",
                   "CACHE_STORE": "redis",
