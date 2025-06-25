@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 ARG DATADOG_API_KEY
 
 FROM php:8.2-apache-bookworm as baseapache2
@@ -24,7 +25,7 @@ RUN git clone https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis &&
     docker-php-ext-install -j$(nproc) /usr/src/php/ext/redis && \
     docker-php-ext-enable redis
 
-RUN docker-php-ext-enable imagick opcache
+RUN pecl install imagick && docker-php-ext-enable imagick
 
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf && \
     a2enmod rewrite headers
