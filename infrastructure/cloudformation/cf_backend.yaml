@@ -1409,6 +1409,12 @@ Resources:
             # Only passing app_name and AWS::Region now, rabbitmq_secret_name is derived inside the Python script
             - !Sub 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region}'
             - "\n"
+            - 'REDIS_HOST="'
+            - !GetAtt 'RedisCache.RedisEndpoint.Address'
+            - '"'
+            - "\n"
+            - 'sudo -u ec2-user bash -c "echo REDIS_HOST=\\\"$REDIS_HOST\\\" >> /home/ec2-user/.tasks.env"'
+            - "\n"
             - 'RABBITMQ_HOST_RAW="'
             - !Select [ 0, !GetAtt 'RabbitMqBroker.AmqpEndpoints' ]
             - '"'
