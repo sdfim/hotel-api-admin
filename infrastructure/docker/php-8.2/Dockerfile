@@ -21,19 +21,17 @@ RUN apt-get update && \
 RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype && \
     docker-php-ext-install -j$(nproc) gd pdo_mysql mysqli zip intl bcmath sockets
 
+# Installation of Redis from source
 RUN git clone https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis && \
     docker-php-ext-install -j$(nproc) /usr/src/php/ext/redis && \
     docker-php-ext-enable redis
 
-# Install Imagick
-RUN apt-get update \
-    && apt-get install -y imagemagick \
-    libmagickwand-dev \
-    libwebp-dev \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Installation of Imagick from source
+RUN git clone https://github.com/Imagick/imagick.git /usr/src/php/ext/imagick && \
+    docker-php-ext-install -j$(nproc) /usr/src/php/ext/imagick && \
+    docker-php-ext-enable imagick
+
+# OpCache is usually built-in to the PHP base image, so no explicit enable is needed.
 
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf && \
     a2enmod rewrite headers
