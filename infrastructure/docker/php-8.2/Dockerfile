@@ -31,19 +31,19 @@ RUN git clone https://github.com/Imagick/imagick.git /usr/src/php/ext/imagick &&
     docker-php-ext-install -j$(nproc) /usr/src/php/ext/imagick && \
     docker-php-ext-enable imagick
 
-# OpCache is usually built-in to the PHP base image, so no explicit enable is needed.
-
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf && \
     a2enmod rewrite headers
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www/html
+
+# 1. Copy composer.json and composer.lock for caching composer dependencies
 COPY composer.json composer.lock ./
-
-RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
-
+# 2. Copy the entire application code. This makes 'artisan' available.
 COPY . ./
+# 3. Now run composer install. 'artisan' will be present for post-autoload-dump scripts.
+RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html && \
     cp .env.example .env && \
