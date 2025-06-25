@@ -1,9 +1,8 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 WORKDIR /var/www
 
-#ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN apt-get update && apt-get install -y git zip unzip nginx cron \
+RUN apt-get update && apt-get install -y git zip unzip cron \
     supervisor libicu-dev libzip-dev && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install zip && docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli && docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install bcmath && pecl install redis && docker-php-ext-enable redis && docker-php-ext-install sockets && docker-php-ext-configure sockets
@@ -12,9 +11,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY ../../.. /var/www
 
+# Copy supervisord config for queue and cron management
 RUN cp infrastructure/docker/php-8.2/supervisord.conf /etc/supervisord.conf
-RUN cp infrastructure/docker/php-8.2/php-tasks.ini /usr/local/etc/php/conf.d/app.ini
-RUN cp infrastructure/docker/php-8.2/nginx.conf /etc/nginx/sites-enabled/default
+# Copy cron.d and cronenv if system cron is used within the container
 RUN cp -r infrastructure/docker/php-8.2/cron.d /etc/
 RUN cp infrastructure/docker/php-8.2/cronenv /cronenv
 
@@ -25,7 +24,6 @@ RUN php artisan key:generate
 RUN mkdir storage_fusemnt
 RUN chown -R www-data:www-data /var/www
 RUN chmod +x /var/www/infrastructure/docker/php-8.2/start.sh
-RUN sed -i 's/;clear_env = no/clear_env = no/' /usr/local/etc/php-fpm.d/www.conf
 
-EXPOSE 80
+# No EXPOSE 80 as this is not a web-serving container
 ENTRYPOINT ["/var/www/infrastructure/docker/php-8.2/start.sh"]
