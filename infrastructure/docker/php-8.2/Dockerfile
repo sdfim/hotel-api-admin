@@ -47,6 +47,31 @@ RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html && \
     cp .env.example .env && \
+    # Removing lines with secrets from .env after copying
+    # This ensures Laravel will only use environment variables
+    # set by load_secrets.php
+    sed -i '/^BOOKING_SUPPLIER_HBSI_USERNAME=/d' .env && \
+    sed -i '/^BOOKING_SUPPLIER_HBSI_PASSWORD=/d' .env && \
+    sed -i '/^BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID=/d' .env && \
+    sed -i '/^BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL=/d' .env && \
+    sed -i '/^BOOKING_SUPPLIER_HBSI_TARGET=/d' .env && \
+    sed -i '/^BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID=/d' .env && \
+    sed -i '/^SUPPLIER_EXPEDIA_API_KEY=/d' .env && \
+    sed -i '/^SUPPLIER_EXPEDIA_SHARED_SECRET=/d' .env && \
+    sed -i '/^SUPPLIER_EXPEDIA_BASE_URL=/d' .env && \
+    sed -i '/^SUPPLIER_ICE_PORTAL_CLIENT_ID=/d' .env && \
+    sed -i '/^SUPPLIER_ICE_PORTAL_CLIENT_SECRET=/d' .env && \
+    sed -i '/^SUPPLIER_ICE_PORTAL_BASE_URL=/d' .env && \
+    sed -i '/^SUPPLIER_ICE_PORTAL_TOKEN_URL=/d' .env && \
+    sed -i '/^GIATA_POI_BASE_URI=/d' .env && \
+    sed -i '/^GIATA_POI_USERNAME=/d' .env && \
+    sed -i '/^GIATA_POI_PASSWORD=/d' .env && \
+    sed -i '/^GIATA_MAIN_BASE_URI=/d' .env && \
+    sed -i '/^GIATA_MAIN_USERNAME=/d' .env && \
+    sed -i '/^GIATA_MAIN_PASSWORD=/d' .env && \
+    sed -i '/^HILTON_CLIENT_ID=/d' .env && \
+    sed -i '/^HILTON_CLIENT_SECRET=/d' .env && \
+    sed -i '/^GOOGLE_API_DEVELOPER_KEY=/d' .env && \
     php artisan key:generate
 
 COPY infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
