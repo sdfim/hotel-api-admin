@@ -230,10 +230,6 @@ Resources:
                 Value: !Sub '{{resolve:secretsmanager:${APPNAME}-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: !Sub '{{resolve:secretsmanager:${APPNAME}-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
-              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID # Updated to snake_case
-                Value: !Sub '{{resolve:secretsmanager:${APPNAME}-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
-              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY # Updated to snake_case
-                Value: !Sub '{{resolve:secretsmanager:${APPNAME}-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: DB_CONNECTION
                 Value: 'mysql'
               - Name: DB_DATABASE
@@ -946,126 +942,113 @@ Resources:
         - Key: UserDataVersion
           Value: 202506131800
       UserData: !Base64
-        'Fn::Join':
-          - ''
-          - # Start of bash script content
-            - '#!/bin/bash -xe'
-            - "\n"
-            - 'pip3 install aws-secretsmanager-caching'
-            - "\n"
-            - |
-              cat > /home/ec2-user/set_envs_from_secrets.py << 'EOF'
-              import sys
-              import json
-              import botocore.session
-              from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
+        Fn::Sub:
+          - |
+            #!/bin/bash -xe
+            yum update -y
+            sudo yum install docker -y
+            sudo usermod -a -G docker ec2-user
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo yum install -y python3-pip
+            pip3 install botocore aws_secretsmanager_caching
+            cat <<EOF >/home/ec2-user/set_envs_from_secrets.py
+            import sys
+            import json
+            import botocore.session
+            from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
+            import os
 
-              def main():
-                # Expecting app_name and region only. rabbitmq_secret_name will be derived.
-                if len(sys.argv) < 3:
+            def main():
+              if len(sys.argv) < 3:
                   print("Usage: python script.py <app_name> <region>", file=sys.stderr)
                   sys.exit(1)
 
-                app_name = sys.argv[1] # Get app_name from the first argument
-                region = sys.argv[2]   # Get region from the second argument
+              app_name = sys.argv[1]
+              region = sys.argv[2]
 
-                client = botocore.session.get_session().create_client("secretsmanager", region_name=region)
-                cache_config = SecretCacheConfig()
-                cache = SecretCache(config=cache_config, client=client)
+              client = botocore.session.get_session().create_client("secretsmanager", region_name=region)
+              cache_config = SecretCacheConfig()
+              cache = SecretCache(config=cache_config, client=client)
 
-                output_file_path = "/home/ec2-user/.tasks.env"
+              output_file_path = "/home/ec2-user/.tasks.env"
 
-                env_vars = {
-                  "FILESYSTEM_DISK": "s3",
-                  "AWS_BUCKET": f"{app_name}-storage-bucket",
-                  "AWS_DEFAULT_REGION": region,
-                  "CACHE_DRIVER": "redis",
-                  "CACHE_STORE": "redis",
-                  "QUEUE_CONNECTION": "rabbitmq",
-                  "LOG_CHANNEL": "cloudwatch",
-                  "DB_CONNECTION": "mysql",
-                  "DB_DATABASE": os.environ.get('DB_DATABASE', f'{app_name}_engine'),
-                  "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get('SUPPLIER_CONTENT_DB_DATABASE', f'{app_name}_supplier_content'),
-                }
+              env_vars = {
+                "FILESYSTEM_DISK": "s3",
+                "AWS_BUCKET": f"{app_name}-storage-bucket",
+                "AWS_DEFAULT_REGION": region,
+                "CACHE_DRIVER": "redis",
+                "CACHE_STORE": "redis",
+                "QUEUE_CONNECTION": "rabbitmq",
+                "LOG_CHANNEL": "cloudwatch",
+                "DB_CONNECTION": "mysql",
+                "DB_DATABASE": os.environ.get("DB_DATABASE", "fora_stage_engine"),
+                "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get("SUPPLIER_CONTENT_DB_DATABASE", "fora_stage_supplier_content"),
+              }
 
-                # Fetch RDS credentials
-                rds_secret_name = f"{app_name}-rds-creds"
-                try:
+              # Fetch Application Environment Secrets
+              app_envs_secret_name = f"{app_name}-envs"
+              try:
+                app_envs_secret_value = cache.get_secret_string(app_envs_secret_name)
+                app_envs_secret = json.loads(app_envs_secret_value)
+                env_vars.update(app_envs_secret)
+                print(f"Successfully loaded application environment secrets from: {app_envs_secret_name}")
+              except Exception as e:
+                  print(f"Error loading application environment secret {app_envs_secret_name}: {e}", file=sys.stderr)
+
+              # Fetch RDS credentials
+              rds_secret_name = f"{app_name}-rds-creds"
+              try:
                   rds_secret_value = cache.get_secret_string(rds_secret_name)
                   rds_secret = json.loads(rds_secret_value)
-                  env_vars["DB_HOST"] = rds_secret.get('host')
-                  env_vars["DB_PORT"] = str(rds_secret.get('port'))
-                  env_vars["DB_USERNAME"] = rds_secret.get('username')
-                  env_vars["DB_PASSWORD"] = rds_secret.get('password')
-                  env_vars["SUPPLIER_CONTENT_DB_HOST"] = rds_secret.get('host')
-                  env_vars["SUPPLIER_CONTENT_DB_PORT"] = str(rds_secret.get('port'))
-                  env_vars["SUPPLIER_CONTENT_DB_USERNAME"] = rds_secret.get('username')
-                  env_vars["SUPPLIER_CONTENT_DB_PASSWORD"] = rds_secret.get('password')
+                  env_vars["DB_HOST"] = rds_secret.get("host")
+                  env_vars["DB_PORT"] = str(rds_secret.get("port"))
+                  env_vars["DB_USERNAME"] = rds_secret.get("username")
+                  env_vars["DB_PASSWORD"] = rds_secret.get("password")
+                  env_vars["SUPPLIER_CONTENT_DB_HOST"] = rds_secret.get("host")
+                  env_vars["SUPPLIER_CONTENT_DB_PORT"] = str(rds_secret.get("port"))
+                  env_vars["SUPPLIER_CONTENT_DB_USERNAME"] = rds_secret.get("username")
+                  env_vars["SUPPLIER_CONTENT_DB_PASSWORD"] = rds_secret.get("password")
                   print(f"Successfully loaded RDS secrets from: {rds_secret_name}")
-                except Exception as e:
+              except Exception as e:
                   print(f"Error loading RDS secret {rds_secret_name}: {e}", file=sys.stderr)
                   sys.exit(1)
 
-                # Fetch RabbitMQ credentials (name is now derived internally)
-                rabbitmq_secret_name = f"{app_name}-rabbitmq-creds" # Derived from app_name
-                try:
+              # Fetch RabbitMQ credentials
+              rabbitmq_secret_name = f"{app_name}-rabbitmq-creds"
+              try:
                   rabbitmq_secret_value = cache.get_secret_string(rabbitmq_secret_name)
                   rabbitmq_secret = json.loads(rabbitmq_secret_value)
-                  env_vars["RABBITMQ_USER"] = rabbitmq_secret.get('username')
-                  env_vars["RABBITMQ_PASSWORD"] = rabbitmq_secret.get('password')
+                  env_vars["RABBITMQ_USER"] = rabbitmq_secret.get("username")
+                  env_vars["RABBITMQ_PASSWORD"] = rabbitmq_secret.get("password")
                   env_vars["RABBITMQ_PORT"] = "5671"
                   print(f"Successfully loaded RabbitMQ secrets from: {rabbitmq_secret_name}")
-                except Exception as e:
+              except Exception as e:
                   print(f"Error loading RabbitMQ secret {rabbitmq_secret_name}: {e}", file=sys.stderr)
                   sys.exit(1)
 
-                with open(output_file_path, "w") as env_file:
+              with open(output_file_path, "w") as env_file:
                   for key, value in env_vars.items():
-                    env_file.write(f"{key}=\"{value}\"\n")
-
-              if __name__ == "__main__":
-                import os
+                      env_file.write(f"{key}=\\"{value}\\"\n")
+            if __name__ == "__main__":
                 main()
-              EOF
-            - "\n"
-            - 'chmod 755 /home/ec2-user/set_envs_from_secrets.py'
-            - "\n"
-            - 'chown ec2-user:ec2-user /home/ec2-user/set_envs_from_secrets.py'
-            - "\n"
-            # Only passing app_name and AWS::Region now, rabbitmq_secret_name is derived inside the Python script
-            - !Sub 'sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region}'
-            - "\n"
-            - 'REDIS_HOST="'
-            - !GetAtt 'RedisCache.RedisEndpoint.Address'
-            - '"'
-            - "\n"
-            - 'sudo -u ec2-user bash -c "echo REDIS_HOST=\\\"$REDIS_HOST\\\" >> /home/ec2-user/.tasks.env"'
-            - "\n"
-            - 'RABBITMQ_HOST_RAW="'
-            - !Select [ 0, !GetAtt 'RabbitMqBroker.AmqpEndpoints' ]
-            - '"'
-            - "\n"
-            - 'RABBITMQ_HOST=$(echo $RABBITMQ_HOST_RAW | sed -e "s/^amqps:\\/\\///" -e "s/:5671$//")'
-            - "\n"
-            - 'sudo -u ec2-user bash -c "echo RABBITMQ_HOST=\\\"$RABBITMQ_HOST\\\" >> /home/ec2-user/.tasks.env"'
-            - "\n"
-            - 'chown ec2-user:ec2-user /home/ec2-user/.tasks.env'
-            - "\n"
-            # Install and start Docker
-            - 'sudo yum update -y'
-            - 'sudo dnf install -y docker'
-            - 'sudo usermod -a -G docker ec2-user'
-            - 'sudo systemctl start docker'
-            - 'sudo systemctl enable docker'
-            - "\n"
-            # Authenticate Docker with ECR
-            - !Sub |
-              aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com
-            - "\n"
-            # Run Docker container
-            - !Sub |
-              docker run --name=${APPNAME}-tasks --log-driver=awslogs --log-opt awslogs-region=${AWS::Region} --log-opt awslogs-group=${APPNAME}-tasks --log-opt awslogs-create-group=true -d --env-file /home/ec2-user/.tasks.env ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${APPNAME}-tasks:latest
-            - "\n"
+            EOF
+            chown ec2-user:ec2-user /home/ec2-user/set_envs_from_secrets.py
+            chmod 755 /home/ec2-user/set_envs_from_secrets.py
+            sudo -u ec2-user /usr/bin/python3 /home/ec2-user/set_envs_from_secrets.py ${APPNAME} ${AWS::Region}
+            sudo -u ec2-user bash -c "echo REDIS_HOST=\\"${RedisEndpointAddress}\\" >> /home/ec2-user/.tasks.env"
+            sudo -u ec2-user bash -c "echo RABBITMQ_HOST=\\"${RabbitMqHostParsed}\\" >> /home/ec2-user/.tasks.env"
+            chown ec2-user:ec2-user /home/ec2-user/.tasks.env
+          - RedisEndpointAddress: !GetAtt RedisCache.RedisEndpoint.Address
+            RabbitMqHostParsed:
+              Fn::Select:
+                - 0
+                - Fn::Split:
+                    - ":5671"
+                    - Fn::Select:
+                        - 0
+                        - !GetAtt RabbitMqBroker.AmqpEndpoints
+            APPNAME: !Ref APPNAME
   EC2TasksKeyPair:
     DeletionPolicy: Delete
     Properties:
