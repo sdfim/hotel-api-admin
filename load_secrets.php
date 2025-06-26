@@ -60,3 +60,10 @@ if (! empty($appEnvs)) {
         error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 10).(strlen($value) > 10 ? '...' : '') : 'non-string value'));
     }
 }
+
+$envFile = '';
+foreach ($appEnvs as $key => $value) {
+    $envFile .= "{$key}=\"{$value}\"\n";
+}
+file_put_contents(__DIR__ . '/.env', $envFile);
+error_log('DEBUG: Environment variables loaded and saved to .env file.');
