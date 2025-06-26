@@ -109,17 +109,6 @@ class ApiBookingItemRepository
         return Arr::get(self::getItemData($booking_item), 'hotel_supplier_id');
     }
 
-    public static function getParentBookingItem(string $bookingItem): string
-    {
-        if (self::isComlete($bookingItem)) {
-            $parentBookingItem = $bookingItem;
-        } else {
-            $parentBookingItem = ApiBookingItem::where('booking_item', $bookingItem)->first()->complete_id;
-        }
-
-        return $parentBookingItem;
-    }
-
     public static function getChildrenBookingItems(string $bookingItem): ?array
     {
         return ApiBookingItem::where('booking_item', $bookingItem)->first()?->child_items;

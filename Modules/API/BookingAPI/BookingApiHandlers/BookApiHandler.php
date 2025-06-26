@@ -808,7 +808,7 @@ class BookApiHandler extends BaseController
         $output = [];
         foreach ($input['passengers'] as $passenger) {
             foreach ($passenger['booking_items'] as $booking) {
-                $bookingItem = ApiBookingItemRepository::getParentBookingItem($booking['booking_item']);
+                $bookingItem = $booking['booking_item'];
 
                 // type hotel
                 if (isset($booking['room'])) {
