@@ -6,17 +6,20 @@ echo "Starting custom entrypoint.sh..." >&2
 # Change to the application directory
 cd /var/www/html
 
-# --- Step 1: Load secrets from AWS Secrets Manager ---
+# Load secrets from AWS Secrets Manager
 echo "Loading secrets from AWS Secrets Manager..." >&2
-# This script will read APPNAME_FROM_ENV and AWS_REGION from App Runner's
-# environment variables, and then fetch the content of the '{$appName}-envs' secret
-# from AWS Secrets Manager to set those values as environment variables within the container.
 php /var/www/html/load_secrets.php
 
-# Check if the PHP script executed successfully (you can add more detailed checks)
+# Check if secrets loading was successful
 if [ $? -ne 0 ]; then
     echo "ERROR: load_secrets.php failed. Exiting." >&2
     exit 1
 fi
 echo "Secrets loaded successfully." >&2
+
+# Clear Laravel configuration cache (critical after loading new environment variables)
+echo "Clearing Laravel configuration cache..." >&2
+php artisan optimize:clear || true
+
+# Hand over control to the main Docker command (e.g., apache2-foreground)
 exec "$@"
