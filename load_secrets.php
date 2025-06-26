@@ -40,7 +40,7 @@ if (! $appName || ! $awsRegion) {
 }
 
 // --- Load only the general application environment variables ---
-// Expected secret name: YOUR_APP_NAME-envs
+// Expected secret name: APP_NAME-envs
 $appEnvsSecretName = "{$appName}-envs";
 $appEnvsString = getSecretValue($appEnvsSecretName, $awsRegion);
 $appEnvs = json_decode($appEnvsString, true);
@@ -52,11 +52,32 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 // Set environment variables
 if (! empty($appEnvs)) {
+    $envFileContent = file_exists(__DIR__.'/.env') ? file(__DIR__.'/.env', FILE_IGNORE_NEW_LINES) : [];
+    $newEnvLines = [];
+
     foreach ($appEnvs as $key => $value) {
         $escaped = addcslashes($value, "\"\n\r");
-        $envFile .= "{$key}=\"{$escaped}\"\n";
+        $envLine = "{$key}=\"{$escaped}\"";
+        $updated = false;
+
+        // Check if the variable already exists and update it
+        foreach ($envFileContent as $index => $line) {
+            if (str_starts_with($line, $key.'=')) {
+                $envFileContent[$index] = $envLine;
+                $updated = true;
+                break;
+            }
+        }
+
+        // If not updated, add as a new line
+        if (! $updated) {
+            $envFileContent[] = $envLine;
+        }
+
         error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 10).(strlen($value) > 10 ? '...' : '') : 'non-string value'));
     }
-    file_put_contents(__DIR__.'/.env', $envFile, FILE_APPEND);
+
+    // Write all lines back to the .env file
+    file_put_contents(__DIR__.'/.env', implode("\n", $envFileContent));
     error_log('DEBUG: Environment variables loaded and saved to .env file.');
 }
