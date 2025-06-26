@@ -46,6 +46,7 @@ COPY . ./
 RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html && \
+    cp .env.example .env && \
     php artisan key:generate
 
 COPY infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
