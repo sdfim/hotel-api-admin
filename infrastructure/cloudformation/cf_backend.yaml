@@ -333,7 +333,6 @@ Resources:
                         - '-'
                         - - !Ref 'APPNAME'
                           - envs
-                      - '*'
                 Sid: SecretsManagerAccess
               - Action:
                   - logs:CreateLogGroup
