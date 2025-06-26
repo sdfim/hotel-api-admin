@@ -5,6 +5,7 @@ namespace Modules\API\Suppliers\HbsiSupplier;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingItemCache;
 use App\Models\Supplier;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -82,18 +83,18 @@ class HbsiService
             if (! isset($completeBookingItem['booking_pricing_data']['markup'])) {
                 $completeBookingItem['booking_pricing_data']['markup'] = 0;
             }
-            $completeBookingItem['booking_pricing_data']['markup'] += $booking_pricing_data['markup'];
-            $completeBookingItem['booking_pricing_data']['rate_id'][] = $booking_pricing_data['rate_id'];
-            $completeBookingItem['booking_pricing_data']['currency'] = $booking_pricing_data['currency'];
-            $completeBookingItem['booking_pricing_data']['meal_plan'][] = $booking_pricing_data['meal_plan'];
-            $completeBookingItem['booking_pricing_data']['room_type'][] = $booking_pricing_data['room_type'];
-            $completeBookingItem['booking_pricing_data']['non_refundable'] = $booking_pricing_data['non_refundable'];
-            $completeBookingItem['booking_pricing_data']['rate_plan_code'][] = $booking_pricing_data['rate_plan_code'];
-            $completeBookingItem['booking_pricing_data']['giata_room_code'][] = $booking_pricing_data['giata_room_code'];
-            $completeBookingItem['booking_pricing_data']['giata_room_name'][] = $booking_pricing_data['giata_room_name'];
-            $completeBookingItem['booking_pricing_data']['rate_description'][] = $booking_pricing_data['rate_description'];
-            $completeBookingItem['booking_pricing_data']['supplier_room_id'][] = $booking_pricing_data['supplier_room_id'];
-            $completeBookingItem['booking_pricing_data']['supplier_room_name'][] = $booking_pricing_data['supplier_room_name'];
+            $completeBookingItem['booking_pricing_data']['markup'] += Arr::get($booking_pricing_data, 'markup', 0);
+            $completeBookingItem['booking_pricing_data']['rate_id'][] = Arr::get($booking_pricing_data, 'rate_id');
+            $completeBookingItem['booking_pricing_data']['currency'] = Arr::get($booking_pricing_data, 'currency');
+            $completeBookingItem['booking_pricing_data']['meal_plan'][] = Arr::get($booking_pricing_data, 'meal_plan');
+            $completeBookingItem['booking_pricing_data']['room_type'][] = Arr::get($booking_pricing_data, 'room_type');
+            $completeBookingItem['booking_pricing_data']['non_refundable'] = Arr::get($booking_pricing_data, 'non_refundable');
+            $completeBookingItem['booking_pricing_data']['rate_plan_code'][] = Arr::get($booking_pricing_data, 'rate_plan_code');
+            $completeBookingItem['booking_pricing_data']['giata_room_code'][] = Arr::get($booking_pricing_data, 'giata_room_code');
+            $completeBookingItem['booking_pricing_data']['giata_room_name'][] = Arr::get($booking_pricing_data, 'giata_room_name');
+            $completeBookingItem['booking_pricing_data']['rate_description'][] = Arr::get($booking_pricing_data, 'rate_description');
+            $completeBookingItem['booking_pricing_data']['supplier_room_id'][] = Arr::get($booking_pricing_data, 'supplier_room_id');
+            $completeBookingItem['booking_pricing_data']['supplier_room_name'][] = Arr::get($booking_pricing_data, 'supplier_room_name');
 
             $completeBookingItem['booking_pricing_data']['cancellation_policies'][] = [
                 'room' => ($key + 1),
