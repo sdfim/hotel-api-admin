@@ -171,6 +171,10 @@ Resources:
           ImageConfiguration:
             Port: '80'
             RuntimeEnvironmentVariables:
+              - Name: APPNAME_FROM_ENV
+                Value: !Ref 'APPNAME'
+              - Name: AWS_REGION
+                Value: !Ref 'AWS::Region'
               - Name: FILESYSTEM_DISK
                 Value: s3
               - Name: AWS_BUCKET
