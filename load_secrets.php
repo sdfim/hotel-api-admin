@@ -53,17 +53,10 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 // Set environment variables
 if (! empty($appEnvs)) {
     foreach ($appEnvs as $key => $value) {
-        putenv("{$key}={$value}");
-        $_ENV[$key] = $value;
-        $_SERVER[$key] = $value;
-        // ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ОТЛАДКИ:
+        $escaped = addcslashes($value, "\"\n\r");
+        $envFile .= "{$key}=\"{$escaped}\"\n";
         error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 10).(strlen($value) > 10 ? '...' : '') : 'non-string value'));
     }
+    file_put_contents(__DIR__.'/.env', $envFile, FILE_APPEND);
+    error_log('DEBUG: Environment variables loaded and saved to .env file.');
 }
-
-$envFile = '';
-foreach ($appEnvs as $key => $value) {
-    $envFile .= "{$key}=\"{$value}\"\n";
-}
-file_put_contents(__DIR__ . '/.env', $envFile);
-error_log('DEBUG: Environment variables loaded and saved to .env file.');

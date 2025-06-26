@@ -44,21 +44,6 @@ use Modules\AdministrationSuite\Http\Controllers\UsersController;
 
 Route::get('/phpinfo', fn () => phpinfo());
 
-Route::get('/app-debug-env', function () {
-    $debugInfo = [
-        //        'BOOKING_SUPPLIER_HBSI_USERNAME' => env('BOOKING_SUPPLIER_HBSI_USERNAME'),
-        //        'BOOKING_SUPPLIER_HBSI_PASSWORD' => env('BOOKING_SUPPLIER_HBSI_PASSWORD'),
-        'BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID' => env('BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID'),
-        'BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL' => env('BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL'),
-        'BOOKING_SUPPLIER_HBSI_TARGET' => env('BOOKING_SUPPLIER_HBSI_TARGET'),
-        'BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID' => env('BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID'),
-        'All_Env_Array' => $_ENV,
-        'All_Server_Array' => $_SERVER,
-    ];
-
-    return response()->json($debugInfo);
-});
-
 Route::fallback(function () {
     if (! request()->is('api/*')) {
         return redirect()->route('root');
