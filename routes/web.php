@@ -5,7 +5,6 @@ use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
@@ -42,21 +41,22 @@ use Modules\AdministrationSuite\Http\Controllers\UsersController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 Route::get('/phpinfo', fn () => phpinfo());
 
-Route::get('/test-redis', function () {
-    try {
-        Redis::set('ping', 'pong');
+Route::get('/app-debug-env', function () {
+    $debugInfo = [
+        //        'BOOKING_SUPPLIER_HBSI_USERNAME' => env('BOOKING_SUPPLIER_HBSI_USERNAME'),
+        //        'BOOKING_SUPPLIER_HBSI_PASSWORD' => env('BOOKING_SUPPLIER_HBSI_PASSWORD'),
+        'BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID' => env('BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID'),
+        'BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL' => env('BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL'),
+        'BOOKING_SUPPLIER_HBSI_TARGET' => env('BOOKING_SUPPLIER_HBSI_TARGET'),
+        'BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID' => env('BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID'),
+        'All_Env_Array' => $_ENV,
+        'All_Server_Array' => $_SERVER,
+    ];
 
-        return Redis::get('ping');
-    } catch (\Exception $e) {
-        return response($e->getMessage(), 500);
-    }
-});
-
-Route::get('/log-test', function () {
-    logger()->info('Test log from Laravel to CloudWatch');
-    return 'Log sent';
+    return response()->json($debugInfo);
 });
 
 Route::fallback(function () {

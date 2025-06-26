@@ -50,9 +50,13 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     exit(1);
 }
 
-// Set these values as PHP environment variables
-foreach ($appEnvs as $key => $value) {
-    putenv("{$key}={$value}");
-    $_ENV[$key] = $value;
-    $_SERVER[$key] = $value;
+// Set environment variables
+if (! empty($appEnvs)) {
+    foreach ($appEnvs as $key => $value) {
+        putenv("{$key}={$value}");
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+        // ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ОТЛАДКИ:
+        error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 10).(strlen($value) > 10 ? '...' : '') : 'non-string value'));
+    }
 }
