@@ -1,7 +1,7 @@
 <?php
 
 // Include Composer's autoloader
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
@@ -52,7 +52,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 // Set environment variables
 if (! empty($appEnvs)) {
-    $envFileContent = file_exists(__DIR__.'/.env') ? file(__DIR__.'/.env', FILE_IGNORE_NEW_LINES) : [];
+    $envFileContent = file_exists(__DIR__ . '/.env') ? file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES) : [];
     $newEnvLines = [];
 
     foreach ($appEnvs as $key => $value) {
@@ -74,10 +74,10 @@ if (! empty($appEnvs)) {
             $envFileContent[] = $envLine;
         }
 
-        error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 10).(strlen($value) > 10 ? '...' : '') : 'non-string value'));
+        error_log("DEBUG: Set environment variable: {$key} = ".(is_string($value) ? substr($value, 0, 3).(strlen($value) > 3 ? '...' : '') : 'non-string value'));
     }
 
     // Write all lines back to the .env file
-    file_put_contents(__DIR__.'/.env', implode("\n", $envFileContent));
+    file_put_contents(__DIR__ . '/.env', implode("\n", $envFileContent));
     error_log('DEBUG: Environment variables loaded and saved to .env file.');
 }

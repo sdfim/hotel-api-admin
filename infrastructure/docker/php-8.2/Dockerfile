@@ -52,7 +52,7 @@ RUN chown -R www-data:www-data /var/www/html && \
 COPY infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 
 # Copy the secret loading script
-COPY load_secrets.php /var/www/html/load_secrets.php
+COPY infrastructure/docker/php-8.2/load_secrets.php /var/www/html/load_secrets.php
 
 COPY infrastructure/docker/php-8.2/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
