@@ -81,13 +81,13 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->options(Role::pluck('name', 'id'))
                     ->required()
                     ->reactive(),
-                Select::make('vendor_ids')
-                    ->label('Can View Vendors')
-                    ->multiple()
-                    ->options(Vendor::whereJsonContains('type', 'hotel')->pluck('name', 'id'))
-                    ->native(false)
-                    ->required()
-                    ->visible(fn ($get) => (int) $get('role') === $externalUserRoleId),
+//                Select::make('vendor_ids')
+//                    ->label('Can View Vendors')
+//                    ->multiple()
+//                    ->options(Vendor::whereJsonContains('type', 'hotel')->pluck('name', 'id'))
+//                    ->native(false)
+//                    ->required()
+//                    ->visible(fn ($get) => (int) $get('role') === $externalUserRoleId),
                 ...$additionalFormData,
             ])
             ->statePath('data')
