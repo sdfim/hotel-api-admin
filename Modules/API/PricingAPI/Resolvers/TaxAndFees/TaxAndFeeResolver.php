@@ -17,7 +17,7 @@ class TaxAndFeeResolver
      * @param array $rates The rates to transform.
      * @return array The transformed rates.
      */
-    public function transformRates(array $rates): array
+    public function transformRates(array $rates, array $repoTaxFees): array
     {
         $transformedRates = [];
 
@@ -27,6 +27,32 @@ class TaxAndFeeResolver
         } else {
             foreach ($rates['Rate'] as $rate) {
                 $transformedRates[] = $this->transformRate($rate);
+            }
+        }
+
+        $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
+
+        foreach ($transformedRates as &$rate) {
+            $rate['Taxes'] = $rate['Taxes'] ?? [];
+
+            if (!empty($repoTaxFees['vat'])) {
+                $vat = array_values($repoTaxFees['vat'])[0];
+                $vatPercentage = $vat['net_value'] ?? 0;
+
+                // Calculate VAT
+                $vatAmount = ($rate['TotalAmountBeforeTax'] / (1 + $vatPercentage / 100)) * ($vatPercentage / 100);
+                $rate['TotalAmountBeforeTax'] -= $vatAmount;
+
+                $vatRate = round($vatAmount / $numberOfNights, 2);
+
+                // Add VAT to Taxes
+                $rate['Taxes'][] = [
+                    'Type' => 'Inclusive',
+                    'Amount' => $vatRate,
+                    'Description' => 'VAT',
+                ];
+
+                $rate['AmountBeforeTax'] = round($rate['AmountBeforeTax'] - $vatRate, 2);
             }
         }
 

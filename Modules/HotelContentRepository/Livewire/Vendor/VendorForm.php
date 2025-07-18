@@ -63,10 +63,11 @@ class VendorForm extends Component implements HasForms
             $vendor['addressArr'] = [];
         }
 
+        $userIds = [];
         if ($this->record->exists && $this->record->team) {
-            $userIds = $this->record->team->allUsers()->pluck('id')->toArray();
-            $vendor = array_merge($vendor, ['user_ids' => $userIds]);
+            $userIds = $this->record->team->pluck('id')->toArray();
         }
+        $vendor = array_merge($vendor, ['user_ids' => $userIds]);
 
         $vendor['independent_flag'] = $this->record->independent_flag ?? false;
         $vendor['giata_code_visible'] = ($this->record->independent_flag && $this->record->products->count() < 1) ?? false;

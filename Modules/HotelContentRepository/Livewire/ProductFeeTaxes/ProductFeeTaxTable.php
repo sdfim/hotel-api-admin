@@ -2,12 +2,14 @@
 
 namespace Modules\HotelContentRepository\Livewire\ProductFeeTaxes;
 
+use App\Helpers\ClassHelper;
 use App\Models\Supplier;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -15,7 +17,9 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\Action;
@@ -28,6 +32,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\API\Suppliers\Enums\HBSI\HbsiFeeTaxTypeEnum;
 use Modules\Enums\FeeTaxCollectedByEnum;
@@ -101,6 +106,21 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
             Hidden::make('room_id')->default($this->roomId),
             Hidden::make('rate_id')->default($this->rateId),
 
+            Placeholder::make('action_description')
+                ->label('')
+                ->content(function (Get $get) {
+                    return match ($get('action_type')) {
+                        'add' => 'You are adding a new fee or tax for the selected product and room.',
+                        'update' => 'You are updating only the name of an existing fee or tax.',
+                        'edit' => 'You are updating the name and modifying the values (e.g., amounts or percentages) of an existing fee or tax.',
+                        'delete' => 'You are removing an existing fee or tax by specifying its current name.',
+                        'vat' => 'You are configuring VAT: it subtracts the specified percentage from total_net and outputs it as a separate tax field in the breakdown.',
+                        default => 'Please select an action type to view its description.',
+                    };
+                })
+                ->inlineLabel()
+                ->visible(fn (Get $get) => filled($get('action_type'))),
+
             Fieldset::make('General Setting')
                 ->columns(2)
                 ->schema([
@@ -134,18 +154,19 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             'update' => 'Update',
                             'edit' => 'Edit',
                             'delete' => 'Delete',
+                            'vat' => 'VAT management',
                         ])
                         ->live()
                         ->rules(['required']),
                     TextInput::make('name')
                         ->label('New Name')
                         ->reactive()
-                        ->visible(fn (Get $get) => $get('action_type') !== 'delete'),
+                        ->visible(fn (Get $get) => $get('action_type') !== 'delete' && $get('action_type') !== 'vat'),
                     TextInput::make('old_name')
                         ->label('Current Name')
                         ->datalist(fn (Get $get) => array_values($get('old_name_options') ?? []))
                         ->autocomplete('list')
-                        ->visible(fn (Get $get) => $get('action_type') !== 'add')
+                        ->visible(fn (Get $get) => $get('action_type') !== 'add' && $get('action_type') !== 'vat')
                         ->reactive()
                         ->rules(['required']),
                 ]),
@@ -166,7 +187,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->format('Y-m-d')
                         ->displayFormat('m/d/Y')
                         ->rules(['date', 'after_or_equal:start_date']),
-                ]),
+                ])
+                ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
             Fieldset::make('Type Setting')
                 ->columns(2)
@@ -190,7 +212,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                     'optional' => 'Optional',
                                 ]),
                         ])->columnSpan(1),
-                ]),
+                ])
+                ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
             Fieldset::make('Restrictions Setting')
                 ->schema([
@@ -212,11 +235,12 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 }
                             };
                         }),
-                ]),
+                ])
+                ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
             Fieldset::make('Value Setting')
                 ->columns(2)
-                ->visible(fn (Get $get) => $get('action_type') === 'add' || $get('action_type') === 'edit')
+                ->visible(fn (Get $get) => $get('action_type') === 'add' || $get('action_type') === 'edit' || $get('action_type') === 'vat')
                 ->schema([
                     Select::make('value_type')
                         ->label('Value Type')
@@ -224,7 +248,9 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductFeeTaxValueTypeEnum::PERCENTAGE->value => 'Percentage',
                             ProductFeeTaxValueTypeEnum::AMOUNT->value => 'Amount',
                         ])
-                        ->rules(['required']),
+                        ->rules(['required'])
+                        ->default(fn (Get $get) => ProductFeeTaxValueTypeEnum::PERCENTAGE->value)
+                        ->disabled(fn (Get $get) => $get('action_type') === 'vat'),
                     Select::make('apply_type')
                         ->label('Apply Type')
                         ->options([
@@ -234,7 +260,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                         ])
                         ->reactive()
-                        ->rules(['required']),
+                        ->rules(['required'])
+                        ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
                     TextInput::make('net_value')
                         ->label('Net Value')
@@ -243,7 +270,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     TextInput::make('rack_value')
                         ->label('Rack Value')
                         ->numeric(2)
-                        ->rules(['required']),
+                        ->rules(['required'])
+                        ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
                 ]),
             Grid::make(2)
                 ->schema([
@@ -253,7 +281,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
                             FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
                         ]),
-                ]),
+                ])
+                ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
         ];
     }
 
@@ -310,8 +339,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             default => '',
                         };
                     }),
-                TextColumn::make('old_name')->label('Current Name')->searchable(),
-                TextColumn::make('name')->label('New Name')->searchable(),
                 TextColumn::make('supplier.name')->label('Driver')->searchable(),
                 TextColumn::make('action_type')
                     ->label('Action Type')
@@ -322,15 +349,17 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         'warning' => 'edit',
                         'success' => 'update',
                         'danger' => 'delete',
+                        'secondary' => 'vat',
                     ]),
-
+                TextColumn::make('old_name')->label('Current Name')->searchable(),
+                TextColumn::make('name')->label('New Name')->searchable(),
                 TextColumn::make('type')->label('Type')->sortable(),
                 TextColumn::make('net_value')->label('Net')->sortable(),
                 TextColumn::make('rack_value')->label('Rack')->sortable(),
                 IconColumn::make('value_type')
                     ->label('')
                     ->icon(fn (string $state): string => match ($state) {
-                        ProductFeeTaxValueTypeEnum::PERCENTAGE->value => 'heroicon-o-receipt-percent',
+                        ProductFeeTaxValueTypeEnum::PERCENTAGE->value => 'heroicon-o-percent-badge',
                         ProductFeeTaxValueTypeEnum::AMOUNT->value => 'heroicon-o-currency-dollar',
                         default => 'heroicon-o-question-mark-circle',
                     }),
@@ -350,6 +379,23 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->modalHeading(new HtmlString("Edit {$this->title}"))
                         ->form($this->schemeForm())
                         ->action(function (ProductFeeTax $record, array $data) {
+                            if ($data['action_type'] === 'vat') {
+                                $exists = ProductFeeTax::query()
+                                    ->where('action_type', 'vat')
+                                    ->where('product_id', $this->productId)
+                                    ->exists();
+
+                                if ($exists) {
+                                    Notification::make()
+                                        ->title('Validation Error')
+                                        ->body('A VAT record already exists for this hotel.')
+                                        ->danger()
+                                        ->send();
+
+                                    return;
+                                }
+                            }
+
                             if ($data['action_type'] === 'delete') {
                                 // General Setting
                                 $data['name'] = null;
@@ -389,6 +435,22 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             $form->fill($data);
                         })
                         ->action(function (array $data) {
+                            if ($data['action_type'] === 'vat') {
+                                $exists = ProductFeeTax::query()
+                                    ->where('action_type', 'vat')
+                                    ->where('product_id', $this->productId)
+                                    ->exists();
+
+                                if ($exists) {
+                                    Notification::make()
+                                        ->title('Validation Error')
+                                        ->body('A VAT record already exists for this hotel.')
+                                        ->danger()
+                                        ->send();
+
+                                    return;
+                                }
+                            }
                             if ($data['action_type'] === 'add') {
                                 $data['old_name'] = null;
                             }
@@ -405,7 +467,38 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         || (! $this->rateId && ! $this->roomId)
                     ),
             ])
-            ->headerActions($this->getHeaderActions());
+            ->headerActions([
+                CreateAction::make()
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
+                    ->form($this->schemeForm())
+                    ->modalWidth('7xl')
+                    ->tooltip('Add New Entity')
+                    ->icon('heroicon-o-plus')
+                    ->visible(fn () => Gate::allows('create', Product::class))
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->action(function (array $data) {
+                        if ($data['action_type'] === 'vat') {
+                            $data['type'] = ProductFeeTaxTypeEnum::TAX->value;
+                            $data['value_type'] = ProductFeeTaxValueTypeEnum::PERCENTAGE->value;
+                            $exists = ProductFeeTax::query()
+                                ->where('action_type', 'vat')
+                                ->where('product_id', $this->productId)
+                                ->exists();
+
+                            if ($exists) {
+                                Notification::make()
+                                    ->title('Validation Error')
+                                    ->body('A VAT record already exists for this hotel.')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+                        }
+                        ProductFeeTax::create($data);
+                    })
+            ]);
     }
 
     public function render()

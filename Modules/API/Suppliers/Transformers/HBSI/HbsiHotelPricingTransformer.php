@@ -345,7 +345,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
         $rateToApply['rateOccupancy'] = $rateOccupancy;
-        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates']);
+        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates'], $this->repoTaxFees[$giataId]);
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy);
 
