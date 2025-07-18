@@ -45,7 +45,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->label('Search Type'),
                 TextColumn::make('type')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'price' => 'success',
                         'change' => 'gray',
                         default => 'gray',
@@ -88,6 +88,11 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->requiresConfirmation()
                     ->label('Delete Selected')
                     ->visible(fn () => Auth::user()->email === 'admin-andrii@terramare.com')
+                    ->action(function ($records) {
+                        foreach ($records as $record) {
+                            $record->delete();
+                        }
+                    }),
             ]);
     }
 
