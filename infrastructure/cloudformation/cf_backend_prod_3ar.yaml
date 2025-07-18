@@ -258,10 +258,6 @@ Resources:
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
-              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID # Updated to snake_case
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
-              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY # Updated to snake_case
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
                 Value: 'daily'
               - Name: DB_CONNECTION
@@ -425,10 +421,6 @@ Resources:
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
-              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
-              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
                 Value: 'daily'
               - Name: DB_CONNECTION
@@ -673,10 +665,6 @@ Resources:
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:HILTON_CLIENT_SECRET}}'
               - Name: GOOGLE_API_DEVELOPER_KEY
                 Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:GOOGLE_API_DEVELOPER_KEY}}'
-              - Name: LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_ACCESS_KEY_ID}}'
-              - Name: LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY
-                Value: '{{resolve:secretsmanager:fora-prod-envs:SecretString:LOG_AWS_CLOUDWATCH_SECRET_ACCESS_KEY}}'
               - Name: LOG_CHANNEL
                 Value: 'daily'
               - Name: DB_CONNECTION

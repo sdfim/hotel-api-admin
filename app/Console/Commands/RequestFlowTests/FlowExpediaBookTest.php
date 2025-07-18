@@ -109,8 +109,8 @@ class FlowExpediaBookTest extends Command
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        $this->warn('BOOK '.$bookingId);
-        $this->book($bookingId);
+//        $this->warn('BOOK '.$bookingId);
+//        $this->book($bookingId);
     }
 
     private function makeSearchRequest(int $count = 1): array

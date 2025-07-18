@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
  */
 class MultiRoomTesting
 {
-    private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
+    private const URL = 'https://uat.demandmatrix.net/app/dm/xml/foratravel/search';
 
     public function __construct(private readonly Client $client = new Client(),
         private readonly array $headers = [
@@ -20,7 +20,7 @@ class MultiRoomTesting
         ])
     {
 
-        $this->requestId = time().'_tentravel';
+        $this->requestId = time().'_foratravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
     }
 
@@ -402,7 +402,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -473,7 +473,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -768,7 +768,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -806,7 +806,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -877,7 +877,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -1184,7 +1184,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -1222,7 +1222,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -1291,7 +1291,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -1552,7 +1552,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -1590,7 +1590,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -1660,7 +1660,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -1953,7 +1953,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -1991,7 +1991,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -2060,7 +2060,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -2305,7 +2305,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -2343,7 +2343,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -2413,7 +2413,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -2696,7 +2696,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -2734,7 +2734,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -2804,7 +2804,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -3070,7 +3070,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -3108,7 +3108,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -3168,7 +3168,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -3324,7 +3324,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -3362,7 +3362,7 @@ class MultiRoomTesting
                     <soap-env:Header>
                         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                         </Interface>
                     </soap-env:Header>
                     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelAvailRQ">
@@ -3433,7 +3433,7 @@ class MultiRoomTesting
     <soap-env:Header>
         <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
             xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-            <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+            <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
         </Interface>
     </soap-env:Header>
     <soap-env:Body RequestId="'.$this->requestId.'" Transaction="HotelResRQ">
@@ -3666,7 +3666,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="CancelRQ">
@@ -3702,7 +3702,7 @@ class MultiRoomTesting
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="TenTraval_XML4T" Version="2006A" Interface="HBSI XML 4 OTA"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="'.$params['hotelId'].'" User="tentravel" Pwd="xml4t!" ComponentType="Hotel"/>
+                        <ComponentInfo Id="'.$params['hotelId'].'" User="foratravel" Pwd="xml4t!" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="'.$this->requestId.'" Transaction="ReadRQ">

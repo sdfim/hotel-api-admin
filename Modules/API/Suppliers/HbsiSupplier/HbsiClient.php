@@ -78,7 +78,7 @@ class HbsiClient
             'Content-Type' => 'text/xml; charset=UTF8',
         ],
     ) {
-        $this->requestId = time().'_tentravel';
+        $this->requestId = time().'_foratravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
         $this->credentials = CredentialsFactory::fromConfig();
         $this->mainGuest = [];
