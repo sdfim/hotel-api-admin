@@ -112,6 +112,9 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                         ->form(fn ($record) => $this->schemeForm($record, true))
                         ->fillForm(function ($record) {
                             $data = $record->toArray();
+                            if (Carbon::parse($record->expiration_date)->toDateString() === '2112-02-02') {
+                                $data['expiration_date'] = null;
+                            }
                             $data['conditions'] = $record->conditions->toArray();
 
                             return $data;

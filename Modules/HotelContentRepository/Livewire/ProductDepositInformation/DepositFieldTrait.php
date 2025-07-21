@@ -46,32 +46,21 @@ trait DepositFieldTrait
                             },
                         ])
                         ->required(),
-                    TextInput::make('start_date')
+                    DateTimePicker::make('start_date')
                         ->label('Valid From')
-                        ->type('date')
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('m/d/Y')
                         ->default(Carbon::now()->format('Y-m-d'))
-                        ->required()
-                        ->afterStateHydrated(function (TextInput $component) use ($record) {
-                            if (isset($record)) {
-                                $formattedDate = $record->start_date
-                                    ? Carbon::parse($record->start_date)->format('Y-m-d')
-                                    : '';
-                                $component->state($formattedDate);
-                            }
-                        }),
+                        ->required(),
 
-                    TextInput::make('expiration_date')
+                    DateTimePicker::make('expiration_date')
                         ->label('Valid To')
-                        ->type('date')
-                        ->afterStateHydrated(function (TextInput $component) use ($record) {
-                            $formattedDate = isset($record) && $record->expiration_date
-                                ? Carbon::parse($record->expiration_date)->format('Y-m-d')
-                                : '';
-                            if ($formattedDate === '2112-02-02') {
-                                $formattedDate = '';
-                            }
-                            $component->state($formattedDate);
-                        }),
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('m/d/Y'),
 
                     Select::make('manipulable_price_type')
                         ->label('Manipulable Price Type')

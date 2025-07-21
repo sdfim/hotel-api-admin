@@ -56,31 +56,21 @@ trait HasPricingRuleFields
                         ->inline(false)
                         ->reactive()
                         ->afterStateUpdated(fn (Set $set, $state) => $set('price_settings_hidden', $state)),
-                    TextInput::make('rule_start_date')
+                    DateTimePicker::make('rule_start_date')
                         ->label('Rule Start Date')
-                        ->type('date')
-                        ->required()
-                        ->afterStateHydrated(function (TextInput $component, $state) {
-                            if (isset($this->record)) {
-                                $formattedDate = $this->record->rule_start_date
-                                    ? Carbon::parse($this->record->rule_start_date)->format('Y-m-d')
-                                    : '';
-                                $component->state($formattedDate);
-                            }
-                        }),
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('m/d/Y')
+                        ->default(Carbon::now()->format('Y-m-d'))
+                        ->required(),
 
-                    TextInput::make('rule_expiration_date')
+                    DateTimePicker::make('rule_expiration_date')
                         ->label('Rule End Date')
-                        ->type('date')
-                        ->afterStateHydrated(function (TextInput $component, $state) {
-                            $formattedDate = isset($this->record) && $this->record->rule_expiration_date
-                                ? Carbon::parse($this->record->rule_expiration_date)->format('Y-m-d')
-                                : '';
-                            if ($formattedDate === '2112-02-02') {
-                                $formattedDate = '';
-                            }
-                            $component->state($formattedDate);
-                        }),
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('m/d/Y'),
                 ])
                 ->columns(6),
 

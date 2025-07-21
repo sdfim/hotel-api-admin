@@ -29,6 +29,9 @@ class UpdatePricingRule extends Component implements HasForms
         $this->isSrCreator = $this->record->is_sr_creator;
         $this->record->rule_start_date = $pricingRule->rule_start_date?->format('Y-m-d');
         $this->record->rule_expiration_date = $pricingRule->rule_expiration_date?->format('Y-m-d');
+        if ($this->record->rule_expiration_date->toDateString() === '2112-02-02') {
+            $this->record->rule_expiration_date = null;
+        }
         $data = $this->record->attributesToArray();
         $data['conditions'] = $this->record->conditions->toArray();
 
