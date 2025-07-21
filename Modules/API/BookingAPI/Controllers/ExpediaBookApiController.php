@@ -355,10 +355,10 @@ class ExpediaBookApiController extends BaseBookApiController
         ]);
 
         try {
-            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); // $booking_id
             $sts = microtime(true);
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
-            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); //$booking_id
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
 
             $content = json_decode($response->getBody()->getContents(), true);
 
@@ -488,8 +488,12 @@ class ExpediaBookApiController extends BaseBookApiController
             $dataResponse['original']['request'] = $originalRQ;
         } catch (ConnectException $e) {
             $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', $originalRQ);
+
+            return ['error' => $e->getMessage()];
         } catch (ServerException $e) {
             $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
+
+            return ['error' => $e->getMessage()];
         } catch (RequestException $e) {
             $responseBody = $e->getResponse()->getBody()->getContents();
             $errorData = json_decode($responseBody, true);
@@ -497,8 +501,10 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $bookingInspector, 'Request Exception occurred', $errorMessage, $originalRQ);
 
             return ['error' => $errorMessage];
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
+
+            return ['error' => $e->getMessage()];
         }
 
         $clientDataResponse = ExpediaHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);

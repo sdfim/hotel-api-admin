@@ -22,7 +22,7 @@ class TestPropertiesSeeder extends Seeder
     {
         // Create Test Properties
         $propertyCommonData = [
-            'chain' => NULL,
+            'chain' => null,
             'city' => 'Cancun',
             'city_id' => 508,
             'locale' => 'Yucatan Peninsula',
@@ -47,27 +47,26 @@ class TestPropertiesSeeder extends Seeder
             [
                 'code' => 1001,
                 'name' => 'Test Property 1',
-                ...$propertyCommonData
+                ...$propertyCommonData,
             ],
             [
                 'code' => 1002,
                 'name' => 'Test Property 2',
-                ...$propertyCommonData
+                ...$propertyCommonData,
             ],
             [
                 'code' => 1003,
                 'name' => 'Test Property 3',
-                ...$propertyCommonData
-            ]
+                ...$propertyCommonData,
+            ],
         ];
 
-        foreach($propertiesToCreate as $propertyData)
-        {
+        foreach ($propertiesToCreate as $propertyData) {
             $property = Property::firstOrNew(Arr::only($propertyData, ['code', 'name']), $propertyData);
             $property->save();
         }
 
-        //Create Test Properties Mappings
+        // Create Test Properties Mappings
         $mappingsData = [
             [
                 'giata_id' => 1001,
@@ -86,11 +85,10 @@ class TestPropertiesSeeder extends Seeder
                 'supplier' => MappingSuppliersEnum::HBSI->value,
                 'supplier_id' => 48187,
                 'match_percentage' => 100,
-            ]
+            ],
         ];
 
-        foreach($mappingsData as $mappingData)
-        {
+        foreach ($mappingsData as $mappingData) {
             $mapping = Mapping::firstOrNew($mappingData);
             $mapping->save();
         }

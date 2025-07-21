@@ -14,11 +14,28 @@
     use App\Models\ApiSearchInspector;
     use App\Models\ApiBookingInspector;
     use App\Models\ApiExceptionReport;
-    use App\Models\InformationalService;
+//    use App\Models\InformationalService;
     use App\Models\Property;
     use App\Models\ExpediaContent;
-    use App\Models\IcePortalProperty;
+    use Modules\HotelContentRepository\Models\Hotel;
+    use Modules\HotelContentRepository\Models\Product;
+    use Modules\HotelContentRepository\Models\Vendor;
+    use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
+    use App\Models\Configurations\ConfigAttribute;
+    use App\Models\Configurations\ConfigAttributeCategory;
+    use App\Models\Configurations\ConfigAmenity;
+    use App\Models\Configurations\ConfigConsortium;
+    use App\Models\Configurations\ConfigDescriptiveType;
+    use App\Models\Configurations\ConfigJobDescription;
+    use App\Models\Configurations\ConfigServiceType;
+    use App\Models\Configurations\ConfigChain;
+    use App\Models\Configurations\ConfigInsuranceDocumentationType;
+    use App\Models\Configurations\ConfigContactInformationDepartment;
+    use Modules\HotelContentRepository\Models\KeyMappingOwner;
+    use Modules\HotelContentRepository\Models\Commission;
+    use Modules\HotelContentRepository\Models\ImageGallery;
+    use Modules\HotelContentRepository\Models\Image;
     use App\Models\Team;
     use App\Helpers\ClassHelper;
 
@@ -26,7 +43,20 @@
     $canConfigurationGroup = fn (): bool =>
         $canView(GeneralConfiguration::class) ||
         $canView(Channel::class) ||
-        $canView(Supplier::class)
+        $canView(Supplier::class) ||
+        $canView(ConfigAttribute::class) ||
+        $canView(ConfigAttributeCategory::class) ||
+        $canView(ConfigAmenity::class) ||
+        $canView(ConfigConsortium::class) ||
+        $canView(ConfigDescriptiveType::class) ||
+        $canView(ConfigJobDescription::class) ||
+        $canView(ConfigServiceType::class) ||
+        $canView(ConfigChain::class);
+        $canView(ConfigInsuranceDocumentationType::class);
+        $canView(ConfigContactInformationDepartment::class);
+        $canView(KeyMappingOwner::class);
+        $canView(Commission::class);
+        $canView(ConfigRoomBedType::class);
 @endphp
 
 @php
@@ -34,7 +64,20 @@
         ['route' => 'general_configuration', 'text' => 'General', 'model' => GeneralConfiguration::class],
         ['route' => 'channels.index', 'text' => 'Channels', 'model' => Channel::class],
         ['route' => 'suppliers.index', 'text' => 'Suppliers', 'model' => Supplier::class],
-            ]);
+        ['route' => 'configurations.attributes.index', 'text' => 'Attributes', 'model' => ConfigAttribute::class],
+        ['route' => 'configurations.attribute-categories.index', 'text' => 'Attribute Categories', 'model' => ConfigAttributeCategory::class],
+        ['route' => 'configurations.amenities.index', 'text' => 'Amenities', 'model' => ConfigAmenity::class],
+        ['route' => 'configurations.consortia.index', 'text' => 'Consortia', 'model' => ConfigConsortium::class],
+        ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
+        ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
+        ['route' => 'configurations.service-types.index', 'text' => 'Service Types', 'model' => ConfigServiceType::class],
+        ['route' => 'configurations.chains.index', 'text' => 'Chains', 'model' => ConfigChain::class],
+        ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
+        ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
+        ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
+        ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
+        ['route' => 'configurations.contact-information-departments.index', 'text' => 'UJV Departments', 'model' => ConfigContactInformationDepartment::class],
+    ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {
         return in_array($link['text'], ['General', 'Channels']);
@@ -46,7 +89,7 @@
 
     $configurationLinks = $fixedLinks->merge($sortedLinks);
 @endphp
-        <!-- ========== Left Sidebar Start ========== -->
+    <!-- ========== Left Sidebar Start ========== -->
 <div
         class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
         style="top: 65px;">
@@ -138,16 +181,6 @@
                     </li>
                 @endif
 
-                @if($canView(\App\Models\DepositInformation::class))
-                    <li>
-                        <a href="{{ Route('deposit-information.index') }}"
-                           class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-archive"></i>
-                            <span data-key="t-deposit-information"> Deposit Information</span>
-                        </a>
-                    </li>
-                @endif
-
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -212,29 +245,35 @@
                         </ul>
                     </li>
                 @endif
-
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-contract-2"></i>
-                        <span data-key="t-property-mapping">Content Suppliers</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('expedia.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Expedia
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('ice-portal.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Ice Portal
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
+                @if($canView(ImageGallery::class) || $canView(Image::class))
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
+                            <i class="dripicons-photo-group"></i>
+                            <span>Image Galleries</span>
+                        </a>
+                        <ul>
+                            @if($canView(ImageGallery::class))
+                                <li>
+                                    <a href="{{ Route('image-galleries.index') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-view-thumb"></i>
+                                        <span>Galleries</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if($canView(Image::class))
+                                <li>
+                                    <a href="{{ Route('images.index') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-photo"></i>
+                                        <span>Images</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
                 @if($canView(Property::class))
                     <li>
                         <a href="{{ Route('properties.index') }}"
@@ -251,6 +290,68 @@
                             <i class="dripicons-link"></i>
                             <span data-key="t-mapping-room">Mapping Rooms</span>
                         </a>
+                    </li>
+                @endif
+                @if($canView(Vendor::class)
+                    || $canView(Product::class))
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
+                            <i class="dripicons-graduation"></i>
+                            <span>Supplier Repository</span>
+                        </a>
+                        <ul>
+                            @if($canView(Vendor::class))
+                                <li>
+                                    <a href="{{ Route('vendor-repository.index') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-rocket"></i>
+                                        <span>Vendors</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if($canView(Product::class))
+                                <li>
+                                    <a href="javascript: void(0);" aria-expanded="false"
+                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">
+                                        <i class="dripicons-trophy"></i>
+                                        <span data-key="t-products">Products</span>
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="{{ Route('hotel-repository.index') }}"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-store"></i>
+                                                <span>Hotels</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-web"></i>
+                                                <span>Tours</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                                <i class="dripicons-suitcase"></i>
+                                                <span>Transfers</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
+{{--                            @if($canView(Product::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ Route('pd-grid.index') }}"--}}
+{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+{{--                                        <i class="dripicons-to-do"></i>--}}
+{{--                                        <span>PD Grid</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+                        </ul>
                     </li>
                 @endif
 
@@ -310,6 +411,12 @@
                                             <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
                                                class="{{ ClassHelper::sidebarCildrenL2Class() }}">
                                                 Main Documentation
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class() }}">
+                                                Supplier Repository
                                             </a>
                                         </li>
                                     </ul>

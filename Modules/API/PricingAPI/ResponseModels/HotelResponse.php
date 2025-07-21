@@ -36,9 +36,19 @@ class HotelResponse extends BaseResponse
 
     private array $deposit_information = [];
 
+    private array $ultimate_amenities = [];
+
+    private array $descriptive_content = [];
+
+    private array $cancellation_policies = [];
+
     private string $rating;
 
     private array $supplier_information;
+
+    private bool $holdable;
+
+    private array $hotel_contacts;
 
     public function setSupplierInformation(array $supplier_information): void
     {
@@ -58,6 +68,16 @@ class HotelResponse extends BaseResponse
     public function getRating(): string
     {
         return $this->rating;
+    }
+
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
     }
 
     public function setRoomCombinations(array $room_combinations): void
@@ -136,6 +156,25 @@ class HotelResponse extends BaseResponse
     public function getDepositInformation(): array
     {
         return $this->deposit_information;
+    }
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+    public function setDescriptiveContent(array $descriptiveContent): void
+    {
+        $this->descriptive_content = $descriptiveContent;
+    }
+
+    public function getDescriptiveContent(): array
+    {
+        return $this->descriptive_content ?? [];
     }
 
     public function getDestination(): string
@@ -223,6 +262,26 @@ class HotelResponse extends BaseResponse
         $this->distanceFromSearchLocation = $distanceFromSearchLocation;
     }
 
+    public function setHoldable(bool $holdable): void
+    {
+        $this->holdable = $holdable;
+    }
+
+    public function getHoldable(): bool
+    {
+        return $this->holdable;
+    }
+
+    public function setHotelContacts(array $hotel_contacts): void
+    {
+        $this->hotel_contacts = $hotel_contacts;
+    }
+
+    public function getHotelContacts(): array
+    {
+        return $this->hotel_contacts;
+    }
+
     public function toArray(): array
     {
         return [
@@ -244,6 +303,10 @@ class HotelResponse extends BaseResponse
             'room_combinations' => $this->getRoomCombinations(),
             'supplier_information' => $this->getSupplierInformation(),
             'deposit_information' => $this->getDepositInformation(),
+            'holdable' => $this->getHoldable(),
+            'descriptive_content' => $this->getDescriptiveContent(),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
+            'hotel_contacts' => $this->getHotelContacts(),
         ];
     }
 

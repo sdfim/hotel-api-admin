@@ -10,5 +10,5 @@ return [
     ],
     'google' => [
         'google_api_developer_key' => env('GOOGLE_API_DEVELOPER_KEY'),
-    ]
+    ],
 ];

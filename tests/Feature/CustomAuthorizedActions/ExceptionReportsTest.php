@@ -1,16 +1,6 @@
 <?php
 
-namespace Tests\Feature\CustomAuthorizedActions;
-
-use PHPUnit\Framework\Attributes\Test;
-
-class ExceptionReportsTest extends CustomAuthorizedActionsTestCase
-{
-    #[Test]
-    public function test_example(): void
-    {
-        $response = $this->get('/admin/exceptions-report');
-
-        $response->assertStatus(200);
-    }
-}
+test('exception reports index is opening', function () {
+    $this->get('/admin/exceptions-report')
+        ->assertStatus(200);
+});

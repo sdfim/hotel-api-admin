@@ -22,6 +22,7 @@ class RoomGroupsResponseFactory
         $roomGroupsResponse->setRateId(0);
         $roomGroupsResponse->setRateDescription('');
         $roomGroupsResponse->setCancellationPolicies([]);
+        $roomGroupsResponse->setDeposits([]);
         $roomGroupsResponse->setOpaque(false);
         $roomGroupsResponse->setRooms([]);
 

@@ -1,87 +1,72 @@
 <?php
 
-namespace Tests\Feature\API\Local\Content;
-
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\Feature\API\Local\ApiTestCase;
-use PHPUnit\Framework\Attributes\Test;
 
-class HotelContentDetailTest extends ApiTestCase
-{
-    use WithFaker;
+uses(WithFaker::class);
 
-    #[Test]
-    public function test_hotel_detail_method_response_true(): void
-    {
-        $hotelSearchData = $this->hotelSearchData();
+test('hotel detail method response true', function () {
+    $hotelSearchData = hotelSearchData();
 
-        $hotelSearchResponse = $this->withHeaders($this->headers)->postJson('/api/content/search', $hotelSearchData);
+    $hotelSearchResponse = $this->withHeaders($this->headers)->postJson('/api/content/search', $hotelSearchData);
 
-        $hotelInfo = $hotelSearchResponse['data']['results'];
+    $hotelInfo = $hotelSearchResponse['data']['results'];
 
-        $hotelInfo = $hotelInfo['Expedia'][0];
+    $hotelInfo = $hotelInfo['Expedia'][0];
 
-        $hotelId = $hotelInfo['giata_hotel_code'];
+    $hotelId = $hotelInfo['giata_hotel_code'];
 
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get("/api/content/detail?property_id=$hotelId&type=hotel");
+    $hotelDetailResponse = $this->withHeaders($this->headers)->get("/api/content/detail?property_id=$hotelId&type=hotel");
 
-        $hotelDetailResponse
-            ->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-            ]);
-    }
+    $hotelDetailResponse
+        ->assertStatus(200)
+        ->assertJson([
+            'success' => true,
+        ]);
+});
 
-    #[Test]
-    public function test_hotel_detail_non_existent_property_id_method_response_400(): void
-    {
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=99999999999999&type=hotel');
+test('hotel detail non existent property id method response 400', function () {
+    $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=99999999999999&type=hotel');
 
-        $hotelDetailResponse
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-            ]);
-    }
+    $hotelDetailResponse
+        ->assertStatus(400)
+        ->assertJson([
+            'success' => false,
+        ]);
+});
 
-    #[Test]
-    public function test_hotel_detail_with_correct_property_id_and_missed_type_method_response_400(): void
-    {
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=98736411');
+test('hotel detail with correct property id and missed type method response 400', function () {
+    $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=98736411');
 
-        $hotelDetailResponse
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => 'Invalid type',
-            ]);
-    }
+    $hotelDetailResponse
+        ->assertStatus(400)
+        ->assertJson([
+            'success' => false,
+            'error' => 'Invalid type',
+        ]);
+});
 
-    #[Test]
-    public function test_hotel_detail_with_type_and_missed_property_id_parameter_method_response_400(): void
-    {
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?type=hotel');
+test('hotel detail with type and missed property id parameter method response 400', function () {
+    $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?type=hotel');
 
-        $hotelDetailResponse
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => [
-                    'property_id' => [
-                        'The property id field is required.',
-                    ],
+    $hotelDetailResponse
+        ->assertStatus(400)
+        ->assertJson([
+            'success' => false,
+            'error' => [
+                'property_id' => [
+                    'The property id field is required.',
                 ],
-            ]);
-    }
+            ],
+        ]);
+});
 
-    private function hotelSearchData(): array
-    {
-        return [
-            'type' => 'hotel',
-            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
-            'rating' => $this->faker->randomFloat(1, 1, 5.5),
-            'page' => 1,
-            'results_per_page' => 250,
-        ];
-    }
+function hotelSearchData(): array
+{
+    return [
+        'type' => 'hotel',
+        'destination' => test()->faker->randomElement([961, 302, 93, 960, 1102]),
+        'rating' => test()->faker->randomFloat(1, 1, 5.5),
+        'page' => 1,
+        'results_per_page' => 250,
+    ];
 }

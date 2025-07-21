@@ -4,7 +4,7 @@ namespace Modules\API\Channels\Requests;
 
 use Modules\API\Validate\ApiRequest;
 
-class AddChannelRequest  extends ApiRequest
+class AddChannelRequest extends ApiRequest
 {
     public function rules(): array
     {

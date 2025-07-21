@@ -10,6 +10,7 @@ class RolesController extends BaseWithPolicyController
     protected static string $model = Role::class;
 
     private array $message = ['edit' => 'Edit Role', 'create' => 'Create Role'];
+
     /**
      * Display a listing of the resource.
      */

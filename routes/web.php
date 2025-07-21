@@ -10,8 +10,20 @@ use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeCategoryController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigContactInformationDepartmentController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceDocumentationTypeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMappingOwnerController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigRoomBedTypeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
-use Modules\AdministrationSuite\Http\Controllers\DepositInformationController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
 use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
@@ -30,6 +42,15 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
+use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRateController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\ImageController;
+use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
+use Modules\HotelContentRepository\Http\Controllers\PdGridController;
+use Modules\HotelContentRepository\Http\Controllers\ProductController;
+use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
+use Modules\HotelContentRepository\Http\Controllers\VendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,13 +125,40 @@ Route::prefix('admin')->group(function () {
         Route::resource('properties', PropertiesController::class)->only('index');
         Route::resource('ice-portal', IcePortalController::class)->only('index');
         Route::resource('expedia', ExpediaController::class)->only('index');
-        Route::resource('deposit-information', DepositInformationController::class)->only('index');
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
         Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
+
+        Route::resource('hotel-repository', HotelController::class);
+        Route::resource('product-repository', ProductController::class);
+        Route::resource('vendor-repository', VendorController::class);
+        Route::resource('hotel-rooms', HotelRoomController::class)->only(['index']);
+        Route::resource('hotel-rates', HotelRateController::class);
+        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
+
+        Route::resource('pd-grid', PdGridController::class)->only(['index']);
+
+        Route::prefix('configurations')->name('configurations.')->group(function () {
+            Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('attribute-categories', ConfigAttributeCategoryController::class)->only(['index', 'create', 'edit']);
+            Route::resource('amenities', ConfigAmenityController::class)->only(['index', 'create', 'edit']);
+            Route::resource('consortia', ConfigConsortiumController::class)->only(['index', 'create', 'edit']);
+            Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
+            Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('room-bed-types', ConfigRoomBedTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('contact-information-departments', ConfigContactInformationDepartmentController::class)->only(['index', 'create', 'edit']);
+            Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
+            Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
+            Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
+        });
+
+        Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);
+        Route::resource('images', ImageController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

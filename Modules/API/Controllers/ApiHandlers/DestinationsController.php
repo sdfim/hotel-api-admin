@@ -14,7 +14,6 @@ use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1PlaceAddressComponent;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1SearchTextRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\API\Requests\DestinationRequest;
@@ -138,7 +137,7 @@ class DestinationsController
 
                 if (strlen($cleanSearchCriteria) === 3) {
                     $query->orWhereRaw('JSON_CONTAINS(`airports`, \'"'.strtoupper($cleanSearchCriteria).'"\', "$")');
-                    //Original => $query->orWhere('airports', 'like', '%' . strtoupper($cleanSearchCriteria) . '%');
+                    // Original => $query->orWhere('airports', 'like', '%' . strtoupper($cleanSearchCriteria) . '%');
                 }
             });
         } elseif ($request->giata !== null) {
@@ -230,7 +229,7 @@ class DestinationsController
 
     private function getGooglePlaceTextSearchSuggestions(DestinationRequest $request)
     {
-        $client = new Client();
+        $client = new Client;
         $client->setApplicationName('OBE');
         $client->setDeveloperKey(config('services.google.google_api_developer_key'));
 
@@ -247,11 +246,11 @@ class DestinationsController
             $searchCriteria .= ' airport';
         }
 
-        $params = new GoogleMapsPlacesV1SearchTextRequest();
+        $params = new GoogleMapsPlacesV1SearchTextRequest;
         $params->textQuery = $searchCriteria;
-        //$params->rankPreference = 'RELEVANCE';
+        // $params->rankPreference = 'RELEVANCE';
         $params->languageCode = 'en';
-        //$params->includedType = 'airport|hospital';//|hospital|library|museum|park|restaurant|shopping_mall|stadium|tourist_attraction|train_station|university|zoo';
+        // $params->includedType = 'airport|hospital';//|hospital|library|museum|park|restaurant|shopping_mall|stadium|tourist_attraction|train_station|university|zoo';
 
         $results = $service->places->searchText($params, ['fields' => 'places.id,places.location,places.name,places.formattedAddress,places.displayName,places.primaryType,places.addressComponents']);
 
@@ -278,7 +277,7 @@ class DestinationsController
      */
     private function getGooglePlaceAutocompleteSuggestions(DestinationRequest $request)
     {
-        $client = new Client();
+        $client = new Client;
         $client->setApplicationName('OBE');
         $client->setDeveloperKey(config('services.google.google_api_developer_key'));
 
@@ -299,42 +298,34 @@ class DestinationsController
 
         $sessionToken = Str::uuid();
 
-        $params = new GoogleMapsPlacesV1AutocompletePlacesRequest();
+        $params = new GoogleMapsPlacesV1AutocompletePlacesRequest;
         $params->input = $searchCriteria;
         $params->sessionToken = $sessionToken;
         $params->includedPrimaryTypes = $primaryTypes;
         $results = $service->places->autocomplete($params);
 
-        return collect($results->getSuggestions())->map(function (GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion $place) use ($sessionToken)
-        {
+        return collect($results->getSuggestions())->map(function (GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion $place) use ($sessionToken) {
             $types = $place->getPlacePrediction()->getTypes();
             $type = 'Landmark';
 
-            if (! empty(array_intersect(['hotel', 'resort_hotel', 'lodging'], $types)))
-            {
+            if (! empty(array_intersect(['hotel', 'resort_hotel', 'lodging'], $types))) {
                 $type = 'Resort';
-            }
-            elseif (in_array('airport', $types))
-            {
+            } elseif (in_array('airport', $types)) {
                 $type = 'Airport';
-            }
-            elseif (in_array('country', $types))
-            {
+            } elseif (in_array('country', $types)) {
                 $type = 'Country';
-            }
-            elseif (in_array('continent', $types))
-            {
+            } elseif (in_array('continent', $types)) {
                 $type = 'Continent';
             }
 
             return [
-                 'full_name' => $place->getPlacePrediction()->getStructuredFormat()->getMainText()->getText(),
-                 'place' => $place->getPlacePrediction()->getPlaceId(),
-                 'session' => $sessionToken,
-                 'country_code' => collect(explode(', ', $place->getPlacePrediction()->getText()->text))->last(),
-                 'type' => $type,
-                 'location' => null,
-                ];
+                'full_name' => $place->getPlacePrediction()->getStructuredFormat()->getMainText()->getText(),
+                'place' => $place->getPlacePrediction()->getPlaceId(),
+                'session' => $sessionToken,
+                'country_code' => collect(explode(', ', $place->getPlacePrediction()->getText()->text))->last(),
+                'type' => $type,
+                'location' => null,
+            ];
         });
     }
 

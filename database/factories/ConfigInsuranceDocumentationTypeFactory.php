@@ -2,16 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Enums\InsuranceDocTypeEnum;
 
 class ConfigInsuranceDocumentationTypeFactory extends Factory
 {
     protected $model = ConfigInsuranceDocumentationType::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'name_type' => $this->faker->randomElement([

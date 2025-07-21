@@ -35,7 +35,7 @@ class ApiBookingInspector extends Model
         'request',
         'response_path',
         'client_response_path',
-        'addons_meta'
+        'addons_meta',
     ];
 
     protected $casts = [
@@ -57,9 +57,6 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function metadata(): BelongsTo
     {
         return $this->belongsTo(ApiBookingsMetadata::class, 'booking_item' , 'booking_item');

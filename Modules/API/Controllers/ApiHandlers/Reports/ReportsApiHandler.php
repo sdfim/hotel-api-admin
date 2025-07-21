@@ -5,20 +5,17 @@ namespace Modules\API\Controllers\ApiHandlers\Reports;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Modules\API\BaseController;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Modules\API\BaseController;
 
 class ReportsApiHandler extends BaseController
 {
     /**
      * Get the missing bookings and booking errors report.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function bookings(Request $request): JsonResponse
     {
@@ -43,8 +40,6 @@ class ReportsApiHandler extends BaseController
 
     /**
      * Get the booking query.
-     *
-     * @return Builder
      */
     protected function getBookingsQuery(): Builder
     {
@@ -56,8 +51,6 @@ class ReportsApiHandler extends BaseController
 
     /**
      * Get the inspectors query.
-     *
-     * @return Builder
      */
     protected function getInspectorsQuery(): Builder
     {
@@ -67,14 +60,10 @@ class ReportsApiHandler extends BaseController
 
     /**
      * Apply date filters to the passed query.
-     *
-     * @param Builder $query
-     * @param Request $request
-     * @return void
      */
     protected function applyDateFilters(Builder $query, Request $request): void
     {
-        
+
         $adminTimezone = 'America/New_York';
 
         $query->when($request->get('from'), function ($query, $from) use ($adminTimezone) {
@@ -92,31 +81,29 @@ class ReportsApiHandler extends BaseController
      * Get the booking inspector URL.
      *
      * @todo Improve this by adding the route in the API module provider.
-     * @return string
      */
     protected function getBookingInspectorUrl(): string
     {
-        return url('admin/booking-inspector/') . '/';
+        return url('admin/booking-inspector/').'/';
     }
 
     /**
      * Transform the bookings meta data collection into an array for API response.
      *
-     * @param Collection|ApiBookingsMetadata[] $bookings
-     * @return array
+     * @param  Collection|ApiBookingsMetadata[]  $bookings
      */
     protected function transformBookingsData(Collection $bookings): array
     {
         return $bookings->map(function ($booking) {
             return [
-                'booking_item'              => $booking->booking_item,
-                'booking_id'                => $booking->booking_id,
-                'supplier'                  => $booking->supplier->name,
-                'supplier_booking_item_id'  => $booking->supplier_booking_item_id,
-                'hotel_supplier_id'         => $booking->hotel_supplier_id,
-                'hotel'                     => $booking->hotel?->name,
-                'main_guest'                => $this->getMainGuest($booking->booking_item_data),
-                'created_at'                => $booking->created_at,
+                'booking_item' => $booking->booking_item,
+                'booking_id' => $booking->booking_id,
+                'supplier' => $booking->supplier->name,
+                'supplier_booking_item_id' => $booking->supplier_booking_item_id,
+                'hotel_supplier_id' => $booking->hotel_supplier_id,
+                'hotel' => $booking->hotel?->name,
+                'main_guest' => $this->getMainGuest($booking->booking_item_data),
+                'created_at' => $booking->created_at,
             ];
         })->toArray();
     }
@@ -124,17 +111,16 @@ class ReportsApiHandler extends BaseController
     /**
      * Transform the booking inspectors collection into an array for API response.
      *
-     * @param Collection|ApiBookingInspector[] $inspectors
-     * @return array
+     * @param  Collection|ApiBookingInspector[]  $inspectors
      */
     protected function transformInspectorsData(Collection $inspectors): array
     {
         return $inspectors->map(function ($inspector) {
             return [
-                'id'                        => $inspector->id,
-                'booking_item'              => $inspector->booking_item,
-                'booking_id'                => $inspector->booking_id,
-                'status'                    => $inspector->status,
+                'id' => $inspector->id,
+                'booking_item' => $inspector->booking_item,
+                'booking_id' => $inspector->booking_id,
+                'status' => $inspector->status,
             ];
         })->toArray();
     }
@@ -142,8 +128,7 @@ class ReportsApiHandler extends BaseController
     /**
      * Get the main guest name from the booking item data.
      *
-     * @param array $bookingItemData
-     * @return string|null
+     * @param  array  $bookingItemData
      */
     protected function getMainGuest($bookingItemData): ?string
     {

@@ -6,14 +6,12 @@ use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -81,17 +79,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->formatStateUsing(function (ApiSearchInspector $record) {
                         return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
-                    }),
-            ])
-            ->bulkActions([
-                BulkAction::make('delete')
-                    ->requiresConfirmation()
-                    ->label('Delete Selected')
-                    ->visible(fn () => Auth::user()->email === 'admin-andrii@terramare.com')
-                    ->action(function ($records) {
-                        foreach ($records as $record) {
-                            $record->delete();
-                        }
                     }),
             ]);
     }

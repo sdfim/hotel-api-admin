@@ -4,7 +4,6 @@ namespace App\Livewire\Users;
 
 use App\Actions\Jetstream\CreateTeam;
 use App\Actions\Jetstream\DeleteTeam;
-use App\Actions\Jetstream\RemoveTeamMember;
 use App\Helpers\ClassHelper;
 use App\Models\Permission;
 use App\Models\Role;
@@ -81,13 +80,13 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->options(Role::pluck('name', 'id'))
                     ->required()
                     ->reactive(),
-//                Select::make('vendor_ids')
-//                    ->label('Can View Vendors')
-//                    ->multiple()
-//                    ->options(Vendor::whereJsonContains('type', 'hotel')->pluck('name', 'id'))
-//                    ->native(false)
-//                    ->required()
-//                    ->visible(fn ($get) => (int) $get('role') === $externalUserRoleId),
+                Select::make('vendor_ids')
+                    ->label('Can View Vendors')
+                    ->multiple()
+                    ->options(Vendor::whereJsonContains('type', 'hotel')->pluck('name', 'id'))
+                    ->native(false)
+                    ->required()
+                    ->visible(fn ($get) => (int) $get('role') === $externalUserRoleId),
                 ...$additionalFormData,
             ])
             ->statePath('data')

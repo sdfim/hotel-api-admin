@@ -14,7 +14,6 @@ use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigRoomBedType;
 use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
-use App\Models\InformationalService;
 use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
 use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
@@ -33,12 +32,6 @@ use App\Policies\HotelRatePolicy;
 use App\Policies\HotelRoomPolicy;
 use App\Policies\ImageGalleryPolicy;
 use App\Policies\ImagePolicy;
-use App\Policies\InformationalServicePolicy;
-use App\Policies\InsurancePlanPolicy;
-use App\Policies\InsuranceProviderDocumentationPolicy;
-use App\Policies\InsuranceProviderPolicy;
-use App\Policies\InsuranceRateTierPolicy;
-use App\Policies\InsuranceRestrictionPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\TravelAgencyCommissionPolicy;
 use App\Policies\VendorPolicy;
@@ -54,11 +47,6 @@ use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\Vendor;
-use Modules\Insurance\Models\InsurancePlan;
-use Modules\Insurance\Models\InsuranceProvider;
-use Modules\Insurance\Models\InsuranceProviderDocumentation;
-use Modules\Insurance\Models\InsuranceRateTier;
-use Modules\Insurance\Models\InsuranceRestriction;
 
 class PermissionServiceProvider extends ServiceProvider
 {
@@ -76,11 +64,6 @@ class PermissionServiceProvider extends ServiceProvider
         Hotel::class => HotelPolicy::class,
         Vendor::class => VendorPolicy::class,
         Product::class => ProductPolicy::class,
-        InsuranceProvider::class => InsuranceProviderPolicy::class,
-        InsuranceProviderDocumentation::class => InsuranceProviderDocumentationPolicy::class,
-        InsuranceRestriction::class => InsuranceRestrictionPolicy::class,
-        InsuranceRateTier::class => InsuranceRateTierPolicy::class,
-        InsurancePlan::class => InsurancePlanPolicy::class,
         ConfigAttribute::class => ConfigAttributePolicy::class,
         ConfigAttributeCategory::class => ConfigAttributeCategoryPolicy::class,
         ConfigAmenity::class => ConfigAmenityPolicy::class,
@@ -94,7 +77,6 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigContactInformationDepartment::class => ConfigContactInformationDepartmentPolicy::class,
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
         Commission::class => CommissionPolicy::class,
-        InformationalService::class => InformationalServicePolicy::class,
         TravelAgencyCommission::class => TravelAgencyCommissionPolicy::class,
         ImageGallery::class => ImageGalleryPolicy::class,
         Image::class => ImagePolicy::class,

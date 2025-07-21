@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Models\Property;
 use App\Models\Mapping;
+use App\Models\Property;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Tools\PropertySearch;
 use Modules\Enums\SupplierNameEnum;
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class PropertyRepository
 {
@@ -26,9 +26,7 @@ class PropertyRepository
 
     private array $listBatchHbsi = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function search(string $hotelName, float $latitude, string $city): array
     {
@@ -49,7 +47,7 @@ class PropertyRepository
 
     public function associateByGiata(array $supplierData, string $supplier): array
     {
-        $this->propertySearch = new PropertySearch();
+        $this->propertySearch = new PropertySearch;
         $this->availableElasticSearch = $this->propertySearch->available();
 
         if ($supplier == SupplierNameEnum::ICE_PORTAL->value) {

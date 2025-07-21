@@ -6,7 +6,7 @@ enum ContentSourceEnum: string
 {
     case EXPEDIA = 'Expedia';
     case ICE_PORTAL = 'IcePortal';
-    case HBSI = 'HBSI';
+    case HBSI = 'IBS';
     case HILTON = 'Hilton';
     case INTERNAL = 'Internal';
 

@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class ConfigDescriptiveTypeSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $types = [
             'Meta Description',

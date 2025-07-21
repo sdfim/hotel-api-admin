@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Helpers\Strings;
 use App\Models\GiataGeography;
 use App\Models\Property;
-use App\Models\PropertyLocation;
 use Exception;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -171,7 +170,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         ->numeric()
                         ->minValue(-180)
                         ->maxValue(180)
-                        ->disabled(!$isEditable),
+                        ->disabled(! $isEditable),
 
                     TextInput::make('mapper_phone_number')
                         ->label('Phone')

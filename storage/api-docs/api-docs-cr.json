@@ -993,7 +993,7 @@
                         }
                     },
                     {
-                        "name": "hbsi_data_mapped_name",
+                        "name": "external_code",
                         "in": "query",
                         "description": "Filter by HBSI data mapped name",
                         "required": false,
@@ -1069,7 +1069,7 @@
                                 "required": [
                                     "hotel_id",
                                     "name",
-                                    "hbsi_data_mapped_name",
+                                    "external_code",
                                     "description"
                                 ],
                                 "properties": {
@@ -1081,7 +1081,7 @@
                                         "type": "string",
                                         "example": "Deluxe Room"
                                     },
-                                    "hbsi_data_mapped_name": {
+                                    "external_code": {
                                         "type": "string",
                                         "example": "Deluxe Room Mapped"
                                     },
@@ -1233,7 +1233,7 @@
                                 "required": [
                                     "hotel_id",
                                     "name",
-                                    "hbsi_data_mapped_name",
+                                    "external_code",
                                     "description"
                                 ],
                                 "properties": {
@@ -1245,7 +1245,7 @@
                                         "type": "string",
                                         "example": "Deluxe Room"
                                     },
-                                    "hbsi_data_mapped_name": {
+                                    "external_code": {
                                         "type": "string",
                                         "example": "Deluxe Room Mapped"
                                     },

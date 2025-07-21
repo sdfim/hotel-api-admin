@@ -43,8 +43,8 @@ class ExpediaHotelController implements SupplierControllerInterface
         try {
             $mappings = $this->mappingCacheService->getMappingsExpediaHashMap($mainDB);
 
-            $expedia = new ExpediaContent;
-            $geography = new Geography;
+            $expedia = new ExpediaContent();
+            $geography = new Geography();
 
             // $filters['ids'] - array of Expedia property ids
             // $filters['giata_ids'] - array of Giata ids

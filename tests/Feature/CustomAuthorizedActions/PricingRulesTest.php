@@ -1,107 +1,114 @@
 <?php
 
-namespace Tests\Feature\CustomAuthorizedActions;
-
 use App\Livewire\PricingRules\CreatePricingRule;
 use App\Livewire\PricingRules\UpdatePricingRule;
 use App\Models\PricingRule;
 use App\Models\PricingRuleCondition;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Modules\API\Tools\PricingRulesDataGenerationTools;
-use PHPUnit\Framework\Attributes\Test;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 
-class PricingRulesTest extends CustomAuthorizedActionsTestCase
-{
-    use RefreshDatabase;
-    use WithFaker;
+uses(RefreshDatabase::class);
+uses(WithFaker::class);
 
-    #[Test]
-    public function test_pricing_rules_index_is_opening(): void
-    {
-        $response = $this->get('/admin/pricing-rules');
+test('pricing rules index is opening', function () {
+    $this->get('/admin/pricing-rules')
+        ->assertStatus(200);
+});
 
-        $response->assertStatus(200);
+test('pricing rules creating is opening', function () {
+    $this->get('/admin/pricing-rules/create')
+        ->assertStatus(200);
+});
+
+test('pricing rules showing is opening', function () {
+    $pricingRule = PricingRule::factory()
+        ->has(PricingRuleCondition::factory()->count(rand(1, 14)), 'conditions')
+        ->create();
+
+    $this->get(route('pricing-rules.show', $pricingRule->id))
+        ->assertStatus(200);
+});
+
+test('validation of pricing rules form during creation', function () {
+    Livewire::test(CreatePricingRule::class)
+        ->set('data', [
+            'name' => '',
+            'manipulable_price_type' => '',
+            'price_value_target' => '',
+            'price_value' => '',
+            'price_value_type' => '',
+            'rule_start_date' => '',
+        ])
+        ->call('create')
+        ->assertHasErrors([
+            'data.name',
+            'data.manipulable_price_type',
+            'data.price_value',
+            'data.price_value_type',
+            'data.rule_start_date',
+            'data.conditions',
+        ]);
+});
+
+test('possibility of creating new pricing rule', function () {
+    /** @var PricingRulesDataGenerationTools $pricingRulesTools */
+    $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
+
+    $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
+    $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
+
+    $formData = [
+        ...$pricingRuleData,
+        'conditions' => $pricingRuleConditionsData,
+    ];
+
+    Livewire::test(CreatePricingRule::class)
+        ->set('data', $formData)
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified('Created successfully');
+
+    $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
+
+    foreach ($pricingRuleConditionsData as $cond) {
+        $this->assertDatabaseHas('pricing_rules_conditions', $cond);
     }
+});
 
-    #[Test]
-    public function test_pricing_rules_creating_is_opening(): void
-    {
-        $response = $this->get('/admin/pricing-rules/create');
+test('possibility of updating an existing pricing rule', function () {
+    $pricingRule = PricingRule::factory()
+        ->has(PricingRuleCondition::factory()->count(rand(1, 5)), 'conditions')
+        ->create();
 
-        $response->assertStatus(200);
-    }
+    /** @var PricingRulesDataGenerationTools $pricingRulesTools */
+    $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
+    $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
+    $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
 
-    #[Test]
-    public function test_pricing_rules_showing_is_opening(): void
-    {
-        $pricingRule = PricingRule::factory()
-            ->has(PricingRuleCondition::factory()->count(rand(1, 14)), 'conditions')
-            ->create();
+    $formData = [
+        ...$pricingRuleData,
+        'conditions' => $pricingRuleConditionsData,
+    ];
 
-        $response = $this->get(route('pricing-rules.show', $pricingRule->id));
+    Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
+        ->set('data', $formData)
+        ->assertFormSet($formData)
+        ->call('edit')
+        ->assertHasNoFormErrors();
 
-        $response->assertStatus(200);
-    }
+    $assertionData = $pricingRuleData;
+    $assertionData['rule_start_date'] = $pricingRuleData['rule_start_date'] . ' 00:00:00';
+    $assertionData['rule_expiration_date'] = $pricingRuleData['rule_expiration_date'] . ' 00:00:00';
 
-    #[Test]
-    public function test_validation_of_pricing_rules_form_during_creation(): void
-    {
-        Livewire::test(CreatePricingRule::class)
-            ->set('data', [
-                'name' => '',
-                'manipulable_price_type' => '',
-                'price_value_target' => '',
-                'price_value' => '',
-                'price_value_type' => '',
-                'rule_start_date' => '',
-            ])
-            ->call('create')
-            ->assertHasErrors([
-                'data.name',
-                'data.manipulable_price_type',
-                'data.price_value',
-                'data.price_value_type',
-                'data.rule_start_date',
-                'data.conditions',
-            ]);
-    }
+    $this->assertDatabaseHas('pricing_rules', $assertionData);
+});
 
-    #[Test]
-    public function test_possibility_of_creating_new_pricing_rule(): void
-    {
-        /** @var PricingRulesDataGenerationTools $pricingRulesTools */
-        $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
+test('possibility of destroying an existing pricing rule', function () {
+    $pricingRule = PricingRule::factory()->create();
 
-        $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
+    $pricingRule->delete();
 
-        $formData = [
-            ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData,
-        ];
-
-        Livewire::test(CreatePricingRule::class)
-            ->set('data', $formData)
-            ->call('create')
-            ->assertHasNoFormErrors()
-            ->assertNotified('Created successfully');
-
-        $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
-
-        foreach ($pricingRuleConditionsData as $cond) {
-            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
-        }
-    }
-
-    #[Test]
-    public function test_possibility_of_destroying_an_existing_pricing_rule(): void
-    {
-        $pricingRule = PricingRule::factory()->create();
-
-        $pricingRule->delete();
-
-        $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
-    }
-}
+    $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
+});

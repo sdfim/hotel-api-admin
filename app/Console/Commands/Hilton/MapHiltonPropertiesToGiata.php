@@ -15,7 +15,7 @@ class MapHiltonPropertiesToGiata extends Command
 
     protected $description = 'Map Hilton properties to GIATA codes and export to CSV';
 
-    public function handle()
+    public function handle(): void
     {
         $this->warn('-> Mapping Hilton Properties to GIATA');
 

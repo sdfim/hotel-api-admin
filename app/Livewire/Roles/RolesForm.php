@@ -53,7 +53,7 @@ class RolesForm extends Component implements HasForms, HasTable
                     ->required()
                     ->maxLength(191)
                     ->afterStateUpdated(
-                        fn ($state, Set $set) => !$this->record->exists ? $set('slug', Str::slug($state)) : $state
+                        fn ($state, Set $set) => ! $this->record->exists ? $set('slug', Str::slug($state)) : $state
                     ),
                 TextInput::make('slug')
                     ->unique(ignorable: $this->record)
@@ -74,7 +74,7 @@ class RolesForm extends Component implements HasForms, HasTable
                     ->when($this->record->exists, function ($query) {
                         return $query->whereHas('roles', fn ($query) => $query->where('role_id', $this->record->id));
                     })
-                    ->when(!$this->record->exists, function ($query) {
+                    ->when(! $this->record->exists, function ($query) {
                         return $query->whereIn('id', $this->permissionIds);
                     })
             )
@@ -93,7 +93,7 @@ class RolesForm extends Component implements HasForms, HasTable
                         } else {
                             $this->permissionIds = array_filter($this->permissionIds, fn ($id) => $id != $permission->id);
                         }
-                    })
+                    }),
             ])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
@@ -102,7 +102,7 @@ class RolesForm extends Component implements HasForms, HasTable
                             $this->record->permissions()->detach($records->pluck('id'));
                         } else {
                             $ids = $records->pluck('id')->all();
-                            $this->permissionIds = array_filter($this->permissionIds, fn ($id) => !in_array($id, $ids));
+                            $this->permissionIds = array_filter($this->permissionIds, fn ($id) => ! in_array($id, $ids));
                         }
                     }),
             ])
@@ -119,7 +119,7 @@ class RolesForm extends Component implements HasForms, HasTable
                                 'roles',
                                 fn ($query) => $query->where('role_id', $this->record->id)
                             )->whereNotIn('id', $this->permissionIds)
-                                ->pluck('name', 'id'))
+                                ->pluck('name', 'id')),
                     ])
                     ->action(function ($data) {
                         if ($this->record->exists) {
@@ -141,7 +141,7 @@ class RolesForm extends Component implements HasForms, HasTable
         $this->record->fill($data);
         $this->record->save();
 
-        if (!$exists) {
+        if (! $exists) {
             $this->record->permissions()->attach($this->permissionIds);
         }
 

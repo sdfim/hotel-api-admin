@@ -1,32 +1,20 @@
 <?php
 
-namespace Tests\Feature\CustomAuthorizedActions;
-
 use App\Models\Channel;
 use App\Models\Reservation;
-use PHPUnit\Framework\Attributes\Test;
 
-class ReservationsTest extends CustomAuthorizedActionsTestCase
-{
-    #[Test]
-    public function test_reservation_index_is_opening(): void
-    {
-        $response = $this->get('/admin/reservations');
+test('reservation index is opening', function () {
+    $this->get('/admin/reservations')
+        ->assertStatus(200);
+});
 
-        $response->assertStatus(200);
-    }
+test('possibility of showing an existing reservation record', function () {
+    $channel = Channel::factory()->create();
 
-    #[Test]
-    public function test_possibility_of_showing_an_existing_reservation_record(): void
-    {
-        $channel = Channel::factory()->create();
+    $reservations = Reservation::factory()->create([
+        'channel_id' => $channel->id,
+    ]);
 
-        $reservations = Reservation::factory()->create([
-            'channel_id' => $channel->id,
-        ]);
-
-        $response = $this->get("/admin/reservations/$reservations->id");
-
-        $response->assertStatus(200);
-    }
-}
+    $this->get("/admin/reservations/{$reservations->id}")
+        ->assertStatus(200);
+});

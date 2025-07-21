@@ -12,10 +12,10 @@ use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
-use App\Services\SupplierInterface;
-use App\Services\Suppliers\ExpediaHotelContentApiService;
-use App\Services\Suppliers\HiltonHotelContentApiService;
-use App\Services\Suppliers\IcePortalHotelContentApiService;
+use Modules\HotelContentRepository\Services\SupplierInterface;
+use Modules\HotelContentRepository\Services\Suppliers\ExpediaHotelContentApiService;
+use Modules\HotelContentRepository\Services\Suppliers\HiltonHotelContentApiService;
+use Modules\HotelContentRepository\Services\Suppliers\IcePortalHotelContentApiService;
 
 class SupplierServiceProvider extends ServiceProvider
 {

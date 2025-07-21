@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Configurations\ConfigConsortium;
+use Illuminate\Database\Seeder;
 
 class ConfigConsortiumSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (ConfigConsortium::count() === 0) {
             ConfigConsortium::factory()->count(5)->create();

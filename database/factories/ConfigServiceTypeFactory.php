@@ -17,7 +17,7 @@ class ConfigServiceTypeFactory extends Factory
                 'Laundry Service',
                 'Concierge Service',
                 'Shuttle Service',
-                'Babysitting Service'
+                'Babysitting Service',
             ]),
             'description' => $this->faker->sentence(),
             'cost' => 0,

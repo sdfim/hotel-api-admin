@@ -34,6 +34,18 @@ class RoomGroupsResponse extends BaseResponse
 
     private array $rooms;
 
+    private array $deposits;
+
+    public function setDeposits(array $deposits): void
+    {
+        $this->deposits = $deposits;
+    }
+
+    public function getDeposits(): array
+    {
+        return $this->deposits;
+    }
+
     private function getMarkup(): float
     {
         return $this->markup;
@@ -200,6 +212,7 @@ class RoomGroupsResponse extends BaseResponse
             'rate_id' => $this->getRateId(),
             'rate_description' => $this->getRateDescription(),
             'cancellation_policies' => $this->getCancellationPolicies(),
+            'deposits' => $this->getDeposits(),
             'opaque' => $this->getOpaque(),
             'rooms' => $this->getRooms(),
         ];

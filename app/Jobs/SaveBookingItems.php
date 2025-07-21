@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\ApiBookingItem;
 use App\Models\ApiBookingItemCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

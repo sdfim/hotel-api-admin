@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Http;
 class FlowCancelAllBookTest extends Command
 {
     protected $signature = 'flow:cancel-all-book-test {supplierName}';
+
     protected $description = 'Cancel all test bookings for supplier (HBSI, Expedia, etc)';
 
     protected PendingRequest $client;
+
     protected string $url;
 
     public function __construct()
@@ -22,7 +24,7 @@ class FlowCancelAllBookTest extends Command
         $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
     }
 
-    public function handle()
+    public function handle(): void
     {
         $supplierName = $this->argument('supplierName');
         $bookings = ApiBookingInspectorRepository::getAllBookTestForCancel($supplierName);
@@ -33,12 +35,12 @@ class FlowCancelAllBookTest extends Command
                 'booking_item' => $booking->booking_item,
             ];
 
-            $response = $this->client->delete($this->url . '/api/booking/cancel-booking', $requestData);
+            $response = $this->client->delete($this->url.'/api/booking/cancel-booking', $requestData);
 
             if ($response->successful()) {
-                $this->info('Cancelled booking: ' . $booking->booking_id . ' with booking item: ' . $booking->booking_item);
+                $this->info('Cancelled booking: '.$booking->booking_id.' with booking item: '.$booking->booking_item);
             } else {
-                $this->error('Failed to cancel booking: ' . $booking->booking_id . ' with booking item: ' . $booking->booking_item);
+                $this->error('Failed to cancel booking: '.$booking->booking_id.' with booking item: '.$booking->booking_item);
             }
         }
     }

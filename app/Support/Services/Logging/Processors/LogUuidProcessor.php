@@ -6,11 +6,10 @@ use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+
 class LogUuidProcessor implements ProcessorInterface
 {
-    public function __construct(protected string $key = 'extra.log_uuid')
-    {
-    }
+    public function __construct(protected string $key = 'extra.log_uuid') {}
 
     /**
      * @throws ContainerExceptionInterface

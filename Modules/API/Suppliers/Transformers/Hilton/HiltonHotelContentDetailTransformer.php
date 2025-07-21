@@ -2,7 +2,6 @@
 
 namespace Modules\API\Suppliers\Transformers\Hilton;
 
-use App\Models\MappingRoom;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
@@ -19,10 +18,6 @@ class HiltonHotelContentDetailTransformer
         $airport = $service->mapAirportData(Arr::get($property->props, 'locationDetails.airport', []));
         $descriptions = $service->mapDescriptions($property);
         $amenities = $service->mapAmenities(Arr::get($property->props, 'propDetail.propertyAttributes', []));
-        $unifiedRoomCodes = MappingRoom::where('supplier', SupplierNameEnum::HILTON->value)
-            ->where('giata_id', $giata_id)
-            ->pluck('unified_room_code', 'supplier_room_code')
-            ->toArray();
 
         $hotelResponse = ContentDetailResponseFactory::create();
 
@@ -40,7 +35,7 @@ class HiltonHotelContentDetailTransformer
         $hotelResponse->setAddress($address);
 
         // rooms handle
-        $rooms = $this->mapRooms(Arr::get($property->props, 'propDetail.guestRoomDescriptions', []), $unifiedRoomCodes);
+        $rooms = $this->mapRooms(Arr::get($property->props, 'propDetail.guestRoomDescriptions', []));
         $hotelResponse->setRooms($rooms);
 
         $hotelResponse->setDrivers([['name' => 'Hilton', 'value' => true]]);
@@ -48,7 +43,7 @@ class HiltonHotelContentDetailTransformer
         return [$hotelResponse->toArray()];
     }
 
-    private function mapRooms(array $guestRoomDescriptions, array $unifiedRoomCodes): array
+    private function mapRooms(array $guestRoomDescriptions): array
     {
         $rooms = [];
 
@@ -59,12 +54,11 @@ class HiltonHotelContentDetailTransformer
                     'category' => 'general', // Assuming 'general' as the default category
                 ];
             }, $room['roomAmenities'] ?? []);
-            $supplierRoomCode = Arr::get($room, 'roomTypeCode', '');
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setContentSupplier(SupplierNameEnum::HILTON->value);
+            $roomResponse->setUnifiedRoomCode(Arr::get($room, 'roomTypeCode', ''));
             $roomResponse->setSupplierRoomName(Arr::get($room, 'bedClass', ''));
-            $roomResponse->setSupplierRoomCode($supplierRoomCode);
-            $roomResponse->setUnifiedRoomCode(Arr::get($unifiedRoomCodes, $supplierRoomCode, ''));
+            $roomResponse->setSupplierRoomCode(Arr::get($room, 'roomTypeCode', ''));
             $roomResponse->setAmenities($roomAmenities);
             $roomResponse->setImages([]);
             $roomResponse->setDescriptions($room['enhancedDescription'] ?? '');

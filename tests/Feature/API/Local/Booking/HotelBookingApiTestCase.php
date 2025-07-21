@@ -9,7 +9,7 @@ use Illuminate\Support\Carbon;
 use Tests\Feature\API\Local\ApiTestCase;
 use Tests\Feature\API\Local\Pricing\HotelPricingGeneralMethodsTrait;
 
-class HotelBookingApiTestCase extends ApiTestCase
+class HotelBookingApiTestCase extends TestCase
 {
     use HotelPricingGeneralMethodsTrait;
     use WithFaker;

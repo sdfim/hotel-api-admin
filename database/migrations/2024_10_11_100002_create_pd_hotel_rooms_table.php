@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('pd_hotel_rooms', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('hotel_id');
+            $table->string('external_code')->nullable();
+            $table->json('supplier_codes')->nullable();
+            $table->string('name')->nullable();
+            $table->string('area')->nullable();
+            $table->json('bed_groups')->nullable();
+            $table->string('room_views')->nullable();
+            $table->string('related_rooms')->nullable();
+            $table->text('description')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('pd_hotel_rooms');
+    }
+};

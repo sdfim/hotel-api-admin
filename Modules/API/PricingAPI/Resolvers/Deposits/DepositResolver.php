@@ -16,23 +16,29 @@ class DepositResolver
 {
     const CACHE_TTL_MINUTES = 1;
 
-    public static function getRateLevel(RoomResponse $roomResponse, array $depositInformation, array $query, $giataId, $rating, $totalPrice): array
+    public static function getRateLevel(RoomResponse $roomResponse, array $depositInformation, array $query, $giataId, $rating, $totalPrice = null): array
     {
 
         if (empty($depositInformation)) {
             return [];
         }
-
         $roomResponseRoomType = $roomResponse->getRoomType();
         $roomResponseRoomName = $roomResponse->getSupplierRoomName();
+        $depositInformationRateCode = $roomResponse->getRatePlanCode();
 
         $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId, $rating);
 
-        $activeDepositInformationRateLevel = $activeDepositInformation['rate']->isNotEmpty()
-            ? collect(array_merge($activeDepositInformation['rate']->toArray(), $activeDepositInformation['hotel']->toArray()))
-            : $activeDepositInformation['hotel'];
+        $filtered = $activeDepositInformation['rate']->filter(function ($item) use ($depositInformationRateCode) {
+            $rateId = $item['rate_id'] ?? null;
+            return $rateId === $depositInformationRateCode || $rateId === null;
+        });
 
-        $filtered = $activeDepositInformationRateLevel;
+        $hotelLevelDeposits = $activeDepositInformation['hotel'];
+        $filtered = $filtered->merge($hotelLevelDeposits);
+
+        if ($filtered->isEmpty()) {
+            return [];
+        }
 
         // Filter by total price
         $filtered = $filtered->filter(function ($item) use ($totalPrice) {
@@ -85,56 +91,42 @@ class DepositResolver
             };
         });
 
-        $depositInformationRateCode = $roomResponse->getRatePlanCode();
-
-        // Filter by rate code
-        $rateId = null;
-        $depositInfoRate = null;
-        $roomResponseRateCode = null;
+        $deposits = [];
         foreach ($filtered as $depositInfo) {
             $rateId = Arr::get($depositInfo, 'rate_id');
-
-            $hotel = Arr::get($depositInfo, 'hotel.rates') ? collect(Arr::get($depositInfo, 'hotel.rates'))->firstWhere('id', $rateId) : null;
-            $roomResponseRateCode = $hotel?->code ?? null;
-
-            if ($roomResponseRateCode === $depositInformationRateCode || ! $roomResponseRateCode) {
-                $depositInfoRate = $depositInfo;
-                break;
+            $level = $rateId ? 'rate' : 'hotel';
+            $baseAmount = self::getBaseAmount($roomResponse, $depositInfo);
+            $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
+            $calculatedDeposit = [
+                'name' => $depositInfo['name'],
+                'level' => $level,
+                'base_price_type' => $depositInfo['manipulable_price_type'],
+                'price_value' => $depositInfo['price_value'],
+                'price_value_type' => $depositInfo['price_value_type'],
+                'price_value_target' => $depositInfo['price_value_target'],
+                'base_price_amount' => $baseAmount,
+                'total_deposit' => self::calculate($depositInfo, $baseAmount, self::getMultiplier($depositInfo, $query)),
+            ];
+            if ($initialPaymentDueType) {
+                $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
+                switch ($initialPaymentDueType) {
+                    case 'days_after_booking':
+                        $calculatedDeposit['initial_payment_due']['days_after_booking'] = Arr::get($depositInfo, 'days_after_booking_initial_payment_due');
+                        break;
+                    case 'days_before_arrival':
+                        $calculatedDeposit['initial_payment_due']['days_before_arrival'] = Arr::get($depositInfo, 'days_before_arrival_initial_payment_due');
+                        break;
+                    default:
+                        $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due');
+                        break;
+                }
             }
+            $deposits[] = $calculatedDeposit;
         }
-
-        $depositInfo = $depositInfoRate ?? $activeDepositInformation['hotel']->first();
-
-        if (empty($depositInfo)) {
-            return [];
-        }
-
-        $level = $rateId ? 'rate' : 'hotel';
-        $baseAmount = self::getBaseAmount($roomResponse, $depositInfo);
-        $initialPaymentDueType = Arr::get($depositInfo, 'initial_payment_due_type', null);
-        $calculatedDeposit = [
-            'name' => $depositInfo['name'],
-            'level' => $level,
-            'base_price_type' => $depositInfo['manipulable_price_type'],
-            'price_value' => $depositInfo['price_value'],
-            'price_value_type' => $depositInfo['price_value_type'],
-            'base_price_amount' => $baseAmount,
-            'total_deposit' => self::calculate($depositInfo, $baseAmount, self::getMultiplier($depositInfo, $query)),
-        ];
-        if ($initialPaymentDueType) {
-            $calculatedDeposit['initial_payment_due']['type'] = $initialPaymentDueType;
-
-            match ($initialPaymentDueType) {
-                'days_after_booking' => $calculatedDeposit['initial_payment_due']['days_after_booking'] = Arr::get($depositInfo, 'days_after_booking_initial_payment_due'),
-                'days_before_arrival' => $calculatedDeposit['initial_payment_due']['days_before_arrival'] = Arr::get($depositInfo, 'days_before_arrival_initial_payment_due'),
-                default => $calculatedDeposit['initial_payment_due']['date'] = Arr::get($depositInfo, 'date_initial_payment_due'),
-            };
-        }
-
-        return $calculatedDeposit;
+        return $deposits;
     }
 
-    public static function getHotelLevel(array $depositInformation, array $query, $giataId, $rating): array
+    public static function getHotelLevel(array $depositInformation, array $query, $giataId, $rating = null): array
     {
         if (empty($depositInformation)) {
             return [];
@@ -182,8 +174,8 @@ class DepositResolver
 
     private static function getFilteredDepositInformation(array $depositInformation, array $query, $rating): array
     {
-        $hotelLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating);
         $rateLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating, 'rate');
+        $hotelLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating);
 
         return [
             'hotel' => $hotelLevel,
@@ -195,9 +187,9 @@ class DepositResolver
     {
         $priceValue = (float) $depositInfo['price_value'];
         $priceValueType = $depositInfo['price_value_type'];
-        $value = $priceValueType === ProductPriceValueTypeEnum::PERCENTAGE->value ? ($basePrice * $priceValue) / 100 : $priceValue;
+        $value = $priceValueType === ProductPriceValueTypeEnum::PERCENTAGE->value ? ($basePrice * $priceValue) / 100 : $priceValue * $multiplier;
 
-        return $value * $multiplier;
+        return $value;
     }
 
     private static function getBaseAmount(RoomResponse $roomResponse, array $depositInfo): float
@@ -217,12 +209,16 @@ class DepositResolver
 
     private static function getMultiplier(array $depositInfo, array $query): int
     {
+        $nights = self::getNights($query['checkin'], $query['checkout']);
+        $totalPersons = collect($query['occupancy'])->reduce(function ($accum, $item) {
+            return $accum + (int) Arr::get($item, 'adults', 0) + (int) Arr::get($item, 'children', 0);
+        }, 0);
+
         return match ($depositInfo['price_value_target']) {
-            ProductApplyTypeEnum::PER_NIGHT->value => self::getNights($query['checkin'], $query['checkout']),
-            ProductApplyTypeEnum::PER_PERSON->value => collect($query['occupancy'])->reduce(function ($accum, $item) {
-                return $accum + (int) Arr::get($item, 'adults', 0) + (int) Arr::get($item, 'children', 0);
-            }, 0),
+            ProductApplyTypeEnum::PER_NIGHT->value => $nights,
+            ProductApplyTypeEnum::PER_PERSON->value => $totalPersons,
             ProductApplyTypeEnum::PER_ROOM->value => count($query['occupancy']),
+            ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => $nights * $totalPersons,
             default => 1,
         };
     }
@@ -234,7 +230,7 @@ class DepositResolver
 
         // Filter by level (hotel or rate)
         $filtered = $depositInformation->filter(function ($item) use ($level) {
-            return ($level === 'hotel') ? $item['rate_id'] === null : $item['rate_id'] !== null;
+            return ($level === 'hotel') ? ($item['rate_id'] ?? null) === null : ($item['rate_id'] ?? null) !== null;
         });
 
         // Filter by rating
@@ -269,9 +265,10 @@ class DepositResolver
         // Filter for travel_date to ensure the travel date is after $checkin
         $filtered = $filtered->filter(function ($item) use ($checkin) {
             $condition = collect($item['conditions'])->firstWhere('field', 'travel_date');
-            $travelDate = Carbon::parse($condition['value'] ?? Carbon::now()->addYears(1000));
+            $from = Carbon::parse($condition['value_from'] ?? Carbon::now());
+            $to = Carbon::parse($condition['value_to'] ?? Carbon::now()->addYears(1000));
 
-            return $travelDate->greaterThan($checkin);
+            return $from <= $checkin && $to >= $checkin;
         });
 
         // Filter for booking_date to ensure the current date is within the interval

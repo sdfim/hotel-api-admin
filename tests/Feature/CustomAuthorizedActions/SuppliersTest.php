@@ -1,85 +1,55 @@
 <?php
 
-namespace Tests\Feature\CustomAuthorizedActions;
-
-use App\Livewire\Suppliers\CreateSuppliersForm;
-use App\Livewire\Suppliers\UpdateSuppliersForm;
 use App\Models\Supplier;
 use Illuminate\Foundation\Testing\WithFaker;
-use Livewire\Livewire;
-use PHPUnit\Framework\Attributes\Test;
 
-class SuppliersTest extends CustomAuthorizedActionsTestCase
-{
-    use WithFaker;
+uses(WithFaker::class);
 
-    #[Test]
-    public function test_suppliers_index_is_opening(): void
-    {
-        $response = $this->get('/admin/suppliers');
+test('suppliers index is opening', function () {
+    $this->get('/admin/suppliers')
+        ->assertStatus(200);
+});
 
-        $response->assertStatus(200);
-    }
+test('possibility of creating supplier', function () {
+    $suppliers = Supplier::factory()->create();
 
-    #[Test]
-    public function test_possibility_of_creating_supplier(): void
-    {
-        $suppliers = Supplier::factory()->create();
+    $this->get(route('suppliers.create', $suppliers->id))
+        ->assertStatus(200);
+});
 
-        $response = $this->get(route('suppliers.create', $suppliers->id));
+test('possibility of storing supplier', function () {
+    $data = [
+        'name' => $this->faker->name(),
+        'description' => $this->faker->word(),
+    ];
 
-        $response->assertStatus(200);
-    }
+    $this->post(route('suppliers.store'), $data)
+        ->assertRedirect(route('suppliers.index'))
+        ->assertSessionHas('success', 'Suppliers created successfully.');
 
-    #[Test]
-    public function test_possibility_of_storing_supplier(): void
-    {
-        $data = [
-            'name' => $this->faker->name(),
-            'description' => $this->faker->word(),
-        ];
+    $this->assertDatabaseHas('suppliers', $data);
+});
 
-        $response = $this->post(route('suppliers.store'), $data);
+test('possibility of showing an existing supplier', function () {
+    $suppliers = Supplier::factory()->create();
 
-        $response->assertRedirect(route('suppliers.index'));
+    $this->get(route('suppliers.show', $suppliers->id))
+        ->assertStatus(200)
+        ->assertSee($suppliers->name)
+        ->assertSee($suppliers->description);
+});
 
-        $this->assertDatabaseHas('suppliers', $data);
+test('possibility of editing an existing supplier', function () {
+    $suppliers = Supplier::factory()->create();
 
-        $response->assertSessionHas('success', 'Suppliers created successfully.');
-    }
+    $this->get(route('suppliers.edit', $suppliers->id))
+        ->assertStatus(200);
+});
 
-    #[Test]
-    public function test_possibility_of_showing_an_existing_supplier(): void
-    {
-        $suppliers = Supplier::factory()->create();
+test('possibility of destroying an existing supplier', function () {
+    $suppliers = Supplier::factory()->create();
 
-        $response = $this->get(route('suppliers.show', $suppliers->id));
+    $suppliers->delete();
 
-        $response->assertStatus(200);
-
-        $response->assertSee($suppliers->name);
-
-        $response->assertSee($suppliers->description);
-
-    }
-
-    #[Test]
-    public function test_possibility_of_editing_an_existing_supplier(): void
-    {
-        $suppliers = Supplier::factory()->create();
-
-        $response = $this->get(route('suppliers.edit', $suppliers->id));
-
-        $response->assertStatus(200);
-    }
-
-    #[Test]
-    public function test_possibility_of_destroying_an_existing_supplier(): void
-    {
-        $suppliers = Supplier::factory()->create();
-
-        $suppliers->delete();
-
-        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
-    }
-}
+    $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
+});

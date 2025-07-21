@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/admin/reservations';
+    public const HOME = '/admin/vendor-repository';
 
     /**
      * Register any application services.
@@ -44,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
 
             return new ExpediaService($propertyCallFactory);
         });
+
+        $this->app->bind(\Illuminate\Contracts\Debug\ExceptionHandler::class, \App\Exceptions\Handler::class);
     }
 
     /**
@@ -52,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $currentUrl = URL::current();
-        if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
+        if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);

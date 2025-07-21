@@ -93,10 +93,6 @@ class IcePortalHotelContentDetailTransformer
     {
         $assetsResponse = empty($assets) ? [] : $assets['results'];
         $rating = (string) Arr::get($assetsResponse, '0.rating', '');
-        $unifiedRoomCodes = MappingRoom::where('supplier', SupplierNameEnum::ICE_PORTAL->value)
-            ->where('giata_id', $giata_id)
-            ->pluck('unified_room_code', 'supplier_room_code')
-            ->toArray();
 
         $contentResponse = [];
 
@@ -143,14 +139,13 @@ class IcePortalHotelContentDetailTransformer
             if (! empty($roomTypeCodes) && ! in_array(Arr::get($room, 'roomCode'), $roomTypeCodes)) {
                 continue;
             }
-            $supplierRoomCode = Arr::get($room, 'roomCode', '');
 
             $images = array_merge(Arr::get($roomImages, Arr::get($room, 'roomID'), []), $roomAmenitiesGeneral);
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setContentSupplier(SupplierNameEnum::ICE_PORTAL->value);
             $roomResponse->setSupplierRoomId(Arr::get($room, 'roomID'));
-            $roomResponse->setSupplierRoomCode($supplierRoomCode);
-            $roomResponse->setUnifiedRoomCode(Arr::get($unifiedRoomCodes, $supplierRoomCode, ''));
+            $roomResponse->setSupplierRoomCode(Arr::get($room, 'roomCode'));
+            $roomResponse->setUnifiedRoomCode(Arr::get($room, 'roomCode'));
             $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
                 return [
                     'name' => $amenity,

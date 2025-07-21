@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 trait BaseTrait
 {
     protected array $current_time;
+
     protected float $st;
 
     private function executionTime(string $type): float

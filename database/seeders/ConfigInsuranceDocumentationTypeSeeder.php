@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class ConfigInsuranceDocumentationTypeSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $options = [
             'Privacy Policy' => ['External'],

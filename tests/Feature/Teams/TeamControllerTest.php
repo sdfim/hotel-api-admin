@@ -5,55 +5,42 @@ namespace Tests\Feature\Teams;
 use App\Models\Permission;
 use App\Models\Team;
 use Illuminate\Support\Facades\Auth;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\Feature\CustomAuthorizedActions\CustomAuthorizedActionsTestCase;
+use Tests\Feature\AuthenticatesUser;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class TeamControllerTest extends CustomAuthorizedActionsTestCase
-{
-    protected $user;
+uses(RefreshDatabase::class, AuthenticatesUser::class);
 
-    protected $team;
+beforeEach(function () {
+    $this->auth();
+    $this->user = auth()->user();
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+    $this->team = Team::factory()->create(['user_id' => $this->user->id]);
+    $this->user->teams()->attach($this->team->id);
 
-        $this->user = auth()->user();
+    $viewPermission = Permission::factory()->create(['slug' => 'teams.view']);
+    $updatePermission = Permission::factory()->create(['slug' => 'teams.update']);
+    $this->user->permissions()->attach([$viewPermission->id, $updatePermission->id]);
+});
 
-        $this->team = Team::factory()->create(['user_id' => $this->user->id]);
-        $this->user->teams()->attach($this->team->id);
+test('it renders the teams index page', function () {
+    $response = $this->get(route('teams.index'));
 
-        $viewPermission = Permission::factory()->create(['slug' => 'teams.view']);
-        $updatePermission = Permission::factory()->create(['slug' => 'teams.update']);
-        $this->user->permissions()->attach([$viewPermission->id, $updatePermission->id]);
-    }
+    $response->assertStatus(200);
+    $response->assertViewIs('dashboard.teams.index');
+});
 
-    #[Test]
-    public function it_renders_the_teams_index_page()
-    {
-        $response = $this->get(route('teams.index'));
+test('it renders the edit team page', function () {
+    $response = $this->get(route('teams.edit', $this->team->id));
 
-        $response->assertStatus(200);
-        $response->assertViewIs('dashboard.teams.index');
-    }
+    $response->assertStatus(200);
+    $response->assertViewIs('dashboard.teams.form');
+    $response->assertViewHas('team');
+});
 
-    #[Test]
-    public function it_renders_the_edit_team_page()
-    {
-        $response = $this->get(route('teams.edit', $this->team->id));
+test('it switches the team', function () {
+    $response = $this->post(route('teams.switch'), ['team_id' => $this->team->id]);
 
-        $response->assertStatus(200);
-        $response->assertViewIs('dashboard.teams.form');
-        $response->assertViewHas('team');
-    }
-
-    #[Test]
-    public function it_switches_the_team()
-    {
-        $response = $this->post(route('teams.switch'), ['team_id' => $this->team->id]);
-
-        $response->assertStatus(302);
-        $response->assertSessionHas('status', 'Команда успешно переключена');
-        $this->assertEquals($this->team->id, Auth::user()->currentTeam->id);
-    }
-}
+    $response->assertStatus(302);
+    $response->assertSessionHas('status', 'Команда успешно переключена');
+    $this->assertEquals($this->team->id, Auth::user()->currentTeam->id);
+});

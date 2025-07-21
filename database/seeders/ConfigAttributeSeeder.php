@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Configurations\ConfigAttribute;
+use Illuminate\Database\Seeder;
 
 class ConfigAttributeSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $attributes = [
             'Board Basis',
@@ -42,12 +42,12 @@ class ConfigAttributeSeeder extends Seeder
             'Free bicycles nearby',
             'Self parking (surcharge)',
             'Computer station',
-            '24-hour fitness facilities'
+            '24-hour fitness facilities',
         ];
 
         foreach ($attributes as $attribute) {
             ConfigAttribute::firstOrCreate(['name' => $attribute], [
-                'default_value' => 'Available'
+                'default_value' => 'Available',
             ]);
         }
     }

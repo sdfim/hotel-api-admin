@@ -23,8 +23,11 @@ class FlowHbsiCangeBookTest extends Command
     protected PendingRequest $client;
 
     protected string $url;
+
     private ?string $run_firt_endpoints;
+
     private ?string $booking_id;
+
     private ?string $booking_item;
 
     public function __construct()
@@ -36,7 +39,7 @@ class FlowHbsiCangeBookTest extends Command
 
     public function handle(): void
     {
-        $this->run_firt_endpoints= $this->argument('run_firt_endpoints');
+        $this->run_firt_endpoints = $this->argument('run_firt_endpoints');
         if ($this->run_firt_endpoints == 1) {
             Artisan::call('hbsi-book-flow-test');
             $output = Artisan::output();
@@ -46,7 +49,7 @@ class FlowHbsiCangeBookTest extends Command
         $this->booking_id = $this->argument('booking_id');
         $this->booking_item = $this->argument('booking_item');
 
-        if (!$this->booking_id || !$this->booking_item) {
+        if (! $this->booking_id || ! $this->booking_item) {
             $bookingInspector = ApiBookingInspectorRepository::getLastBooked();
             $this->booking_id = $bookingInspector->booking_id;
             $this->booking_item = $bookingInspector->booking_item;
@@ -71,14 +74,14 @@ class FlowHbsiCangeBookTest extends Command
         $this->info('------------------------------------');
         $responseAvailability = $this->availability();
         $this->info('softChange result : '.json_encode([
-            'success' => Arr::get($responseAvailability,'success'),
-                    'message' => Arr::get($responseAvailability,'message'),
-                    'change_search_id' => Arr::get($responseAvailability,'data.change_search_id'),
-                    ]
-            ));
+            'success' => Arr::get($responseAvailability, 'success'),
+            'message' => Arr::get($responseAvailability, 'message'),
+            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+        ]
+        ));
 
         $this->info('------------------------------------');
-        $new_booking_item = Arr::get($responseAvailability,'data.change_search_id', false)
+        $new_booking_item = Arr::get($responseAvailability, 'data.change_search_id', false)
             ? $this->getBookingItem($responseAvailability)
             : Uuid::uuid4()->toString();
         $this->info('$new_booking_item: '.$new_booking_item);

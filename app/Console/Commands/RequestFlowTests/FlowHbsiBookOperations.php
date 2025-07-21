@@ -20,15 +20,21 @@ class FlowHbsiBookOperations extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {checkin?} {giata_id?}';
+
     protected PendingRequest $client;
 
     protected string $url;
 
     private ?string $destination;
+
     private ?string $checkin;
+
     private ?int $giata_id;
+
     private ?string $supplier;
+
     private ?int $daysAfter;
+
     protected bool $isQueueSync;
 
     public function __construct()
@@ -146,7 +152,7 @@ class FlowHbsiBookOperations extends Command
     private function runScenarios(array $scenarios): void
     {
         foreach ($scenarios as $scenario) {
-            $methodName = 'scenario_' . $scenario;
+            $methodName = 'scenario_'.$scenario;
             if (method_exists($this, $methodName)) {
                 $this->$methodName();
             } else {
@@ -191,7 +197,7 @@ class FlowHbsiBookOperations extends Command
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #3');
         $occupancy = [['adults' => 2, 'children_ages' => [1, 5, 15]]];
-//        $occupancy = [['adults' => 2]];
+        //        $occupancy = [['adults' => 2]];
         $nights = 3;
         $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
         $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
@@ -224,7 +230,7 @@ class FlowHbsiBookOperations extends Command
         $this->warn('Starting Scenario #5');
         $occupancy = [
             ['adults' => 1, 'children_ages' => [5]],
-            ['adults' => 3]
+            ['adults' => 3],
         ];
         $nights = 5;
         $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
@@ -234,7 +240,7 @@ class FlowHbsiBookOperations extends Command
 
         $occupancy = [
             ['adults' => 2, 'children_ages' => [5, 7]],
-            ['adults' => 3]
+            ['adults' => 3],
         ];
         $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
         $this->cancel($bookingId);
@@ -246,7 +252,7 @@ class FlowHbsiBookOperations extends Command
         $this->warn('Starting Scenario #6');
         $occupancy = [
             ['adults' => 1, 'children_ages' => [1]],
-            ['adults' => 1, 'children_ages' => [1]]
+            ['adults' => 1, 'children_ages' => [1]],
         ];
         $nights = 5;
         $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
@@ -273,7 +279,7 @@ class FlowHbsiBookOperations extends Command
         $faker = Faker::create();
         $newComment[] = [
             'booking_item' => $bookingItem,
-            'comment' => $faker->sentence,
+            'comment' => $faker->sentence(),
             'room' => 1,
         ];
         $this->softChange($bookingId, $bookingItem, [], $newComment);
@@ -293,7 +299,7 @@ class FlowHbsiBookOperations extends Command
 
         $faker = Faker::create();
         $newSpecialRequests[] = [
-            'special_request' => $faker->sentence,
+            'special_request' => $faker->sentence(),
             'room' => 1,
         ];
         $this->softChange($bookingId, $bookingItem, $newSpecialRequests, []);
@@ -306,7 +312,7 @@ class FlowHbsiBookOperations extends Command
         $this->warn('Starting Scenario #9');
         $occupancy = [
             ['adults' => 1, 'children_ages' => [14]],
-            ['adults' => 3]
+            ['adults' => 3],
         ];
         $nights = 5;
         $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
@@ -368,14 +374,13 @@ class FlowHbsiBookOperations extends Command
         $this->cancel($bookingId);
     }
 
-
     private function processBooking(array $occupancy, int $nights, string $checkin, string $checkout, array $difRoomType = []): array|bool
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
-        $bookingItem = !empty($difRoomType)
+        $bookingItem = ! empty($difRoomType)
             ? $this->fetchBookingItemWithDifferentRoomTypes($searchResponse, $difRoomType)
             : $this->fetchBookingItem($searchResponse);
-        if (!$bookingItem && empty($difRoomType)) {
+        if (! $bookingItem && empty($difRoomType)) {
             $this->error('non_refundable Booking item not found');
             exit(1);
         }
@@ -411,9 +416,10 @@ class FlowHbsiBookOperations extends Command
     /**
      * Search for hotels.
      *
-     * @param array $occupancy Array of rooms, where each room is an associative array with keys:
-     *                        - 'adults' (int): Number of adults in the room.
-     *                        - 'children_ages' (array): Optional array of integers representing the ages of the children in the room.
+     * @param  array  $occupancy  Array of rooms, where each room is an associative array with keys:
+     *                            - 'adults' (int): Number of adults in the room.
+     *                            - 'children_ages' (array): Optional array of integers representing the ages of the children in the room.
+     *
      * @throws ConnectionException
      */
     private function search(array $occupancy, string $checkin, string $checkout): array
@@ -430,7 +436,9 @@ class FlowHbsiBookOperations extends Command
             'results_per_page' => 100,
         ];
 
-        if ($this->giata_id) $requestData['giata_ids'] = [$this->giata_id];
+        if ($this->giata_id) {
+            $requestData['giata_ids'] = [$this->giata_id];
+        }
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
 
@@ -470,6 +478,7 @@ class FlowHbsiBookOperations extends Command
 
                 if ($allNonRefundable) {
                     $this->info('Booking ITEM: '.$bookingItem);
+
                     return $parentId;
                 }
             }
@@ -511,8 +520,9 @@ class FlowHbsiBookOperations extends Command
                     $roomTypes[] = $roomTypeMap[$childId];
                 }
 
-                if ($allNonRefundable && count(array_unique($roomTypes)) === count($roomTypes) && !array_diff($difRoomType, $roomTypes)) {
+                if ($allNonRefundable && count(array_unique($roomTypes)) === count($roomTypes) && ! array_diff($difRoomType, $roomTypes)) {
                     $this->info('Booking ITEM: '.$parentId);
+
                     return $parentId;
                 }
             }
@@ -530,11 +540,13 @@ class FlowHbsiBookOperations extends Command
 
         for ($i = 1; $i <= 2; $i++) {
             $isWriteDb = ApiBookingItem::where('booking_item', $bookingItem)->exists();
-            if ($isWriteDb) break;
+            if ($isWriteDb) {
+                break;
+            }
             $this->handleSleep();
         }
 
-        if (!$isWriteDb) {
+        if (! $isWriteDb) {
             $this->error('Booking item not found in the database');
             exit(1);
         }
@@ -637,18 +649,18 @@ class FlowHbsiBookOperations extends Command
                     'number' => '5550077',
                 ],
                 'address' => [
-                    'line_1' => '5047 Kessler Glens', //$faker->streetAddress(),
-                    'city' => 'Ortizville', //$faker->city(),
-                    'state_province_code' => 'VT', //$faker->stateAbbr(),
-                    'postal_code' => 'mt', //$faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode(),
-                    'country_code' => 'US', //$faker->countryCode(),
+                    'line_1' => '5047 Kessler Glens', // $faker->streetAddress(),
+                    'city' => 'Ortizville', // $faker->city(),
+                    'state_province_code' => 'VT', // $faker->stateAbbr(),
+                    'postal_code' => 'mt', // $faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode(),
+                    'country_code' => 'US', // $faker->countryCode(),
                 ],
             ],
             'special_requests' => [
                 [
                     'booking_item' => $bookingItems[0],
                     'room' => 1,
-                    'special_request' => 'TerraMare Test Booking, please disregard.',
+                    'special_request' => 'UJV Test Booking, please disregard.',
                 ],
             ],
         ];
@@ -668,7 +680,6 @@ class FlowHbsiBookOperations extends Command
         }
         $requestData['credit_cards'] = $cards;
 
-
         $response = $this->client->post($this->url.'/api/booking/book', $requestData);
         $this->info('------------------------------------');
         $this->info('book: '.json_encode($response->json()));
@@ -680,16 +691,16 @@ class FlowHbsiBookOperations extends Command
             'booking_id' => $bookingId,
         ];
 
-        $response = $this->client->delete($this->url . '/api/booking/cancel-booking', $requestData);
+        $response = $this->client->delete($this->url.'/api/booking/cancel-booking', $requestData);
         $this->info('------------------------------------');
         if ($response->successful()) {
-            $this->info('Cancelled booking: ' . $bookingId);
+            $this->info('Cancelled booking: '.$bookingId);
         } else {
-            $this->error('Failed to cancel booking: ' . $bookingId);
+            $this->error('Failed to cancel booking: '.$bookingId);
         }
     }
 
-    private function flowHardCange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, string $roomType = null): void
+    private function flowHardCange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, ?string $roomType = null): void
     {
         $this->info('------------------------------------');
         $this->handleSleep();
@@ -698,16 +709,16 @@ class FlowHbsiBookOperations extends Command
             $this->error('Availability failed');
         }
         $this->info('softChange result : '.json_encode([
-                    'success' => Arr::get($responseAvailability,'success'),
-                    'message' => Arr::get($responseAvailability,'message'),
-                    'change_search_id' => Arr::get($responseAvailability,'data.change_search_id'),
-                ]
-            ));
+            'success' => Arr::get($responseAvailability, 'success'),
+            'message' => Arr::get($responseAvailability, 'message'),
+            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+        ]
+        ));
 
         $this->info('------------------------------------');
         $this->handleSleep();
-        $newBookingItem = Arr::get($responseAvailability,'data.change_search_id', false)
-            ? (!$roomType
+        $newBookingItem = Arr::get($responseAvailability, 'data.change_search_id', false)
+            ? (! $roomType
                 ? $this->getBookingItem($responseAvailability)
                 : $this->getBookingItemWithRoomType($responseAvailability, $roomType))
             : Uuid::uuid4()->toString();
@@ -750,16 +761,16 @@ class FlowHbsiBookOperations extends Command
         $faker = Faker::create();
 
         foreach ($rooms as $k => $room) {
-            $adults = (int)explode('-', $room)[0];
-            $child = (int)explode('-', $room)[1];
-            $infants = (int)(explode('-', $room)[2]);
+            $adults = (int) explode('-', $room)[0];
+            $child = (int) explode('-', $room)[1];
+            $infants = (int) (explode('-', $room)[2]);
             $passengersNumber = $adults + $child + $infants;
 
             for ($i = 0; $i < $passengersNumber; $i++) {
                 $passengers[] = [
                     'title' => 'mr',
-                    'given_name' => $faker->firstName,
-                    'family_name' => $faker->lastName,
+                    'given_name' => $faker->firstName(),
+                    'family_name' => $faker->lastName(),
                     'room' => $k + 1,
                 ];
             }
@@ -771,11 +782,11 @@ class FlowHbsiBookOperations extends Command
             'passengers' => $passengers,
         ];
 
-        if (!empty($specialRequests)) {
+        if (! empty($specialRequests)) {
             $params['special_requests'] = $specialRequests;
         }
 
-        if (!empty($comments)) {
+        if (! empty($comments)) {
             $params['comments'] = $comments;
         }
 
@@ -836,9 +847,9 @@ class FlowHbsiBookOperations extends Command
             for ($i = 0; $i < $occupant['adults']; $i++) {
                 $passengers[] = [
                     'title' => 'mr',
-                    'given_name' => $faker->firstName,
-                    'family_name' => $faker->lastName,
-                    'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
+                    'given_name' => $faker->firstName(),
+                    'family_name' => $faker->lastName(),
+                    'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                     'room' => $k + 1,
                 ];
             }
@@ -859,7 +870,7 @@ class FlowHbsiBookOperations extends Command
             // Add special requests if empty
             if (empty($special_requests)) {
                 $special_requests[] = [
-                    'special_request' => $faker->sentence,
+                    'special_request' => $faker->sentence(),
                     'room' => $k + 1,
                 ];
             }
@@ -868,9 +879,9 @@ class FlowHbsiBookOperations extends Command
         if (empty($passengers)) {
             $passengers[] = [
                 'title' => 'mr',
-                'given_name' => $faker->firstName,
-                'family_name' => $faker->lastName,
-                'date_of_birth' => $faker->date,
+                'given_name' => $faker->firstName(),
+                'family_name' => $faker->lastName(),
+                'date_of_birth' => $faker->date(),
                 'room' => 1,
             ];
         }
@@ -897,6 +908,7 @@ class FlowHbsiBookOperations extends Command
         ];
 
         $response = $this->client->get($this->url.'/api/booking/retrieve-booking', $params);
+
         return $response->json();
     }
 
@@ -931,7 +943,8 @@ class FlowHbsiBookOperations extends Command
     }
 
     private function getBookingItemWithRoomType(array $responseData, string $roomType): ?string
-    {$result = Arr::get($responseData, 'data.result');
+    {
+        $result = Arr::get($responseData, 'data.result');
 
         foreach ($result as $hotel) {
             $roomCombinations = Arr::get($hotel, 'room_combinations');
@@ -959,6 +972,7 @@ class FlowHbsiBookOperations extends Command
 
                 if ($allMatchRoomType) {
                     $this->info('Booking ITEM: '.$parentId);
+
                     return $parentId;
                 }
             }
@@ -969,7 +983,7 @@ class FlowHbsiBookOperations extends Command
 
     private function handleSleep(): void
     {
-        if (!$this->isQueueSync) {
+        if (! $this->isQueueSync) {
             sleep(5);
         }
     }

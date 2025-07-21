@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //$middleware->redirectUsersTo(config('app.url').AppServiceProvider::HOME);
+        // $middleware->redirectUsersTo(config('app.url').AppServiceProvider::HOME);
 
         $middleware->append([
             \App\Http\Middleware\SetLocationHeader::class,
@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->use([
-            \App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierMiddleware::class
+            \App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierMiddleware::class,
         ]);
 
         $middleware->throttleApi();

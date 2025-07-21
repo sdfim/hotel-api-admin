@@ -9,7 +9,7 @@ class ConfigAttributeFactory extends Factory
 {
     protected $model = ConfigAttribute::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'name' => $this->faker->randomElement([

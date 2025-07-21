@@ -3,8 +3,6 @@
 namespace Modules\API\Channels\routes;
 
 use Illuminate\Support\Facades\Route;
-
-
 use Modules\API\Controllers\ApiHandlers\Channels\ChannelsApiHandler;
 
 class ChannelsApiRoutes

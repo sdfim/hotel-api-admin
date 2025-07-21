@@ -24,11 +24,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookingRetrieveBookingTransformer;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookingRetrieveBookingTransformer;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use SimpleXMLElement;
@@ -55,11 +55,11 @@ class HbsiBookApiController extends BaseBookApiController
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
     public function __construct(
-        private readonly HbsiClient                  $hbsiClient,
-        private readonly HbsiHotelBookTransformer    $hbsiHotelBookDto,
+        private readonly HbsiClient $hbsiClient,
+        private readonly HbsiHotelBookTransformer $hbsiHotelBookDto,
         private readonly HbsiHotelPricingTransformer $HbsiHotelPricingDto,
-        private readonly HbsiService                 $hbsiService,
-        private readonly PricingRulesTools           $pricingRulesService,
+        private readonly HbsiService $hbsiService,
+        private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
     /**

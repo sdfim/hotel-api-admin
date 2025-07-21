@@ -21,6 +21,7 @@ class ExpediaContentFactory extends Factory
                 do {
                     $id = fake()->numberBetween(1, 100000);
                 } while (\App\Models\ExpediaContent::where('property_id', $id)->exists());
+
                 return $id;
             },
             'rating' => $this->faker->randomFloat(2, 1, 5),

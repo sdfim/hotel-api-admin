@@ -4,7 +4,6 @@ namespace App\Livewire\PricingRules;
 
 use App\Helpers\Strings;
 use App\Livewire\Components\CustomRepeater;
-use App\Livewire\Components\CustomToggle;
 use App\Models\Channel;
 use App\Models\Property;
 use App\Models\Supplier;
@@ -12,6 +11,7 @@ use Carbon\Carbon;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -21,28 +21,38 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Modules\Enums\ProductApplyTypeEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
+use Modules\HotelContentRepository\Models\HotelRoom;
 
 trait HasPricingRuleFields
 {
     public function pricingRuleFields(string $type): array
     {
+        $currentYear = date('Y');
+
         return [
+            Placeholder::make('is_sr_creator')
+                ->label($type === 'create'
+                    ? 'The rule is being created from the Supplier Repository.'
+                    : 'The rule was created from the Supplier Repository.')
+                ->visible($this->isSrCreator),
             Fieldset::make('General Setting')
                 ->schema([
                     TextInput::make('name')
                         ->label('Rule name')
                         ->maxLength(191)
                         ->required()
-                        ->columnSpan(3),
-                    //                    TextInput::make('weight')
-                    //                        ->label('Priority Weighting')
-                    //                        ->numeric()
-                    //                        ->required()
-                    //                        ->default(0)
-                    //                        ->maxLength(191),
+                    ->columnSpan(2),
+                    TextInput::make('weight')
+                        ->label('Priority Weighting')
+                        ->numeric()
+                        ->required()
+                        ->default(0)
+                        ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
-                        ->helperText('Remove a entity from the search results')
+                        ->tooltip("Makes this rule exclusive — removes\nRoom name (supplier_room_name),\nRoom type (room_type),\nRate code (rate_plan_code) \nfrom the pricingApi response")
+                        ->helperText('Remove a items from the pricing response')
                         ->inline(false)
                         ->reactive()
                         ->afterStateUpdated(fn (Set $set, $state) => $set('price_settings_hidden', $state)),
@@ -197,22 +207,11 @@ trait HasPricingRuleFields
                         }
 
                         // Additional validation
-                        if ($state === 'rate_code' && ! in_array('property', $selectedFields, true)) {
+                        if (($state === 'rate_code' || $state === 'room_name' || $state === 'room_type' || $state === 'room_type_cr')
+                            && ! in_array('property', $selectedFields, true)) {
                             Notification::make()
                                 ->title('Validation Error')
                                 ->body('The "rate_code" field requires a selected "property".')
-                                ->danger()
-                                ->send();
-
-                            $component->state(null); // Reset the state if validation fails
-
-                            return;
-                        }
-                        if (($state === 'room_name' || $state === 'room_type' || $state === 'room_type_cr')
-                                && (! in_array('property', $selectedFields, true) || ! in_array('rate_code', $selectedFields, true))) {
-                            Notification::make()
-                                ->title('Validation Error')
-                                ->body('The "room_name" field requires selected "property" and "rate_code".')
                                 ->danger()
                                 ->send();
 
@@ -381,6 +380,56 @@ trait HasPricingRuleFields
                                         ->where('city_id', $value)->first();
 
                                     return $result->full_name ?? '';
+                                })
+                                ->required()
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', 'not_in'])),
+                        ],
+
+                        'room_type_cr' => [
+                            Select::make('value')
+                                ->label('Room type (SR)')
+                                ->searchable()
+                                ->multiple()
+                                ->getSearchResultsUsing(function (string $search): array {
+                                    return HotelRoom::query()
+                                        ->where('external_code', 'like', "%$search%")
+                                        ->orWhere('name', 'like', "%$search%")
+                                        ->limit(30)
+                                        ->get()
+                                        ->mapWithKeys(function ($room) {
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
+                                        })
+                                        ->toArray();
+                                })
+                                ->getOptionLabelsUsing(function (array $values): array {
+                                    return HotelRoom::whereIn('id', $values)
+                                        ->get()
+                                        ->mapWithKeys(function ($room) {
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
+                                        })
+                                        ->toArray();
+                                })
+                                ->required()
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+
+                            Select::make('value_from')
+                                ->label('Room type (SR)')
+                                ->searchable()
+                                ->getSearchResultsUsing(function (string $search): array {
+                                    return HotelRoom::query()
+                                        ->where('external_code', 'like', "%$search%")
+                                        ->orWhere('name', 'like', "%$search%")
+                                        ->limit(30)
+                                        ->get()
+                                        ->mapWithKeys(function ($room) {
+                                            return [$room->id => "{$room->external_code} ({$room->name})"];
+                                        })
+                                        ->toArray();
+                                })
+                                ->getOptionLabelUsing(function ($value): ?string {
+                                    $room = HotelRoom::find($value);
+
+                                    return $room ? "{$room->external_code} ({$room->name})" : null;
                                 })
                                 ->required()
                                 ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', 'not_in'])),

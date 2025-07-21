@@ -27,8 +27,8 @@ class UpdatePricingRule extends Component implements HasForms
     {
         $this->record = $pricingRule;
         $this->isSrCreator = $this->record->is_sr_creator;
-        $this->record->rule_start_date = optional($pricingRule->rule_start_date)->format('Y-m-d');
-        $this->record->rule_expiration_date = optional($pricingRule->rule_expiration_date)->format('Y-m-d');
+        $this->record->rule_start_date = $pricingRule->rule_start_date?->format('Y-m-d');
+        $this->record->rule_expiration_date = $pricingRule->rule_expiration_date?->format('Y-m-d');
         $data = $this->record->attributesToArray();
         $data['conditions'] = $this->record->conditions->toArray();
 
@@ -45,8 +45,7 @@ class UpdatePricingRule extends Component implements HasForms
                 '2xl' => 3,
             ])
             ->schema($this->pricingRuleFields('edit'))
-            ->statePath('data')
-            ->model($this->record);
+            ->statePath('data');
     }
 
     protected function onValidationError(ValidationException $exception): void
@@ -65,18 +64,16 @@ class UpdatePricingRule extends Component implements HasForms
         $propertyCode = collect($data['conditions'] ?? [])
             ->first(fn ($c) => $c['field'] === 'property')['value_from'] ?? null;
 
-        if ($name && $propertyCode) 
-        {
+        if ($name && $propertyCode) {
             $exists = PricingRule::where('name', $name)
                 ->where('id', '!=', $this->record->id)
                 ->whereHas('conditions', function ($q) use ($propertyCode) {
                     $q->where('field', 'property')
-                    ->where('value_from', $propertyCode);
+                        ->where('value_from', $propertyCode);
                 })
                 ->exists();
 
-            if ($exists) 
-            {
+            if ($exists) {
                 Notification::make()
                     ->title('Validation error')
                     ->body('A rule with this name already exists for the same property.')
@@ -110,21 +107,11 @@ class UpdatePricingRule extends Component implements HasForms
         foreach ($data['conditions'] as $condition) {
             $field = $condition['field'];
 
-            if ($field === 'rate_code' && ! in_array('property', $selectedFields, true)) {
+            if (in_array($field, ['room_name', 'room_type', 'room_type_cr', 'rate_code'], true)
+                && ! in_array('property', $selectedFields, true)) {
                 Notification::make()
                     ->title('Validation Error')
                     ->body('The "rate_code" field requires a selected "property".')
-                    ->danger()
-                    ->send();
-
-                return back();
-            }
-
-            if (in_array($field, ['room_name', 'room_type', 'room_type_cr'], true) &&
-                (! in_array('property', $selectedFields, true) || ! in_array('rate_code', $selectedFields, true))) {
-                Notification::make()
-                    ->title('Validation Error')
-                    ->body('The "room_name" field requires selected "property" and "rate_code".')
                     ->danger()
                     ->send();
 

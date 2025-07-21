@@ -9,10 +9,10 @@ class ConfigAttributeCategotyFactory extends Factory
 {
     protected $model = ConfigAttributeCategory::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
-            'name' => $this->faker->word,
+            'name' => $this->faker->word(),
         ];
     }
 }

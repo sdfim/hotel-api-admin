@@ -2,15 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Mapping;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class MappingFactory extends Factory
 {
-    protected $model = Mapping::class;
-
-    public function definition()
+    public function definition(): array
     {
         return [
             'giata_id' => $this->faker->numberBetween(1000, 9999),

@@ -18,10 +18,6 @@ class SaveSearchInspectorByCacheKey implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * @param array $inspector
-     * @param array $cacheKeys
-     * @param string $status
-     * @param array $status_describe
      */
     public function __construct(
         private array $inspector,

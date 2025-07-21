@@ -11,9 +11,18 @@ enum ImageSourceEnum: string
     public static function getOptions(): array
     {
         return [
-            self::OWN->value => 'Own',
+            self::OWN->value => 'Internal',
             self::CRM->value => 'CRM',
             self::EXTERNAL->value => 'External',
         ];
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::OWN => 'Internal',
+            self::CRM => 'CRM',
+            self::EXTERNAL => 'External',
+        };
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
+use Modules\API\Controllers\ApiHandlers\HotelApiHandlerV1;
 use Modules\API\Requests\DetailHotelRequest;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
@@ -21,6 +22,7 @@ class RouteApiController extends Controller
         private HotelApiHandler $hotelApiHandler,
         private FlightApiHandler $flightApiHandler,
         private ComboApiHandler $comboApiHandler,
+        private HotelApiHandlerV1 $hotelApiHandlerV1,
     ) {}
 
     /**
@@ -46,16 +48,19 @@ class RouteApiController extends Controller
 
         $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
-        $handler = match (TypeEnum::from($type)) {
-            TypeEnum::HOTEL => $this->hotelApiHandler,
-            TypeEnum::FLIGHT => $this->flightApiHandler,
-            TypeEnum::COMBO => $this->comboApiHandler,
+        $routeVersion = str_contains($route, 'v1') ? 'v1' : 'v0';
+
+        $handler = match ([TypeEnum::from($type), $routeVersion]) {
+            [TypeEnum::HOTEL, 'v1'] => $this->hotelApiHandlerV1,
+            [TypeEnum::HOTEL, 'v0'] => $this->hotelApiHandler,
+            [TypeEnum::FLIGHT, 'v0'] => $this->flightApiHandler,
+            [TypeEnum::COMBO, 'v0'] => $this->comboApiHandler,
         };
 
         return match (RouteEnum::from($route)) {
-            RouteEnum::ROUTE_SEARCH => $handler->search($this->searchRequest($type)),
-            RouteEnum::ROUTE_DETAIL => $handler->detail($this->detailRequest($type)),
-            RouteEnum::ROUTE_PRICE => $handler->price($this->priceRequest($type), $suppliersIds),
+            RouteEnum::ROUTE_SEARCH, RouteEnum::ROUTE_SEARCH_V1 => $handler->search($this->searchRequest($type)),
+            RouteEnum::ROUTE_DETAIL, RouteEnum::ROUTE_DETAIL_V1 => $handler->detail($this->detailRequest($type)),
+            RouteEnum::ROUTE_PRICE, RouteEnum::ROUTE_PRICE_V1 => $handler->price($this->priceRequest($type), $suppliersIds),
         };
     }
 

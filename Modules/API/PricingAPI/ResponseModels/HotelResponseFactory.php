@@ -26,6 +26,7 @@ class HotelResponseFactory
         $hotelResponse->setRoomGroups([]);
         $hotelResponse->setRoomCombinations([]);
         $hotelResponse->setSupplierInformation([]);
+        $hotelResponse->setHotelContacts([]);
 
         return $hotelResponse;
     }

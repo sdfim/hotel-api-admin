@@ -1,141 +1,110 @@
 <?php
 
-namespace Tests\Feature\CustomAuthorizedActions;
-
 use App\Livewire\Channels\CreateChannelsForm;
 use App\Livewire\Channels\UpdateChannelsForm;
 use App\Models\Channel;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
-use PHPUnit\Framework\Attributes\Test;
+use Illuminate\Foundation\Testing\WithFaker;
 
-class ChannelsTest extends CustomAuthorizedActionsTestCase
-{
-    use WithFaker;
+uses(Illuminate\Foundation\Testing\WithFaker::class);
 
-    #[Test]
-    public function test_channels_index_is_opening(): void
-    {
-        $response = $this->get('/admin/channels');
+test('channels index is opening', function () {
+    $this->get('/admin/channels')
+        ->assertStatus(200);
+});
 
-        $response->assertStatus(200);
-    }
+test('possibility of creating channel', function () {
+    $channels = Channel::factory()->create();
 
-    #[Test]
-    public function test_possibility_of_creating_channel(): void
-    {
-        $channels = Channel::factory()->create();
+    $this->get(route('channels.create', $channels->id))
+        ->assertStatus(200);
+});
 
-        $response = $this->get(route('channels.create', $channels->id));
+test('possibility of storing new channel', function () {
+    $token = auth()->user()->createToken('New Channel Name');
 
-        $response->assertStatus(200);
-    }
+    $this->post('/admin/channels', [
+        'token_id' => $token->accessToken->id,
+        'access_token' => $token->plainTextToken,
+        'name' => 'New Channel Name',
+        'description' => $this->faker->sentence(),
+    ])
+        ->assertStatus(302)
+        ->assertRedirect('/admin/channels');
 
-    #[Test]
-    public function test_possibility_of_storing_new_channel(): void
-    {
-        $token = auth()->user()->createToken('New Channel Name');
+    // Check if the data is in the database
+    $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']);
+});
 
-        $response = $this->post('/admin/channels', [
-            'token_id' => $token->accessToken->id,
-            'access_token' => $token->plainTextToken,
-            'name' => 'New Channel Name',
-            'description' => $this->faker->sentence(),
-        ]);
+test('possibility of updating new channel', function () {
+    $data = [
+        'name' => $this->faker->name(),
+        'description' => $this->faker->word(),
+    ];
 
-        $response->assertStatus(302);
+    $this->post(route('channels.store'), $data)
+        ->assertRedirect(route('channels.index'))
+        ->assertSessionHas('success', 'Channels created successfully.');
 
-        $response->assertRedirect('/admin/channels');
+    $this->assertDatabaseHas('channels', $data);
+});
 
-        // Check if the data is in the database
-        $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']);
-    }
+test('possibility of editing an existing channel', function () {
+    $channels = Channel::factory()->create();
 
-    #[Test]
-    public function test_possibility_of_updating_new_channel(): void
-    {
-        $data = [
-            'name' => $this->faker->name(),
-            'description' => $this->faker->word(),
-        ];
+    $this->get(route('channels.edit', $channels->id))
+        ->assertStatus(200);
+});
 
-        $response = $this->post(route('channels.store'), $data);
+test('possibility of showing an existing channel', function () {
+    $channel = Channel::factory()->create();
 
-        $response->assertRedirect(route('channels.index'));
+    $this->get(route('channels.show', $channel->id))
+        ->assertStatus(200)
+        ->assertSee($channel->name)
+        ->assertSee($channel->description);
+});
 
-        $this->assertDatabaseHas('channels', $data);
+test('validation of channel form and updating an existing channel', function () {
+    $channel = Channel::factory()->create();
 
-        $response->assertSessionHas('success', 'Channels created successfully.');
-    }
+    Livewire::test(UpdateChannelsForm::class, ['channel' => $channel])
+        ->set('data.name', 'Updated Channel Name')
+        ->set('data.description', 'Updated Channel Description')
+        ->call('edit')
+        ->assertRedirect(route('channels.index'));
 
-    #[Test]
-    public function test_possibility_of_editing_an_existing_channel(): void
-    {
-        $channels = Channel::factory()->create();
+    $this->assertDatabaseHas('channels', [
+        'id' => $channel->id,
+        'name' => 'Updated Channel Name',
+        'description' => 'Updated Channel Description',
+    ]);
+});
 
-        $response = $this->get(route('channels.edit', $channels->id));
+test('validation of channel form and storing new channel', function () {
+    Livewire::test(CreateChannelsForm::class)
+        ->set('data', [
+            'name' => '',
+            'description' => '',
+        ])
+        ->call('create')
+        ->assertHasErrors(['data.name', 'data.description']);
 
-        $response->assertStatus(200);
-    }
+    $data = [
+        'name' => $this->faker->name(),
+        'description' => $this->faker->sentence(),
+    ];
 
-    #[Test]
-    public function test_possibility_of_showing_an_existing_channel(): void
-    {
-        $channel = Channel::factory()->create();
+    Livewire::test(CreateChannelsForm::class)
+        ->set('data', $data)
+        ->call('create')
+        ->assertRedirect(route('channels.index'));
 
-        $response = $this->get(route('channels.show', $channel->id));
+    $this->assertDatabaseHas('channels', $data);
 
-        $response->assertStatus(200);
+    Livewire::test(CreateChannelsForm::class)
+        ->set('data', $data)
+        ->call('create')
+        ->assertHasErrors(['data.name' => 'The name has already been taken.']);
+});
 
-        $response->assertSee($channel->name);
-
-        $response->assertSee($channel->description);
-    }
-
-    #[Test]
-    public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
-    {
-        $channel = Channel::factory()->create();
-
-        Livewire::test(UpdateChannelsForm::class, ['channel' => $channel])
-            ->set('data.name', 'Updated Channel Name')
-            ->set('data.description', 'Updated Channel Description')
-            ->call('edit')
-            ->assertRedirect(route('channels.index'));
-
-        $this->assertDatabaseHas('channels', [
-            'id' => $channel->id,
-            'name' => 'Updated Channel Name',
-            'description' => 'Updated Channel Description',
-        ]);
-    }
-
-    #[Test]
-    public function test_validation_of_channel_form_and_storing_new_channel(): void
-    {
-        Livewire::test(CreateChannelsForm::class)
-            ->set('data', [
-                'name' => '',
-                'description' => '',
-            ])
-            ->call('create')
-            ->assertHasErrors(['data.name', 'data.description']);
-
-        $data = [
-            'name' => $this->faker->name(),
-            'description' => $this->faker->sentence(),
-        ];
-
-        Livewire::test(CreateChannelsForm::class)
-            ->set('data', $data)
-            ->call('create')
-            ->assertRedirect(route('channels.index'));
-
-        $this->assertDatabaseHas('channels', $data);
-
-        Livewire::test(CreateChannelsForm::class)
-            ->set('data', $data)
-            ->call('create')
-            ->assertHasErrors(['data.name' => 'The name has already been taken.']);
-    }
-}

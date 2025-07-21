@@ -4,21 +4,14 @@ namespace Tests\Feature\ApiInspector;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\AuthenticatesUser;
-use Tests\TestCase;
 
-class BookingItemsTableTest extends TestCase
-{
-    use RefreshDatabase, WithFaker, AuthenticatesUser;
+uses(AuthenticatesUser::class, RefreshDatabase::class, WithFaker::class);
 
-    #[Test]
-    public function test_booking_items_table_is_opening(): void
-    {
-        $this->auth();
+test('booking items table is opening', function () {
+    $this->auth();
 
-        $response = $this->get('/admin/booking-items');
+    $response = $this->get('/admin/booking-items');
 
-        $response->assertStatus(200);
-    }
-}
+    $response->assertStatus(200);
+});

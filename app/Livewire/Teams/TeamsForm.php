@@ -104,7 +104,7 @@ class TeamsForm extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->action(function (User $record) {
                         $this->record->removeUser($record);
-                    })
+                    }),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -127,7 +127,7 @@ class TeamsForm extends Component implements HasForms, HasTable
                         if (config('packages.jetstream.use-invite')) {
                             resolve(InviteTeamMember::class)
                                 ->invite($this->record->owner, $this->record, $data['email'], $data['role']);
-                            $message = 'Success invitation to email ' . $data['email'];
+                            $message = 'Success invitation to email '.$data['email'];
                         } else {
                             resolve(AddTeamMember::class)
                                 ->add($this->record->owner, $this->record, $data['email'], $data['role']);

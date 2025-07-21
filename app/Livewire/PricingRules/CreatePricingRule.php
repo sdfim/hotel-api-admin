@@ -80,17 +80,15 @@ class CreatePricingRule extends Component implements HasForms
         $propertyCode = collect($data['conditions'] ?? [])
             ->first(fn ($c) => $c['field'] === 'property')['value_from'] ?? null;
 
-        if ($name && $propertyCode) 
-        {
+        if ($name && $propertyCode) {
             $exists = PricingRule::where('name', $name)
                 ->whereHas('conditions', function ($q) use ($propertyCode) {
                     $q->where('field', 'property')
-                    ->where('value_from', $propertyCode);
+                        ->where('value_from', $propertyCode);
                 })
                 ->exists();
 
-            if ($exists) 
-            {
+            if ($exists) {
                 Notification::make()
                     ->title('Validation error')
                     ->body('A rule with this name already exists for the same property.')

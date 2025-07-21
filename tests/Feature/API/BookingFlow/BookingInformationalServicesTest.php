@@ -3,61 +3,44 @@
 namespace Tests\Feature\API\BookingFlow;
 
 use App\Models\Configurations\ConfigServiceType;
-use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\Depends;
 
-class BookingInformationalServicesTest extends BaseBookingFlow
-{
-    #[Test]
-    public function test_search(): void
-    {
-        self::$stage = 0;
-        parent::search();
-    }
+test('search', function () {
+    $this->stage = 0;
+    $this->search();
+});
 
-    #[Test]
-    #[Depends('test_search')]
-    public function test_add_booking_item(): void
-    {
-        parent::add_booking_item();
-    }
+test('add booking item', function () {
+    $this->add_booking_item();
+})->depends('search');
 
-    #[Test]
-    #[Depends('test_add_booking_item')]
-    public function test_add_insurance()
-    {
-        $request = [
-            'booking_item' => self::$bookingItem,
-            'services' => [
-                [
-                    'service_id' => ConfigServiceType::first()->id,
-                    'cost' => 100
-                ]
-            ]
-        ];
-        $response = $this->request()->post(route('attachService'), $request);
+test('add insurance', function () {
+    $request = [
+        'booking_item' => $this->bookingItem,
+        'services' => [
+            [
+                'service_id' => ConfigServiceType::first()->id,
+                'cost' => 100,
+            ],
+        ],
+    ];
+    $response = $this->request()->post(route('attachService'), $request);
 
-        $response->assertStatus(201);
-        $response->assertJson(['success' => true]);
-    }
+    $response->assertStatus(201);
+    $response->assertJson(['success' => true]);
+})->depends('add booking item');
 
-    #[Test]
-    #[Depends('test_add_insurance')]
-    public function test_delete_insurance()
-    {
-        $request = [
-            'booking_item' => self::$bookingItem,
-            'services' => [
-                [
-                    'service_id' => ConfigServiceType::first()->id,
-                    'cost' => 100
-                ]
-            ]
-        ];
-        $response = $this->request()->post(route('detachService'), $request);
+test('delete insurance', function () {
+    $request = [
+        'booking_item' => $this->bookingItem,
+        'services' => [
+            [
+                'service_id' => ConfigServiceType::first()->id,
+                'cost' => 100,
+            ],
+        ],
+    ];
+    $response = $this->request()->post(route('detachService'), $request);
 
-        $response->assertStatus(200);
-        $response->assertJson(['success' => true]);
-    }
-}
+    $response->assertStatus(200);
+    $response->assertJson(['success' => true]);
+})->depends('add insurance');

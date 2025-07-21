@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Route;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
+use Modules\API\ContentRepositoryAPI\routes\ContentRepositoryApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\Report\routes\ReportApiRoutes;
 
@@ -54,6 +55,14 @@ class RouteServiceProvider extends ServiceProvider
         Route::domain(config('domains.app_report_domain'))
             ->group(function () {
                 ReportApiRoutes::routes();
+            });
+    }
+
+    protected function hotelContentRepositoryApiRoutes()
+    {
+        Route::domain(config('domains.app_repository_domain'))
+            ->group(function () {
+                ContentRepositoryApiRoutes::routes();
             });
     }
 }

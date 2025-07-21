@@ -4,6 +4,7 @@ namespace App\Livewire\Channels;
 
 use App\Models\Channel;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -12,7 +13,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
-use Filament\Forms\Components\Toggle;
 
 class CreateChannelsForm extends Component implements HasForms
 {

@@ -17,15 +17,12 @@ class BaseWithPolicyController extends Controller
      */
     protected static ?string $parameterName = null;
 
-    /**
-     * @throws \ReflectionException
-     */
     public function __construct()
     {
         $this->middleware($this->getCanMiddleware('view'))->only(['index', 'show']);
         $this->middleware($this->getCanMiddleware('create'))->only(['create', 'store']);
         $this->middleware($this->getCanMiddleware('update'))->only(['edit', 'update']);
-        $this->middleware($this->getCanMiddleware('delete'))->only('destroy');
+        $this->middleware($this->getCanMiddleware('delete'))->only(['destroy']);
     }
 
     /**

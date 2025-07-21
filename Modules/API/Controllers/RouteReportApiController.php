@@ -22,7 +22,6 @@ class RouteReportApiController extends Controller
             ], 400);
         }
 
-
         return match (RouteReportEnum::from($route)) {
             RouteReportEnum::ROUTE_BOOKINGS => app(ReportsApiHandler::class)->bookings(resolve(BookingsReportRequest::class)),
         };

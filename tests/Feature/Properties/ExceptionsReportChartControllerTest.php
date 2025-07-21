@@ -4,23 +4,14 @@ namespace Tests\Feature\Properties;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\AuthenticatesUser;
-use Tests\TestCase;
 
-class ExceptionsReportChartControllerTest extends TestCase
-{
-    use AuthenticatesUser;
-    use RefreshDatabase;
-    use WithFaker;
+uses(AuthenticatesUser::class, RefreshDatabase::class, WithFaker::class);
 
-    #[Test]
-    public function test_exceptions_report_chart_controller_is_opening(): void
-    {
-        $this->auth();
+test('exceptions report chart controller is opening', function () {
+    $this->auth();
 
-        $response = $this->get('/admin/exceptions-report-chart');
+    $response = $this->get('/admin/exceptions-report-chart');
 
-        $response->assertStatus(200);
-    }
-}
+    $response->assertStatus(200);
+});

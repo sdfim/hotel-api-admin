@@ -123,10 +123,10 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->wrap()
                     ->toggleable(),
-//                TextColumn::make('weight')
-//                    ->searchable()
-//                    ->toggleable()
-//                    ->extraAttributes(['style' => 'max-width: 100px;']),
+                TextColumn::make('weight')
+                    ->searchable()
+                    ->toggleable()
+                    ->extraAttributes(['style' => 'max-width: 100px;']),
                 TextColumn::make('is_exclude_action')
                     ->label('Type')
                     ->badge()
@@ -281,6 +281,36 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         })
                         ->visible(fn (PricingRule $record): bool => Gate::allows('update', $record) && $this->isSrCreator),
 
+                    Action::make('clone')
+                        ->label('Clone Rule')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->color('success')
+                        ->modalHeading('Clone Pricing Rule')
+                        ->modalWidth('7xl')
+                        ->form(fn (PricingRule $record) => $this->pricingRuleFields('create'))
+                        ->fillForm(function (PricingRule $record) {
+                            $data = $record->attributesToArray();
+                            $data['name'] = $record->name.' (Clone)';
+                            $data['rule_start_date'] = optional($record->rule_start_date)->format('Y-m-d');
+                            $data['rule_expiration_date'] = optional($record->rule_expiration_date)->format('Y-m-d');
+                            $data['conditions'] = $record->conditions->toArray();
+                            $data['is_sr_creator'] = $this->isSrCreator;
+
+                            return $data;
+                        })
+                        ->action(function (array $data) {
+                            $data['is_sr_creator'] = $this->isSrCreator;
+                            /** @var CreatePricingRule $createPricingRule */
+                            $createPricingRule = app(CreatePricingRule::class);
+                            $createPricingRule->create($data);
+
+                            $this->dispatch('notify', [
+                                'message' => 'Rule cloned successfully!',
+                                'status' => 'success',
+                            ]);
+                        })
+                        ->visible(fn (PricingRule $record): bool => Gate::allows('create', PricingRule::class)),
+
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn (PricingRule $record) => $record->delete())
@@ -373,7 +403,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                                         ->iconButton()
                                         ->color('gray')
                                         ->action(function ($state, callable $set) {
-                                            $set('destination',  []);
+                                            $set('destination', []);
                                         }),
                                 ]),
                             ]),
