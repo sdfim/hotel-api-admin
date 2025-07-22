@@ -42,8 +42,6 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-<!--        <env name="DB_DATABASE" value="tests_obe"/>-->
-<!--        <env name="SUPPLIER_CONTENT_DB_DATABASE" value="tests_obe_content"/>-->
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
