@@ -21,7 +21,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
     {
         $contentSearchResponse = [];
 
-        $localHotels = Hotel::whereIn('giata_code', array_column($supplierResponse, 'giata_id'))->get();
+//        $localHotels = Hotel::whereIn('giata_code', array_column($supplierResponse, 'giata_id'))->get();
 
         foreach ($supplierResponse as $hotel) {
             $hotelResponse = ContentSearchResponseFactory::create();
@@ -91,7 +91,7 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
 
             $hotelResponse->setGiataDestination($hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
-            $hotelResponse->setHoldable($localHotels->where('giata_code', $hotel['giata_id'])->first()?->holdable ?? true);
+//            $hotelResponse->setHoldable($localHotels->where('giata_code', $hotel['giata_id'])->first()?->holdable ?? true);
 
             $contentSearchResponse[] = $hotelResponse->toArray();
         }
