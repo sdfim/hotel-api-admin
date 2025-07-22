@@ -71,12 +71,12 @@
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
         ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
         ['route' => 'configurations.service-types.index', 'text' => 'Service Types', 'model' => ConfigServiceType::class],
-        ['route' => 'configurations.chains.index', 'text' => 'Chains', 'model' => ConfigChain::class],
-        ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
+//        ['route' => 'configurations.chains.index', 'text' => 'Chains', 'model' => ConfigChain::class],
+//        ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
-        ['route' => 'configurations.contact-information-departments.index', 'text' => 'UJV Departments', 'model' => ConfigContactInformationDepartment::class],
+        ['route' => 'configurations.contact-information-departments.index', 'text' => 'TerraMare Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {
@@ -274,6 +274,29 @@
                         </ul>
                     </li>
                 @endif
+
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-contract-2"></i>
+                            <span data-key="t-property-mapping">Content Suppliers</span>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ Route('expedia.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Expedia
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ Route('ice-portal.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Ice Portal
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                 @if($canView(Property::class))
                     <li>
                         <a href="{{ Route('properties.index') }}"
@@ -283,15 +306,7 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(\App\Models\MappingRoom::class))
-                    <li>
-                        <a href="{{ Route('mapping-room.index') }}"
-                           class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-link"></i>
-                            <span data-key="t-mapping-room">Mapping Rooms</span>
-                        </a>
-                    </li>
-                @endif
+
                 @if($canView(Vendor::class)
                     || $canView(Product::class))
                     <li>

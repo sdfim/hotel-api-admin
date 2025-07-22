@@ -42,7 +42,7 @@ class SuppliersSeeder extends Seeder
             ['name' => SupplierNameEnum::GIATA->value],
             [
                 'product_type' => [TypeRequestEnum::HOTEL->value],
-                'description' => 'Hilton Supplier',
+                'description' => 'Giata Supplier',
             ]
         );
 

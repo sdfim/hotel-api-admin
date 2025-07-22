@@ -25,7 +25,7 @@ class HotelContentRepositorySeeder extends Seeder
         }
 
         // Seed KeyMappingOwner
-        $keyMappingOwners = ['UJV system'];
+        $keyMappingOwners = ['Internal system'];
         foreach ($keyMappingOwners as $owner) {
             KeyMappingOwner::firstOrCreate(['name' => $owner]);
         }

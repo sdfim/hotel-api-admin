@@ -77,7 +77,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             Hidden::make('hotel_id')->default($this->hotelId),
                             Grid::make(3)->schema([
                                 TextInput::make('name')->label('Name')->required()->columnSpan(2),
-                                TextInput::make('external_code')->label('UJV Code')->columnSpan(1),
+                                TextInput::make('external_code')->label('External Code')->columnSpan(1),
                             ]),
                             Grid::make(3)->schema([
                                 Textarea::make('description')
@@ -230,7 +230,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     }),
 
                 TextColumn::make('external_code')
-                    ->label('UJV Code')
+                    ->label('External Code')
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])

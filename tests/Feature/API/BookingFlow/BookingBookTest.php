@@ -76,7 +76,7 @@ function requestBookData(): array
             [
                 'booking_item' => test()->bookingItem,
                 'room' => 1,
-                'special_request' => 'UJV Test Booking, please disregard.',
+                'special_request' => 'Test Booking, please disregard.',
             ],
         ],
         'credit_cards' => [
