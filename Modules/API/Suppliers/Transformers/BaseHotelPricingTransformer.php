@@ -31,6 +31,8 @@ class BaseHotelPricingTransformer
 
     protected array $unifiedRoomCodes = [];
 
+    protected array $roomIdByUnifiedCode = [];
+
     protected array $basicHotelData = [];
 
     protected string $search_id = '';
@@ -216,6 +218,19 @@ class BaseHotelPricingTransformer
             $this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value][$hotel->giata_code] = $expediaHotelData['rooms'];
         }
 
+        $this->roomIdByUnifiedCode = [];
+        foreach ($supplierRepositoryData as $hotel) {
+            // Skip hotels that are not on sale if force_on_sale is false
+            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
+                continue;
+            }
+            foreach ($hotel->rooms as $room) {
+                if (! empty($room->external_code)) {
+                    $this->roomIdByUnifiedCode[$hotel->giata_code][$room->external_code] = $room->id;
+                }
+            }
+        }
+
         $this->features = [];
         foreach ($supplierRepositoryData as $hotel) {
             $this->features[$hotel->giata_code] = [
@@ -240,6 +255,7 @@ class BaseHotelPricingTransformer
             'repoServices' => $this->repoServices,
             'basicHotelData' => $this->basicHotelData,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
+            'roomIdByUnifiedCode' => $this->roomIdByUnifiedCode,
             'features' => $this->features,
             'rates' => $this->rates,
         ];
@@ -262,6 +278,7 @@ class BaseHotelPricingTransformer
         $this->repoServices = $cachedData['repoServices'];
         $this->basicHotelData = $cachedData['basicHotelData'];
         $this->unifiedRoomCodes = $cachedData['unifiedRoomCodes'];
+        $this->roomIdByUnifiedCode = $cachedData['roomIdByUnifiedCode'];
         $this->features = $cachedData['features'];
         $this->rates = $cachedData['rates'];
     }

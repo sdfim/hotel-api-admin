@@ -16,7 +16,6 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Modules\API\Services\HotelContactService;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\Expedia\PolicyCode;
 use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
@@ -80,7 +79,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($giataId);
         $hotelResponse->setDistanceFromSearchLocation($this->giata[$giataId]['distance'] ?? 0);
-        $hotelResponse->setRating($this->getRating($this->ratings[Arr::get($propertyGroup, 'property_id')] ?? '',$giataId));
+        $hotelResponse->setRating($this->getRating($this->ratings[Arr::get($propertyGroup, 'property_id')] ?? '', $giataId));
         $hotelResponse->setHotelName(Arr::get($propertyGroup, 'hotel_name', ''));
         $hotelResponse->setBoardBasis(Arr::get($propertyGroup, 'board_basis', ''));
         $hotelResponse->setSupplier(SupplierNameEnum::EXPEDIA->value);
@@ -213,7 +212,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['rate_id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['cancellation_policies']);
 
-        /** @var  RoomResponse $roomResponse */
+        /** @var RoomResponse $roomResponse */
         $roomResponse = app(RoomResponse::class);
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
 
@@ -234,6 +233,11 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $basicHotelData = Arr::get($this->basicHotelData, $giataId);
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
+        $supplierRoomId = intval($roomGroup['id']) ?? null;
+        $expediaUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::EXPEDIA->value, []);
+        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup, 'id', '')) ?? '';
+        $srRoomId = Arr::get($this->roomIdByUnifiedCode, "$giataId.$unifiedRoomCode", '');
+
         $rateId = Arr::get($rate, 'id', '');
         /**  enrichment Pricing Rules / Application of Pricing Rules */
         $pricingRulesApplier['total_price'] = 0.0;
@@ -251,6 +255,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
                 intval($roomGroup['id']) ?? null,
                 $roomGroup['room_type'] ?? '',
                 $rateId,
+                $srRoomId,
             );
         } catch (Exception $e) {
             Log::error('ExpediaHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
@@ -311,11 +316,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
             $promotions = $this->getPromotions($_promotions);
         }
 
-        $supplierRoomId = intval($roomGroup['id']) ?? null;
-
-        $expediaUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::EXPEDIA->value, []);
-        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup, 'id', '')) ?? '';
-
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
@@ -345,10 +345,10 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
 
         $resolvedPolicies = CancellationPolicyResolver::getRateLevel($roomResponse, Arr::get($this->cancellationPolicies, $giataId, []), $query, $giataId);
-        if (!is_array($cancellationPolicies) || Arr::isAssoc($cancellationPolicies)) {
+        if (! is_array($cancellationPolicies) || Arr::isAssoc($cancellationPolicies)) {
             $cancellationPolicies = array_filter([$cancellationPolicies]);
         }
-        if (!is_array($resolvedPolicies) || Arr::isAssoc($resolvedPolicies)) {
+        if (! is_array($resolvedPolicies) || Arr::isAssoc($resolvedPolicies)) {
             $resolvedPolicies = array_filter([$resolvedPolicies]);
         }
         $cancellationPolicies = array_merge($cancellationPolicies, $resolvedPolicies);
@@ -359,8 +359,9 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setNonRefundable(! $rate['refundable']);
 
         // Force penatly date to now if the rate is non-refundable
-        if($roomResponse->getNonRefundable())
+        if ($roomResponse->getNonRefundable()) {
             $penaltyDate = Carbon::now();
+        }
 
         $roomResponse->setPenaltyDate($penaltyDate);
 

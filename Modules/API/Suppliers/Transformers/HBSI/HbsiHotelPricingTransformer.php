@@ -266,6 +266,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hbsiUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HBSI->value, []);
         $unifiedRoomCode = Arr::get($hbsiUnifiedRoomCodes, "$giataCode.$roomType", '');
+        $srRoomId = Arr::get($this->roomIdByUnifiedCode, "$giataCode.$unifiedRoomCode", '');
 
         if ($unifiedRoomCode) {
             $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$unifiedRoomCode.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
@@ -281,6 +282,9 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $basicHotelData = Arr::get($this->basicHotelData, $giataId);
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+
+        $hbsiUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HBSI->value, []);
+        $unifiedRoomCode = Arr::get($hbsiUnifiedRoomCodes, "$giataCode.$roomType", '');
 
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
@@ -339,7 +343,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                 $rateOccupancy,
                 $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '',
                 $rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '',
-                $ratePlanCode,
+                $srRoomId,
             );
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
@@ -415,7 +419,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomDescription = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.description", $roomDescription);
 
         $roomResponse = RoomResponseFactory::create();
-        $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
+
+        $roomResponse->setGiataRoomCode($srRoomId);
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');

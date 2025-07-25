@@ -82,6 +82,8 @@ class BasePricingRulesApplier
         string $roomName,
         string|int $roomCode,
         string|int $roomType,
+        string|int $rateCode,
+        string|int $srRoomId,
         array $conditionsFieldsToVerify = ['supplier_id', 'property'],
         float $roomTotalsPrice = 0
     ): bool {
@@ -92,6 +94,8 @@ class BasePricingRulesApplier
             'room_code' => true,
             'room_type' => true,
             'total_price' => true,
+            'rate_code' => true,
+            'room_type_cr' => true,
         ];
 
         foreach ($conditionsFieldsToVerify as $field) {
@@ -105,7 +109,9 @@ class BasePricingRulesApplier
                     'room_name' => $this->evaluateCondition($condition, $roomName),
                     'room_code' => $this->evaluateCondition($condition, $roomCode),
                     'room_type' => $this->evaluateCondition($condition, $roomType),
+                    'rate_code' => $this->evaluateCondition($condition, $rateCode),
                     'total_price' => $this->evaluateCondition($condition, $roomTotalsPrice),
+                    'room_type_cr' => $this->evaluateCondition($condition, $srRoomId),
                     default => true
                 };
             }
@@ -126,6 +132,17 @@ class BasePricingRulesApplier
         $valueArr = $condition['value'];
         $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
 
+        if ($condition['field'] === 'room_type_cr') {
+            logger()->debug('Evaluating condition', [
+                'field' => $condition['field'],
+                'compare' => $compare,
+                'value_from' => $valueFrom,
+                'value_to' => $valueTo,
+                'value' => $value,
+                'valueArr' => $valueArr,
+            ]);
+        }
+
         return match ($compare) {
             '=' => (string) $valueFrom === (string) $value,
             '!=' => (string) $valueFrom !== (string) $value,
@@ -140,7 +157,7 @@ class BasePricingRulesApplier
         };
     }
 
-    protected function applyPricingRulesLogic(array $pricingRules): void
+    protected function applyParallelPricingRulesLogic(array $pricingRules): void
     {
         foreach ($pricingRules as $pricingRule) {
             $priceValueType = (string) $pricingRule['price_value_type'];
@@ -152,7 +169,10 @@ class BasePricingRulesApplier
                 default => 'totalPrice',
             };
 
-            $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
+            //Do not include fees to calculate markup!!
+            $basePriceForCalculation = $totalPropertyName === 'totalPrice' ? ($this->totalPrice - $this->totalFees) : $this->{$totalPropertyName};
+            //$basePriceForCalculation = $this->{$totalPropertyName};
+            $percentageValue = ($basePriceForCalculation * $fixedValue) / 100;
 
             $this->markup += match ($priceValueTarget) {
                 'per_person' => match ($priceValueType) {
@@ -173,6 +193,48 @@ class BasePricingRulesApplier
                 },
                 'default' => 0
             };
+        }
+    }
+
+    protected function applyCascadingPricingRulesLogic(array $pricingRules): void
+    {
+        foreach ($pricingRules as $pricingRule) {
+            $priceValueType = (string) $pricingRule['price_value_type'];
+            $fixedValue = (float) $pricingRule['price_value'];
+            $manipulablePriceType = (string) $pricingRule['manipulable_price_type'];
+            $priceValueTarget = (string) $pricingRule['price_value_target'];
+
+            // Determine which total property to use as the base for calculation
+            $totalPropertyName = match ($manipulablePriceType) {
+                'net_price' => 'totalNet', // Use the initial totalNet for calculation
+                default => 'totalPrice', // Use the initial totalPrice for calculation
+            };
+
+            // Get the current base value for calculation.
+            $currentBaseValueForThisRule = $this->{$totalPropertyName} + $this->markup - ($totalPropertyName === 'totalPrice' ? $this->totalFees : 0);
+
+            $calculatedChange = 0;
+
+            if ($priceValueType === 'percentage') {
+                $percentageValue = ($currentBaseValueForThisRule * $fixedValue) / 100;
+                $calculatedChange = match ($priceValueTarget) {
+                    'per_person' => $this->totalNumberOfGuests * $percentageValue,
+                    'per_room' => $percentageValue * $this->numberOfRooms,
+                    'per_night' => $this->numberOfNights * $percentageValue,
+                    'not_applicable' => $percentageValue,
+                    default => 0
+                };
+            } elseif ($priceValueType === 'fixed_value') {
+                $calculatedChange = match ($priceValueTarget) {
+                    'per_person' => $this->totalNumberOfGuests * $fixedValue,
+                    'per_room' => $fixedValue * $this->numberOfRooms,
+                    'per_night' => $this->numberOfNights * $fixedValue,
+                    'not_applicable' => $fixedValue,
+                    default => 0
+                };
+            }
+
+            $this->markup += $calculatedChange;
         }
     }
 

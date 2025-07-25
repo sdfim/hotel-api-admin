@@ -36,6 +36,8 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         string $roomName,
         string|int $roomCode,
         string|int $roomType,
+        string|int $rateCode,
+        string|int $srRoomId,
         bool $b2b = true
     ): array {
         $this->initPricingRulesProperties();
@@ -56,7 +58,17 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         $validPricingRules = [];
 
         foreach ($this->pricingRules as $pricingRule) {
-            $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_type', 'total_price'], $roomTotals['total_price']];
+            $params = [
+                $giataId,
+                $pricingRule['conditions'],
+                $roomName,
+                $roomCode,
+                $roomType,
+                $rateCode,
+                $srRoomId,
+                ['supplier_id', 'property', 'room_name', 'room_type', 'total_price', 'rate_code', 'room_type_cr'],
+                $roomTotals['total_price'],
+            ];
             if ($this->validPricingRule(...$params)) {
                 $validPricingRules[] = $pricingRule;
             }
@@ -64,7 +76,15 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
 
         if (! empty($validPricingRules)) {
             usort($validPricingRules, fn ($a, $b) => $b['weight'] <=> $a['weight']);
-            $this->applyPricingRulesLogic($validPricingRules);
+
+            // Get the pricing rule application strategy from config
+            $strategy = config('pricing-rules.application_strategy');
+
+            if ($strategy === 'cascading') {
+                $this->applyCascadingPricingRulesLogic($validPricingRules);
+            } else {
+                $this->applyParallelPricingRulesLogic($validPricingRules);
+            }
         }
 
         $result = $this->totals($b2b);
