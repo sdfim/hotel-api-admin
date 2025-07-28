@@ -187,7 +187,6 @@ class HotelContentApiTransformerService
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
         $result['drivers'] = $this->getHotelDrivers($hotel);
-        $result['hotel_contacts'] = app(HotelContactService::class)->getHotelContacts($hotel->giata_code);
 
         if (! empty($hotel->product->hero_image)) {
             $pathParts = explode('/', $hotel->product->hero_image);
@@ -352,41 +351,6 @@ class HotelContentApiTransformerService
             'start_date' => null,
             'end_date' => null,
         ];
-
-        $affectedRates = $room->rates->map(function ($rate) {
-            return [
-                'rate_name' => $rate->name,
-                'rate_code' => $rate->code,
-            ];
-        })->values()->toArray();
-
-        logger()->debug('getRoomDescriptions', [
-            'room' => $room->id,
-            'room_name' => $room->name,
-            'rates' => $room->rates,
-            'affectedRates' => $affectedRates,
-        ]);
-
-        foreach ($room->rates as $rate) {
-            $roomIds = $rate->rooms->pluck('id')->all();
-            if (is_array($roomIds) && in_array($room->id, $roomIds)) {
-                if ($rate->productDescriptiveContentSections) {
-                    $descriptiveContentsRate = $rate->productDescriptiveContentSections
-                        ->filter(function ($section) {
-                            return $section->descriptiveType?->type !== 'Taxes And Fees';
-                        })
-                        ->map(function ($section) {
-                            return [
-                                'name' => $section->descriptiveType?->name,
-                                'value' => $section->value,
-                                'start_date' => $section->start_date,
-                                'end_date' => $section->end_date,
-                            ];
-                        })->all();
-                    $descriptiveContents = array_merge($descriptiveContents, $descriptiveContentsRate);
-                }
-            }
-        }
 
         return $descriptiveContents;
     }

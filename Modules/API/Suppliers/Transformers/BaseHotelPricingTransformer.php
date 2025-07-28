@@ -15,8 +15,6 @@ class BaseHotelPricingTransformer
 
     protected array $priorityContentFromSupplierRepo = [];
 
-    protected array $ultimateAmenities = [];
-
     protected array $depositInformation = [];
 
     protected array $descriptiveContent = [];
@@ -26,8 +24,6 @@ class BaseHotelPricingTransformer
     protected array $mapperSupplierRepository = [];
 
     protected array $rates = [];
-
-    protected array $repoTaxFees = [];
 
     protected array $repoServices = [];
 
@@ -98,39 +94,6 @@ class BaseHotelPricingTransformer
     {
         // Fetch and process data
         $supplierRepositoryData = Hotel::has('rooms')->has('rates')->whereIn('giata_code', $giataIds)->get();
-
-        $this->ultimateAmenities = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product?->affiliations->map(function ($affiliation) {
-                    return [
-                        'rate_code' => $affiliation->rate?->code,
-                        'unified_room_code' => $affiliation->room?->external_code,
-                        'start_date' => $affiliation->start_date,
-                        'end_date' => $affiliation->end_date,
-                        'amenities' => $affiliation->amenities->map(function ($amenity) {
-                            $amenityData = [
-                                'name' => $amenity->amenity->name,
-                                'consortia' => $amenity->consortia,
-                                'description' => $amenity->description,
-                                'is_paid' => $amenity->is_paid,
-                                'currency' => $amenity->currency,
-                                'min_night_stay' => $amenity->min_night_stay,
-                                'max_night_stay' => $amenity->max_night_stay,
-                                'priority_rooms' => (! empty($amenity->priority_rooms))
-                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
-                                    : [],
-                            ];
-                            if ($amenity->is_paid) {
-                                $amenityData['price'] = $amenity->price;
-                                $amenityData['apply_type'] = $amenity->apply_type;
-                            }
-
-                            return $amenityData;
-                        })->toArray(),
-                    ];
-                })->toArray(),
-            ];
-        })->toArray();
 
         $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
@@ -206,39 +169,6 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-        $this->repoTaxFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => $hotel->product->feeTaxes->groupBy('action_type')->map(function ($group) {
-                    return $group->mapWithKeys(function ($feeTax) {
-                        $feeTaxData = $feeTax->toArray();
-                        $feeTaxData['rate_code'] = null;
-                        $feeTaxData['level'] = match (true) {
-                            $feeTaxData['rate_id'] !== null => 'rate',
-                            ($feeTaxData['rate_id'] === null && $feeTaxData['room_id'] !== null) => 'room',
-                            default => 'hotel',
-                        };
-                        if ($feeTax->rate_id !== null) {
-                            $feeTaxData['rate_code'] = $feeTax->rate->code;
-                        }
-                        $feeTaxData['unified_room_code'] = null;
-                        if ($feeTax->room_id !== null) {
-                            $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
-                        }
-
-                        return [$feeTax->id => $feeTaxData];
-                    })->toArray();
-                })->toArray(),
-            ];
-        })->toArray();
-
-        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-            return [
-                $hotel->giata_code => [
-                    'sale_type' => $hotel->sale_type,
-                ]
-            ];
-        })->toArray();
-
         $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
                 $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
@@ -308,7 +238,6 @@ class BaseHotelPricingTransformer
             'descriptiveContent' => $this->descriptiveContent,
             'cancellationPolicies' => $this->cancellationPolicies,
             'mapperSupplierRepository' => $this->mapperSupplierRepository,
-            'repoTaxFees' => $this->repoTaxFees,
             'repoServices' => $this->repoServices,
             'basicHotelData' => $this->basicHotelData,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
@@ -327,12 +256,10 @@ class BaseHotelPricingTransformer
     private function setPropertiesFromCache(array $cachedData): void
     {
         $this->priorityContentFromSupplierRepo = $cachedData['priorityContentFromSupplierRepo'];
-        $this->ultimateAmenities = $cachedData['ultimateAmenities'];
         $this->depositInformation = $cachedData['depositInformation'];
         $this->descriptiveContent = $cachedData['descriptiveContent'] ?? [];
         $this->cancellationPolicies = $cachedData['cancellationPolicies'] ?? [];
         $this->mapperSupplierRepository = $cachedData['mapperSupplierRepository'];
-        $this->repoTaxFees = $cachedData['repoTaxFees'];
         $this->repoServices = $cachedData['repoServices'];
         $this->basicHotelData = $cachedData['basicHotelData'];
         $this->unifiedRoomCodes = $cachedData['unifiedRoomCodes'];

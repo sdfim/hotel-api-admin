@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Suppliers;
 
+use App\Models\PropertyWeighting;
 use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -16,7 +17,6 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
-use App\Models\PropertyWeighting;
 
 class SuppliersTable extends Component implements HasForms, HasTable
 {
@@ -55,20 +55,6 @@ class SuppliersTable extends Component implements HasForms, HasTable
                     DeleteAction::make()
                         ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
                         ->requiresConfirmation()
-                        ->modalHeading('Are you sure you want to delete?')
-                        ->modalDescription(function ($record) {
-                            $warnings = [];
-                            $propertyWeightings = PropertyWeighting::where('supplier_id', $record->id)->pluck('property')->unique()->toArray();
-                            dd($propertyWeightings);
-                            if (count($propertyWeightings) > 0) {
-                                $warnings[] = 'Supplier "' . $record->name . '" is used by property weightings: ' . implode(', ', $propertyWeightings);
-                            }
-
-                            if (count($warnings) > 0) {
-                                return "Warning:\n" . implode("\n", $warnings);
-                            }
-                            return 'This action will permanently delete the selected supplier.';
-                        })
                         ->action(fn (Supplier $record) => $record->delete())
                         ->visible(fn (Supplier $record): bool => Gate::allows('delete', $record)),
                 ]),

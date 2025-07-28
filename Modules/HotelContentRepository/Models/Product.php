@@ -57,11 +57,6 @@ class Product extends Model
         'location',
     ];
 
-    public function polygons(): BelongsToMany
-    {
-        return $this->belongsToMany(Polygon::class, 'polygon_product', 'product_id', 'polygon_id');
-    }
-
     public function location(): HasOne
     {
         return $this->hasOne(ProductLocation::class, 'product_id', 'id');
@@ -97,11 +92,6 @@ class Product extends Model
         return $this->hasMany(ProductAffiliation::class);
     }
 
-    public function ageRestrictions(): HasMany
-    {
-        return $this->hasMany(ProductAgeRestriction::class);
-    }
-
     public function attributes(): HasMany
     {
         return $this->hasMany(ProductAttribute::class);
@@ -110,21 +100,6 @@ class Product extends Model
     public function descriptiveContentsSection(): HasMany
     {
         return $this->hasMany(ProductDescriptiveContentSection::class);
-    }
-
-    public function feeTaxes(): HasMany
-    {
-        return $this->hasMany(ProductFeeTax::class);
-    }
-
-    public function informativeServices(): HasMany
-    {
-        return $this->hasMany(ProductInformativeService::class);
-    }
-
-    public function promotions(): HasMany
-    {
-        return $this->hasMany(ProductPromotion::class);
     }
 
     public function keyMappings(): HasMany
@@ -137,24 +112,9 @@ class Product extends Model
         return $this->belongsToMany(ImageGallery::class, 'pd_product_gallery', 'product_id', 'gallery_id');
     }
 
-    public function contactInformation(): MorphMany
-    {
-        return $this->morphMany(ContactInformation::class, 'contactable');
-    }
-
-    public function travelAgencyCommissions(): HasMany
-    {
-        return $this->hasMany(TravelAgencyCommission::class, 'product_id');
-    }
-
     public function depositInformations(): HasMany
     {
         return $this->hasMany(ProductDepositInformation::class, 'product_id');
-    }
-
-    public function cancellationPolicies(): HasMany
-    {
-        return $this->hasMany(ProductCancellationPolicy::class, 'product_id');
     }
 
     protected $appends = [

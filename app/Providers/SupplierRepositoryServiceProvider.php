@@ -8,7 +8,6 @@ use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerForm;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerTable;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use Modules\HotelContentRepository\Livewire\ContactInformation\ContactInformationTable;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
@@ -16,23 +15,17 @@ use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
 use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateForm;
 use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
-use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
-use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
 use Modules\HotelContentRepository\Livewire\Product\ProductTable;
 use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
 use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
 use Modules\HotelContentRepository\Livewire\ProductConsortiaAmenities\ProductConsortiaAmenitiesTable;
-use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductCancellationPolicyTable;
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
-use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\ProductInformativeServices\ProductInformativeServicesTable;
-use Modules\HotelContentRepository\Livewire\ProductPromotion\ProductPromotionTable;
-use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 
@@ -61,22 +54,15 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-consortia-amenities-table', ProductConsortiaAmenitiesTable::class);
         Livewire::component('products.hotel-age-restriction-table', ProductAgeRestrictionTable::class);
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
-        Livewire::component('products.contact-information-table', ContactInformationTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
-        Livewire::component('products.product-cancellation-policy-table', ProductCancellationPolicyTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
-        Livewire::component('products.product-fee-tax-table', ProductFeeTaxTable::class);
         Livewire::component('products.product-informative-services-table', ProductInformativeServicesTable::class);
-        Livewire::component('products.hotel-promotion-table', ProductPromotionTable::class);
 
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
-        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
         Livewire::component('hotels.hotel-rate-table', HotelRateTable::class);
         Livewire::component('hotels.hotel-rate-form', HotelRateForm::class);
-
-        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
 
         Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
         Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);

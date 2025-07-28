@@ -4,9 +4,6 @@
             'tab_name' => '-product-tab',
             'related' => [
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
-                ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
-                ['title' => 'Internal Commissions Informational', 'component' => 'commissions.travel-agency-commission-table'],
-                ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
             ],
         ],
         'Location' => [
@@ -19,41 +16,10 @@
                 ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
             ],
         ],
-        'Rates' => [
-            'tab_name' => 'rates',
-            'related' => [
-                ['title' => 'Rates', 'component' => 'hotels.hotel-rate-table'],
-            ],
-        ],
         'Attributes' => [
             'tab_name' => 'attributes',
             'related' => [
                 ['title' => 'Hotel Attributes', 'component' => 'products.product-attributes-table'],
-            ],
-        ],
-        'Ultimate Amenities' => [
-            'tab_name' => 'ultimate-amenities',
-            'related' => [
-                ['title' => 'Ultimate Amenities', 'component' => 'products.product-affiliations-table'],
-                ['title' => 'Consortia Amenities', 'component' => 'products.product-consortia-amenities-table'],
-            ],
-        ],
-        'Fees and Taxes' => [
-            'tab_name' => 'fee-and-tax',
-            'related' => [
-                ['title' => 'Fees and Taxes', 'component' => 'products.product-fee-tax-table'],
-            ],
-        ],
-        'Hotel Service' => [
-            'tab_name' => 'service',
-            'related' => [
-                ['title' => 'Add Ons or Informational Services', 'component' => 'products.product-informative-services-table'],
-            ],
-        ],
-        'Promotions' => [
-            'tab_name' => 'promotions',
-            'related' => [
-                ['title' => 'Promotions', 'component' => 'products.hotel-promotion-table'],
             ],
         ],
         'Descriptive Content' => [
@@ -67,13 +33,11 @@
             'related' => [
                 ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
                 ['title' => 'Deposit Information', 'component' => 'products.product-deposit-information-table'],
-                ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
         'Galleries' => [
             'tab_name' => 'images-gallery',
             'related' => [
-//                ['title' => 'Product Images', 'component' => 'hotel-images.hotel-images-table'],
                 ['title' => 'Image Galleries', 'component' => 'image-galleries.image-galleries-table'],
             ],
         ],

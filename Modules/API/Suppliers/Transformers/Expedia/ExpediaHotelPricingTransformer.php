@@ -9,10 +9,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\PricingAPI\Resolvers\CancellationPolicies\CancellationPolicyResolver;
 use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\Resolvers\DescriptiveContent\DescriptiveContentResolver;
-use Modules\API\PricingAPI\Resolvers\UltimateAmenities\UltimateAmenityResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
@@ -35,7 +33,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     public function __construct(
-        private readonly UltimateAmenityResolver $ultimateAmenityResolver,
         private array $roomCombinations = [],
         private array $ratings = [],
         private string $currency = 'USD',
@@ -123,9 +120,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $descriptiveContent = DescriptiveContentResolver::getHotelLevel(Arr::get($this->descriptiveContent, $giataId, []), $this->query, $giataId);
         $hotelResponse->setDescriptiveContent($descriptiveContent);
-
-        $hotelContacts = app(HotelContactService::class)->getHotelContacts($giataId);
-        $hotelResponse->setHotelContacts($hotelContacts);
 
         return $hotelResponse->toArray();
     }
@@ -369,19 +363,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
             $penaltyDate = Carbon::now();
 
         $roomResponse->setPenaltyDate($penaltyDate);
-
-        $roomUltimateAmenities = collect($this->ultimateAmenityResolver->resolve(
-            $roomResponse, Arr::get($this->ultimateAmenities, $propertyGroup['giata_id'], []), $query
-        ))->filter(function ($amenity) {
-            return empty($amenity['drivers']) || in_array(SupplierNameEnum::EXPEDIA->value, $amenity['drivers'], true);
-        })->map(function ($amenity) {
-            unset($amenity['drivers'], $amenity['priority_rooms']);
-
-            return $amenity;
-        })->toArray();
-        $roomUltimateAmenities = array_values($roomUltimateAmenities);
-        $supplierAmenities = $this->getAmenitiesFromRate($rate);
-        $roomResponse->setAmenities(array_merge($roomUltimateAmenities, $supplierAmenities));
 
         /** Commission tracking data */
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() - $roomResponse->getTotalTax());

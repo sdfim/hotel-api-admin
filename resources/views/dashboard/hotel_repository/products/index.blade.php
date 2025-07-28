@@ -18,8 +18,6 @@
     @php
         $tabs = [
             'Hotels' => route('hotel-repository.index'),
-            'Tours' => '#',
-            'Transfers' => '#',
         ];
     @endphp
     <div x-data="{ activeTab: 'Hotels' }" class="sr_tab-container mb-8">

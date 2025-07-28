@@ -34,7 +34,7 @@ class AddHotel
     {
         $property = Property::find($data['giata_code']);
         $vendorId = $data['product']['vendor_id'];
-        $source_id = ContentSource::where('name', ContentSourceEnum::EXPEDIA->value)->first()->id ?? 1;
+        $source_id = ContentSource::where('name', ContentSourceEnum::ICE_PORTAL->value)->first()->id ?? 1;
 
         if (! $property) {
             throw new \Exception('Property not found');
@@ -44,7 +44,7 @@ class AddHotel
         $mappingCacheService = app(MappingCacheService::class);
         $hashMapperExpedia = $mappingCacheService->getMappingsExpediaHashMap();
         $reversedHashMap = array_flip($hashMapperExpedia);
-        $expediaCode = $reversedHashMap[$property->code] ?? null;
+//        $expediaCode = $reversedHashMap[$property->code] ?? null;
 
         $roomsData = [];
         $attributes = [];
@@ -53,81 +53,80 @@ class AddHotel
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
         $ratingExpedia = 0;
 
-        if (! $expediaCode) {
-            Notification::make()
-                ->title('Expedia hotel not found in the mapper.')
-                ->danger()
-                ->send();
-        }
-
-        if ($expediaCode) {
-            $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
-                ->where('expedia_property_id', $expediaCode)
-                ->first();
-            $expediaData = $expediaData ? $expediaData->toArray() : [];
-
-            $expediaMainData = ExpediaContent::select('rating')
-                ->where('property_id', $expediaCode)
-                ->first();
-            $expediaMainData = $expediaMainData ? $expediaMainData->toArray() : [];
-
-            if (empty($expediaData) && ! empty($expediaMainData)) {
-                Notification::make()
-                    ->title('Hotel Expedia extended content data is not available on Stage.')
-                    ->danger()
-                    ->send();
-            }
-            if (empty($expediaData) && empty($expediaMainData)) {
-                Notification::make()
-                    ->title('Expedia hotel not found in the mapper.')
-                    ->danger()
-                    ->send();
-            }
-
-            if (! empty($expediaMainData)) {
-                $ratingExpedia = Arr::get($expediaMainData, 'rating', 0);
-            }
-
-            if (! empty($expediaData)) {
-                $roomsData = Arr::get($expediaData, 'rooms', []);
-                $statistics = Arr::get($expediaData, 'statistics', []);
-                $roomsOccupancy = Arr::get($expediaData, 'rooms_occupancy', []);
-
-                $attributesP1 = Arr::get($expediaData, 'amenities', []);
-                $attributesP2 = Arr::get(Arr::get($expediaData, 'attributes', []), 'general', []);
-                $attributesP3 = Arr::get($expediaData, 'themes', []);
-                $attributes = array_merge($attributesP1, $attributesP2, $attributesP3);
-                $attributes = collect($attributes)
-                    ->filter(function ($value) {
-                        return is_array($value) && ! empty($value['name']) && ! str_contains($value['name'], 'COVID-19');
-                    })
-                    ->flatMap(function ($value) {
-                        $result = [$value];
-                        if (str_contains($value['name'], 'Family')) {
-                            $newValue['name'] = 'Family Friendly';
-                            $result[] = $newValue;
-                        }
-
-                        return $result;
-                    })
-                    ->values()
-                    ->all();
-
-                $numRooms = Arr::get($statistics, '52.value', 0);
-                $allInclusive = Arr::get($expediaData, 'all_inclusive', []);
-                $mealPlans = MealPlansEnum::values();
-                $mealPlansRes = array_filter($allInclusive, fn ($value) => in_array($value, $mealPlans));
-                $mealPlansRes = array_values($mealPlansRes) ?: [MealPlansEnum::NO_MEAL_PLAN->value];
-                if ($mealPlansRes[0] === true || $mealPlansRes[0] === 'true') {
-                    $mealPlansRes = [MealPlansEnum::ALL_INCLUSIVE->value];
-                }
-            } else {
-                Notification::make()
-                    ->title('Rooms not found')
-                    ->danger()
-                    ->send();
-            }
-        }
+//        if (! $expediaCode) {
+//            Notification::make()
+//                ->title('Expedia hotel not found in the mapper.')
+//                ->danger()
+//                ->send();
+//        }
+//        if ($expediaCode) {
+//            $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
+//                ->where('expedia_property_id', $expediaCode)
+//                ->first();
+//            $expediaData = $expediaData ? $expediaData->toArray() : [];
+//
+//            $expediaMainData = ExpediaContent::select('rating')
+//                ->where('property_id', $expediaCode)
+//                ->first();
+//            $expediaMainData = $expediaMainData ? $expediaMainData->toArray() : [];
+//
+//            if (empty($expediaData) && ! empty($expediaMainData)) {
+//                Notification::make()
+//                    ->title('Hotel Expedia extended content data is not available on Stage.')
+//                    ->danger()
+//                    ->send();
+//            }
+//            if (empty($expediaData) && empty($expediaMainData)) {
+//                Notification::make()
+//                    ->title('Expedia hotel not found in the mapper.')
+//                    ->danger()
+//                    ->send();
+//            }
+//
+//            if (! empty($expediaMainData)) {
+//                $ratingExpedia = Arr::get($expediaMainData, 'rating', 0);
+//            }
+//
+//            if (! empty($expediaData)) {
+//                $roomsData = Arr::get($expediaData, 'rooms', []);
+//                $statistics = Arr::get($expediaData, 'statistics', []);
+//                $roomsOccupancy = Arr::get($expediaData, 'rooms_occupancy', []);
+//
+//                $attributesP1 = Arr::get($expediaData, 'amenities', []);
+//                $attributesP2 = Arr::get(Arr::get($expediaData, 'attributes', []), 'general', []);
+//                $attributesP3 = Arr::get($expediaData, 'themes', []);
+//                $attributes = array_merge($attributesP1, $attributesP2, $attributesP3);
+//                $attributes = collect($attributes)
+//                    ->filter(function ($value) {
+//                        return is_array($value) && ! empty($value['name']) && ! str_contains($value['name'], 'COVID-19');
+//                    })
+//                    ->flatMap(function ($value) {
+//                        $result = [$value];
+//                        if (str_contains($value['name'], 'Family')) {
+//                            $newValue['name'] = 'Family Friendly';
+//                            $result[] = $newValue;
+//                        }
+//
+//                        return $result;
+//                    })
+//                    ->values()
+//                    ->all();
+//
+//                $numRooms = Arr::get($statistics, '52.value', 0);
+//                $allInclusive = Arr::get($expediaData, 'all_inclusive', []);
+//                $mealPlans = MealPlansEnum::values();
+//                $mealPlansRes = array_filter($allInclusive, fn ($value) => in_array($value, $mealPlans));
+//                $mealPlansRes = array_values($mealPlansRes) ?: [MealPlansEnum::NO_MEAL_PLAN->value];
+//                if ($mealPlansRes[0] === true || $mealPlansRes[0] === 'true') {
+//                    $mealPlansRes = [MealPlansEnum::ALL_INCLUSIVE->value];
+//                }
+//            } else {
+//                Notification::make()
+//                    ->title('Rooms not found')
+//                    ->danger()
+//                    ->send();
+//            }
+//        }
 
         /** @var HotelForm $hotelForm */
         $hotelForm = app(HotelForm::class);

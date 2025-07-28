@@ -12,7 +12,6 @@ use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigRoomBedType;
-use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
 use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
@@ -25,7 +24,6 @@ use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigInsuranceDocumentationTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigRoomBedTypePolicy;
-use App\Policies\Configurations\ConfigServiceTypePolicy;
 use App\Policies\Configurations\KeyMappingOwnerPolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\HotelRatePolicy;
@@ -70,7 +68,6 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigConsortium::class => ConfigConsortiumPolicy::class,
         ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
         ConfigJobDescription::class => ConfigJobDescriptionPolicy::class,
-        ConfigServiceType::class => ConfigServiceTypePolicy::class,
         ConfigChain::class => ConfigChainPolicy::class,
         ConfigInsuranceDocumentationType::class => ConfigInsuranceDocumentationTypePolicy::class,
         ConfigRoomBedType::class => ConfigRoomBedTypePolicy::class,

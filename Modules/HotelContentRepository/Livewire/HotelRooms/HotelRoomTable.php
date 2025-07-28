@@ -192,22 +192,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->formatStateUsing(fn ($state) => "<span class='hidden'>{$state}</span>")
                     ->html(),
 
-                TextColumn::make('room_type')
-                    ->badge()
-                    ->label('Room Type')
-                    ->colors([
-                        'success' => 'merged',
-                        'primary' => 'primary',
-                        'warning' => 'secondary',
-                    ])
-                    ->getStateUsing(function ($record) {
-                        return match (true) {
-                            $record->isMergedRoom => 'merged',
-                            $record->crm()->exists() => 'secondary',
-                            default => 'primary',
-                        };
-                    }),
-
                 TextColumn::make('id_display')
                     ->label('Room ID')
                     ->getStateUsing(fn ($record) => $record->id),
@@ -268,22 +252,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         'success' => fn (string $state): bool => $state > 0,
                     ])
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->affiliations()->count() : 0),
-                TextColumn::make('feeTaxes_count')
-                    ->label('Fee Taxes')
-                    ->badge()
-                    ->colors([
-                        'gray' => 0,
-                        'success' => fn (string $state): bool => $state > 0,
-                    ])
-                    ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->feeTaxes()->count() : 0),
-                TextColumn::make('informativeServices_count')
-                    ->label('Services')
-                    ->badge()
-                    ->colors([
-                        'gray' => 0,
-                        'success' => fn (string $state): bool => $state > 0,
-                    ])
-                    ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->informativeServices()->count() : 0),
 
                 TextColumn::make('created_at')->label('Created At')->date(),
 
@@ -338,48 +306,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->modalSubmitAction(false)
                         ->modalContent(function ($record) {
                             return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
-                        })
-                        ->visible(fn () => Gate::allows('update', Hotel::class)),
-
-                    Action::make('add-attributes')
-                        ->icon('heroicon-o-gift')
-                        ->label('Ultimate Amenities')
-                        ->modalHeading(fn ($record) => 'Add Amenities For Room: '.$record->name)
-                        ->modalWidth('7xl')
-                        ->modalSubmitAction(false)
-                        ->modalContent(function ($record) {
-                            return view('dashboard.hotel_repository.hotel_rooms.modal_attributes', [
-                                'product' => $record->hotel->product,
-                                'roomId' => $record->id,
-                            ]);
-                        })
-                        ->visible(fn () => Gate::allows('update', Hotel::class)),
-
-                    Action::make('add-fee-tax')
-                        ->icon('heroicon-o-banknotes')
-                        ->label('Fees and Taxes')
-                        ->modalHeading(fn ($record) => 'Add Fees and Taxes For Room: '.$record->name)
-                        ->modalWidth('full')
-                        ->modalSubmitAction(false)
-                        ->modalContent(function ($record) {
-                            return view('dashboard.hotel_repository.hotel_rooms.modal_fee_tax', [
-                                'product' => $record->hotel->product,
-                                'roomId' => $record->id,
-                            ]);
-                        })
-                        ->visible(fn () => Gate::allows('update', Hotel::class)),
-
-                    Action::make('add-informational-service')
-                        ->icon('heroicon-o-sparkles')
-                        ->label('Hotel Service')
-                        ->modalHeading(fn ($record) => 'Add Informational Services For Room: '.$record->name)
-                        ->modalWidth('7xl')
-                        ->modalSubmitAction(false)
-                        ->modalContent(function ($record) {
-                            return view('dashboard.hotel_repository.hotel_rooms.modal_informative_services', [
-                                'product' => $record->hotel->product,
-                                'roomId' => $record->id,
-                            ]);
                         })
                         ->visible(fn () => Gate::allows('update', Hotel::class)),
 

@@ -3,8 +3,6 @@
 namespace Modules\HotelContentRepository\Livewire\ProductInformativeServices;
 
 use App\Helpers\ClassHelper;
-use App\Livewire\Configurations\ServiceTypes\ServiceTypesForm;
-use App\Models\Configurations\ConfigServiceType;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
@@ -90,21 +88,6 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->label('Name')
                                 ->required()
                                 ->columnSpan(2),
-                            Select::make('service_id')
-                                ->label('Service Type')
-                                ->options(ConfigServiceType::all()->sortBy('name')->pluck('name', 'id')->toArray())
-                                ->createOptionForm(Gate::allows('create', ConfigServiceType::class) ? ServiceTypesForm::getSchema() : [])
-                                ->createOptionUsing(function (array $data) {
-                                    if (! isset($data['cost'])) {
-                                        $data['cost'] = 0;
-                                    }
-                                    ConfigServiceType::create($data);
-                                    Notification::make()
-                                        ->title('Service created successfully')
-                                        ->success()
-                                        ->send();
-                                })
-                                ->required(),
                             TextInput::make('cost')
                                 ->label('Total Rack')
                                 ->numeric()
@@ -306,7 +289,6 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                         };
                     }),
                 TextColumn::make('name')->label('Name')->searchable()->wrap()->sortable(),
-                TextColumn::make('service.name')->label('Service Type')->searchable()->sortable(),
                 TextColumn::make('cost')->label('Total Rack')->searchable(),
                 TextColumn::make('total_net')->label('Total Net')->searchable(),
                 TextColumn::make('currency')->label('Currency')->searchable(),

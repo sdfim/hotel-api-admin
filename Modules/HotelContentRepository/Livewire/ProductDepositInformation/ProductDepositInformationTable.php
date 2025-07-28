@@ -35,20 +35,12 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
 
     public int $productId;
 
-    public ?int $rateId = null;
-
     public string $title;
 
     public function mount(Product $product, ?int $rateId = null)
     {
         $this->productId = $product->id;
-        $this->rateId = $rateId;
-        $rate = HotelRate::where('id', $rateId)->first();
         $this->title = 'Deposit Information for '.$product->name;
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-            $this->title .= ' - Rate Name: '.$rate->name;
-        }
     }
 
     public function table(Table $table): Table
@@ -58,23 +50,13 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                 ProductDepositInformation::query()
                     ->where('product_id', $this->productId)
             )
-            ->modifyQueryUsing(function (Builder $query) {
-                if ($this->rateId) {
-                    $query->where(function ($q) {
-                        $q->where('rate_id', $this->rateId)
-                            ->orWhereNull('rate_id');
-                    });
-                } else {
-                    $query->whereNull('rate_id');
-                }
-            })
             ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return ($this->productId && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
+                        return ($this->productId) ? 'Rate' : 'Hotel';
                     })
                     ->colors([
                         'primary' => 'Hotel',
@@ -151,9 +133,6 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                             if ($this->productId) {
                                 $data['product_id'] = $this->productId;
                             }
-                            if ($this->rateId) {
-                                $data['rate_id'] = $this->rateId;
-                            }
                             if (! $data['expiration_date']) {
                                 $data['expiration_date'] = Carbon::create(2112, 02, 02);
                             }
@@ -168,7 +147,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                             $record->delete();
                         })
                         ->visible(fn () => Gate::allows('create', Product::class)),
-                ])->visible(fn (ProductDepositInformation $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
+                ])->visible(fn (ProductDepositInformation $record): bool => $this->productId),
             ])
             ->headerActions([
                 CreateAction::make()

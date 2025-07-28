@@ -437,46 +437,6 @@ class HotelTable extends Component implements HasForms, HasTable
                     })
                     ->columnSpan(2),
 
-                SelectFilter::make('crmMapping.crm_hotel_id')
-                    ->form([
-                        Grid::make(4)
-                            ->schema([
-                                Select::make('value')
-                                    ->label('CRM Hotel ID')
-                                    ->searchable()
-                                    ->options(function () {
-                                        return Hotel::query()
-                                            ->whereHas('crmMapping')
-                                            ->with('crmMapping')
-                                            ->get()
-                                            ->pluck('crmMapping.crm_hotel_id', 'crmMapping.crm_hotel_id')
-                                            ->sortBy(fn ($value, $key) => $key)
-                                            ->toArray();
-                                    })
-                                    ->columnSpan(3),
-                                Actions::make([
-                                    Action::make('clear_crm')
-                                        ->icon('heroicon-o-x-mark')
-                                        ->iconButton()
-                                        ->color('gray')
-                                        ->action(function ($state, callable $set) {
-                                            $set('value', '');
-                                        }),
-                                ])
-                                    ->columnSpan(1),
-                            ]),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['value'])) {
-                            $query->whereHas('crmMapping', function (Builder $subQuery) use ($data) {
-                                $subQuery->where('crm_hotel_id', $data['value']);
-                            });
-                        }
-
-                        return $query;
-                    })
-                    ->columnSpan(2),
-
                 SelectFilter::make('product.verified')
                     ->form([
                         Grid::make(4)
@@ -586,7 +546,7 @@ class HotelTable extends Component implements HasForms, HasTable
                         return $query;
                     })
                     ->columnSpan(2),
-            ])
+            ], layout: \Filament\Tables\Enums\FiltersLayout::Modal)
             ->filtersFormColumns(4);
     }
 

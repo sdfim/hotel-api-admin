@@ -58,19 +58,9 @@ class HotelRoom extends Model
         ];
     }
 
-    public function crm(): HasOne
-    {
-        return $this->hasOne(RoomCrm::class, 'room_id', 'id');
-    }
-
     public function hotel(): BelongsTo
     {
         return $this->belongsTo(Hotel::class);
-    }
-
-    public function rates(): BelongsToMany
-    {
-        return $this->belongsToMany(HotelRate::class, 'pd_hotel_rate_rooms', 'room_id', 'hotel_rate_id');
     }
 
     public function galleries(): BelongsToMany
@@ -93,39 +83,9 @@ class HotelRoom extends Model
         return $this->hasMany(ProductConsortiaAmenity::class, 'room_id', 'id');
     }
 
-    public function feeTaxes(): HasMany
-    {
-        return $this->hasMany(ProductFeeTax::class, 'room_id', 'id');
-    }
-
-    public function informativeServices(): HasMany
-    {
-        return $this->hasMany(ProductInformativeService::class, 'room_id', 'id');
-    }
-
     public function relatedRooms(): BelongsToMany
     {
         return $this->belongsToMany(HotelRoom::class, 'pd_hotel_related_room_pivot_table', 'room_id', 'related_room_id');
-    }
-
-    public function parentMerge(): HasOne
-    {
-        return $this->hasOne(HotelRoomMerge::class, 'parent_room_id');
-    }
-
-    public function childMerge(): HasOne
-    {
-        return $this->hasOne(HotelRoomMerge::class, 'child_room_id');
-    }
-
-    public function newMerge(): HasOne
-    {
-        return $this->hasOne(HotelRoomMerge::class, 'new_room_id');
-    }
-
-    public function getIsMergedRoomAttribute(): bool
-    {
-        return $this->parentMerge()->exists() || $this->childMerge()->exists() || $this->newMerge()->exists();
     }
 
     public function getFullNameAttribute()

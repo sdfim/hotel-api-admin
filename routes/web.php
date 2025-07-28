@@ -22,7 +22,6 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigInsuranceD
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigKeyMappingOwnerController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigRoomBedTypeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
@@ -148,7 +147,6 @@ Route::prefix('admin')->group(function () {
             Route::resource('consortia', ConfigConsortiumController::class)->only(['index', 'create', 'edit']);
             Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
-            Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('room-bed-types', ConfigRoomBedTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('contact-information-departments', ConfigContactInformationDepartmentController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);

@@ -40,7 +40,6 @@ class Hotel extends Model
         'room_images_source_id',
         'hotel_board_basis',
         'travel_agent_commission',
-        'holdable'
     ];
 
     protected $hidden = [
@@ -60,11 +59,6 @@ class Hotel extends Model
         ];
     }
 
-    public function crmMapping(): BelongsTo
-    {
-        return $this->belongsTo(HotelCrmMapping::class, 'giata_code', 'giata_code');
-    }
-
     public function giataCode(): HasOne
     {
         return $this->hasOne(Property::class, 'code', 'giata_code');
@@ -78,16 +72,6 @@ class Hotel extends Model
     public function rooms(): HasMany
     {
         return $this->hasMany(HotelRoom::class);
-    }
-
-    public function rates(): HasMany
-    {
-        return $this->hasMany(HotelRate::class);
-    }
-
-    public function webFinders(): BelongsToMany
-    {
-        return $this->belongsToMany(HotelWebFinder::class, 'pd_hotel_web_finder_hotel', 'hotel_id', 'web_finder_id');
     }
 
     public function product(): MorphOne

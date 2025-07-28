@@ -225,17 +225,17 @@ class HotelForm extends Component implements HasForms
                                         })
                                         ->label('Product Name')
                                         ->maxLength(191),
-                                    Select::make('sale_type')
-                                        ->label('Type')
-                                        ->options([
-                                            HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
-                                            HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
-                                            HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
-                                            HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value => HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value,
-                                        ])->required()
-                                        ->rule('required', function (Get $get, $state) {
-                                            return self::validateRequiredField($get, $state, 'Type');
-                                        }),
+//                                    Select::make('sale_type')
+//                                        ->label('Type')
+//                                        ->options([
+//                                            HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
+//                                            HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
+//                                            HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
+//                                            HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value => HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value,
+//                                        ])->required()
+//                                        ->rule('required', function (Get $get, $state) {
+//                                            return self::validateRequiredField($get, $state, 'Type');
+//                                        }),
                                     TextInput::make('star_rating')
                                         ->required()
                                         ->rule('required', function (Get $get, $state) {
@@ -262,7 +262,6 @@ class HotelForm extends Component implements HasForms
                                         ->rule('required', function (Get $get, $state) {
                                             return self::validateRequiredField($get, $state, 'Meal Plans Available');
                                         }),
-                                    TextInput::make('product.website')->url()->label('Website')->maxLength(191),
                                     FileUpload::make('product.hero_image')
                                         ->image()
                                         ->imageEditor()
@@ -288,6 +287,7 @@ class HotelForm extends Component implements HasForms
                                                 }
                                             }
                                         }),
+                                    TextInput::make('product.website')->url()->label('Website')->maxLength(191),
                                     Hidden::make('product.hero_image_thumbnails')->dehydrated(),
                                 ]),
 

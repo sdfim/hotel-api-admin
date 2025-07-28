@@ -28,7 +28,6 @@ trait DepositFieldTrait
     {
         return [
             Hidden::make('product_id')->default($this->productId),
-            Hidden::make('rate_id')->default($this->rateId),
 
             Fieldset::make('General Setting')
                 ->schema([

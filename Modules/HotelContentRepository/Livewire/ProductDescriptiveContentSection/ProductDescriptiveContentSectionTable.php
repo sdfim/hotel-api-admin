@@ -37,27 +37,18 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
 
     public int $productId;
 
-    public ?int $rateId = null;
-
     public string $title;
 
     public function mount(Product $product, ?int $rateId = null): void
     {
         $this->productId = $product->id;
-        $this->rateId = $rateId;
-        $rate = HotelRate::where('id', $rateId)->first();
         $this->title = 'Descriptive Content for '.$product->name;
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-            $this->title .= ' - Rate Name: '.$rate->name;
-        }
     }
 
     public function schemeForm(): array
     {
         return [
             Hidden::make('product_id')->default($this->productId),
-            Hidden::make('rate_id')->default($this->rateId),
             Grid::make(2)
                 ->schema([
                     DatePicker::make('start_date')
@@ -84,19 +75,6 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->success()
                         ->send();
                 }),
-            Grid::make(1)
-                ->schema([
-                    Select::make('priority_rooms')
-                        ->label('Rooms')
-                        ->multiple()
-                        ->searchable()
-                        ->options(HotelRoom::whereHas('rates', function ($query) {
-                            $query->where('pd_hotel_rates.id', $this->rateId);
-                        })->pluck('name', 'id')
-                        )
-                        ->reactive()
-                        ->visible(fn () => $this->rateId !== null),
-                ]),
             Textarea::make('value')
                 ->label('Value')
                 ->rows(3)
@@ -124,23 +102,13 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 ProductDescriptiveContentSection::query()
                     ->where('product_id', $this->productId)
             )
-            ->modifyQueryUsing(function ($query) {
-                if ($this->rateId) {
-                    $query->where(function ($q) {
-                        $q->where('rate_id', $this->rateId)
-                            ->orWhereNull('rate_id');
-                    });
-                } else {
-                    $query->whereNull('rate_id');
-                }
-            })
             ->deferLoading()
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        return ($this->productId && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
+                        return ($this->productId) ? 'Rate' : 'Hotel';
                     })
                     ->colors([
                         'primary' => 'Hotel',
@@ -164,7 +132,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->visible(fn () => Gate::allows('create', Product::class)),
                     DeleteAction::make()
                         ->visible(fn () => Gate::allows('create', Product::class)),
-                ])->visible(fn (ProductDescriptiveContentSection $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
+                ])->visible(fn (ProductDescriptiveContentSection $record): bool => $this->productId),
             )
             ->headerActions($this->getHeaderActions());
     }

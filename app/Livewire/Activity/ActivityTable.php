@@ -14,22 +14,14 @@ use Filament\Tables\Table;
 use Illuminate\Support\Arr;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
-use Modules\HotelContentRepository\Models\HotelWebFinder;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAffiliation;
-use Modules\HotelContentRepository\Models\ProductAgeRestriction;
 use Modules\HotelContentRepository\Models\ProductAttribute;
-use Modules\HotelContentRepository\Models\ProductCancellationPolicy;
 use Modules\HotelContentRepository\Models\ProductDepositInformation;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
-use Modules\HotelContentRepository\Models\ProductFeeTax;
-use Modules\HotelContentRepository\Models\ProductInformativeService;
-use Modules\HotelContentRepository\Models\ProductPromotion;
-use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\Vendor;
 use Spatie\Activitylog\Models\Activity;
 
@@ -91,17 +83,11 @@ class ActivityTable extends Component implements HasForms, HasTable
                             ->where('subject_id', $product->getAttribute('id'));
                         $channelIds = $product->channels->pluck('id')->toArray();
                         $affiliationIds = $product->affiliations->pluck('id')->toArray();
-                        $ageRestrictionIds = $product->ageRestrictions->pluck('id')->toArray();
                         $attributeIds = $product->attributes()->pluck('id')->toArray();
                         $contentSectionIds = $product->descriptiveContentsSection->pluck('id')->toArray();
-                        $feeTaxIds = $product->feeTaxes->pluck('id')->toArray();
-                        $serviceIds = $product->informativeServices->pluck('id')->toArray();
-                        $promotionIds = $product->promotions->pluck('id')->toArray();
                         $keyMappingIds = $product->keyMappings->pluck('id')->toArray();
                         $galleryIds = $product->galleries->pluck('id')->toArray();
-                        $commissionIds = $product->travelAgencyCommissions->pluck('id')->toArray();
                         $depositInfoIds = $product->depositInformations->pluck('id')->toArray();
-                        $cancellationPolicyIds = $product->cancellationPolicies->pluck('id')->toArray();
                         if (! empty($channelIds)) {
                             $query->orWhere('subject_type', Channel::class)
                                 ->whereIn('subject_id', $channelIds);
@@ -109,10 +95,6 @@ class ActivityTable extends Component implements HasForms, HasTable
                         if (! empty($affiliationIds)) {
                             $query->orWhere('subject_type', ProductAffiliation::class)
                                 ->whereIn('subject_id', $affiliationIds);
-                        }
-                        if (! empty($ageRestrictionIds)) {
-                            $query->orWhere('subject_type', ProductAgeRestriction::class)
-                                ->whereIn('subject_id', $ageRestrictionIds);
                         }
                         if (! empty($attributeIds)) {
                             $query->orWhere('subject_type', ProductAttribute::class)
@@ -122,18 +104,6 @@ class ActivityTable extends Component implements HasForms, HasTable
                             $query->orWhere('subject_type', ProductDescriptiveContentSection::class)
                                 ->whereIn('subject_id', $contentSectionIds);
                         }
-                        if (! empty($feeTaxIds)) {
-                            $query->orWhere('subject_type', ProductFeeTax::class)
-                                ->whereIn('subject_id', $feeTaxIds);
-                        }
-                        if (! empty($serviceIds)) {
-                            $query->orWhere('subject_type', ProductInformativeService::class)
-                                ->whereIn('subject_id', $serviceIds);
-                        }
-                        if (! empty($promotionIds)) {
-                            $query->orWhere('subject_type', ProductPromotion::class)
-                                ->whereIn('subject_id', $promotionIds);
-                        }
                         if (! empty($keyMappingIds)) {
                             $query->orWhere('subject_type', KeyMapping::class)
                                 ->whereIn('subject_id', $keyMappingIds);
@@ -142,17 +112,9 @@ class ActivityTable extends Component implements HasForms, HasTable
                             $query->orWhere('subject_type', ImageGallery::class)
                                 ->whereIn('subject_id', $galleryIds);
                         }
-                        if (! empty($commissionIds)) {
-                            $query->orWhere('subject_type', TravelAgencyCommission::class)
-                                ->whereIn('subject_id', $commissionIds);
-                        }
                         if (! empty($depositInfoIds)) {
                             $query->orWhere('subject_type', ProductDepositInformation::class)
                                 ->whereIn('subject_id', $depositInfoIds);
-                        }
-                        if (! empty($cancellationPolicyIds)) {
-                            $query->orWhere('subject_type', ProductCancellationPolicy::class)
-                                ->whereIn('subject_id', $cancellationPolicyIds);
                         }
 
                         $query->orWhere('subject_type', Hotel::class)

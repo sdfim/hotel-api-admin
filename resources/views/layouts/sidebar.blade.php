@@ -14,7 +14,6 @@
     use App\Models\ApiSearchInspector;
     use App\Models\ApiBookingInspector;
     use App\Models\ApiExceptionReport;
-//    use App\Models\InformationalService;
     use App\Models\Property;
     use App\Models\ExpediaContent;
     use Modules\HotelContentRepository\Models\Hotel;
@@ -28,7 +27,6 @@
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
     use App\Models\Configurations\ConfigJobDescription;
-    use App\Models\Configurations\ConfigServiceType;
     use App\Models\Configurations\ConfigChain;
     use App\Models\Configurations\ConfigInsuranceDocumentationType;
     use App\Models\Configurations\ConfigContactInformationDepartment;
@@ -50,7 +48,6 @@
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
         $canView(ConfigJobDescription::class) ||
-        $canView(ConfigServiceType::class) ||
         $canView(ConfigChain::class);
         $canView(ConfigInsuranceDocumentationType::class);
         $canView(ConfigContactInformationDepartment::class);
@@ -70,9 +67,6 @@
         ['route' => 'configurations.consortia.index', 'text' => 'Consortia', 'model' => ConfigConsortium::class],
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
         ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
-        ['route' => 'configurations.service-types.index', 'text' => 'Service Types', 'model' => ConfigServiceType::class],
-//        ['route' => 'configurations.chains.index', 'text' => 'Chains', 'model' => ConfigChain::class],
-//        ['route' => 'configurations.insurance-documentation-types.index', 'text' => 'Insurance Documentation Types', 'model' => ConfigInsuranceDocumentationType::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
@@ -282,12 +276,12 @@
                             <span data-key="t-property-mapping">Content Suppliers</span>
                         </a>
                         <ul>
-                            <li>
-                                <a href="{{ Route('expedia.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                    Expedia
-                                </a>
-                            </li>
+{{--                            <li>--}}
+{{--                                <a href="{{ Route('expedia.index') }}"--}}
+{{--                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">--}}
+{{--                                    Expedia--}}
+{{--                                </a>--}}
+{{--                            </li>--}}
                             <li>
                                 <a href="{{ Route('ice-portal.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -302,7 +296,7 @@
                         <a href="{{ Route('properties.index') }}"
                            class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-map"></i>
-                            <span data-key="t-property-mapping">Properties</span>
+                            <span data-key="t-property-mapping">Giata Properties</span>
                         </a>
                     </li>
                 @endif
@@ -313,7 +307,7 @@
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-graduation"></i>
-                            <span>Supplier Repository</span>
+                            <span>Manual Content</span>
                         </a>
                         <ul>
                             @if($canView(Vendor::class))
@@ -325,36 +319,13 @@
                                     </a>
                                 </li>
                             @endif
-                            @if($canView(Product::class))
+                            @if($canView(Hotel::class))
                                 <li>
-                                    <a href="javascript: void(0);" aria-expanded="false"
-                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">
-                                        <i class="dripicons-trophy"></i>
-                                        <span data-key="t-products">Products</span>
+                                    <a href="{{ Route('hotel-repository.index') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass()}}">
+                                        <i class="dripicons-store"></i>
+                                        <span>Hotels</span>
                                     </a>
-                                    <ul>
-                                        <li>
-                                            <a href="{{ Route('hotel-repository.index') }}"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-store"></i>
-                                                <span>Hotels</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-web"></i>
-                                                <span>Tours</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"
-                                               class="{{ ClassHelper::sidebarCildrenL2Class()}}">
-                                                <i class="dripicons-suitcase"></i>
-                                                <span>Transfers</span>
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </li>
                             @endif
 {{--                            @if($canView(Product::class))--}}
@@ -431,7 +402,7 @@
                                         <li>
                                             <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
                                                class="{{ ClassHelper::sidebarCildrenL2Class() }}">
-                                                Supplier Repository
+                                                Manual Content
                                             </a>
                                         </li>
                                     </ul>

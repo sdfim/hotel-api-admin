@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             ConfigInsuranceDocumentationTypeSeeder::class,
             ConfigConsortiumSeeder::class,
             ConfigAttributeSeeder::class,
-            ConfigServiceTypeSeeder::class,
             ConfigDescriptiveTypeSeeder::class,
         ]);
     }

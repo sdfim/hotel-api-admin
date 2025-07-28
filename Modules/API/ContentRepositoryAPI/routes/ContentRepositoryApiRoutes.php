@@ -17,13 +17,9 @@ use Modules\HotelContentRepository\API\Controllers\KeyMappingOwnerController;
 use Modules\HotelContentRepository\API\Controllers\ProductAffiliationController;
 use Modules\HotelContentRepository\API\Controllers\ProductAgeRestrictionController;
 use Modules\HotelContentRepository\API\Controllers\ProductAttributeController;
-use Modules\HotelContentRepository\API\Controllers\ProductCancellationPolicyController;
 use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
-use Modules\HotelContentRepository\API\Controllers\ProductFeeTaxController;
-use Modules\HotelContentRepository\API\Controllers\ProductInformativeServiceController;
-use Modules\HotelContentRepository\API\Controllers\ProductPromotionController;
 use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\API\Controllers\VendorController;
 
@@ -60,10 +56,6 @@ class ContentRepositoryApiRoutes
             Route::post('products/{id}/attach-gallery', [ProductController::class, 'attachGallery']);
             Route::post('products/{id}/detach-gallery', [ProductController::class, 'detachGallery']);
 
-            Route::resource('product-promotions', ProductPromotionController::class);
-            Route::post('product-promotions/{id}/attach-gallery', [ProductPromotionController::class, 'attachGallery']);
-            Route::post('product-promotions/{id}/detach-gallery', [ProductPromotionController::class, 'detachGallery']);
-
             Route::resource('product-affiliations', ProductAffiliationController::class);
 
             Route::resource('product-attributes', ProductAttributeController::class);
@@ -71,15 +63,9 @@ class ContentRepositoryApiRoutes
             Route::resource('product-descriptive-content-sections', ProductDescriptiveContentSectionController::class)
                 ->parameters(['product-descriptive-content-sections' => 'section']);
 
-            Route::resource('product-fee-taxes', ProductFeeTaxController::class);
-
-            Route::resource('product-informative-services', ProductInformativeServiceController::class);
-
             Route::resource('contact-information', ContactInformationController::class);
 
             Route::resource('product-deposit-information', ProductDepositInformationController::class);
-
-            Route::resource('product-cancellation-policy', ProductCancellationPolicyController::class);
 
             Route::resource('key-mappings', KeyMappingController::class);
             Route::resource('key-mapping-owners', KeyMappingOwnerController::class);
