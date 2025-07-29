@@ -233,6 +233,7 @@ class HotelTraderPushController extends Controller
     {
         $messageId = Str::uuid()->toString();
         try {
+            $code = $request->input('room.code', '');
             $room = HotelTraderContentRoomType::where('code', $code)->first();
             if (! $room) {
                 return response()->json([
