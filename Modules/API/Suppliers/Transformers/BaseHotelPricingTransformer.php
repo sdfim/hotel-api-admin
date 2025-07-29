@@ -93,7 +93,7 @@ class BaseHotelPricingTransformer
     private function processSupplierData(array $giataIds): array
     {
         // Fetch and process data
-        $supplierRepositoryData = Hotel::has('rooms')->has('rates')->whereIn('giata_code', $giataIds)->get();
+        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
 
         $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
@@ -233,7 +233,6 @@ class BaseHotelPricingTransformer
 
         return [
             'priorityContentFromSupplierRepo' => $this->priorityContentFromSupplierRepo,
-            'ultimateAmenities' => $this->ultimateAmenities,
             'depositInformation' => $this->depositInformation,
             'descriptiveContent' => $this->descriptiveContent,
             'cancellationPolicies' => $this->cancellationPolicies,

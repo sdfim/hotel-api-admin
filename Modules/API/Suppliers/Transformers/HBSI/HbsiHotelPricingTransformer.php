@@ -331,8 +331,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
         $rateToApply['rateOccupancy'] = $rateOccupancy;
 
-        $rateToApply['transformedRates'] = $transformedRates;
-
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
                 $giataId,
@@ -470,7 +468,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setTotalPrice(round($pricingRulesApplier['total_price'], 2));
         $roomResponse->setTotalTax(round($pricingRulesApplier['total_tax'], 2));
-        $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'] + $totalFeesUltimateAmenities, 2));
+        $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'], 2));
         $roomResponse->setTotalNet(round($pricingRulesApplier['total_net'], 2));
 
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
@@ -481,12 +479,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         }
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
         $roomResponse->setCurrency($this->currency ?? 'USD');
-
-        if (! is_array($resolvedPolicies) || Arr::isAssoc($resolvedPolicies)) {
-            $resolvedPolicies = array_filter([$resolvedPolicies]);
-        }
-
-        $cancellationPolicies = $this->mergeCancellationPoliciesWithSRPenalties($cancellationPolicies, $resolvedPolicies);
 
         $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
         $roomResponse->setNonRefundable($nonRefundable);
@@ -637,86 +629,5 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'fees' => $fees,
 
         ];
-    }
-
-    private function mergeCancellationPoliciesWithSRPenalties(array $cancellationPolicies, array $resolvedPolicies): array
-    {
-        if (! config('supplier-repository.use_repo_tax_fees')) {
-            return array_merge($cancellationPolicies, $resolvedPolicies);
-        }
-
-        // Find the closest HBSI policy (earliest penalty_start_date)
-        $closestHbsiPolicy = null;
-        $closestDate = null;
-
-        foreach ($cancellationPolicies as $policy) {
-            if (isset($policy['penalty_start_date'])) {
-                $policyDate = strtotime($policy['penalty_start_date']);
-                if ($closestDate === null || $policyDate < $closestDate) {
-                    $closestDate = $policyDate;
-                    $closestHbsiPolicy = $policy;
-                }
-            }
-        }
-
-        // If no HBSI policy found, create a default one
-        if ($closestHbsiPolicy === null) {
-            $closestHbsiPolicy = [
-                'description' => PolicyCode::CXP->value,
-                'type' => CancellationPolicyTypesEnum::General->value,
-                'penalty_start_date' => date('Y-m-d'),
-                'percentage' => '0',
-                'amount' => '0',
-                'level' => 'rate',
-            ];
-        }
-
-        // Calculate total SR penalty (sum of all SR policies)
-        $totalSRPercentage = 0;
-        $totalSRAmount = 0;
-
-        foreach ($resolvedPolicies as $srPolicy) {
-            if (isset($srPolicy['percentage']) && is_numeric($srPolicy['percentage'])) {
-                $totalSRPercentage += (float) $srPolicy['percentage'];
-            }
-            if (isset($srPolicy['amount']) && is_numeric($srPolicy['amount'])) {
-                $totalSRAmount += (float) $srPolicy['amount'];
-            }
-        }
-
-        // Add SR penalties to the closest HBSI policy
-        $hbsiPercentage = isset($closestHbsiPolicy['percentage']) ? (float) $closestHbsiPolicy['percentage'] : 0;
-        $hbsiAmount = isset($closestHbsiPolicy['amount']) ? (float) $closestHbsiPolicy['amount'] : 0;
-
-        $totalPercentage = $hbsiPercentage + $totalSRPercentage;
-        $totalAmount = $hbsiAmount + $totalSRAmount;
-
-        // Cap percentage at 100%
-        if ($totalPercentage > 100) {
-            $totalPercentage = 100;
-        }
-
-        // Update the closest HBSI policy with combined penalties
-        $closestHbsiPolicy['percentage'] = (string) $totalPercentage;
-        $closestHbsiPolicy['amount'] = (string) $totalAmount;
-
-        // Return all policies: HBSI policies (with updated closest one) + all SR policies
-        $result = [];
-
-        // Add all HBSI policies, but update the closest one
-        foreach ($cancellationPolicies as $policy) {
-            if ($policy === $closestHbsiPolicy) {
-                $result[] = $closestHbsiPolicy;
-            } else {
-                $result[] = $policy;
-            }
-        }
-
-        // Add all SR policies
-        foreach ($resolvedPolicies as $srPolicy) {
-            $result[] = $srPolicy;
-        }
-
-        return $result;
     }
 }
