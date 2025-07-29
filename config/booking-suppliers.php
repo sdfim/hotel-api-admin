@@ -31,4 +31,28 @@ return [
             'token_url' => env('SUPPLIER_ICE_PORTAL_TOKEN_URL', ''),
         ],
     ],
+
+    'Hilton' => [
+        'credentials' => [
+            'client_id' => env('HILTON_CLIENT_ID', ''),
+            'client_secret' => env('HILTON_CLIENT_SECRET', ''),
+            'base_url' => env('HILTON_BASE_URL', 'https://kapip-s.hilton.io/hospitality-partner/v2'),
+            'token_url' => env('HILTON_TOKEN_URL', 'https://kapip-s.hilton.io/hospitality-partner/v2/realms/applications/token'),
+        ],
+    ],
+
+    'HotelTrader' => [
+        'credentials' => [
+            'search_url' => env('SUPPLIER_HOTEL_TRADER_SEARCH_URL', ''),
+            'book_url' => env('SUPPLIER_HOTEL_TRADER_BOOK_URL', ''),
+            'cancel_url' => env('SUPPLIER_HOTEL_TRADER_CANCEL_URL', ''),
+            'retrieve_url' => env('SUPPLIER_HOTEL_TRADER_RETRIEVE_URL', ''),
+            'username' => env('SUPPLIER_HOTEL_TRADER_API_KEY', ''),
+            'password' => env('SUPPLIER_HOTEL_TRADER_TOKEN_URL', ''),
+        ],
+        'push_credentials' => [
+            'username' => env('HOTEL_TRADER_PUSH_USERNAME', ''),
+            'password' => env('HOTEL_TRADER_PUSH_PASSWORD', ''),
+        ],
+    ],
 ];

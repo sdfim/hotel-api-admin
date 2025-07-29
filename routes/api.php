@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\DummyHealthController;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\Channels\routes\ChannelsApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
+use Modules\API\PushContent\routes\HotelTraderPushContent;
 use Modules\API\Report\routes\ReportApiRoutes;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+HotelTraderPushContent::routes();
 
 ContentApiRoutes::routes();
 

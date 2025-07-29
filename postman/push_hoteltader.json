@@ -1,0 +1,50 @@
+{
+    "info": {
+        "name": "HotelTraderPushContent",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create Hotel",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Accept-Encoding", "value": "gzip" },
+                    { "key": "Authorization", "value": "Basic <token>" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"messageId\": \"4ssafea795-7ae1-45c3-8d31-07788ebd2484\",\n    \"updateType\": \"NEW\",\n    \"hotel\": {\n        \"code\": \"NYCMIL\",\n        \"name\": \"Row NYC\",\n        \"starRating\": 4,\n        \"defaultCurrencyCode\": \"USD\",\n        \"maxRoomsBookable\": 9,\n        \"numberOfRooms\": 130,\n        \"numberOfFloors\": 8,\n        \"addressLine1\": \"701 9th Avenue\",\n        \"addressLine2\": null,\n        \"city\": \"New York\",\n        \"state\": \"New York\",\n        \"stateCode\": \"NY\",\n        \"country\": \"United States of America\",\n        \"countryCode\": \"US\",\n        \"zip\": 55555,\n        \"phone1\": \"15521869-3600\",\n        \"phone2\": \"11221121\",\n        \"fax1\": \"11244-0644\",\n        \"fax2\": \"22342-1123\",\n        \"websiteUrl\": \"www.rownyc.com\",\n        \"longitude\": \"-73.98857859999998\",\n        \"latitude\": \"40.7588237\",\n        \"longDescription\": \"Dummy long description\",\n        \"shortDescription\": \"Dummy short description\",\n        \"checkInPolicy\": \"check-in policy text\",\n        \"checkInTime\": \"12:30\",\n        \"checkOutTime\": \"11:00\",\n        \"adultAge\": 14,\n        \"timeZone\": \"America/New_York\",\n        \"defaultLanguage\": \"en\",\n        \"adultOnly\": false,\n        \"currencies\": [\n            { \"code\": \"USD\", \"name\": \"United States Dollar\" }\n        ],\n        \"languages\": [\n            { \"code\": \"EN\", \"name\": \"English\" }\n        ],\n        \"mappingProviders\":[\n           { \"mappingProvider\": \"GIATA\", \"mappingCode\": \"GIATACODE\" }\n        ],\n        \"creditCardTypes\": [\n            { \"code\": \"VS\", \"name\": \"Visa\" },\n            { \"code\": \"MC\", \"name\": \"MasterCard\" },\n            { \"code\": \"AX\", \"name\": \"American Express\" }\n        ],\n        \"bedtypes\": [\n            { \"code\": \"TDBL\", \"name\": \"Two Double Beds\" },\n            { \"code\": \"1FB\", \"name\": \"One Full Bed\" },\n            { \"code\": \"TWB\", \"name\": \"Two Twin Beds\" }\n        ],\n        \"amenities\": [\n            { \"code\": \"TV\", \"name\": \"Flat-panel TV\" },\n            { \"code\": \"AC\", \"name\": \"Air Conditioning\" }\n        ]\n    }\n}"
+                },
+                "url": {
+                    "raw": "http://localhost/api/hotels",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "path": ["api", "hotels"]
+                }
+            }
+        },
+        {
+            "name": "Update Hotel",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Accept-Encoding", "value": "gzip" },
+                    { "key": "Authorization", "value": "Basic <token>" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"messageId\": \"4ssafea795-7ae1-45c3-8d31-07788ebd2484\",\n    \"updateType\": \"UPDATE\",\n    \"hotel\": {\n        \"code\": \"NYCMIL\",\n        \"name\": \"Row NYC\",\n        \"starRating\": 4,\n        \"defaultCurrencyCode\": \"USD\",\n        \"maxRoomsBookable\": 9,\n        \"numberOfRooms\": 130,\n        \"numberOfFloors\": 8,\n        \"addressLine1\": \"701 9th Avenue\",\n        \"addressLine2\": null,\n        \"city\": \"New York\",\n        \"state\": \"New York\",\n        \"stateCode\": \"NY\",\n        \"country\": \"United States of America\",\n        \"countryCode\": \"US\",\n        \"zip\": 55555,\n        \"phone1\": \"15521869-3600\",\n        \"phone2\": \"11221121\",\n        \"fax1\": \"11244-0644\",\n        \"fax2\": \"22342-1123\",\n        \"websiteUrl\": \"www.rownyc.com\",\n        \"longitude\": \"-73.98857859999998\",\n        \"latitude\": \"40.7588237\",\n        \"longDescription\": \"Dummy long description\",\n        \"shortDescription\": \"Dummy short description\",\n        \"checkInPolicy\": \"check-in policy text\",\n        \"checkInTime\": \"12:30\",\n        \"checkOutTime\": \"11:00\",\n        \"adultAge\": 14,\n        \"timeZone\": \"America/New_York\",\n        \"defaultLanguage\": \"en\",\n        \"adultOnly\": false,\n        \"currencies\": [\n            { \"code\": \"USD\", \"name\": \"United States Dollar\" }\n        ],\n        \"languages\": [\n            { \"code\": \"EN\", \"name\": \"English\" }\n        ],\n        \"mappingProviders\":[\n           { \"mappingProvider\": \"GIATA\", \"mappingCode\": \"GIATACODE\" }\n        ],\n        \"creditCardTypes\": [\n            { \"code\": \"VS\", \"name\": \"Visa\" },\n            { \"code\": \"MC\", \"name\": \"MasterCard\" },\n            { \"code\": \"AX\", \"name\": \"American Express\" }\n        ],\n        \"bedtypes\": [\n            { \"code\": \"TDBL\", \"name\": \"Two Double Beds\" },\n            { \"code\": \"1FB\", \"name\": \"One Full Bed\" },\n            { \"code\": \"TWB\", \"name\": \"Two Twin Beds\" }\n        ],\n        \"amenities\": [\n            { \"code\": \"TV\", \"name\": \"Flat-panel TV\" },\n            { \"code\": \"AC\", \"name\": \"Air Conditioning\" }\n        ]\n    }\n}"
+                },
+                "url": {
+                    "raw": "http://localhost/api/hotels/NYCMIL",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "path": ["api", "hotels", "NYCMIL"]
+                }
+            }
+        }
+    ]
+}
