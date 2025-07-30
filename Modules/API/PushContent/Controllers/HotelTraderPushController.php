@@ -4,11 +4,14 @@ namespace Modules\API\PushContent\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\HotelTraderContentHotel;
+use App\Models\HotelTraderContentRatePlan;
 use App\Models\HotelTraderContentRoomType;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Modules\API\PushContent\Requests\HotelTraderContentHotelRequest;
+use Modules\API\PushContent\Requests\HotelTraderContentRatePlanRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRoomTypeRequest;
 
 class HotelTraderPushController extends Controller
@@ -191,8 +194,8 @@ class HotelTraderPushController extends Controller
             $created = [];
             foreach ($rooms as $room) {
                 $room['hotel_code'] = $propertyCode;
-                $room['bedtypes'] = json_encode($room['bedtypes'] ?? []);
-                $room['amenities'] = json_encode($room['amenities'] ?? []);
+                $room['bedtypes'] = Arr::get($room, 'bedtypes', []);
+                $room['amenities'] = Arr::get($room, 'amenities', []);
                 $createdRoom = HotelTraderContentRoomType::create($this->mapRoomTypeKeysToSnakeCase($room));
                 $created[] = $createdRoom->code;
             }
@@ -245,8 +248,8 @@ class HotelTraderPushController extends Controller
                 ], 404);
             }
             $roomData = $request->all();
-            $roomData['bedtypes'] = json_encode($roomData['bedtypes'] ?? []);
-            $roomData['amenities'] = json_encode($roomData['amenities'] ?? []);
+            $roomData['bedtypes'] = Arr::get($roomData, 'bedtypes', []);
+            $roomData['amenities'] = Arr::get($roomData, 'amenities', []);
             $room->update($this->mapRoomTypeKeysToSnakeCase($roomData));
 
             return response()->json([
@@ -256,6 +259,126 @@ class HotelTraderPushController extends Controller
                     'message' => 'Room type updated successfully.',
                 ],
                 'room' => $room->code,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Stores new rate plans in the database.
+     */
+    public function storeRatePlans(HotelTraderContentRatePlanRequest $request): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $updateType = $request->input('updateType');
+            $propertyCode = $request->input('propertyCode');
+            $rateplans = $request->input('rateplans', []);
+            $created = [];
+            foreach ($rateplans as $rateplan) {
+                $rateplan['hotel_code'] = $propertyCode;
+                $rateplan['currency'] = Arr::get($rateplan, 'currency', []);
+                $rateplan['mealplan'] = Arr::get($rateplan, 'mealplan', []);
+                $rateplan['rateplan_type'] = Arr::get($rateplan, 'rateplanType', []);
+                $rateplan['destination_exclusive'] = Arr::get($rateplan, 'destinationExclusive', []);
+                $rateplan['destination_restriction'] = Arr::get($rateplan, 'destinationRestriction', null);
+                $rateplan['seasonal_policies'] = Arr::get($rateplan, 'seasonalPolicies', []);
+                $rateplan['short_description'] = $rateplan['shortDescription'] ?? null;
+                $rateplan['detail_description'] = $rateplan['detailDescription'] ?? null;
+                $rateplan['cancellation_policy_code'] = $rateplan['cancellationPolicyCode'] ?? null;
+                $rateplan['is_tax_inclusive'] = $rateplan['isTaxInclusive'] ?? false;
+                $rateplan['is_refundable'] = $rateplan['isRefundable'] ?? false;
+                $rateplan['is_promo'] = $rateplan['isPromo'] ?? false;
+                $createdRatePlan = HotelTraderContentRatePlan::create($this->mapRatePlanKeysToSnakeCase($rateplan));
+                $created[] = $createdRatePlan->code;
+            }
+
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Rate plans created successfully.',
+                ],
+                'updateType' => $updateType,
+                'rateplans' => $created,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Updates an existing rate plan in the database.
+     */
+    public function updateRatePlan(HotelTraderContentRatePlanRequest $request, string $code): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $code = $request->input('rateplan.code', $code);
+            $rateplan = HotelTraderContentRatePlan::where('code', $code)->first();
+            if (! $rateplan) {
+                return response()->json([
+                    'messageId' => $messageId,
+                    'status' => [
+                        'success' => false,
+                        'message' => 'Rate plan not found.',
+                    ],
+                ], 404);
+            }
+            $rateplanData = $request->input('rateplan', []);
+            $rateplanData['hotel_code'] = $request->input('propertyCode');
+            $rateplanData['currency'] = Arr::get($rateplanData, 'currency', []);
+            $rateplanData['mealplan'] = Arr::get($rateplanData, 'mealplan', []);
+            $rateplanData['rateplan_type'] = Arr::get($rateplanData, 'rateplanType', []);
+            $rateplanData['destination_exclusive'] = Arr::get($rateplanData, 'destinationExclusive', []);
+            $rateplanData['destination_restriction'] = Arr::get($rateplanData, 'destinationRestriction', null);
+            $rateplanData['seasonal_policies'] = Arr::get($rateplanData, 'seasonalPolicies', []);
+            $rateplanData['short_description'] = $rateplanData['shortDescription'] ?? null;
+            $rateplanData['detail_description'] = $rateplanData['detailDescription'] ?? null;
+            $rateplanData['cancellation_policy_code'] = $rateplanData['cancellationPolicyCode'] ?? null;
+            $rateplanData['is_tax_inclusive'] = $rateplanData['isTaxInclusive'] ?? false;
+            $rateplanData['is_refundable'] = $rateplanData['isRefundable'] ?? false;
+            $rateplanData['is_promo'] = $rateplanData['isPromo'] ?? false;
+            $rateplan->update($this->mapRatePlanKeysToSnakeCase($rateplanData));
+
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Rate plan updated successfully.',
+                ],
+                'rateplan' => $rateplan->code,
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -353,6 +476,34 @@ class HotelTraderPushController extends Controller
             'max_occupancy_for_default_price' => $data['maxOccupancyForDefaultPrice'] ?? $data['max_occupancy_for_default_price'] ?? null,
             'bedtypes' => $data['bedtypes'] ?? null,
             'amenities' => $data['amenities'] ?? null,
+        ];
+
+        return array_filter($map, function ($v) {
+            return ! is_null($v);
+        });
+    }
+
+    /**
+     * Helper to map rate plan keys to snake_case.
+     */
+    private function mapRatePlanKeysToSnakeCase(array $data): array
+    {
+        $map = [
+            'hotel_code' => $data['hotel_code'] ?? null,
+            'code' => $data['code'] ?? null,
+            'name' => $data['name'] ?? null,
+            'currency' => $data['currency'] ?? null,
+            'short_description' => $data['short_description'] ?? null,
+            'detail_description' => $data['detail_description'] ?? null,
+            'cancellation_policy_code' => $data['cancellation_policy_code'] ?? null,
+            'mealplan' => $data['mealplan'] ?? null,
+            'is_tax_inclusive' => $data['is_tax_inclusive'] ?? false,
+            'is_refundable' => $data['is_refundable'] ?? false,
+            'rateplan_type' => $data['rateplan_type'] ?? null,
+            'is_promo' => $data['is_promo'] ?? false,
+            'destination_exclusive' => $data['destination_exclusive'] ?? null,
+            'destination_restriction' => $data['destination_restriction'] ?? null,
+            'seasonal_policies' => $data['seasonal_policies'] ?? null,
         ];
 
         return array_filter($map, function ($v) {

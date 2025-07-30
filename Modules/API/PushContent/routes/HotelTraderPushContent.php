@@ -20,8 +20,8 @@ class HotelTraderPushContent
             Route::put('/roomtype/{code}', [HotelTraderPushController::class, 'updateRoomType']);
 
             // Rates
-            Route::post('/rateplans', [HotelTraderPushController::class, 'storeRates']);
-            Route::put('/rateplan/{code}', [HotelTraderPushController::class, 'updateRate']);
+            Route::post('/rateplans', [HotelTraderPushController::class, 'storeRatePlans']);
+            Route::put('/rateplan/{code}', [HotelTraderPushController::class, 'updateRatePlan']);
 
             // cancellation-policies
             Route::post('/cancellation-policies', [HotelTraderPushController::class, 'storeCancellationPolicies']);
