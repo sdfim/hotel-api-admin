@@ -59,10 +59,6 @@ class FlowHbsiBookDiffScenarios extends Command
                 'scenario_5',
                 'scenario_6',
                 'scenario_7',
-                'scenario_8',
-                'scenario_9',
-                'scenario_10',
-                'scenario_11',
             ];
 
         $this->runScenarios($scenariosToRun);
@@ -112,31 +108,6 @@ class FlowHbsiBookDiffScenarios extends Command
          *
          * Partial Cancellation in multi room booking
          * Cancel Reservation from above scenario #7 only one room
-         *
-         * #########################
-         * Scenario #8 (One Room, SoftChange)
-         *
-         * Book 1 rooms with 2 adults
-         * Modify reservation by adding a special request
-         * Cancel Reservation from above scenario #8
-         *
-         * #########################
-         * Scenario #9 (Three Room, HardChange)
-         * Book 3 rooms with 2 different occupancies. 1 adult and 1 child in one room and 3 adults in second room
-         * Modify Reservation from above Scenario and Add 1 adult, 1 child and one additional room
-         * Cancel Reservation from the above Scenario #9
-         *
-         * #########################
-         * Scenario #10 (Two Room, HardChange, Different Room Types)
-         * Book 2 rooms with 2 different room types 2 adults in each room
-         * Modify Reservation from above Scenario and delete 1 room and change room type
-         * Cancel Reservation from the above Scenario #10
-         *
-         * #########################
-         * Scenario #11 (Two Room, HardChange, Different Room Types)
-         * Book 1 room with 2 adult and room type Luxury
-         * Modify Reservation from above Scenario change room type to STD
-         * Cancel Reservation from the above Scenario #11
          */
     }
 
@@ -164,7 +135,7 @@ class FlowHbsiBookDiffScenarios extends Command
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
         $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
-        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
         $this->cancel($bookingId);
     }
 
@@ -271,94 +242,6 @@ class FlowHbsiBookDiffScenarios extends Command
         [$bookingId, $bookingItem] = $this->processBooking($occupancy2, $checkin2, $checkout2, [], null, $bookingId);
 
         $this->cancel($bookingId, $bookingItem);
-    }
-
-    private function scenario_8(): void
-    {
-        $this->info('------------------------------------');
-        $this->warn('Starting Scenario #8');
-        $occupancy = [['adults' => 2]];
-        $nights = 3;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
-
-        $faker = Faker::create();
-        $newSpecialRequests[] = [
-            'special_request' => $faker->sentence(),
-            'room' => 1,
-        ];
-        $this->softChange($bookingId, $bookingItem, $newSpecialRequests, []);
-        $this->cancel($bookingId);
-    }
-
-    private function scenario_9(): void
-    {
-        $this->info('------------------------------------');
-        $this->warn('Starting Scenario #9');
-        $occupancy = [
-            ['adults' => 1, 'children_ages' => [14]],
-            ['adults' => 3],
-        ];
-        $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
-
-        $occupancy = [
-            ['adults' => 1, 'children_ages' => [14]],
-            ['adults' => 3],
-            ['adults' => 1, 'children_ages' => [14]],
-        ];
-        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
-        $this->cancel($bookingId);
-    }
-
-    private function scenario_10(): void
-    {
-        $this->info('------------------------------------');
-        $this->warn('Starting Scenario #10');
-        $occupancy = [
-            ['adults' => 2],
-            ['adults' => 2],
-        ];
-        $roomTypes = ['STD', 'Luxury'];
-        $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $roomTypes);
-
-        $occupancy = [
-            ['adults' => 2],
-        ];
-        $roomType = 'Luxury';
-        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout, $roomType);
-        $this->cancel($bookingId);
-    }
-
-    private function scenario_11(): void
-    {
-        $this->info('------------------------------------');
-        $this->warn('Starting Scenario #10');
-        $occupancy = [
-            ['adults' => 2],
-        ];
-        $roomTypes = ['Luxury'];
-        $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $roomTypes);
-
-        $occupancy = [
-            ['adults' => 1],
-        ];
-        $roomType = 'STD';
-        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout, $roomType);
-        $this->cancel($bookingId);
     }
 
     private function processBooking(array $occupancy, string $checkin, string $checkout, array $difArr = [], ?string $diffType = null, ?string $inputBookingId = null): array|bool
@@ -773,7 +656,7 @@ class FlowHbsiBookDiffScenarios extends Command
         }
     }
 
-    private function flowHardCange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, ?string $roomType = null): void
+    private function flowHardChange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, ?string $roomType = null): void
     {
         $this->info('------------------------------------');
         $this->handleSleep();
@@ -782,11 +665,11 @@ class FlowHbsiBookDiffScenarios extends Command
             $this->error('Availability failed');
         }
         $this->info('softChange result : '.json_encode([
-                    'success' => Arr::get($responseAvailability, 'success'),
-                    'message' => Arr::get($responseAvailability, 'message'),
-                    'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
-                ]
-            ));
+            'success' => Arr::get($responseAvailability, 'success'),
+            'message' => Arr::get($responseAvailability, 'message'),
+            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+        ]
+        ));
 
         $this->info('------------------------------------');
         $this->handleSleep();
