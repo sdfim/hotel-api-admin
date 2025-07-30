@@ -2,12 +2,11 @@
     $group = [
         ['title' => 'Descriptive Content', 'component' => 'products.hotel-descriptive-content-section-table'],
         ['title' => 'Fees and Taxes', 'component' => 'products.product-fee-tax-table'],
-        ['title' => 'Ultimate Amenities', 'component' => 'products.product-affiliations-table'],
         ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
         ['title' => 'Deposit Information', 'component' => 'products.product-deposit-information-table'],
-        ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
-        ['title' => 'Promotions', 'component' => 'products.hotel-promotion-table'],
-        ['title' => 'Hotel Service', 'component' => 'products.product-informative-services-table'],
+//        ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
+//        ['title' => 'Promotions', 'component' => 'products.hotel-promotion-table'],
+//        ['title' => 'Hotel Service', 'component' => 'products.product-informative-services-table'],
     ];
 @endphp
 

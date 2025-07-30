@@ -49,4 +49,8 @@ class Mapping extends Model
         return $query->where('supplier', MappingSuppliersEnum::HILTON->value);
     }
 
+    public function scopeHotelTrader($query)
+    {
+        return $query->where('supplier', MappingSuppliersEnum::HOTEL_TRADER->value);
+    }
 }

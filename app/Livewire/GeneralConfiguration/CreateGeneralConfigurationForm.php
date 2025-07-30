@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\Enums\SupplierNameEnum;
 
 class CreateGeneralConfigurationForm extends Component implements HasForms
 {
@@ -78,9 +79,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->maxValue(fn (): int => 365)
                     ->required(),
                 Select::make('content_supplier')
-                    ->label('Include this supplier in your search as a content supplier (ContentApi)')
-                    ->multiple()
-                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Hilton' => 'Hilton'])
+                    ->label('Main supplier (ContentApi)')
+                    ->options(SupplierNameEnum::contentOptions())
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
@@ -112,10 +112,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         $request = (object) $this->form->getState();
         $general_configuration = GeneralConfiguration::get();
 
-        $contentSupplier = implode(',', $request->content_supplier);
+        $contentSupplier = is_array($request->content_supplier) ? implode(',', $request->content_supplier) : $request->content_supplier;
 
         if (count($general_configuration) === 0) {
-            $general_configuration_row = new GeneralConfiguration;
+            /* @var GeneralConfiguration $general_configuration_row */
+            $general_configuration_row = app(GeneralConfiguration::class);
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;

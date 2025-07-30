@@ -162,8 +162,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
-        $hotelResponse->setUltimateAmenities([]);
-
         return $hotelResponse->toArray();
     }
 

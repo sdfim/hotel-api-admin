@@ -20,7 +20,6 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setCurrency('');
         $contentSearchResponse->setNumberRooms(0);
         $contentSearchResponse->setAmenities([]);
-        $contentSearchResponse->setUltimateAmenities([]);
         $contentSearchResponse->setGiataDestination('');
         $contentSearchResponse->setUserRating('');
         $contentSearchResponse->setWeight(0);

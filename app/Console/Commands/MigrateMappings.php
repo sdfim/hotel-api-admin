@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class MigrateMappings extends Command
 {
     protected $signature = 'migrate:mappings';
+
     protected $description = 'Migrate existing mapping tables to the unified mappings table';
 
     public function handle()
@@ -17,7 +18,7 @@ class MigrateMappings extends Command
         $this->migrateExpedia();
         $this->migrateHBSI();
         $this->migrateIcePortal();
-        
+
         $this->info('Mappings migrated successfully.');
     }
 
@@ -31,7 +32,7 @@ class MigrateMappings extends Command
                     'giata_id' => $mapping->giata_id,
                     'supplier' => MappingSuppliersEnum::Expedia->value,
                     'supplier_id' => $mapping->expedia_id,
-                    'match_percentage' => $mapping->step
+                    'match_percentage' => $mapping->step,
                 ],
                 [
                     'created_at' => Carbon::now(),
@@ -54,7 +55,7 @@ class MigrateMappings extends Command
                     'giata_id' => $mapping->giata_id,
                     'supplier' => MappingSuppliersEnum::HBSI->value,
                     'supplier_id' => $mapping->hbsi_id,
-                    'match_percentage' => $mapping->perc
+                    'match_percentage' => $mapping->perc,
                 ],
                 [
                     'created_at' => Carbon::now(),
@@ -76,7 +77,7 @@ class MigrateMappings extends Command
                     'giata_id' => $mapping->giata_id,
                     'supplier' => MappingSuppliersEnum::IcePortal->value,
                     'supplier_id' => $mapping->ice_portal_id,
-                    'match_percentage' => $mapping->perc
+                    'match_percentage' => $mapping->perc,
                 ],
                 [
                     'created_at' => Carbon::now(),

@@ -8,6 +8,7 @@ use App\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\SupplierControllerInterface;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
@@ -55,8 +56,10 @@ class HotelContentApiService
         }
 
         $giataCodes = $this->getGiataCodesByContent($results);
-        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-        $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+
+        //        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
+        //        $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -84,24 +87,24 @@ class HotelContentApiService
 
         $combinedResult = $this->combineDetailResults($resultsSuppliers, $structureSource, $repoData, $giataCodes);
         $combinedResult = $this->applyFilterByRoomType($combinedResult);
+
         return $combinedResult;
     }
+
     private function applyFilterByRoomType($results)
     {
-        $selectedRoomTypes = Arr::get(request()->all(),'room_type_codes');
-        if($selectedRoomTypes === null)
-        {
+        $selectedRoomTypes = Arr::get(request()->all(), 'room_type_codes');
+        if ($selectedRoomTypes === null) {
             return $results;
         }
 
         $selectedRoomTypes = is_array($selectedRoomTypes) ? $selectedRoomTypes : explode(',', $selectedRoomTypes);
-        $selectedRoomTypes = collect($selectedRoomTypes)->map(fn($val) => strtolower($val))->toArray();
+        $selectedRoomTypes = collect($selectedRoomTypes)->map(fn ($val) => strtolower($val))->toArray();
 
-        foreach ($results as $key => $result)
-        {
+        foreach ($results as $key => $result) {
             $result['rooms'] = array_values(
-                collect($result['rooms'])->filter(function($room) use ($selectedRoomTypes){
-                    return in_array(strtolower($room['unified_room_code']),$selectedRoomTypes);
+                collect($result['rooms'])->filter(function ($room) use ($selectedRoomTypes) {
+                    return in_array(strtolower($room['unified_room_code']), $selectedRoomTypes);
                 })->toArray()
             );
             $results[$key] = $result;
@@ -238,12 +241,14 @@ class HotelContentApiService
 
         $roomMappers = $this->getRoomMappers($rooms);
 
-        $existingExpediaGiataIds = array_column($resultsSuppliers[SupplierNameEnum::EXPEDIA->value], 'giata_hotel_code');
-        $detailResults = $resultsSuppliers[SupplierNameEnum::EXPEDIA->value];
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::EXPEDIA->value);
+
+        $existingInMainSupplierGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
+        $detailResults = $resultsSuppliers[$mainSupplier];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            if ($supplier !== SupplierNameEnum::EXPEDIA->value) {
-                $filteredResults = $this->rejectByExistingGiataCode($resultsSuppliers[$supplier], $existingExpediaGiataIds);
+            if ($supplier !== $mainSupplier) {
+                $filteredResults = $this->rejectByExistingGiataCode($resultsSuppliers[$supplier], $existingInMainSupplierGiataIds);
                 $detailResults = array_merge($detailResults, $filteredResults);
             }
         }
@@ -282,10 +287,10 @@ class HotelContentApiService
         return $roomMappers;
     }
 
-    private function rejectByExistingGiataCode(array $resultsDetail, array $existingExpediaGiataIds): array
+    private function rejectByExistingGiataCode(array $resultsDetail, array $existingInMainSupplierGiataIds): array
     {
-        return array_filter($resultsDetail, function ($item) use ($existingExpediaGiataIds) {
-            return ! in_array($item['giata_hotel_code'], $existingExpediaGiataIds);
+        return array_filter($resultsDetail, function ($item) use ($existingInMainSupplierGiataIds) {
+            return ! in_array($item['giata_hotel_code'], $existingInMainSupplierGiataIds);
         });
     }
 
@@ -371,11 +376,13 @@ class HotelContentApiService
 
     private function combineContentResults(array $resultsSuppliers, array $structureSource, $repoData, array $giataCodes): array
     {
-        $existingGiataIds = array_column($resultsSuppliers[SupplierNameEnum::EXPEDIA->value], 'giata_hotel_code');
-        $contentResults = $resultsSuppliers[SupplierNameEnum::EXPEDIA->value];
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::EXPEDIA->value);
+
+        $existingGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
+        $contentResults = $resultsSuppliers[$mainSupplier];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            if ($supplier !== SupplierNameEnum::EXPEDIA->value) {
+            if ($supplier !== $mainSupplier) {
                 $filteredResults = $this->rejectByExistingGiataCode($resultsSuppliers[$supplier], $existingGiataIds);
                 $contentResults = array_merge($contentResults, $filteredResults);
             }
@@ -435,8 +442,7 @@ class HotelContentApiService
             $hotelModel = Hotel::where('giata_code', Arr::get($supplierResult, 'giata_id'))
                 ->first();
 
-            if ($rating = Arr::get($request, 'rating', 0))
-            {
+            if ($rating = Arr::get($request, 'rating', 0)) {
                 return $hotelModel?->star_rating ?
                     (float) $hotelModel->star_rating >= $rating :
                     (float) Arr::get($supplierResult, 'rating', 5) >= $rating;

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
-use Modules\API\Services\HotelContactService;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\HotelRoom;
 
@@ -123,7 +122,9 @@ class HotelContentApiTransformerService
         // Property Images
         $additionalImages = $internalPropertyImages;
         if (isset($structureSource['property_images'])) {
-            $additionalImages = array_merge($additionalImages, Arr::get($transformedResults[$structureSource['property_images']], $hotel->giata_code.'.images', []));
+            $supplierNane = $structureSource['property_images'];
+            $supplierrImages = Arr::get($transformedResults, $supplierNane, []);
+            $additionalImages = array_merge($additionalImages, Arr::get($supplierrImages, $hotel->giata_code.'.images', []));
         }
         $result['images'] = $additionalImages;
 
@@ -145,7 +146,9 @@ class HotelContentApiTransformerService
         // Content Descriptions
         $additionalDescriptions = $internalPropertyDescription;
         if (isset($structureSource['content_source'])) {
-            $additionalDescriptions = array_merge($additionalDescriptions, Arr::get($transformedResults[$structureSource['content_source']], $hotel->giata_code.'.descriptions', []));
+            $supplierNane = $structureSource['content_source'];
+            $supplierrDescriptions = Arr::get($transformedResults, $supplierNane, []);
+            $additionalDescriptions = array_merge($additionalDescriptions, Arr::get($supplierrDescriptions, $hotel->giata_code.'.descriptions', []));
         }
         $result['descriptions'] = $additionalDescriptions;
 
@@ -182,7 +185,6 @@ class HotelContentApiTransformerService
         $result['number_rooms'] = $hotel->num_rooms;
         $result['user_rating'] = $hotel->star_rating;
         $result['attributes'] = $this->getHotelAttributes($hotel);
-        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight ?? 0;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
@@ -365,50 +367,6 @@ class HotelContentApiTransformerService
         })->all();
     }
 
-    private function getUltimateAmenities($hotel): array
-    {
-        $requestConsortiaAffiliation = request()->input('consortia_affiliation', null);
-
-        $amenities = $hotel->product->affiliations
-            ->filter(function ($affiliation) {
-                return $affiliation->room_id === null && $affiliation->rate_id === null;
-            })
-            ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
-                return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
-                    return in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
-                });
-            })
-            ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
-                return [
-                    'start_date' => $affiliation->start_date,
-                    'end_date' => $affiliation->end_date,
-                    'amenities' => array_values(
-                        $affiliation->amenities
-                            ->filter(function ($amenity) use ($requestConsortiaAffiliation) {
-                                return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
-                            })
-                            ->map(function ($amenity) {
-                                return [
-                                    'name' => $amenity->amenity->name,
-                                    'consortia' => $amenity->consortia,
-                                    'description' => $amenity->description,
-                                    'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
-                                    'price' => $amenity->price,
-                                    'currency' => $amenity->currency,
-                                    'apply_type' => $amenity->apply_type,
-                                    'min_night_stay' => $amenity->min_night_stay,
-                                    'max_night_stay' => $amenity->max_night_stay,
-                                ];
-                            })
-                            ->all()
-                    ),
-                ];
-            })
-            ->all();
-
-        return array_values($amenities);
-    }
-
     private function getHotelDrivers($hotel): array
     {
         return collect($hotel->product->off_sale_by_sources)->map(function ($driver) {
@@ -431,37 +389,6 @@ class HotelContentApiTransformerService
                     'category' => 'general',
                 ];
             })->all();
-
-            $ultimateAmenities = [];
-            if ($room->affiliations) {
-                $ultimateAmenities = $room->affiliations
-                    ->filter(function ($affiliation) use ($requestConsortiaAffiliation) {
-                        return ! $requestConsortiaAffiliation || $affiliation->amenities->contains(function ($amenity) use ($requestConsortiaAffiliation) {
-                            return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia', []));
-                        });
-                    })
-                    ->map(function ($affiliation) use ($requestConsortiaAffiliation) {
-                        return [
-                            'start_date' => $affiliation->start_date,
-                            'end_date' => $affiliation->end_date,
-                            'amenities' => $affiliation->amenities->filter(function ($amenity) use ($requestConsortiaAffiliation) {
-                                return ! $requestConsortiaAffiliation || in_array($requestConsortiaAffiliation, Arr::get($amenity, 'consortia'));
-                            })->map(function ($amenity) {
-                                return [
-                                    'name' => $amenity->amenity->name,
-                                    'consortia' => $amenity->consortia,
-                                    'description' => $amenity->description,
-                                    'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
-                                    'price' => $amenity->price,
-                                    'currency' => $amenity->currency,
-                                    'apply_type' => $amenity->apply_type,
-                                    'min_night_stay' => $amenity->min_night_stay,
-                                    'max_night_stay' => $amenity->max_night_stay,
-                                ];
-                            })->all(),
-                        ];
-                    })->all();
-            }
 
             $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
                 return [
@@ -492,7 +419,6 @@ class HotelContentApiTransformerService
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
                 'attributes' => $attributes,
-                'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,
                 'descriptions' => $this->getRoomDescriptions($room),
                 'supplier_codes' => $supplierCodes,

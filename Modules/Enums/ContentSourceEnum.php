@@ -9,6 +9,7 @@ enum ContentSourceEnum: string
     case HBSI = 'IBS';
 //    case HILTON = 'Hilton';
     case INTERNAL = 'Internal';
+    case HOTEL_TRADER = 'HotelTrader';
 
     public static function options(): array
     {
@@ -16,6 +17,7 @@ enum ContentSourceEnum: string
 //            self::EXPEDIA->value => self::EXPEDIA->value,
             self::ICE_PORTAL->value => self::ICE_PORTAL->value,
             self::HBSI->value => self::HBSI->value,
+            self::HOTEL_TRADER->value => self::HOTEL_TRADER->value,
         ];
     }
 }

@@ -8,6 +8,7 @@ enum MappingSuppliersEnum: string
     case HBSI = 'HBSI';
     case IcePortal = 'IcePortal';
     case HILTON = 'Hilton';
+    case HOTEL_TRADER = 'HotelTrader';
 
     public static function values(): array
     {
@@ -19,6 +20,9 @@ enum MappingSuppliersEnum: string
         return [
             self::Expedia->value => self::Expedia->value,
             self::IcePortal->value => self::IcePortal->value,
+            self::HBSI->value => self::HBSI->value,
+            self::HILTON->value => self::HILTON->value,
+            self::HOTEL_TRADER->value => self::HOTEL_TRADER->value,
         ];
     }
 }

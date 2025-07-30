@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\GeneralConfiguration;
+use App\Observers\GeneralConfigurationObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -29,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(RapidClient::class, function () {
-            return new RapidClient();
+            return new RapidClient;
         });
 
         $this->app->singleton(PropertyCallFactory::class, function ($app) {
@@ -60,6 +63,21 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         $this->bootRoute();
+
+        GeneralConfiguration::observe(GeneralConfigurationObserver::class);
+
+        // Fill all keys with constant prefix: when the application starts
+        $this->cacheAllConstants();
+    }
+
+    protected function cacheAllConstants(): void
+    {
+        $config = \App\Models\GeneralConfiguration::first();
+        if ($config) {
+            if (! is_null($config->content_supplier)) {
+                Cache::forever('constant:content_supplier', $config->content_supplier);
+            }
+        }
     }
 
     public function bootRoute(): void
@@ -67,8 +85,7 @@ class AppServiceProvider extends ServiceProvider
         $disable = config('engine.disable_throttle');
 
         RateLimiter::for('api', function (Request $request) use ($disable) {
-            if ($disable)
-            {
+            if ($disable) {
                 return Limit::perMinute(1000)->by($request->user()?->id ?: $request->ip());
             }
 

@@ -36,8 +36,6 @@ class HotelResponse extends BaseResponse
 
     private array $deposit_information = [];
 
-    private array $ultimate_amenities = [];
-
     private array $descriptive_content = [];
 
     private array $cancellation_policies = [];
@@ -158,15 +156,6 @@ class HotelResponse extends BaseResponse
         return $this->deposit_information;
     }
 
-    public function setUltimateAmenities(array $ultimate_amenities): void
-    {
-        $this->ultimate_amenities = $ultimate_amenities;
-    }
-
-    public function getUltimateAmenities(): array
-    {
-        return $this->ultimate_amenities;
-    }
     public function setDescriptiveContent(array $descriptiveContent): void
     {
         $this->descriptive_content = $descriptiveContent;
@@ -305,7 +294,6 @@ class HotelResponse extends BaseResponse
             'deposit_information' => $this->getDepositInformation(),
             'holdable' => $this->getHoldable(),
             'descriptive_content' => $this->getDescriptiveContent(),
-            'ultimate_amenities' => $this->getUltimateAmenities(),
             'hotel_contacts' => $this->getHotelContacts(),
         ];
     }

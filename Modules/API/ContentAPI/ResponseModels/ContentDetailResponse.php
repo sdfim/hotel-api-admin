@@ -46,8 +46,6 @@ class ContentDetailResponse
 
     private array $drivers;
 
-    private array $ultimate_amenities;
-
     private array $nearest_airports;
 
     private string $currency;
@@ -82,16 +80,6 @@ class ContentDetailResponse
     public function getNearestAirports(): array
     {
         return $this->nearest_airports;
-    }
-
-    public function setUltimateAmenities(array $ultimate_amenities): void
-    {
-        $this->ultimate_amenities = $ultimate_amenities;
-    }
-
-    public function getUltimateAmenities(): array
-    {
-        return $this->ultimate_amenities;
     }
 
     public function setDrivers(array $drivers): void
@@ -317,7 +305,6 @@ class ContentDetailResponse
             'number_rooms' => $this->getNumberRooms(),
             'nearest_airports' => $this->getNearestAirports(),
             'attributes' => $this->getAmenities(),
-            'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
             'descriptions' => $this->getDescriptions(),

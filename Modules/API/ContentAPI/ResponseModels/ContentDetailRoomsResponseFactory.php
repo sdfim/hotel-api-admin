@@ -15,7 +15,6 @@ class ContentDetailRoomsResponseFactory
         $contentDetailRoomsResponse->setSupplierRoomName('');
         $contentDetailRoomsResponse->setSupplierRoomCode('');
         $contentDetailRoomsResponse->setAmenities([]);
-        $contentDetailRoomsResponse->setUltimateAmenities([]);
         $contentDetailRoomsResponse->setImages([]);
         $contentDetailRoomsResponse->setDescriptions('');
         $contentDetailRoomsResponse->setContentSupplier('');

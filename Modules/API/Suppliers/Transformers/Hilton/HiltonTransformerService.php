@@ -93,13 +93,19 @@ class HiltonTransformerService
         if (is_array($property)) {
             $property = (object) $property;
         }
-        $checkIn = ['name' => 'checkin', 'value' => $property->checkin_time ?? ''];
-        $checkOut = ['name' => 'checkout', 'value' => $property->checkout_time ?? ''];
-        $policy = $this->mapPolicies($property->policy);
-        $taxes = $this->mapTaxes($property->taxes);
-        $description = array_values(array_merge($policy, $taxes));
+
+        $description[] = ['name' => 'description', 'value' => $property->long_description ?? ''];
+        $checkIn = ['name' => 'checkin', 'value' => $property->check_in_time ?? ''];
+        $checkOut = ['name' => 'checkout', 'value' => $property->check_out_time ?? ''];
+
+//        $policy = $this->mapPolicies($property?->policy);
+//        $taxes = $this->mapTaxes($property?->taxes);
+//        $description = array_values(array_merge($policy, $taxes));
         $description[] = $checkIn;
         $description[] = $checkOut;
+
+
+//        dd($property, $description);
 
         return $description;
     }

@@ -19,7 +19,6 @@ class ContentDetailResponseFactory
         $contentDetailResponse->setNumberRooms(0);
         $contentDetailResponse->setNearestAirports([]);
         $contentDetailResponse->setAmenities([]);
-        $contentDetailResponse->setUltimateAmenities([]);
         $contentDetailResponse->setGiataDestination('');
         $contentDetailResponse->setUserRating('');
         $contentDetailResponse->setDescriptions([]);
