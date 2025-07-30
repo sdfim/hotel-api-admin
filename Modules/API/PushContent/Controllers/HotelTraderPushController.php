@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\HotelTraderContentHotel;
 use App\Models\HotelTraderContentRatePlan;
 use App\Models\HotelTraderContentRoomType;
+use App\Models\HotelTraderContentCancellationPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\API\PushContent\Requests\HotelTraderContentHotelRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRatePlanRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRoomTypeRequest;
+use Modules\API\PushContent\Requests\HotelTraderContentCancellationPolicyRequest;
 
 class HotelTraderPushController extends Controller
 {
@@ -401,6 +403,102 @@ class HotelTraderPushController extends Controller
     }
 
     /**
+     * Stores new cancellation policies in the database.
+     */
+    public function storeCancellationPolicies(HotelTraderContentCancellationPolicyRequest $request): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $updateType = $request->input('updateType');
+            $propertyCode = $request->input('propertyCode');
+            $policies = $request->input('cancellationPolicies', []);
+            $created = [];
+            foreach ($policies as $policy) {
+                $policy['hotel_code'] = $propertyCode;
+                $policy['penalty_windows'] = Arr::get($policy, 'penaltyWindows', []);
+                $createdPolicy = HotelTraderContentCancellationPolicy::create($this->mapCancellationPolicyKeysToSnakeCase($policy));
+                $created[] = $createdPolicy->code;
+            }
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Cancellation policies created successfully.',
+                ],
+                'updateType' => $updateType,
+                'cancellationPolicies' => $created,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Updates an existing cancellation policy in the database.
+     */
+    public function updateCancellationPolicie(HotelTraderContentCancellationPolicyRequest $request, string $code): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $code = $request->input('cancellationPolicy.code', $code);
+            $policy = HotelTraderContentCancellationPolicy::where('code', $code)->first();
+            if (! $policy) {
+                return response()->json([
+                    'messageId' => $messageId,
+                    'status' => [
+                        'success' => false,
+                        'message' => 'Cancellation policy not found.',
+                    ],
+                ], 404);
+            }
+            $policyData = $request->input('cancellationPolicy', []);
+            $policyData['hotel_code'] = $request->input('propertyCode');
+            $policyData['penalty_windows'] = Arr::get($policyData, 'penaltyWindows', []);
+            $policy->update($this->mapCancellationPolicyKeysToSnakeCase($policyData));
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Cancellation policy updated successfully.',
+                ],
+                'cancellationPolicy' => $policy->code,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
      * Maps camelCase hotel keys to snake_case for the model.
      */
     private function mapHotelKeysToSnakeCase(array $hotel): array
@@ -508,6 +606,23 @@ class HotelTraderPushController extends Controller
 
         return array_filter($map, function ($v) {
             return ! is_null($v);
+        });
+    }
+
+    /**
+     * Helper to map cancellation policy keys to snake_case.
+     */
+    private function mapCancellationPolicyKeysToSnakeCase(array $data): array
+    {
+        $map = [
+            'hotel_code' => $data['hotel_code'] ?? null,
+            'code' => $data['code'] ?? null,
+            'name' => $data['name'] ?? null,
+            'description' => $data['description'] ?? null,
+            'penalty_windows' => $data['penalty_windows'] ?? null,
+        ];
+        return array_filter($map, function ($v) {
+            return !is_null($v);
         });
     }
 }
