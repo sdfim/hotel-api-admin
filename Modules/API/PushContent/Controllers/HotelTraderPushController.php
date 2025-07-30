@@ -3,18 +3,20 @@
 namespace Modules\API\PushContent\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\HotelTraderContentCancellationPolicy;
 use App\Models\HotelTraderContentHotel;
 use App\Models\HotelTraderContentRatePlan;
 use App\Models\HotelTraderContentRoomType;
-use App\Models\HotelTraderContentCancellationPolicy;
+use App\Models\HotelTraderContentTax;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\API\PushContent\Requests\HotelTraderContentCancellationPolicyRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentHotelRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRatePlanRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRoomTypeRequest;
-use Modules\API\PushContent\Requests\HotelTraderContentCancellationPolicyRequest;
+use Modules\API\PushContent\Requests\HotelTraderContentTaxRequest;
 
 class HotelTraderPushController extends Controller
 {
@@ -419,6 +421,7 @@ class HotelTraderPushController extends Controller
                 $createdPolicy = HotelTraderContentCancellationPolicy::create($this->mapCancellationPolicyKeysToSnakeCase($policy));
                 $created[] = $createdPolicy->code;
             }
+
             return response()->json([
                 'messageId' => $messageId,
                 'status' => [
@@ -470,6 +473,7 @@ class HotelTraderPushController extends Controller
             $policyData['hotel_code'] = $request->input('propertyCode');
             $policyData['penalty_windows'] = Arr::get($policyData, 'penaltyWindows', []);
             $policy->update($this->mapCancellationPolicyKeysToSnakeCase($policyData));
+
             return response()->json([
                 'messageId' => $messageId,
                 'status' => [
@@ -477,6 +481,112 @@ class HotelTraderPushController extends Controller
                     'message' => 'Cancellation policy updated successfully.',
                 ],
                 'cancellationPolicy' => $policy->code,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Stores new taxes in the database.
+     */
+    public function storeTaxes(HotelTraderContentTaxRequest $request): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $updateType = $request->input('updateType');
+            $propertyCode = $request->input('propertyCode');
+            $taxes = $request->input('taxes', []);
+            $created = [];
+            foreach ($taxes as $tax) {
+                $tax['hotel_code'] = $propertyCode;
+                $tax['percent_or_flat'] = $tax['percentOrFlat'] ?? null;
+                $tax['charge_frequency'] = $tax['chargeFrequency'] ?? null;
+                $tax['charge_basis'] = $tax['chargeBasis'] ?? null;
+                $tax['tax_type'] = $tax['taxType'] ?? null;
+                $tax['applies_to_children'] = $tax['appliesToChildren'] ?? false;
+                $tax['pay_at_property'] = $tax['payAtProperty'] ?? false;
+                $createdTax = HotelTraderContentTax::create($this->mapTaxKeysToSnakeCase($tax));
+                $created[] = $createdTax->code;
+            }
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Taxes created successfully.',
+                ],
+                'updateType' => $updateType,
+                'taxes' => $created,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Validation failed due to missing fields.',
+                    'errors' => $e->errors(),
+                ],
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Updates an existing tax in the database.
+     */
+    public function updateTax(HotelTraderContentTaxRequest $request, string $code): JsonResponse
+    {
+        $messageId = Str::uuid()->toString();
+        try {
+            $code = $request->input('tax.code', $code);
+            $tax = HotelTraderContentTax::where('code', $code)->first();
+            if (! $tax) {
+                return response()->json([
+                    'messageId' => $messageId,
+                    'status' => [
+                        'success' => false,
+                        'message' => 'Tax not found.',
+                    ],
+                ], 404);
+            }
+            $taxData = $request->input('tax', []);
+            $taxData['hotel_code'] = $request->input('propertyCode');
+            $taxData['percent_or_flat'] = $taxData['percentOrFlat'] ?? null;
+            $taxData['charge_frequency'] = $taxData['chargeFrequency'] ?? null;
+            $taxData['charge_basis'] = $taxData['chargeBasis'] ?? null;
+            $taxData['tax_type'] = $taxData['taxType'] ?? null;
+            $taxData['applies_to_children'] = $taxData['appliesToChildren'] ?? false;
+            $taxData['pay_at_property'] = $taxData['payAtProperty'] ?? false;
+            $tax->update($this->mapTaxKeysToSnakeCase($taxData));
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Tax updated successfully.',
+                ],
+                'tax' => $tax->code,
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -620,6 +730,29 @@ class HotelTraderPushController extends Controller
             'name' => $data['name'] ?? null,
             'description' => $data['description'] ?? null,
             'penalty_windows' => $data['penalty_windows'] ?? null,
+        ];
+
+        return array_filter($map, function ($v) {
+            return ! is_null($v);
+        });
+    }
+
+    /**
+     * Helper to map tax keys to snake_case.
+     */
+    private function mapTaxKeysToSnakeCase(array $data): array
+    {
+        $map = [
+            'hotel_code' => $data['hotel_code'] ?? null,
+            'code' => $data['code'] ?? null,
+            'name' => $data['name'] ?? null,
+            'percent_or_flat' => $data['percent_or_flat'] ?? null,
+            'charge_frequency' => $data['charge_frequency'] ?? null,
+            'charge_basis' => $data['charge_basis'] ?? null,
+            'value' => $data['value'] ?? null,
+            'tax_type' => $data['tax_type'] ?? null,
+            'applies_to_children' => $data['applies_to_children'] ?? false,
+            'pay_at_property' => $data['pay_at_property'] ?? false,
         ];
         return array_filter($map, function ($v) {
             return !is_null($v);

@@ -43,6 +43,7 @@ class HotelTraderContentCancellationPolicyRequest extends FormRequest
                 'cancellationPolicy.penaltyWindows.*.penalty.nights' => 'nullable|integer',
                 'cancellationPolicy.penaltyWindows.*.penalty.taxInclusive' => 'required|boolean',
             ];
+
             return array_merge($common, $policyRules);
         }
 
@@ -68,12 +69,13 @@ class HotelTraderContentCancellationPolicyRequest extends FormRequest
             'cancellationPolicies.*.penaltyWindows.*.penalty.nights' => 'nullable|integer',
             'cancellationPolicies.*.penaltyWindows.*.penalty.taxInclusive' => 'required|boolean',
         ];
+
         return array_merge($common, $policiesRules);
     }
 
     public function prepareForValidation()
     {
-        if ($this->has('cancellationPolicy') && !$this->has('cancellationPolicies')) {
+        if ($this->has('cancellationPolicy') && ! $this->has('cancellationPolicies')) {
             $this->merge(['cancellationPolicies' => [$this->input('cancellationPolicy')]]);
         }
     }
@@ -82,6 +84,7 @@ class HotelTraderContentCancellationPolicyRequest extends FormRequest
     {
         $messageId = $this->input('messageId', Str::uuid()->toString());
         $objectCode = $this->input('cancellationPolicies.0.code', 'CANCEL_POLICY');
+
         $errors = [];
         foreach ($validator->errors()->toArray() as $field => $messages) {
             foreach ($messages as $message) {
@@ -124,4 +127,3 @@ class HotelTraderContentCancellationPolicyRequest extends FormRequest
         return [];
     }
 }
-
