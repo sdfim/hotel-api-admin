@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
             ConfigRoomBedTypeSeeder::class,
-            ConfigContactInformationDepartmentSeeder::class,
 
             HotelContentRepositorySeeder::class,
 
