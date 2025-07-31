@@ -152,8 +152,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #1');
         $occupancy = [['adults' => 2]];
         $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -170,6 +170,9 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
         $this->cancel($bookingId);
+
+        sleep(2);
+
         $this->retrieveBooking($bookingId);
     }
 
@@ -179,8 +182,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #2');
         $occupancy = [['adults' => 2]];
         $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -202,8 +205,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
             ['adults' => 2, 'children_ages' => [5, 13, 1]], // 5: child, 13: teen, 1: infant
         ];
         $nights = 2;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -222,8 +225,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #4');
         $occupancy = [['adults' => 2]];
         $nights = 3;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
@@ -239,8 +242,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
             ['adults' => 1, 'children_ages' => [1]],
         ];
         $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -264,8 +267,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
             ['adults' => 1, 'children_ages' => [1]],
         ];
         $nights = 5;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -286,8 +289,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #7');
         $occupancy = [['adults' => 2]];
         $nights = 3;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
@@ -308,8 +311,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #8');
         $occupancy = [['adults' => 2]];
         $nights = 3;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
@@ -330,8 +333,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #9');
         $occupancy = [['adults' => 1, 'children_ages' => [5]]];
         $nights = 3;
-        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
