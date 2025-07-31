@@ -2,7 +2,7 @@ version: '3.9'
 services:
 
   app:
-    user: root
+    # user: root
     image: fora/php:latest
     build:
       context: ./docker/php
@@ -64,8 +64,8 @@ services:
       POSTGRES_PASSWORD: usersecret
     volumes:
       - pg_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # ports:
+    #     - "5432:5432"
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "user" ]
       interval: 10s
@@ -87,18 +87,19 @@ services:
 
   ollama:
     image: ollama/ollama
-    ports:
-      - "11434:11434" # Доступ к API
+    # ports:
+    #     - "11434:11434" # Доступ к API
     volumes:
       - ollama_data:/root/.ollama # Для хранения моделей
     restart: unless-stopped
 
   redis:
     image: 'redis:alpine'
+    command: redis-server --appendonly yes --replica-read-only no
     volumes:
       - 'redis:/data'
-    ports:
-      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    # ports:
+    #     - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
       - fora
     healthcheck:
@@ -110,7 +111,7 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
+      # - "5672:5672"
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-user}
@@ -135,7 +136,7 @@ services:
     image: 'mailhog/mailhog:latest'
     restart: always
     ports:
-      - '${FORWARD_MAILHOG_PORT:-1025}:1025'
+      # - '${FORWARD_MAILHOG_PORT:-1025}:1025'
       - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
     networks:
       - fora
@@ -149,20 +150,20 @@ services:
     networks:
       - fora
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    #  horizon:
-    #    image: fora/php:latest
-    #    build:
-    #      context: ./docker/php
-    #      dockerfile: stage.Dockerfile
-    #    volumes:
-    #      - '.:/var/www/html'
-    #      - './docker/php/php.stage.ini:/usr/local/etc/php/php.ini'
-    #    command: php artisan horizon
-    #    networks:
-    #      - fora
-    #    depends_on:
-    #      - redis
-    #      - app
+  #  horizon:
+  #    image: fora/php:latest
+  #    build:
+  #      context: ./docker/php
+  #      dockerfile: stage.Dockerfile
+  #    volumes:
+  #      - '.:/var/www/html'
+  #      - './docker/php/php.stage.ini:/usr/local/etc/php/php.ini'
+  #    command: php artisan horizon
+  #    networks:
+  #      - fora
+  #    depends_on:
+  #      - redis
+  #      - app
 
   worker:
     image: fora/php:latest

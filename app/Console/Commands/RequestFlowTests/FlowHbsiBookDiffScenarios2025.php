@@ -169,11 +169,13 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         //        $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
         //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
-        $this->cancel($bookingId);
 
-        sleep(2);
 
-        $this->retrieveBooking($bookingId);
+        // $this->cancel($bookingId);
+
+        // sleep(2);
+
+        // $this->retrieveBooking($bookingId);
     }
 
     private function scenario_2(): void
@@ -193,7 +195,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        $this->cancel($bookingId);
+        //$this->cancel($bookingId);
     }
 
     private function scenario_3(): void
@@ -202,7 +204,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->warn('Starting Scenario #3');
         // Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
         $occupancy = [
-            ['adults' => 2, 'children_ages' => [5, 13, 1]], // 5: child, 13: teen, 1: infant
+            ['adults' => 2, 'children_ages' => [5, 1]], // 5: child, 1: infant
         ];
         $nights = 2;
         $checkin = $this->checkin;
@@ -216,7 +218,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        $this->cancel($bookingId);
+        //$this->cancel($bookingId);
     }
 
     private function scenario_4(): void
@@ -230,7 +232,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
-        $this->cancel($bookingId);
+        //$this->cancel($bookingId);
     }
 
     private function scenario_5(): void
@@ -247,15 +249,17 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         $options = [
             [
+                'rate_name' => 'BAR',
                 'room_type' => 'Double',
             ],
             [
+                'rate_name' => 'BAR',
                 'room_type' => 'Suite',
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        $this->cancel($bookingId);
+        //$this->cancel($bookingId);
     }
 
     private function scenario_6(): void
@@ -280,7 +284,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        $this->cancel($bookingId);
+        //$this->cancel($bookingId);
     }
 
     private function scenario_7(): void
@@ -302,7 +306,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy2, $checkin2, $checkout2, [], null, $bookingId);
 
-        $this->cancel($bookingId, $bookingItem);
+        //$this->cancel($bookingId, $bookingItem);
     }
 
     private function scenario_8(): void
@@ -324,7 +328,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $this->cancel($bookingId, $bookingItem);
+        //$this->cancel($bookingId, $bookingItem);
     }
 
     private function scenario_9(): void
@@ -346,7 +350,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $this->cancel($bookingId, $bookingItem);
+        //$this->cancel($bookingId, $bookingItem);
     }
 
     private function findBookingItemByRoomParams(array $searchResponse, array $roomParamsArray): ?string
