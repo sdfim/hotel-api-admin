@@ -27,6 +27,7 @@ class SearchInspectorController extends BaseInspectorController
         try {
             $this->current_time = microtime(true);
 
+            $clientContentWithPricingRules = '';
             if (isset($original['keyCache'])) {
                 $keys = $original['keyCache'];
                 $original = Cache::get($keys['dataOriginal']);
@@ -39,8 +40,8 @@ class SearchInspectorController extends BaseInspectorController
                 }
             }
 
-            $content = $this->processString($content);
-            $original = $this->processString($original);
+            $content = is_array($content) ? json_encode($content) : $this->processString($content);
+            $original = is_array($original) ? json_encode($original) : $this->processString($original);
             $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
             $clientContentWithPricingRules = is_array($clientContentWithPricingRules)
                 ? json_encode($clientContentWithPricingRules)

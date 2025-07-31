@@ -297,13 +297,14 @@ class BookApiHandler extends BaseController
             $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $bookingItem]];
         }
 
-        if (isset($filters['search_id'])) {
+        if (isset($filters['search_id']) && ! empty($filters['search_id'])) {
             $searchId = $filters['search_id'];
         } else {
             $apiBookingInspector = ApiBookingInspector::where('booking_id', $bookingId)
                 ->where('booking_item', $bookingItem)->first();
             $searchId = $apiBookingInspector->search_id;
         }
+
         $apiSearchInspector = ApiSearchInspector::where('search_id', $searchId)->first()->request;
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
@@ -314,11 +315,13 @@ class BookApiHandler extends BaseController
             }
         }
 
+        $filters['search_id'] = $searchId;
+
         $bookingInspector = BookingRepository::newBookingInspector([
             $bookingId, $filters, $supplierId, 'change_passengers', $subType, 'hotel',
         ]);
 
-        SaveBookingInspector::dispatch($bookingInspector, [], [
+        SaveBookingInspector::dispatchSync($bookingInspector, [], [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
             'status' => $status,

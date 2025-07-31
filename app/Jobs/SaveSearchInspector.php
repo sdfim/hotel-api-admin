@@ -24,8 +24,8 @@ class SaveSearchInspector implements ShouldQueue
         private readonly array $original,
         private readonly array $content,
         private readonly array $client_content,
-        private readonly string $status,
-        private readonly array $status_describe,
+        private readonly string $status = 'success',
+        private readonly array $status_describe = [],
     ) {}
 
     /**

@@ -9,13 +9,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\Resolvers\DescriptiveContent\DescriptiveContentResolver;
-use Modules\API\PricingAPI\Resolvers\Services\ServiceResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
-use Modules\API\Services\HotelContactService;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
@@ -85,7 +83,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     ];
 
     public function __construct(
-        private readonly ServiceResolver $serviceResolver,
         private array $meal_plans_available = [],
         private array $roomCombinations = [],
         private string $rate_type = '',

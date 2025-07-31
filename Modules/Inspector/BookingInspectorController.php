@@ -54,14 +54,6 @@ class BookingInspectorController extends BaseInspectorController
 
             Log::debug('BookingInspectorController save data: ', $inspector);
 
-            /**
-             * Added compatibility to save logs for imported TravelTek bookings
-             */
-            if (empty($inspector['search_id'])) {
-                $inspector['search_id'] = 'traveltek_import';
-                $inspector['booking_item'] = 'traveltek_import';
-            }
-
             $booking = ApiBookingInspector::create($inspector);
 
             Log::debug('BookingInspectorController save to DB: '.$this->executionTime().' seconds');

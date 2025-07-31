@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\MoveBookingItemCache;
 use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
@@ -9,6 +10,7 @@ use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
@@ -467,11 +469,16 @@ class HbsiBookApiController extends BaseBookApiController
 
         $response = $this->priceByHotel($hotelId, $filters, $searchInspector);
 
+        // TODO: Check $giataIgs - need to be used in the future from $filters
+        $giataIgs = Arr::get($filters, 'giata_ids', []);
+
         $handleResponse = $this->handlePriceHbsi(
             $response,
             $filters,
             $searchId,
-            $this->pricingRulesService->rules($filters)
+            $this->pricingRulesService->rules($filters, $giataIgs),
+            $this->pricingRulesService->rules($filters, $giataIgs, true),
+            $giataIgs
         );
 
         $clientResponse = $handleResponse['clientResponse'];
@@ -514,7 +521,7 @@ class HbsiBookApiController extends BaseBookApiController
         $itemPrice = json_decode($item->booking_pricing_data, true);
         $totalPrice = $itemPrice['total_price'] ?? 0;
 
-        $itemNew = ApiBookingItem::where('booking_item', $filters['new_booking_item'])->first();
+        $itemNew = ApiBookingItemCache::where('booking_item', $filters['new_booking_item'])->first();
         $itemPriceNew = json_decode($itemNew->booking_pricing_data, true);
         $totalPriceNew = $itemPriceNew['total_price'] ?? 0;
 
@@ -531,7 +538,8 @@ class HbsiBookApiController extends BaseBookApiController
         $data['result']['new_booking_item'] = $this->getCurrentBookingItem($itemPriceNew);
         $data['result']['new_booking_item']['booking_item'] = $filters['booking_item'];
 
-        SaveBookingInspector::dispatch($bookingInspector, [], $data);
+        MoveBookingItemCache::dispatchSync($itemNew->booking_item);
+        SaveBookingInspector::dispatchSync($bookingInspector, [], $data);
 
         return $data;
     }
@@ -673,7 +681,7 @@ class HbsiBookApiController extends BaseBookApiController
     /**
      * @throws Throwable
      */
-    private function handlePriceHbsi($supplierResponse, array $filters, string $search_id, array $pricingRules): array
+    private function handlePriceHbsi($supplierResponse, array $filters, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIgs): array
     {
         $dataResponse = [];
         $clientResponse = [];
@@ -688,7 +696,7 @@ class HbsiBookApiController extends BaseBookApiController
         $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
         $st = microtime(true);
-        $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
+        $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIgs);
 
         /** Enrichment Room Combinations */
         $countRooms = count($filters['occupancy']);
