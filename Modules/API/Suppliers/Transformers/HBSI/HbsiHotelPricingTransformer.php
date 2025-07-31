@@ -80,6 +80,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         'RO' => 'Room Only',
         'BB' => 'Bed & Breakfast',
         'BF' => 'Breakfast',
+        'BF - Bed and Breakfast' => 'Breakfast',
         'NoM' => 'No Meal',
     ];
 
