@@ -164,9 +164,13 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-//        $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
-//        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->retrieveBooking($bookingId);
+
+        //        $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
+        //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+
         $this->cancel($bookingId);
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_2(): void
@@ -342,17 +346,12 @@ class FlowHbsiBookDiffScenarios2025 extends Command
         $this->cancel($bookingId, $bookingItem);
     }
 
-    /**
-     * Новый метод для поиска bookingItem по массиву параметров комнат
-     */
     private function findBookingItemByRoomParams(array $searchResponse, array $roomParamsArray): ?string
     {
         $results = Arr::get($searchResponse, 'data.results');
         if (! $results) {
             return null;
         }
-
-//        dd($results);
 
         foreach ($results as $hotel) {
             $roomCombinations = Arr::get($hotel, 'room_combinations');
