@@ -60,8 +60,7 @@ class HotelTraderPushController extends Controller
                             'errorMessage' => 'required field {field} missing',
                         ],
                     ],
-                ],
-            ], 400);
+                ], 400]);
         } catch (\Illuminate\Auth\AuthenticationException $e) {
             return response()->json([
                 'messageId' => $messageId,
@@ -74,8 +73,7 @@ class HotelTraderPushController extends Controller
                             'errorMessage' => 'Authentication failed. Invalid credentials provided.',
                         ],
                     ],
-                ],
-            ], 401);
+                ], 401]);
         } catch (\Exception $e) {
             return response()->json([
                 'messageId' => $messageId,
@@ -88,8 +86,7 @@ class HotelTraderPushController extends Controller
                             'errorMessage' => 'An unexpected error occurred.',
                         ],
                     ],
-                ],
-            ], 500);
+                ], 500]);
         }
     }
 
@@ -152,8 +149,7 @@ class HotelTraderPushController extends Controller
                             'errorMessage' => 'required field {field} missing',
                         ],
                     ],
-                ],
-            ], 400);
+                ], 400]);
         } catch (\Illuminate\Auth\AuthenticationException $e) {
             return response()->json([
                 'messageId' => $messageId,
@@ -166,8 +162,7 @@ class HotelTraderPushController extends Controller
                             'errorMessage' => 'Authentication failed. Invalid credentials provided.',
                         ],
                     ],
-                ],
-            ], 401);
+                ], 401]);
         } catch (\Exception $e) {
             return response()->json([
                 'messageId' => $messageId,
@@ -524,6 +519,7 @@ class HotelTraderPushController extends Controller
                 $createdTax = HotelTraderContentTax::create($this->mapTaxKeysToSnakeCase($tax));
                 $created[] = $createdTax->code;
             }
+
             return response()->json([
                 'messageId' => $messageId,
                 'status' => [
@@ -580,6 +576,7 @@ class HotelTraderPushController extends Controller
             $taxData['applies_to_children'] = $taxData['appliesToChildren'] ?? false;
             $taxData['pay_at_property'] = $taxData['payAtProperty'] ?? false;
             $tax->update($this->mapTaxKeysToSnakeCase($taxData));
+
             return response()->json([
                 'messageId' => $messageId,
                 'status' => [
@@ -606,6 +603,292 @@ class HotelTraderPushController extends Controller
                 ],
             ], 500);
         }
+    }
+
+    /**
+     * Audits a hotel and returns its metadata if found.
+     */
+    public function auditHotel(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+            ], 400);
+        }
+
+        $hotel = HotelTraderContentHotel::where('code', $propertyCode)->first();
+        if (! $hotel) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Hotel not found.',
+                ],
+            ], 404);
+        }
+
+        // Convert model to array and map to API response keys
+        $hotelArray = $hotel->toArray();
+        $hotelResponse = [
+            'code' => $hotelArray['code'] ?? null,
+            'name' => $hotelArray['name'] ?? null,
+            'mappingProvider' => $hotelArray['mapping_providers'] ?? null,
+            'mappingCode' => $hotelArray['mapping_code'] ?? null,
+            'starRating' => $hotelArray['star_rating'] ?? null,
+            'defaultCurrencyCode' => $hotelArray['default_currency_code'] ?? null,
+            'maxRoomsBookable' => $hotelArray['max_rooms_bookable'] ?? null,
+            'numberOfRooms' => $hotelArray['number_of_rooms'] ?? null,
+            'numberOfFloors' => $hotelArray['number_of_floors'] ?? null,
+            'addressLine1' => $hotelArray['address_line_1'] ?? null,
+            'addressLine2' => $hotelArray['address_line_2'] ?? null,
+            'city' => $hotelArray['city'] ?? null,
+            'state' => $hotelArray['state'] ?? null,
+            'stateCode' => $hotelArray['state_code'] ?? null,
+            'country' => $hotelArray['country'] ?? null,
+            'countryCode' => $hotelArray['country_code'] ?? null,
+            'zip' => $hotelArray['zip'] ?? null,
+            'phone1' => $hotelArray['phone_1'] ?? null,
+            'phone2' => $hotelArray['phone_2'] ?? null,
+            'fax1' => $hotelArray['fax_1'] ?? null,
+            'fax2' => $hotelArray['fax_2'] ?? null,
+            'websiteUrl' => $hotelArray['website_url'] ?? null,
+            'longitude' => $hotelArray['longitude'] ?? null,
+            'latitude' => $hotelArray['latitude'] ?? null,
+            'longDescription' => $hotelArray['long_description'] ?? null,
+            'shortDescription' => $hotelArray['short_description'] ?? null,
+            'checkInPolicy' => $hotelArray['check_in_policy'] ?? null,
+            'checkInTime' => $hotelArray['check_in_time'] ?? null,
+            'checkOutTime' => $hotelArray['check_out_time'] ?? null,
+            'adultAge' => $hotelArray['adult_age'] ?? null,
+            'timeZone' => $hotelArray['time_zone'] ?? null,
+            'defaultLanguage' => $hotelArray['default_language'] ?? null,
+            'adultOnly' => $hotelArray['adult_only'] ?? null,
+            'currencies' => $hotelArray['currencies'] ?? [],
+            'languages' => $hotelArray['languages'] ?? [],
+            'creditCardTypes' => $hotelArray['credit_card_types'] ?? [],
+            'bedtypes' => $hotelArray['bed_types'] ?? [],
+            'amenities' => $hotelArray['amenities'] ?? [],
+            'ageCategories' => $hotelArray['age_categories'] ?? [],
+        ];
+
+        return response()->json([
+            'messageId' => $messageId,
+            'status' => [
+                'success' => true,
+            ],
+            'hotel' => $hotelResponse,
+        ], 200);
+    }
+
+    /**
+     * Audits room types for a hotel and returns their metadata if found.
+     */
+    public function auditRoomtype(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+        $roomCodes = $request->input('roomCodes');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+                'propertyCode' => $propertyCode,
+            ], 400);
+        }
+
+        $query = HotelTraderContentRoomType::where('hotel_code', $propertyCode);
+        if (is_array($roomCodes) && count($roomCodes) > 0) {
+            $query->whereIn('code', $roomCodes);
+        }
+        $rooms = $query->get();
+
+        $roomsResponse = $rooms->map(function ($room) {
+            return [
+                'roomName' => $room->name,
+                'roomCode' => $room->code,
+                'longDescription' => $room->long_description,
+                'shortDescription' => $room->short_description,
+                'maxAdultOccupancy' => $room->max_adult_occupancy,
+                'minAdultOccupancy' => $room->min_adult_occupancy,
+                'maxChildOccupancy' => $room->max_child_occupancy,
+                'minChildOccupancy' => $room->min_child_occupancy,
+                'totalMaxOccupancy' => $room->total_max_occupancy,
+                'maxOccupancyForDefaultPrice' => $room->max_occupancy_for_default_price,
+                'bedtypes' => $room->bedtypes ?? [],
+                'amenities' => $room->amenities ?? [],
+                'images' => $room->images ?? [],
+            ];
+        })->toArray();
+
+        return response()->json([
+            'messageId' => $messageId,
+            'status' => [
+                'success' => true,
+            ],
+            'propertyCode' => $propertyCode,
+            'rooms' => $roomsResponse,
+        ], 200);
+    }
+
+    /**
+     * Audits rate plans for a hotel and returns their metadata if found.
+     */
+    public function auditRateplan(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+        $rateplanCodes = $request->input('rateplanCodes');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+                'propertyCode' => $propertyCode,
+            ], 400);
+        }
+
+        $query = HotelTraderContentRatePlan::where('hotel_code', $propertyCode);
+        if (is_array($rateplanCodes) && count($rateplanCodes) > 0) {
+            $query->whereIn('code', $rateplanCodes);
+        }
+        $rateplans = $query->get();
+
+        $rateplansResponse = $rateplans->map(function ($rateplan) {
+            return [
+                'name' => $rateplan->name,
+                'code' => $rateplan->code,
+                'currency' => $rateplan->currency ?? null,
+                'shortDescription' => $rateplan->short_description,
+                'detailDescription' => $rateplan->detail_description,
+                'cancellationPolicyCode' => $rateplan->cancellation_policy_code,
+                'isTaxInclusive' => $rateplan->is_tax_inclusive,
+                'mealplan' => $rateplan->mealplan ?? null,
+                'isRefundable' => $rateplan->is_refundable,
+                'rateplanType' => $rateplan->rateplan_type ?? [],
+                'isPromo' => $rateplan->is_promo,
+                'destinationExclusive' => $rateplan->destination_exclusive ?? null,
+                'destinationRestriction' => $rateplan->destination_restriction ?? null,
+                'seasonalPolicies' => $rateplan->seasonal_policies ?? [],
+            ];
+        })->toArray();
+
+        return response()->json([
+            'messageId' => $messageId,
+            'status' => [
+                'success' => true,
+            ],
+            'propertyCode' => $propertyCode,
+            'rateplans' => $rateplansResponse,
+        ], 200);
+    }
+
+    /**
+     * Audits cancellation policies for a hotel and returns their metadata if found.
+     */
+    public function auditCancellationPolicy(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+        $cancellationPolicyCodes = $request->input('cancellationPolicyCodes');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+                'propertyCode' => $propertyCode,
+            ], 400);
+        }
+
+        $query = HotelTraderContentCancellationPolicy::where('hotel_code', $propertyCode);
+        if (is_array($cancellationPolicyCodes) && count($cancellationPolicyCodes) > 0) {
+            $query->whereIn('code', $cancellationPolicyCodes);
+        }
+        $policies = $query->get();
+
+        $policiesResponse = $policies->map(function ($policy) {
+            return [
+                'code' => $policy->code,
+                'name' => $policy->name,
+                'description' => $policy->description,
+                'penaltyWindows' => $policy->penalty_windows ?? [],
+            ];
+        })->toArray();
+
+        return response()->json([
+            'messageId' => $messageId,
+            'status' => [
+                'success' => true,
+            ],
+            'propertyCode' => $propertyCode,
+            'cancellationPolicies' => $policiesResponse,
+        ], 200);
+    }
+
+    /**
+     * Audits taxes for a hotel and returns their metadata if found.
+     */
+    public function auditTax(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+        $taxCodes = $request->input('taxCodes');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+                'propertyCode' => $propertyCode,
+            ], 400);
+        }
+
+        $query = HotelTraderContentTax::where('hotel_code', $propertyCode);
+        if (is_array($taxCodes) && count($taxCodes) > 0) {
+            $query->whereIn('code', $taxCodes);
+        }
+        $taxes = $query->get();
+
+        $taxesResponse = $taxes->map(function ($tax) {
+            return [
+                'code' => $tax->code,
+                'name' => $tax->name,
+                'percentOrFlat' => $tax->percent_or_flat,
+                'chargeFrequency' => $tax->charge_frequency,
+                'chargeBasis' => $tax->charge_basis,
+                'value' => $tax->value,
+                'taxType' => $tax->tax_type,
+                'appliesToChildren' => $tax->applies_to_children,
+                'payAtProperty' => $tax->pay_at_property,
+            ];
+        })->toArray();
+
+        return response()->json([
+            'messageId' => $messageId,
+            'status' => [
+                'success' => true,
+            ],
+            'propertyCode' => $propertyCode,
+            'taxes' => $taxesResponse,
+        ], 200);
     }
 
     /**
@@ -746,16 +1029,17 @@ class HotelTraderPushController extends Controller
             'hotel_code' => $data['hotel_code'] ?? null,
             'code' => $data['code'] ?? null,
             'name' => $data['name'] ?? null,
-            'percent_or_flat' => $data['percent_or_flat'] ?? null,
-            'charge_frequency' => $data['charge_frequency'] ?? null,
-            'charge_basis' => $data['charge_basis'] ?? null,
+            'percent_or_flat' => $data['percentOrFlat'] ?? null,
+            'charge_frequency' => $data['chargeFrequency'] ?? null,
+            'charge_basis' => $data['chargeBasis'] ?? null,
             'value' => $data['value'] ?? null,
-            'tax_type' => $data['tax_type'] ?? null,
-            'applies_to_children' => $data['applies_to_children'] ?? false,
-            'pay_at_property' => $data['pay_at_property'] ?? false,
+            'tax_type' => $data['taxType'] ?? null,
+            'applies_to_children' => $data['appliesToChildren'] ?? false,
+            'pay_at_property' => $data['payAtProperty'] ?? false,
         ];
+
         return array_filter($map, function ($v) {
-            return !is_null($v);
+            return ! is_null($v);
         });
     }
 }
