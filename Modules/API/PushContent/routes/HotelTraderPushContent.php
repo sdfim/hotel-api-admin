@@ -36,6 +36,9 @@ class HotelTraderPushContent
             Route::post('/taxes', [HotelTraderPushController::class, 'storeTaxes']);
             Route::put('/tax/{code}', [HotelTraderPushController::class, 'updateTax']);
 
+            // products
+            Route::post('/products-audit', [HotelTraderPushController::class, 'auditProducts']);
+            Route::post('/products', [HotelTraderPushController::class, 'storeProducts']);
         });
     }
 }

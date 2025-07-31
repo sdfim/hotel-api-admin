@@ -9,7 +9,6 @@ return new class extends Migration {
     {
         if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('hotel_trader_content_taxes')) {
             Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('hotel_trader_content_taxes', function (Blueprint $table) {
-
                 $table->id();
                 $table->string('hotel_code');
                 $table->string('code');

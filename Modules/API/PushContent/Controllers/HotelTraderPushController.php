@@ -5,6 +5,7 @@ namespace Modules\API\PushContent\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\HotelTraderContentCancellationPolicy;
 use App\Models\HotelTraderContentHotel;
+use App\Models\HotelTraderContentProduct;
 use App\Models\HotelTraderContentRatePlan;
 use App\Models\HotelTraderContentRoomType;
 use App\Models\HotelTraderContentTax;
@@ -14,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Modules\API\PushContent\Requests\HotelTraderContentCancellationPolicyRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentHotelRequest;
+use Modules\API\PushContent\Requests\HotelTraderContentProductRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRatePlanRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentRoomTypeRequest;
 use Modules\API\PushContent\Requests\HotelTraderContentTaxRequest;
@@ -888,6 +890,103 @@ class HotelTraderPushController extends Controller
             ],
             'propertyCode' => $propertyCode,
             'taxes' => $taxesResponse,
+        ], 200);
+    }
+
+    /**
+     * Stores new products (rateplan-roomtype-tax relations) in the database.
+     */
+    public function storeProducts(HotelTraderContentProductRequest $request): JsonResponse
+    {
+        $messageId = $request->input('messageId', Str::uuid()->toString());
+        $propertyCode = $request->input('propertyCode');
+        $rateplanCode = $request->input('rateplanCode');
+        $products = $request->input('products', []);
+        $created = [];
+        try {
+            foreach ($products as $product) {
+                $data = [
+                    'hotel_code' => $propertyCode,
+                    'rateplan_code' => $product['rateplanCode'],
+                    'roomtype_code' => $product['roomtypeCode'],
+                    'taxes' => $product['taxes'],
+                ];
+                $model = HotelTraderContentProduct::updateOrCreate(
+                    [
+                        'hotel_code' => $propertyCode,
+                        'rateplan_code' => $product['rateplanCode'],
+                        'roomtype_code' => $product['roomtypeCode'],
+                    ],
+                    $data
+                );
+                $created[] = [
+                    'rateplanCode' => $model->rateplan_code,
+                    'roomtypeCode' => $model->roomtype_code,
+                    'taxes' => $model->taxes,
+                ];
+            }
+
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => true,
+                    'message' => 'Products created/updated successfully.',
+                ],
+                'propertyCode' => $propertyCode,
+                'products' => $created,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Internal Server Error',
+                ],
+            ], 500);
+        }
+    }
+
+    /**
+     * Audits products for a hotel and returns their metadata if found.
+     */
+    public function auditProducts(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $messageId = $request->input('messageId');
+        $propertyCode = $request->input('propertyCode');
+        $rateplanCodes = $request->input('rateplanCodes');
+
+        if (! $messageId || ! $propertyCode) {
+            return response()->json([
+                'messageId' => $messageId,
+                'status' => [
+                    'success' => false,
+                    'message' => 'Missing required fields.',
+                ],
+                'propertyCode' => $propertyCode,
+            ], 400);
+        }
+
+        $query = HotelTraderContentProduct::where('hotel_code', $propertyCode);
+        if (is_array($rateplanCodes) && count($rateplanCodes) > 0) {
+            $query->whereIn('rateplan_code', $rateplanCodes);
+        }
+        $products = $query->get();
+
+        $productsResponse = $products->map(function ($product) {
+            return [
+                'rateplanCode' => $product->rateplan_code,
+                'roomtypeCode' => $product->roomtype_code,
+                'taxes' => $product->taxes ?? [],
+            ];
+        })->toArray();
+
+        return response()->json([
+            'messageId' => $messageId,
+            'propertyCode' => $propertyCode,
+            'status' => [
+                'success' => true,
+            ],
+            'products' => $productsResponse,
         ], 200);
     }
 
