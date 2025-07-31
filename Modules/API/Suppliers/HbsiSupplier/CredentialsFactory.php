@@ -16,12 +16,6 @@ class CredentialsFactory
         $credentials->target = config("$namespace.target");
         $credentials->componentInfoId = config("$namespace.component_info_id");
 
-        //TODO: Validate outside constructor to avoid build errors.
-        //        if (!$credentials->username || !$credentials->password || !$credentials->channelIdentifierId)
-        //        {
-        //            throw new \Exception("Not all HBSI Credentials are set, please check your .env file");
-        //        }
-
         return $credentials;
     }
 }

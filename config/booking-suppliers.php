@@ -43,10 +43,8 @@ return [
 
     'HotelTrader' => [
         'credentials' => [
-            'search_url' => env('SUPPLIER_HOTEL_TRADER_SEARCH_URL', ''),
-            'book_url' => env('SUPPLIER_HOTEL_TRADER_BOOK_URL', ''),
-            'cancel_url' => env('SUPPLIER_HOTEL_TRADER_CANCEL_URL', ''),
-            'retrieve_url' => env('SUPPLIER_HOTEL_TRADER_RETRIEVE_URL', ''),
+            'graphql_search_url' => env('SUPPLIER_HOTEL_TRADER_GRAPHQL_SEARCH_URL', 'https://search-sandbox.hoteltrader.com/graphql'),
+            'graphql_book_url' => env('SUPPLIER_HOTEL_TRADER_GRAPHQL_BOOK_URL', 'https://book-sandbox.hoteltrader.com/graphql'),
             'username' => env('SUPPLIER_HOTEL_TRADER_API_KEY', ''),
             'password' => env('SUPPLIER_HOTEL_TRADER_TOKEN_URL', ''),
         ],
