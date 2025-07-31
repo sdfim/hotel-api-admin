@@ -330,9 +330,9 @@ class BookApiHandler extends BaseController
 
     public function changeHardBooking(BookingChangeHardBookHotelRequest $request): JsonResponse
     {
-        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-            return $this->sendError('This booking_item is non-refundable', 'failed');
-        }
+//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+//            return $this->sendError('This booking_item is non-refundable', 'failed');
+//        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
@@ -389,9 +389,9 @@ class BookApiHandler extends BaseController
 
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
-        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-            return $this->sendError('This booking_item is non-refundable', 'failed');
-        }
+//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+//            return $this->sendError('This booking_item is non-refundable', 'failed');
+//        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
@@ -454,9 +454,9 @@ class BookApiHandler extends BaseController
 
     public function priceCheck(BookingPriceCheckBookHotelRequest $request): JsonResponse
     {
-        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-            return $this->sendError('This booking_item is non-refundable', 'failed');
-        }
+//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+//            return $this->sendError('This booking_item is non-refundable', 'failed');
+//        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
