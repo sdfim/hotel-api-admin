@@ -54,9 +54,9 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
-            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
-                continue;
-            }
+//            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
+//                continue;
+//            }
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $query);
         }
 
@@ -142,6 +142,8 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
 
     public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, array $query): ?array
     {
+//        dd($roomGroup, $propertyGroup, $query);
+
         $giataId = Arr::get($propertyGroup, 'giata_id');
 
         $basicHotelData = Arr::get($this->basicHotelData, $propertyGroup['giata_id']);
@@ -234,8 +236,11 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
         $supplierRoomId = intval($roomGroup['id']) ?? null;
-        $expediaUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::EXPEDIA->value, []);
-        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup, 'id', '')) ?? '';
+//        $expediaUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::EXPEDIA->value, []);
+//        $unifiedRoomCode = Arr::get($expediaUnifiedRoomCodes, "$giataId.$supplierRoomId", Arr::get($roomGroup, 'id', '')) ?? '';
+//        $srRoomId = Arr::get($this->roomIdByUnifiedCode, "$giataId.$unifiedRoomCode", '');
+
+        $unifiedRoomCode = Arr::get($roomGroup, 'unified_room_code', '');
         $srRoomId = Arr::get($this->roomIdByUnifiedCode, "$giataId.$unifiedRoomCode", '');
 
         $rateId = Arr::get($rate, 'id', '');
@@ -247,15 +252,18 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['markup'] = 0.0;
         $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
+
+//        dd($occupancy_pricing);
+
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
-                $giataId,
-                $occupancy_pricing,
-                $roomGroup['room_name'] ?? '',
-                intval($roomGroup['id']) ?? null,
-                $roomGroup['room_type'] ?? '',
-                $rateId,
-                $srRoomId,
+                giataId: $giataId,
+                roomsPricingArray: $occupancy_pricing,
+                roomName: $roomGroup['room_name'] ?? '',
+                roomCode: intval($roomGroup['id']) ?? null,
+                roomType: $roomGroup['room_type'] ?? '',
+                rateCode: $rateId,
+                srRoomId: $srRoomId,
             );
         } catch (Exception $e) {
             Log::error('ExpediaHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
@@ -344,15 +352,16 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         }
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
 
-        $resolvedPolicies = CancellationPolicyResolver::getRateLevel($roomResponse, Arr::get($this->cancellationPolicies, $giataId, []), $query, $giataId);
-        if (! is_array($cancellationPolicies) || Arr::isAssoc($cancellationPolicies)) {
-            $cancellationPolicies = array_filter([$cancellationPolicies]);
-        }
-        if (! is_array($resolvedPolicies) || Arr::isAssoc($resolvedPolicies)) {
-            $resolvedPolicies = array_filter([$resolvedPolicies]);
-        }
-        $cancellationPolicies = array_merge($cancellationPolicies, $resolvedPolicies);
-        $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
+//        $resolvedPolicies = CancellationPolicyResolver::getRateLevel($roomResponse, Arr::get($this->cancellationPolicies, $giataId, []), $query, $giataId);
+//        if (! is_array($cancellationPolicies) || Arr::isAssoc($cancellationPolicies)) {
+//            $cancellationPolicies = array_filter([$cancellationPolicies]);
+//        }
+//        if (! is_array($resolvedPolicies) || Arr::isAssoc($resolvedPolicies)) {
+//            $resolvedPolicies = array_filter([$resolvedPolicies]);
+//        }
+//        $cancellationPolicies = array_merge($cancellationPolicies, $resolvedPolicies);
+//        $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
+
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setDistribution(Arr::get($rate, 'sale_scenario.distribution', false));
         $roomResponse->setPromotions($promotions);

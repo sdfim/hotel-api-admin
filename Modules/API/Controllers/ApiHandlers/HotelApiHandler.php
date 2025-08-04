@@ -19,6 +19,7 @@ use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HiltonHotelController;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HotelTraderController;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
 use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
@@ -30,6 +31,7 @@ use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
 use Modules\API\Tools\FiberManager;
@@ -61,8 +63,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function __construct(
         private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
         private readonly ExpediaHotelPricingTransformer $expediaHotelPricingTransformer,
+        private readonly HotelTraderHotelPricingTransformer $hTraderHotelPricingTransformer,
         private readonly BaseHotelPricingTransformer $baseHotelPricingTransformer,
         private readonly HbsiHotelController $hbsi,
+        private readonly HotelTraderController $hTrader,
         private readonly PricingDtoTools $pricingDtoTools,
         private readonly ExpediaHotelController $expedia,
         private readonly IcePortalHotelController $icePortal,
@@ -295,6 +299,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
                         SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
+                        SupplierNameEnum::HOTEL_TRADER => $preSearchData,
                         default => [],
                     };
 
@@ -318,6 +323,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $result = match (SupplierNameEnum::from($supplier)) {
                                 SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $preSearchData),
                                 SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $preSearchData),
+                                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->price($currentFilters, $searchInspector, $preSearchData),
                                 default => throw new Exception("Unknown supplier: $supplier")
                             };
 
@@ -512,6 +518,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     {
         return match (SupplierNameEnum::from($supplier)) {
             SupplierNameEnum::HBSI => $this->hbsi->preSearchData($filters),
+            SupplierNameEnum::HOTEL_TRADER => $this->hTrader->preSearchData($filters, 'price'),
             SupplierNameEnum::EXPEDIA => $this->expedia->preSearchData($filters, 'price'),
             default => throw new Exception("Unknown supplier: $supplier"),
         };
@@ -648,6 +655,25 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $bookingItems = [];
         $countResponse = 0;
         $countClientResponse = 0;
+
+        if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HOTEL_TRADER) {
+
+            $hTraderResponse = $supplierResponse;
+
+            $dataResponse[$supplierName] = json_encode($hTraderResponse['array']);
+            $dataOriginal[$supplierName] = json_encode($hTraderResponse['original']);
+
+            $st = microtime(true);
+            $transformerData = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
+            $bookingItems[$supplierName] = $transformerData['bookingItems'];
+            $clientResponse[$supplierName] = $transformerData['response'];
+            Log::info('HotelApiHandler _ price _ Transformer HotelTraderToHotelResponse '.(microtime(true) - $st).' seconds');
+
+            $countResponse += count($hTraderResponse);
+            $totalPages[$supplierName] = $hTraderResponse['total_pages'] ?? 0;
+            $countClientResponse += count($transformerData['response']);
+            unset($hTraderResponse, $transformerData);
+        }
 
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
 

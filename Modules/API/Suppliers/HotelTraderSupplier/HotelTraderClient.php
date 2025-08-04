@@ -3,6 +3,8 @@
 namespace Modules\API\Suppliers\HotelTraderSupplier;
 
 use Exception;
+use Fiber;
+use GuzzleHttp\Client;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
@@ -18,8 +20,9 @@ class HotelTraderClient
 
     protected array $headers;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly Client $client,
+    ) {
         $this->credentials = CredentialsFactory::fromConfig();
         $authString = base64_encode($this->credentials->username.':'.$this->credentials->password);
 
@@ -40,6 +43,183 @@ class HotelTraderClient
     {
         return Http::withHeaders($this->headers)
             ->timeout(config('services.hotel_trader.timeout', 60));
+    }
+
+    protected function makeSearchVariables(array $filters, array $hotelIds): array
+    {
+        foreach ($filters['occupancy'] as $occupancy) {
+            $guestAges = [];
+            // Add adults (each adult is 33 years old)
+            if (isset($occupancy['adults']) && is_numeric($occupancy['adults'])) {
+                $guestAges = array_merge($guestAges, array_fill(0, $occupancy['adults'], 33));
+            }
+            // Add children ages
+            if (isset($occupancy['children_ages']) && is_array($occupancy['children_ages'])) {
+                $guestAges = array_merge($guestAges, $occupancy['children_ages']);
+            }
+            $occupancies[] = [
+                'checkInDate' => $filters['checkin'],
+                'checkOutDate' => $filters['checkout'],
+                'guestAges' => implode(',', $guestAges),
+            ];
+        }
+
+        return [
+            'SearchCriteriaByIds' => [
+                'propertyIds' => $hotelIds,
+                'occupancies' => $occupancies,
+            ],
+        ];
+    }
+
+    protected function makeSearchQueryString(): string
+    {
+        return <<<'QUERY'
+            query getPropertiesByIds($SearchCriteriaByIds: SearchCriteriaByIdsInput) {
+                getPropertiesByIds(searchCriteriaByIds: $SearchCriteriaByIds) {
+                    properties {
+                        propertyId
+                        propertyName
+                        occupancies {
+                            occupancyRefId
+                            checkInDate
+                            checkOutDate
+                            guestAges
+                        }
+                        rooms {
+                            occupancyRefId
+                            htIdentifier
+                            roomName
+                            roomCode
+                            rateplanTag
+                            shortDescription
+                            numRoomsAvail
+                            longDescription
+                            consolidatedComments
+                            paymentType
+                            rateInfo {
+                                bar
+                                binding
+                                commissionable
+                                commissionAmount
+                                currency
+                                netPrice
+                                tax
+                                grossPrice
+                                payAtProperty
+                                dailyPrice
+                                dailyTax
+                                aggregateTaxInfo {
+                                    payAtBooking {
+                                        name
+                                        value
+                                        currency
+                                        description
+                                    }
+                                    payAtProperty {
+                                        name
+                                        currency
+                                        value
+                                    }
+                                }
+                                taxInfo {
+                                    payAtBooking {
+                                        date
+                                        name
+                                        currency
+                                        description
+                                        value
+                                    }
+                                    payAtProperty {
+                                        date
+                                        name
+                                        currency
+                                        description
+                                        value
+                                    }
+                                }
+                            }
+                            mealplanOptions {
+                                mealplanDescription
+                                mealplanCode
+                                mealplanName
+                            }
+                            refundable
+                            cancellationPolicies {
+                                startWindowTime
+                                endWindowTime
+                                cancellationCharge
+                                currency
+                                timeZone
+                                timeZoneUTC
+                            }
+                        }
+                        shortDescription
+                        longDescription
+                        city
+                        latitude
+                        longitude
+                        starRating
+                        hotelImageUrl
+                    }
+                }
+            }
+        QUERY;
+    }
+
+    public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        $payload = [
+            'query' => $this->makeSearchQueryString(),
+            'variables' => $this->makeSearchVariables($filters, $hotelIds),
+            'operationName' => 'getPropertiesByIds',
+        ];
+
+        $client = new Client;
+        $promise = $client->postAsync($this->credentials->graphqlSearchUrl, [
+            'headers' => $this->headers,
+            'json' => $payload,
+            'timeout' => config('services.hotel_trader.timeout', 60),
+        ]);
+
+        try {
+            $result = Fiber::suspend([$promise])[0];
+//            $result = $promise->wait();
+            $body = $result->getBody()->getContents();
+            $responseData = json_decode($body, true);
+
+            $rq = [
+                'url' => $this->credentials->graphqlSearchUrl,
+                'method' => 'POST',
+                'headers' => $this->headers,
+                'payload' => $payload,
+            ];
+
+            if (isset($responseData['errors'])) {
+                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
+
+                return ['error' => $responseData['errors']];
+            }
+
+            $res = $responseData['data']['getPropertiesByIds']['properties'] ?? null;
+
+            return [
+                'request' => $rq,
+                'response' => $res,
+            ];
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error('Connection timeout: '.$e->getMessage());
+
+            return ['error' => 'Connection timeout'];
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            Log::error('Server error: '.$e->getMessage());
+
+            return ['error' => 'Server error'];
+        } catch (\Throwable $e) {
+            Log::error('Unexpected error: '.$e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
     }
 
     /**

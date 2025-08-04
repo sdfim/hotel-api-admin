@@ -333,13 +333,13 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
-                $giataId,
-                $rateToApply,
-                $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '',
-                $rateOccupancy,
-                $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '',
-                $rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '',
-                $srRoomId,
+                giataId: $giataId,
+                roomsPricingArray: $rateToApply,
+                roomName: $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '',
+                roomCode: $rateOccupancy,
+                roomType: $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '',
+                rateCode: $rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '',
+                srRoomId: $srRoomId,
             );
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
