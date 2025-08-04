@@ -3,20 +3,23 @@
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\HotelTraderContentHotel;
+use App\Models\Mapping;
 use App\Repositories\HotelTraderContentRepository as Repository;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
 use Modules\API\Tools\Geography;
 
 class HotelTraderController implements SupplierControllerInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
-    public function preSearchData(array &$filters, string $initiator): ?array
+    public function preSearchData(array &$filters, string $initiator = 'search'): ?array
     {
         $timeStart = microtime(true);
         $mainDB = config('database.connections.mysql.database');
@@ -84,15 +87,22 @@ class HotelTraderController implements SupplierControllerInterface
                 $query->where('star_rating', '>=', $filters['rating']);
             }
 
-            $selectFields = [
-                'hotel_trader_content_hotels.*',
-                $mainDB.'.mappings.supplier_id',
-                $mainDB.'.mappings.giata_id',
-            ];
+            if ($initiator === 'price') {
+                return Mapping::hotelTrader()->whereIn('supplier_id', $filters['ids'])
+                    ->get()
+                    ->pluck('supplier_id', 'giata_id')
+                    ->toArray();
+            } else {
+                $selectFields = [
+                    'hotel_trader_content_hotels.*',
+                    $mainDB.'.mappings.supplier_id',
+                    $mainDB.'.mappings.giata_id',
+                ];
 
-            $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'hotel_trader_content_hotels.code')
-                ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
-                ->select($selectFields);
+                $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'hotel_trader_content_hotels.code')
+                    ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
+                    ->select($selectFields);
+            }
 
             if (isset($filters['hotel_name'])) {
                 $hotelNameArr = explode(' ', $filters['hotel_name']);
@@ -104,7 +114,8 @@ class HotelTraderController implements SupplierControllerInterface
             $count = $query->count();
             $totalPages = ceil($count / $resultsPerPage);
 
-            $results = $query->get();
+            $results = $query->cursor();
+            $ids = collect($results)->pluck('property_id')->toArray();
 
             $results = Repository::dtoDbToResponse($results, $fields);
         } catch (Exception $e) {
@@ -121,6 +132,8 @@ class HotelTraderController implements SupplierControllerInterface
         Log::info('HotelTraderController | preSearchData | mysql query '.$endTime.' seconds');
 
         return [
+            'giata_ids' => array_values($giataCodes),
+            'ids' => $ids ?? [],
             'results' => $results,
             'count' => $count ?? 0,
             'total_pages' => $totalPages,
@@ -144,5 +157,125 @@ class HotelTraderController implements SupplierControllerInterface
         $results = Repository::getDetailByGiataId($request->get('property_id'));
 
         return Repository::dtoDbToResponse($results, HotelTraderContentHotel::getFullListFields());
+    }
+
+    public function price(array &$filters, array $searchInspector, array $hotelData): ?array
+    {
+        try {
+            $hotelIds = array_values($hotelData);
+
+            if (empty($hotelIds)) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            /** get PriceData from HBSI */
+            /* @var HotelTraderClient $hotelTraderClient */
+            $hotelTraderClient = app(HotelTraderClient::class);
+            $priceDataRaw = $hotelTraderClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            $priceData = [];
+            foreach ($priceDataRaw['response'] as $item) {
+                if (isset($item['propertyId'])) {
+                    $priceData[$item['propertyId']] = $item;
+                }
+            }
+
+            $result = [];
+
+            if (empty($priceData)) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            $output = [];
+            foreach ($hotelData as $giata_id => $supplier_id) {
+                if (isset($priceData[$supplier_id])) {
+                    $prices_property = $priceData[$supplier_id];
+                    $output[$giata_id] = [
+                        'giata_id' => $giata_id,
+                        'hotel_name' => $priceData[$supplier_id]['propertyName'],
+                    ] + $prices_property;
+
+                    //                    // Group rooms by roomCode into room_groups
+                    if (isset($output[$giata_id]['rooms']) && is_array($output[$giata_id]['rooms'])) {
+                        $rooms = [];
+                        foreach ($output[$giata_id]['rooms'] as $room) {
+                            $roomCode = $room['roomCode'] ?? null;
+                            if (! $roomCode) {
+                                continue;
+                            }
+                            // Use roomCode as key
+                            if (! isset($rooms[$roomCode])) {
+                                $rooms[$roomCode] = [
+                                    'id' => $roomCode,
+                                    'room_name' => $room['roomName'] ?? '',
+                                    // add other static room fields if needed
+                                    'rates' => [],
+                                ];
+                            }
+                            // Remove static fields from rate
+                            $rate = $room;
+                            $rooms[$roomCode]['rates'][] = $rate;
+                        }
+                        // Re-index rooms numerically
+                        $output[$giata_id]['rooms'] = array_values($rooms);
+                    }
+                }
+            }
+
+            logger()->info('HotelTraderController _ price', [
+                'hotel_ids' => $hotelIds,
+                'filters' => $filters,
+                'result' => $result,
+            ]);
+
+            return [
+                'original' => [
+                    'request' => $priceDataRaw['request'] ?? [],
+                    'response' => $priceDataRaw['response'] ?? [],
+                ],
+                'array' => $output,
+                'total_pages' => $hotelData['total_pages'] ?? 1,
+            ];
+
+        } catch (Exception $e) {
+            Log::error('HotelTraderController Exception '.$e);
+            Log::error($e->getTraceAsString());
+
+            return [
+                'error' => $e->getMessage(),
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+                'total_pages' => 0,
+            ];
+        } catch (GuzzleException $e) {
+            Log::error('HotelTraderController GuzzleException '.$e);
+            Log::error($e->getTraceAsString());
+
+            return [
+                'error' => $e->getMessage(),
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+                'total_pages' => 0,
+            ];
+        }
     }
 }

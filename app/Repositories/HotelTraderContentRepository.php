@@ -34,24 +34,24 @@ class HotelTraderContentRepository
             ->first()
             ->tticodes;
 
-        $expedia_id = Mapping::hotelTrader()->whereIn('giata_id', $tticodes)
+        $hotel_trader_ids = Mapping::hotelTrader()->whereIn('giata_id', $tticodes)
             ->select('supplier_id')
             ->get()
             ->pluck('supplier_id')
             ->toArray();
 
-        return $expedia_id;
+        return $hotel_trader_ids;
     }
 
     public static function getIdsByGiataIds(array $giataIds): array
     {
-        $expedia_id = Mapping::hotelTrader()->whereIn('giata_id', $giataIds)
+        $hotel_trader_ids = Mapping::hotelTrader()->whereIn('giata_id', $giataIds)
             ->select('supplier_id')
             ->get()
             ->pluck('supplier_id')
             ->toArray();
 
-        return $expedia_id;
+        return $hotel_trader_ids;
     }
 
     public static function getIdsByDestinationGiata(string $input): array

@@ -38,28 +38,18 @@ class TestHotelTraderPricing extends Command
                 'propertyIds' => [2262291],
                 'occupancies' => [
                     [
-                        'checkInDate' => '2025-12-15',
-                        'checkOutDate' => '2025-12-16',
-                        'guestAges' => '30,30', // Обратите внимание, что API может ожидать массив [30, 30]
-                        // Если API ожидает массив, вам нужно будет преобразовать "30,30"
-                        // Например: "guestAges" => explode(',', "30,30")
+                        'checkInDate' => '2025-08-07',
+                        'checkOutDate' => '2025-08-12',
+                        'guestAges' => '33,33',
                     ],
-                    // Если API поддерживает несколько occupancies в этом же запросе
-                    // {
-                    //     "checkInDate": "2025-12-15",
-                    //     "checkOutDate": "2025-12-16",
-                    //     "guestAges": "30,30"
-                    // }
+                    [
+                        'checkInDate' => '2025-08-07',
+                        'checkOutDate' => '2025-08-12',
+                        'guestAges' => '33,33,5',
+                    ],
                 ],
             ],
         ];
-
-        // Пример: если guestAges ожидается как массив чисел, а не строка "30,30"
-        //        foreach ($searchCriteriaByIdsInput['occupancies'] as &$occupancy) {
-        //            if (isset($occupancy['guestAges']) && is_string($occupancy['guestAges'])) {
-        //                $occupancy['guestAges'] = array_map('intval', explode(',', $occupancy['guestAges']));
-        //            }
-        //        }
 
         try {
             $response = $hotelTraderClient->sendSearchQuery($searchCriteriaByIdsInput);
