@@ -164,7 +164,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
+        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
         $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
         // $this->cancel($bookingId);
