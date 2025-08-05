@@ -30,18 +30,25 @@ class SearchInspectorController extends BaseInspectorController
             $clientContentWithPricingRules = '';
             if (isset($original['keyCache'])) {
                 $keys = $original['keyCache'];
+
                 $original = Cache::get($keys['dataOriginal']);
                 $content = Cache::get($keys['content']);
                 $clientContent = Cache::get($keys['clientContent']);
                 $clientContentWithPricingRules = Cache::get($keys['clientContentWithPricingRules']);
+
+                $original = gzuncompress($original);
+                $content = gzuncompress($content);
+                $clientContent = gzuncompress($clientContent);
+                $clientContentWithPricingRules = gzuncompress($clientContentWithPricingRules);
 
                 foreach ($keys as $key) {
                     Cache::forget($key);
                 }
             }
 
-            $content = is_array($content) ? json_encode($content) : $this->processString($content);
-            $original = is_array($original) ? json_encode($original) : $this->processString($original);
+            $original = is_array($original) ? json_encode($original) : $original;
+            $content = is_array($content) ? json_encode($content) : $content;
+
             $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
             $clientContentWithPricingRules = is_array($clientContentWithPricingRules)
                 ? json_encode($clientContentWithPricingRules)
@@ -92,29 +99,5 @@ class SearchInspectorController extends BaseInspectorController
 
             return false;
         }
-    }
-
-    private function processString($input): string
-    {
-        if (! is_string($input)) {
-            return $input;
-        }
-
-        // Split the string into parts based on Expedia_ and HBSI
-        $expediaParts = explode('"Expedia_', $input);
-        $result = $expediaParts[0]; // Start with the first part before any Expedia_ block
-
-        for ($i = 1; $i < count($expediaParts); $i++) {
-            // Check if the current part contains HBSI
-            $subParts = explode('"HBSI', $expediaParts[$i], 2);
-
-            // Apply replacements only to the Expedia_ part before HBSI
-            $subParts[0] = str_replace(['\"', '\\\\"', '"{', '}"'], ['"', '\"', '{', '}'], $subParts[0]);
-
-            // Reconstruct the part
-            $result .= '"Expedia_'.implode('"HBSI', $subParts);
-        }
-
-        return $result;
     }
 }

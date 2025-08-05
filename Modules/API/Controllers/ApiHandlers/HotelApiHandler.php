@@ -444,7 +444,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
                     $key = $variableName.'_'.uniqid();
                     $cacheKeys[$variableName] = $key;
-                    Cache::put($key, json_encode($$variableName), now()->addMinutes(10));
+                    Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
                 }
                 // this approach is more memory-efficient.
                 SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
@@ -660,8 +660,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $hTraderResponse = $supplierResponse;
 
-            $dataResponse[$supplierName] = json_encode($hTraderResponse['array']);
-            $dataOriginal[$supplierName] = json_encode($hTraderResponse['original']);
+            $dataResponse[$supplierName] = $hTraderResponse['array'];
+            $dataOriginal[$supplierName] = $hTraderResponse['original'];
 
             $st = microtime(true);
             $transformerData = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
@@ -679,8 +679,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $expediaResponse = $supplierResponse;
 
-            $dataResponse[$supplierName] = json_encode($expediaResponse['array']);
-            $dataOriginal[$supplierName] = json_encode($expediaResponse['original']);
+            $dataResponse[$supplierName] = $expediaResponse['array'];
+            $dataOriginal[$supplierName] = $expediaResponse['original'];
 
             $st = microtime(true);
             $transformerData = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
