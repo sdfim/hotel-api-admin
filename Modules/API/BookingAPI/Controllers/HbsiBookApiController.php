@@ -59,7 +59,7 @@ class HbsiBookApiController extends BaseBookApiController
     public function __construct(
         private readonly HbsiClient $hbsiClient,
         private readonly HbsiHotelBookTransformer $hbsiHotelBookDto,
-        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingDto,
+        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
         private readonly HbsiService $hbsiService,
         private readonly PricingRulesTools $pricingRulesService,
     ) {}
@@ -696,16 +696,24 @@ class HbsiBookApiController extends BaseBookApiController
         $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
         $st = microtime(true);
-        $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIgs);
+        $hotelGenerator = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIgs);
+
+        $clientResponse[$supplierName] = [];
+        $count = 0;
+        // enrichmentRoomCombinations должен применяться к массиву, поэтому сначала собираем массив
+        $hotels = [];
+        foreach ($hotelGenerator as $count => $hotel) {
+            $hotels[] = $hotel;
+        }
 
         /** Enrichment Room Combinations */
         $countRooms = count($filters['occupancy']);
         if ($countRooms > 1) {
-            $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($dtoData['response'], $filters);
+            $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($hotels, $filters);
         } else {
-            $clientResponse[$supplierName] = $dtoData['response'];
+            $clientResponse[$supplierName] = $hotels;
         }
-        $bookingItems[$supplierName] = $dtoData['bookingItems'];
+        $bookingItems[$supplierName] = $this->HbsiHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
 
         Log::info('HotelApiHandler | price | DTO hbsiResponse '.(microtime(true) - $st).'s');
 

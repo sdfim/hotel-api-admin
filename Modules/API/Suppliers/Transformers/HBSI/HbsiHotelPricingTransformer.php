@@ -82,6 +82,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         'NoM' => 'No Meal',
     ];
 
+    public array $bookingItems = [];
+
     public function __construct(
         private array $meal_plans_available = [],
         private array $roomCombinations = [],
@@ -90,7 +92,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         private int $supplier_id = 0,
     ) {}
 
-    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
+    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): \Generator
     {
         $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
         $this->fetchSupplierRepositoryData($search_id, $giataIds);
@@ -101,15 +103,9 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRules = array_column($pricingRules, null, 'property');
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
-        $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
-            //            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
-            //                continue;
-            //            }
-            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
+            yield $this->setHotelResponse($propertyGroup, $key, $query);
         }
-
-        return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
     public function setHotelResponse(array $propertyGroup, int|string $key, array $query): array

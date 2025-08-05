@@ -235,6 +235,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse|StreamedJsonResponse
     {
+        MemoryLogger::log('***************************');
         MemoryLogger::log('price_start');
         $stp = $sts = microtime(true);
 
@@ -298,10 +299,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
-                        SupplierNameEnum::EXPEDIA => Arr::get($preSearchData, 'giata_ids', []),
+                        SupplierNameEnum::EXPEDIA => $preSearchData,
                         SupplierNameEnum::HOTEL_TRADER => $preSearchData,
                         default => [],
                     };
+
+                    MemoryLogger::log('preSearchData_'.$supplier);
 
                     $filteredGiataIds = $rawGiataIds;
 
@@ -345,6 +348,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     return app(PricingRulesTools::class)->rules($filters, $supplierRequestGiataIds, true);
                 }, false);
 
+                MemoryLogger::log('fiberManager_add');
+
                 $startTime = microtime(true);
 
                 $fiberManager->startAll();
@@ -371,6 +376,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     'pricingRules' => $pricingRules,
                     'supplierRequestGiataIds' => $supplierRequestGiataIds,
                 ]);
+
+                MemoryLogger::log('fiberManager_startAll');
 
                 foreach ($supplierResponses as $fiber_key => $supplierResponse) {
                     [$supplierName, $queryPackage] = explode('_', $fiber_key);
@@ -406,6 +413,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     gc_collect_cycles();
                 }
 
+                MemoryLogger::log('handlePriceSupplier');
+
                 /** Expedia RS aggregation If the 'query_package' key is set to 'both' */
                 if ($filters['query_package'] === 'both' && isset($clientResponse['Expedia_standalone'], $clientResponse['Expedia_package'])) {
                     $clientResponse['Expedia_both'] = $this->pricingDtoTools->mergeHotelData($clientResponse['Expedia_standalone'], $clientResponse['Expedia_package']);
@@ -439,6 +448,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     'results' => $this->removePricingRulesApplier($enrichClientResponse),
                 ];
 
+                MemoryLogger::log('price_end');
+
                 /** Save data to Inspector */
                 $cacheKeys = [];
                 foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
@@ -448,6 +459,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
                 // this approach is more memory-efficient.
                 SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
+
+                MemoryLogger::log('SaveSearchInspectorByCacheKey');
 
                 if (! empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
@@ -655,71 +668,80 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $bookingItems = [];
         $countResponse = 0;
         $countClientResponse = 0;
+        $dataOriginal = [];
 
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HOTEL_TRADER) {
-
             $hTraderResponse = $supplierResponse;
 
             $dataResponse[$supplierName] = $hTraderResponse['array'];
             $dataOriginal[$supplierName] = $hTraderResponse['original'];
 
             $st = microtime(true);
-            $transformerData = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
-            $bookingItems[$supplierName] = $transformerData['bookingItems'];
-            $clientResponse[$supplierName] = $transformerData['response'];
-            Log::info('HotelApiHandler _ price _ Transformer HotelTraderToHotelResponse '.(microtime(true) - $st).' seconds');
+            $hotelGenerator = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
+            $clientResponse[$supplierName] = [];
+            $count = 0;
+            foreach ($hotelGenerator as $count => $hotel) {
+                $clientResponse[$supplierName][] = $hotel;
+            }
+            $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
 
-            $countResponse += count($hTraderResponse);
+            $countResponse += count($hTraderResponse['array']);
             $totalPages[$supplierName] = $hTraderResponse['total_pages'] ?? 0;
-            $countClientResponse += count($transformerData['response']);
-            unset($hTraderResponse, $transformerData);
+            $countClientResponse += $count;
+            Log::info('HotelApiHandler _ price _ Transformer HotelTraderToHotelResponse '.(microtime(true) - $st).' seconds');
+            unset($hTraderResponse, $hotelGenerator);
         }
 
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
-
             $expediaResponse = $supplierResponse;
 
             $dataResponse[$supplierName] = $expediaResponse['array'];
             $dataOriginal[$supplierName] = $expediaResponse['original'];
 
-            $st = microtime(true);
-            $transformerData = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
-            $bookingItems[$supplierName] = $transformerData['bookingItems'];
-            $clientResponse[$supplierName] = $transformerData['response'];
-            Log::info('HotelApiHandler _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
-
-            $countResponse += count($expediaResponse);
+            $countResponse += count($expediaResponse['array']);
             $totalPages[$supplierName] = $expediaResponse['total_pages'] ?? 0;
-            $countClientResponse += count($transformerData['response']);
-            unset($expediaResponse, $transformerData);
+
+            $st = microtime(true);
+            $hotelGenerator = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
+            unset($expediaResponse);
+            $clientResponse[$supplierName] = [];
+            $count = 0;
+            foreach ($hotelGenerator as $count => $hotel) {
+                $clientResponse[$supplierName][] = $hotel;
+            }
+            $bookingItems[$supplierName] = $this->expediaHotelPricingTransformer->bookingItems; // bookingItems нужно вытащить из трансформера
+            $countClientResponse += $count;
+            Log::info('HotelApiHandler _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
         }
 
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI) {
-
             $hbsiResponse = $supplierResponse;
 
             $dataResponse[$supplierName] = $hbsiResponse['array'];
             $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
             $st = microtime(true);
-            $transformerData = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
-
+            $hotelGenerator = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
+            $clientResponse[$supplierName] = [];
+            $count = 0;
+            // enrichmentRoomCombinations должен применяться к массиву, поэтому сначала собираем массив
+            $hotels = [];
+            foreach ($hotelGenerator as $count => $hotel) {
+                $hotels[] = $hotel;
+            }
             /** Enrichment Room Combinations */
             $countRooms = count($filters['occupancy']);
             if ($countRooms > 1) {
-                $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($transformerData['response'], $filters);
+                $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($hotels, $filters);
             } else {
-                $clientResponse[$supplierName] = $transformerData['response'];
+                $clientResponse[$supplierName] = $hotels;
             }
-            $bookingItems[$supplierName] = $transformerData['bookingItems'];
-
-            Log::info('HotelApiHandler _ price _ Transformer HbsiToHotelResponse '.(microtime(true) - $st).' seconds');
+            $bookingItems[$supplierName] = $this->HbsiHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
 
             $countResponse += count($hbsiResponse['array']);
             $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
             $countClientResponse += count($clientResponse[$supplierName]);
-
-            unset($hbsiResponse, $transformerData);
+            unset($hbsiResponse, $hotelGenerator, $hotels);
         }
 
         return [

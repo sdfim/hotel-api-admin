@@ -77,40 +77,62 @@ class ExpediaHotelController implements SupplierControllerInterface
             $searchBuilder = new HotelSearchBuilder($query);
             $queryBuilder = $searchBuilder->applyFilters($filters);
 
-            $selectFields = [
-                'expedia_content_main.*',
-                'expedia_content_slave.images as images',
-                'expedia_content_slave.amenities as amenities',
-                $mainDB.'.mappings.supplier_id',
-                $mainDB.'.mappings.giata_id',
-            ];
+            if ($initiator === 'price') {
+                $expediaQuery = ExpediaContent::query();
+                if (! empty($filters['ids'])) {
+                    $expediaQuery->whereIn('property_id', $filters['ids']);
+                }
+                if (! empty($filters['rating'])) {
+                    $expediaQuery->where('rating', '>=', $filters['rating']);
+                }
+                $expediaQuery->with(['mapperGiataExpedia' => function ($query) {
+                    $query->select('supplier_id', 'giata_id');
+                }]);
+                $expediaResults = $expediaQuery->get();
+                $result = [];
+                foreach ($expediaResults as $expedia) {
+                    foreach ($expedia->mapperGiataExpedia as $mapping) {
+                        $result[$mapping->giata_id] = $mapping->supplier_id;
+                    }
+                }
 
-            if ($initiator === 'search') {
-                $additionalFields = [
+                return $result;
+            } else {
+                $selectFields = [
+                    'expedia_content_main.*',
                     'expedia_content_slave.images as images',
                     'expedia_content_slave.amenities as amenities',
-                    'expedia_content_slave.descriptions as descriptions',
-                    'expedia_content_slave.checkin as checkin',
-                    'expedia_content_slave.checkout as checkout',
-                    'expedia_content_slave.fees as fees',
-                    'expedia_content_slave.policies as policies',
-                    'expedia_content_slave.statistics as statistics',
+                    $mainDB.'.mappings.supplier_id',
+                    $mainDB.'.mappings.giata_id',
                 ];
-                $selectFields = array_merge($selectFields, $additionalFields);
-            }
 
-            $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-                ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'expedia_content_main.property_id')
-                ->where('expedia_content_main.is_active', 1)
+                if ($initiator === 'search') {
+                    $additionalFields = [
+                        'expedia_content_slave.images as images',
+                        'expedia_content_slave.amenities as amenities',
+                        'expedia_content_slave.descriptions as descriptions',
+                        'expedia_content_slave.checkin as checkin',
+                        'expedia_content_slave.checkout as checkout',
+                        'expedia_content_slave.fees as fees',
+                        'expedia_content_slave.policies as policies',
+                        'expedia_content_slave.statistics as statistics',
+                    ];
+                    $selectFields = array_merge($selectFields, $additionalFields);
+                }
+
+                $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
+                    ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'expedia_content_main.property_id')
+                    ->where('expedia_content_main.is_active', 1)
 //                ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value)
 //                ->whereNotNull($mainDB.'.mappings.supplier_id')
-                ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
-                ->select($selectFields);
+                    ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
+                    ->select($selectFields);
 
-            if (isset($filters['hotel_name'])) {
-                $hotelNameArr = explode(' ', $filters['hotel_name']);
-                foreach ($hotelNameArr as $hotelName) {
-                    $queryBuilder->where('expedia_content_main.name', 'like', '%'.$hotelName.'%');
+                if (isset($filters['hotel_name'])) {
+                    $hotelNameArr = explode(' ', $filters['hotel_name']);
+                    foreach ($hotelNameArr as $hotelName) {
+                        $queryBuilder->where('expedia_content_main.name', 'like', '%'.$hotelName.'%');
+                    }
                 }
             }
 
@@ -160,7 +182,7 @@ class ExpediaHotelController implements SupplierControllerInterface
     public function price(array $filters, array $searchInspector, array $preSearchData): ?array
     {
         try {
-            if (empty($preSearchData['ids'])) {
+            if (empty($preSearchData)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -172,16 +194,16 @@ class ExpediaHotelController implements SupplierControllerInterface
             }
 
             // get PriceData from RapidAPI Expedia using filtered IDs
-            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters, $searchInspector);
+            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData, $filters, $searchInspector);
 
             $output = [];
             // add price to response
-            foreach ($preSearchData['results']->toArray() as $value) {
-                if (isset($priceData['response'][$value['property_id']])) {
-                    $prices_property = $priceData['response'][$value['property_id']];
-                    $output[$value['giata_id']] = [
-                        'giata_id' => $value['giata_id'],
-                        'hotel_name' => $value['name'],
+            foreach ($preSearchData as $giata_id => $supplier_id) {
+                if (isset($priceData['response'][$supplier_id])) {
+                    $prices_property = $priceData['response'][$supplier_id];
+                    $output[$giata_id] = [
+                        'giata_id' => $giata_id,
+                        //                        'hotel_name' => $priceData[$supplier_id]['propertyName'],
                     ] + $prices_property;
                 }
             }

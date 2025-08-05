@@ -21,6 +21,8 @@ use Modules\Enums\SupplierNameEnum;
 
 class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 {
+    public array $bookingItems = [];
+
     public function __construct(
         private array $roomCombinations = [],
         private string $rate_type = '',
@@ -31,7 +33,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
     /**
      * Transforms HotelTrader data to hotel response format.
      */
-    public function HotelTraderToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
+    public function HotelTraderToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): \Generator
     {
         $this->initializePricingData($query, $pricingExclusionRules, $giataIds, $search_id);
         $this->fetchSupplierRepositoryData($search_id, $giataIds);
@@ -54,15 +56,9 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             }
         }
 
-        $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
-            //            if (! in_array($propertyGroup['giata_id'], $query['filtered_giata_ids'])) {
-            //                continue;
-            //            }
-            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $query);
+            yield $this->setHotelResponse($propertyGroup, $query);
         }
-
-        return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
     /**
