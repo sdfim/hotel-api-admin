@@ -14,7 +14,7 @@ test('apply pricing rules to rooms', function () {
     $giataId = 1;
     $roomsPricingArray = getRoomsPricingArrayForExpediaPricing();
 
-    $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray, '', '', '');
+    $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray, '', '', '', '', '');
 
     expect($result)->toBeArray()
         ->and($result)->toHaveKeys(['total_price', 'total_tax', 'total_fees', 'total_net', 'markup'])

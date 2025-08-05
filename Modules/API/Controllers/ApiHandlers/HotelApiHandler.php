@@ -703,15 +703,16 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $st = microtime(true);
             $hotelGenerator = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
-            unset($expediaResponse);
+
             $clientResponse[$supplierName] = [];
             $count = 0;
             foreach ($hotelGenerator as $count => $hotel) {
                 $clientResponse[$supplierName][] = $hotel;
             }
-            $bookingItems[$supplierName] = $this->expediaHotelPricingTransformer->bookingItems; // bookingItems нужно вытащить из трансформера
+            $bookingItems[$supplierName] = $this->expediaHotelPricingTransformer->bookingItems;
             $countClientResponse += $count;
             Log::info('HotelApiHandler _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
+            unset($expediaResponse, $hotelGenerator);
         }
 
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI) {
@@ -724,7 +725,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $hotelGenerator = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
             $clientResponse[$supplierName] = [];
             $count = 0;
-            // enrichmentRoomCombinations должен применяться к массиву, поэтому сначала собираем массив
             $hotels = [];
             foreach ($hotelGenerator as $count => $hotel) {
                 $hotels[] = $hotel;
@@ -741,6 +741,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $countResponse += count($hbsiResponse['array']);
             $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
             $countClientResponse += count($clientResponse[$supplierName]);
+            Log::info('HotelApiHandler _ price _ Transformer HbsiToHotelResponse '.(microtime(true) - $st).' seconds');
             unset($hbsiResponse, $hotelGenerator, $hotels);
         }
 

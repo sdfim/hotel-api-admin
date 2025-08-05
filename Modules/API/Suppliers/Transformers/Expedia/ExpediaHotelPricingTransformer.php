@@ -249,8 +249,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
 
-//        dd($occupancy_pricing);
-
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
                 giataId: $giataId,

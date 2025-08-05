@@ -14,13 +14,13 @@ class SuppliersSeeder extends Seeder
      */
     public function run(): void
     {
-//        Supplier::updateOrCreate(
-//            ['name' => SupplierNameEnum::EXPEDIA->value],
-//            [
-//                'product_type' => [TypeRequestEnum::HOTEL->value],
-//                'description' => 'Expedia Supplier',
-//            ]
-//        );
+        //        Supplier::updateOrCreate(
+        //            ['name' => SupplierNameEnum::EXPEDIA->value],
+        //            [
+        //                'product_type' => [TypeRequestEnum::HOTEL->value],
+        //                'description' => 'Expedia Supplier',
+        //            ]
+        //        );
 
         Supplier::updateOrCreate(
             ['name' => SupplierNameEnum::HBSI->value],
@@ -30,13 +30,13 @@ class SuppliersSeeder extends Seeder
             ]
         );
 
-//        Supplier::updateOrCreate(
-//            ['name' => SupplierNameEnum::HILTON->value],
-//            [
-//                'product_type' => [TypeRequestEnum::HOTEL->value],
-//                'description' => 'Hilton Supplier',
-//            ]
-//        );
+        //        Supplier::updateOrCreate(
+        //            ['name' => SupplierNameEnum::HILTON->value],
+        //            [
+        //                'product_type' => [TypeRequestEnum::HOTEL->value],
+        //                'description' => 'Hilton Supplier',
+        //            ]
+        //        );
 
         Supplier::updateOrCreate(
             ['name' => SupplierNameEnum::GIATA->value],
