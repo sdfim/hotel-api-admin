@@ -29,6 +29,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
 use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
+use Modules\API\BookingAPI\Controllers\HotelTraderBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingAvailabileEndpointsChangeBookHotelRequest;
 use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
@@ -55,6 +56,7 @@ class BookApiHandler extends BaseController
     public function __construct(
         private readonly ExpediaBookApiController $expedia,
         private readonly HbsiBookApiController $hbsi,
+        private readonly HotelTraderBookApiController $hTrader,
     ) {}
 
     /**
@@ -660,6 +662,7 @@ class BookApiHandler extends BaseController
                 $res[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->retrieveItem($item),
                     SupplierNameEnum::HBSI => $this->hbsi->retrieveItem($item),
+                    SupplierNameEnum::HOTEL_TRADER => $this->hTrader->retrieveItem($item),
                     default => [],
                 };
             }
@@ -717,6 +720,7 @@ class BookApiHandler extends BaseController
                 $response[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::EXPEDIA->value),
                     SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::HBSI->value),
+                    SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::HOTEL_TRADER->value),
                     default => [],
                 };
             }

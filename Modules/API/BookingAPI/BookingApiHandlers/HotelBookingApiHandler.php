@@ -15,6 +15,7 @@ use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
+use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
 use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
@@ -30,6 +31,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
     public function __construct(
         private readonly ExpediaHotelBookingApiController $expedia,
         private readonly HbsiHotelBookingApiController $hbsi,
+        private readonly HotelTraderHotelBookingApiController $hTrader,
         private readonly HbsiService $hbsiService,
 
     ) {}
@@ -76,6 +78,17 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $filters['bed_groups'] = $booking_item_data['bed_groups'];
 
                 $data = $this->expedia->addItem($filters);
+            }
+
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HOTEL_TRADER) {
+                $filters['hotel_id'] = $booking_item_data['hotel_id'];
+                $filters['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
+                $filters['room_code'] = $booking_item_data['room_code'];
+                $filters['rate_code'] = $booking_item_data['rate_code'];
+                $filters['rate_occupancy'] = $booking_item_data['rate_occupancy'];
+                $filters['rate_type'] = $booking_item_data['rate_type'];
+
+                $data = $this->hTrader->addItem($filters);
             }
 
             if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
@@ -171,6 +184,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             $data = match (SupplierNameEnum::from($supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->removeItem($filters),
                 SupplierNameEnum::HBSI => $this->hbsi->removeItem($filters),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->removeItem($filters),
                 default => [],
             };
 

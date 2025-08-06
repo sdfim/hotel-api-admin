@@ -29,7 +29,7 @@ class HotelTraderClient
         $this->headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer '.$authString,
+            'Authorization' => 'Basic '.$authString,
         ];
     }
 

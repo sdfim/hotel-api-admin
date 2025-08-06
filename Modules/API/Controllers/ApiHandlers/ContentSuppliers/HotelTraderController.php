@@ -8,6 +8,7 @@ use App\Repositories\HotelTraderContentRepository as Repository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -180,7 +181,8 @@ class HotelTraderController implements SupplierControllerInterface
             $hotelTraderClient = app(HotelTraderClient::class);
             $priceDataRaw = $hotelTraderClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
             $priceData = [];
-            foreach ($priceDataRaw['response'] as $item) {
+
+            foreach (Arr::get($priceDataRaw, 'response', []) as $item) {
                 if (isset($item['propertyId'])) {
                     $priceData[$item['propertyId']] = $item;
                 }

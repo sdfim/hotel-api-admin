@@ -312,6 +312,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
                 'rate_occupancy' => $rateOccupancy,
                 'rate_code' => $rateCode,
                 'room_code' => $roomCode,
+                'rate_type' => $this->rate_type,
             ]),
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
