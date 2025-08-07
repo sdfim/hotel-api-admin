@@ -693,25 +693,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             unset($hTraderResponse, $hotelGenerator);
         }
 
-        if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HOTEL_TRADER) {
-
-            $hTraderResponse = $supplierResponse;
-
-            $dataResponse[$supplierName] = json_encode($hTraderResponse['array']);
-            $dataOriginal[$supplierName] = json_encode($hTraderResponse['original']);
-
-            $st = microtime(true);
-            $transformerData = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
-            $bookingItems[$supplierName] = $transformerData['bookingItems'];
-            $clientResponse[$supplierName] = $transformerData['response'];
-            Log::info('HotelApiHandler _ price _ Transformer HotelTraderToHotelResponse '.(microtime(true) - $st).' seconds');
-
-            $countResponse += count($hTraderResponse);
-            $totalPages[$supplierName] = $hTraderResponse['total_pages'] ?? 0;
-            $countClientResponse += count($transformerData['response']);
-            unset($hTraderResponse, $transformerData);
-        }
-
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
             $expediaResponse = $supplierResponse;
 
