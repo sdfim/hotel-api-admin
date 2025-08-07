@@ -56,9 +56,12 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             }
         }
 
+        $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
             yield $this->setHotelResponse($propertyGroup, $query);
         }
+
+        return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
     /**
