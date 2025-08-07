@@ -174,14 +174,14 @@
                 ]
             }
         },
-        "/api/booking/change/availabile-endpoints": {
+        "/api/booking/change/available-endpoints": {
             "get": {
                 "tags": [
                     "Booking API | Change Booking"
                 ],
                 "summary": "Retrieve available changes for modifying an existing booking.",
                 "description": "This endpoint provides information about available changes for modifying an existing booking.",
-                "operationId": "e9b281eaa97fe4257d384b857283a199",
+                "operationId": "d5e1a364d4a78c3a7e4754cdf438abb4",
                 "parameters": [
                     {
                         "name": "booking_item",

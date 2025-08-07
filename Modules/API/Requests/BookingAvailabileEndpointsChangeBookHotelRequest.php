@@ -15,7 +15,7 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
     /**
      * @OA\Get(
      *   tags={"Booking API | Change Booking"},
-     *   path="/api/booking/change/availabile-endpoints",
+     *   path="/api/booking/change/available-endpoints",
      *   summary="Retrieve available changes for modifying an existing booking.",
      *   description="This endpoint provides information about available changes for modifying an existing booking.",
      *
