@@ -9,10 +9,8 @@ use Exception;
 use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class HotelTraderClient
@@ -37,17 +35,151 @@ class HotelTraderClient
         ];
     }
 
-    /**
-     * Helper to get the HTTP client instance with default headers.
-     * The base URL will now be passed dynamically to the post method.
-     *
-     * @param  string  $endpointUrl  The specific GraphQL endpoint for the request.
-     */
-    protected function httpClient(string $endpointUrl): PendingRequest
+
+    public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
-        return Http::withHeaders($this->headers)
-            ->timeout(config('services.hotel_trader.timeout', 60));
+        $payload = [
+            'query' => $this->makeSearchQueryString(),
+            'variables' => $this->makeSearchVariables($filters, $hotelIds),
+            'operationName' => 'getPropertiesByIds',
+        ];
+
+        $client = new Client;
+        $promise = $client->postAsync($this->credentials->graphqlSearchUrl, [
+            'headers' => $this->headers,
+            'json' => $payload,
+            'timeout' => config('services.hotel_trader.timeout', 60),
+        ]);
+
+        try {
+            $result = Fiber::suspend([$promise])[0];
+            $body = $result->getBody()->getContents();
+            $responseData = json_decode($body, true);
+
+            $rq = [
+                'url' => $this->credentials->graphqlSearchUrl,
+                'method' => 'POST',
+                'headers' => $this->headers,
+                'payload' => $payload,
+            ];
+
+            if (isset($responseData['errors'])) {
+                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
+
+                return ['error' => $responseData['errors']];
+            }
+
+            $res = $responseData['data']['getPropertiesByIds']['properties'] ?? null;
+
+            return [
+                'request' => $rq,
+                'response' => $res,
+            ];
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error('Connection timeout: '.$e->getMessage());
+
+            return ['error' => 'Connection timeout'];
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            Log::error('Server error: '.$e->getMessage());
+
+            return ['error' => 'Server error'];
+        } catch (\Throwable $e) {
+            Log::error('Unexpected error: '.$e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
     }
+
+
+    public function book($filters, $inspectorBook)
+    {
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $flatGuests = array_merge(...$guests);
+
+        $mappedGuests = array_map(function ($guest) {
+            return [
+                'firstName' => $guest['given_name'],
+                'lastName' => $guest['family_name'],
+                'email' => 'test@hoteltrader.com', // or $guest['email'] if available
+                'adult' => true, // or derive from age/title if needed
+                'age' => $guest['age'] ?? 30,
+                'phone' => '1234567890', // or $guest['phone'] if available
+                'primary' => true, // or set logic if needed
+            ];
+        }, $flatGuests);
+
+        $request = [
+            'query' => $this->makeBookQueryString(),
+            'variables' => $this->makeBookVariables($filters, $mappedGuests),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.book', []),
+            'main_guest' => $mappedGuests,
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    {
+        $request = [
+            'query' => $this->makeCancelQueryString(),
+            'variables' => $this->makeCncelVariables($apiBookingsMetadata),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.cancel', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    {
+        $request = [
+            'query' => $this->makeRetrieveQueryString(),
+            'variables' => $this->makeRetrieveVariables($apiBookingsMetadata),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.getReservation', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+
+    public function availability(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        return null;
+    }
+
+    public function modifyBooking(array $modifyData, array $inspector): ?array
+    {
+        return null;
+    }
+
 
     protected function makeSearchVariables(array $filters, array $hotelIds): array
     {
@@ -170,6 +302,7 @@ class HotelTraderClient
             }
         QUERY;
     }
+
 
     protected function makeBookVariables(array $filters, array $mappedGuests): array
     {
@@ -345,6 +478,7 @@ class HotelTraderClient
         QUERY;
     }
 
+
     protected function makeCncelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
         return [
@@ -373,6 +507,7 @@ class HotelTraderClient
             }
         QUERY;
     }
+
 
     protected function makeRetrieveVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
@@ -514,137 +649,40 @@ class HotelTraderClient
         QUERY;
     }
 
-    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    /**
+     * Generic method to execute a GraphQL request.
+     *
+     * @param  string  $endpointUrl  The specific GraphQL endpoint to use.
+     * @param  array  $payload  The GraphQL request payload (query, variables, operationName).
+     * @return array|null The JSON decoded response data, or null on error.
+     *
+     * @throws GuzzleException
+     */
+    protected function executeGraphQlRequest(string $endpointUrl, array $payload, array $inspectorBook): ?array
     {
-        $request = [
-            'query' => $this->makeCancelQueryString(),
-            'variables' => $this->makeCncelVariables($apiBookingsMetadata),
-        ];
-
-        $response = $this->executeGraphQlRequest(
-            $this->credentials->graphqlBookUrl,
-            $request,
-            $inspectorBook
-        );
-
-        return [
-            'request' => $request,
-            'response' => Arr::get($response, 'data.cancel', []),
-            'errors' => Arr::get($response, 'errors', []),
-        ];
-    }
-
-    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
-    {
-        $request = [
-            'query' => $this->makeRetrieveQueryString(),
-            'variables' => $this->makeRetrieveVariables($apiBookingsMetadata),
-        ];
-
-        $response = $this->executeGraphQlRequest(
-            $this->credentials->graphqlBookUrl,
-            $request,
-            $inspectorBook
-        );
-
-        return [
-            'request' => $request,
-            'response' => Arr::get($response, 'data.getReservation', []),
-            'errors' => Arr::get($response, 'errors', []),
-        ];
-    }
-
-    public function book($filters, $inspectorBook)
-    {
-        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
-        $guests = json_decode($passengersData->request, true)['rooms'];
-
-        $flatGuests = array_merge(...$guests);
-
-        $mappedGuests = array_map(function ($guest) {
-            return [
-                'firstName' => $guest['given_name'],
-                'lastName' => $guest['family_name'],
-                'email' => 'test@hoteltrader.com', // or $guest['email'] if available
-                'adult' => true, // or derive from age/title if needed
-                'age' => $guest['age'] ?? 30,
-                'phone' => '1234567890', // or $guest['phone'] if available
-                'primary' => true, // or set logic if needed
-            ];
-        }, $flatGuests);
-
-        $request = [
-            'query' => $this->makeBookQueryString(),
-            'variables' => $this->makeBookVariables($filters, $mappedGuests),
-        ];
-
-        $response = $this->executeGraphQlRequest(
-            $this->credentials->graphqlBookUrl,
-            $request,
-            $inspectorBook
-        );
-
-        return [
-            'request' => $request,
-            'response' => Arr::get($response, 'data.book', []),
-            'main_guest' => $mappedGuests,
-            'errors' => Arr::get($response, 'errors', []),
-        ];
-    }
-
-    public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
-    {
-        $payload = [
-            'query' => $this->makeSearchQueryString(),
-            'variables' => $this->makeSearchVariables($filters, $hotelIds),
-            'operationName' => 'getPropertiesByIds',
-        ];
-
+        //        try {
         $client = new Client;
-        $promise = $client->postAsync($this->credentials->graphqlSearchUrl, [
+        $response = $client->post($endpointUrl, [
             'headers' => $this->headers,
             'json' => $payload,
             'timeout' => config('services.hotel_trader.timeout', 60),
         ]);
 
-        try {
-            $result = Fiber::suspend([$promise])[0];
-            $body = $result->getBody()->getContents();
-            $responseData = json_decode($body, true);
-
-            $rq = [
-                'url' => $this->credentials->graphqlSearchUrl,
-                'method' => 'POST',
-                'headers' => $this->headers,
-                'payload' => $payload,
-            ];
-
-            if (isset($responseData['errors'])) {
-                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
-
-                return ['error' => $responseData['errors']];
-            }
-
-            $res = $responseData['data']['getPropertiesByIds']['properties'] ?? null;
-
-            return [
-                'request' => $rq,
-                'response' => $res,
-            ];
-        } catch (\GuzzleHttp\Exception\ConnectException $e) {
-            Log::error('Connection timeout: '.$e->getMessage());
-
-            return ['error' => 'Connection timeout'];
-        } catch (\GuzzleHttp\Exception\ServerException $e) {
-            Log::error('Server error: '.$e->getMessage());
-
-            return ['error' => 'Server error'];
-        } catch (\Throwable $e) {
-            Log::error('Unexpected error: '.$e->getMessage());
-
-            return ['error' => $e->getMessage()];
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
+            throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
         }
+
+        return json_decode($response->getBody()->getContents(), true);
+        //        } catch (Exception $e) {
+        //            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
+        //
+        //            return null;
+        //        }
     }
+
+
+    // ####### Search API Methods only test console comand ########
 
     /**
      * Sends a GraphQL query to the HotelTrader Search API.
@@ -656,7 +694,7 @@ class HotelTraderClient
      *
      * @throws Exception
      */
-    public function sendSearchQuery(array $variables = [], ?string $query = null, ?string $operationName = null): ?array
+    public function sendSearchQueryTest(array $variables = [], ?string $query = null, ?string $operationName = null): ?array
     {
         return $this->executeGraphQlRequest(
             $this->credentials->graphqlSearchUrl,
@@ -756,52 +794,5 @@ class HotelTraderClient
                 'operationName' => $operationName,
             ]
         );
-    }
-
-    /**
-     * Generic method to execute a GraphQL request.
-     *
-     * @param  string  $endpointUrl  The specific GraphQL endpoint to use.
-     * @param  array  $payload  The GraphQL request payload (query, variables, operationName).
-     * @return array|null The JSON decoded response data, or null on error.
-     *
-     * @throws GuzzleException
-     */
-    protected function executeGraphQlRequest(string $endpointUrl, array $payload, array $inspectorBook): ?array
-    {
-        //        try {
-        $client = new Client;
-        $response = $client->post($endpointUrl, [
-            'headers' => $this->headers,
-            'json' => $payload,
-            'timeout' => config('services.hotel_trader.timeout', 60),
-        ]);
-
-        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
-            Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
-            throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
-        }
-
-        return json_decode($response->getBody()->getContents(), true);
-        //        } catch (Exception $e) {
-        //            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
-        //
-        //            return null;
-        //        }
-    }
-
-    public function getHotelAvailability(array $hotelIds, array $filters, array $searchInspector): ?array
-    {
-        return null;
-    }
-
-    public function modifyBooking(array $modifyData, array $inspector): ?array
-    {
-        return null;
-    }
-
-    public function cancelBooking(string $bookingId, array $inspectorCancel): ?array
-    {
-        return null;
     }
 }

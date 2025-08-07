@@ -52,7 +52,7 @@ class TestHotelTraderPricing extends Command
         ];
 
         try {
-            $response = $hotelTraderClient->sendSearchQuery($searchCriteriaByIdsInput);
+            $response = $hotelTraderClient->sendSearchQueryTest($searchCriteriaByIdsInput);
 
             if ($response) {
                 $this->info('API Response:');
