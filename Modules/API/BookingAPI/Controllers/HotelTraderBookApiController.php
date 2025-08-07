@@ -160,7 +160,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
         $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
@@ -192,7 +192,7 @@ class HotelTraderBookApiController extends BaseBookApiController
     {
         $booking_id = $filters['booking_id'];
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $inspectorCansel = BookingRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
         ]);
