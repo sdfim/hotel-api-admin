@@ -237,7 +237,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->warn('Starting Scenario #5');
         $occupancy = [
             ['adults' => 1, 'children_ages' => [1]],
-            ['adults' => 1, 'children_ages' => [1]],
+            ['adults' => 2],
         ];
         $nights = 5;
         $checkin = $this->checkin;
@@ -245,12 +245,12 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Double',
+                'rate_name' => 'HTRET',
+                'room_type' => 'STD0002D',
             ],
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
+                'rate_name' => 'HTRETN',
+                'room_type' => 'STDAS01K',
             ],
         ];
 
