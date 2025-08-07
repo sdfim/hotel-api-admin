@@ -9,6 +9,8 @@ return [
         'elasticsearch' => [
             'host' => env('ELASTICSEARCH_HOST', 'http://localhost:9200'),
             'index' => env('ELASTICSEARCH_INDEX', 'giata_properies_v2'),
+            'user' => env('ELASTICSEARCH_NAME', ''),
+            'pass' => env('ELASTICSEARCH_PASS', ''),
         ],
 
         'aws' => [
