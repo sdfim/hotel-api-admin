@@ -71,8 +71,8 @@ class BaseBookApiController extends BaseController
                     'href' => '/api/booking/cancel-booking?booking_id='.$booking_id.'&booking_item='.$booking_item,
                 ],
                 'change' => [
-                    'method' => 'PUT',
-                    'href' => '/api/booking/change-booking?booking_id='.$booking_id.'&booking_item='.$booking_item,
+                    'method' => 'GET',
+                    'href' => '/api/booking/change/available-endpoints?booking_item='.$booking_item,
                 ],
                 'retrieve' => [
                     'method' => 'GET',

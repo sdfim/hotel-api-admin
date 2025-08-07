@@ -197,6 +197,7 @@ class BookApiHandler extends BaseController
 
         $endpoints = match ($supplierMach) {
             SupplierNameEnum::HBSI => ['soft-change', 'availability', 'price-check', 'hard-change'],
+            SupplierNameEnum::HOTEL_TRADER => ['soft-change', 'availability', 'price-check', 'hard-change'],
             SupplierNameEnum::EXPEDIA, 'NonRefundable' => ['soft-change'],
             default => [],
         };
@@ -216,6 +217,12 @@ class BookApiHandler extends BaseController
         ], 'success');
     }
 
+    /**
+     * Change soft booking for hotel.
+     * Possible to change data passengers, special requests, and other booking details only.
+     *
+     * @throws GuzzleException
+     */
     public function changeSoftBooking(BookingChangeSoftBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
@@ -333,9 +340,9 @@ class BookApiHandler extends BaseController
 
     public function changeHardBooking(BookingChangeHardBookHotelRequest $request): JsonResponse
     {
-//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-//            return $this->sendError('This booking_item is non-refundable', 'failed');
-//        }
+        //        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+        //            return $this->sendError('This booking_item is non-refundable', 'failed');
+        //        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
@@ -392,9 +399,9 @@ class BookApiHandler extends BaseController
 
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
-//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-//            return $this->sendError('This booking_item is non-refundable', 'failed');
-//        }
+        //        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+        //            return $this->sendError('This booking_item is non-refundable', 'failed');
+        //        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
@@ -457,9 +464,9 @@ class BookApiHandler extends BaseController
 
     public function priceCheck(BookingPriceCheckBookHotelRequest $request): JsonResponse
     {
-//        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
-//            return $this->sendError('This booking_item is non-refundable', 'failed');
-//        }
+        //        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+        //            return $this->sendError('This booking_item is non-refundable', 'failed');
+        //        }
 
         if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');

@@ -70,7 +70,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
          * Verify the ReadRQ return the booking Details
          * Cancel Reservation from Scenario #1
          * 2262291
-         * BAR/Double
+         * HTPKG3/STD0002D
          *
          * #########################
          * Scenario #2
@@ -127,7 +127,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *
          * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
          * 2262291; HTRET/SUP0002D/Free Breakfastt
-         *
          */
     }
 
@@ -148,27 +147,26 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #1');
         $occupancy = [['adults' => 2]];
-        $nights = 5;
+        $nights = 1;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Double',
+                'rate_name' => 'HTOPQR',
+                'room_type' => 'L1KA',
+                'non_refundable' => false,
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
-        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+//        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
+        //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
-        // $this->cancel($bookingId);
+        $this->cancel($bookingId, $bookingItem);
 
-        // sleep(2);
-
-        // $this->retrieveBooking($bookingId);
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_2(): void
@@ -388,6 +386,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
                         'room_type' => $room['room_type'] ?? null,
                         'rate_name' => $room['rate_name'] ?? null,
                         'meal_plan' => $room['meal_plan'] ?? null,
+                        'non_refundable' => $room['non_refundable'] ?? false,
                     ];
                     $bookingItemParamsMap[$bookingItem] = $params;
                 }
@@ -422,6 +421,8 @@ class FlowHotelTraderBookDiffScenarios extends Command
     private function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
+
+//        dd($searchResponse);
 
         $bookingItem = null;
         if (! empty($roomParamsArray)) {

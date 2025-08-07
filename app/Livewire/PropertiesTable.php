@@ -316,6 +316,19 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->label('Type')
                     ->toggleable(),
             ])
+            ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('provider')
+                    ->label('Mapped Providers')
+                    ->multiple()
+                    ->options(array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['values'])) {
+                            $query->whereHas('mappings', function ($q) use ($data) {
+                                $q->whereIn('supplier', $data['values']);
+                            });
+                        }
+                    }),
+            ])
             ->actions([
                 ActionGroup::make([
                     Action::make('map')
