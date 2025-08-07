@@ -260,7 +260,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setSupplierRoomCode($roomCode);
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
-        $roomResponse->setRoomType($roomType);
+//        $roomResponse->setRoomType($roomType);
+        $roomResponse->setRoomType($roomCode);
 
         $rateDescriptionRaw = Arr::get($rate, 'longDescription', '');
         $rateDescriptionClean = strip_tags($rateDescriptionRaw);
@@ -270,6 +271,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setRateId($rateCode);
         $roomResponse->setRatePlanCode($rateCode);
+        $roomResponse->setRateName($rateCode);
         $roomResponse->setTotalPrice(round($pricingRulesApplier['total_price'], 2));
         $roomResponse->setTotalTax(round($pricingRulesApplier['total_tax'], 2));
         $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'], 2));
@@ -301,18 +303,29 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $this->roomCombinations[$bookingItem] = [$bookingItem];
 
+//        dd($rate);
+
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
             'supplier_id' => $this->supplier_id,
             'search_id' => $this->search_id,
             'rate_type' => $this->rate_type,
             'booking_item_data' => json_encode([
-                'hotel_id' => $propertyGroup['giata_id'] ?? 0,
+                'hotel_id' => Arr::get($propertyGroup,'giata_id', 0),
                 'hotel_supplier_id' => $supplierHotelId,
                 'rate_occupancy' => $rateOccupancy,
                 'rate_code' => $rateCode,
                 'room_code' => $roomCode,
                 'rate_type' => $this->rate_type,
+                'htIdentifier' => Arr::get($rate, 'htIdentifier', ''),
+                'rate' => [
+                    'netPrice' => Arr::get($rate, 'rateInfo.netPrice', ''),
+                    'tax' => Arr::get($rate, 'rateInfo.tax', ''),
+                    'grossPrice' => Arr::get($rate, 'rateInfo.grossPrice', ''),
+                    'payAtProperty' => Arr::get($rate, 'rateInfo.payAtProperty', ''),
+                    'dailyPrice' => Arr::get($rate, 'rateInfo.dailyPrice', []),
+                    'dailyTax' => Arr::get($rate, 'rateInfo.dailyTax', []),
+                ],
             ]),
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),

@@ -13,18 +13,16 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Ramsey\Uuid\Uuid;
 
-class FlowHbsiBookDiffScenarios2025 extends Command
+class FlowHotelTraderBookDiffScenarios extends Command
 {
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'flow:hbsi-book-diff-scenarios-2025 {scenarios?} {destination?} {checkin?} {giata_id?}';
+    protected $signature = 'flow:htrader-book-diff-scenarios {scenarios?} {checkin?} {giata_id?}';
 
     protected PendingRequest $client;
 
     protected string $url;
-
-    private ?string $destination;
 
     private ?string $checkin;
 
@@ -40,7 +38,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
-        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
+        $this->url = env('BASE_URI_FLOW_HOTEL_TRADER_BOOK_TEST');
         $this->isQueueSync = config('queue.default') === 'sync';
     }
 
@@ -185,8 +183,8 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         $options = [
             [
-                'rate_name' => 'Promo',
-                'room_type' => 'Double',
+                'rate_name' => 'HTREN3',
+                'room_type' => 'DLX0001K',
             ],
         ];
 
@@ -441,10 +439,9 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
     private function preset(): void
     {
-        $this->destination = $this->argument('destination') ?? '508';
         $this->checkin = $this->argument('checkin') ?? null;
         $this->giata_id = $this->argument('giata_id') ?? null;
-        $this->supplier = 'HBSI';
+        $this->supplier = 'HotelTrader';
         $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 20) : 240;
     }
 
@@ -463,7 +460,7 @@ class FlowHbsiBookDiffScenarios2025 extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'destination' => $this->destination,
+            'giata_ids' => [$this->giata_id ?? 0],
             'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,

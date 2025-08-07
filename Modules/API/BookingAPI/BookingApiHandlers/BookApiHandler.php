@@ -109,6 +109,7 @@ class BookApiHandler extends BaseController
                 $data[] = match ([$supplierName, $type]) {
                     [SupplierNameEnum::EXPEDIA, TypeRequestEnum::HOTEL->value] => $this->expedia->book($filters, $item),
                     [SupplierNameEnum::HBSI, TypeRequestEnum::HOTEL->value] => $this->hbsi->book($filters, $item),
+                    [SupplierNameEnum::HOTEL_TRADER, TypeRequestEnum::HOTEL->value] => $this->hTrader->book($filters, $item),
                     default => [],
                 };
             } catch (Exception $e) {

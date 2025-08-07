@@ -2,9 +2,12 @@
 
 namespace Modules\API\Suppliers\HotelTraderSupplier;
 
+use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingItemRepository;
 use Exception;
 use Fiber;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
@@ -70,6 +73,55 @@ class HotelTraderClient
                 'occupancies' => $occupancies,
             ],
         ];
+    }
+
+    protected function makeBookVariables(array $filters, array $mappedGuests): array
+    {
+        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+
+        //        dd($guests, $mappedGuests);
+
+        return [
+            'Book' => [
+                'clientConfirmationCode' => $filters['booking_item'],
+                'otaConfirmationCode' => $filters['booking_item'],
+                'otaClientName' => 'htrader',
+                'paymentInformation' => null,
+                'rooms' => [
+                    [
+                        'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
+                        'clientRoomConfirmationCode' => $filters['booking_item'].'-1',
+                        'roomSpecialRequests' => ['room test comment'],
+                        'rates' => Arr::get($bookingItemData, 'rate', []),
+                        'occupancy' => [
+                            'guestAges' => '30,30',
+                        ],
+                        'guests' => $mappedGuests,
+                    ],
+                ],
+            ],
+        ];
+
+        //        [
+        //                    {
+        //                        "firstName": "test",
+        //                        "lastName": "booking",
+        //                        "email": "test@hoteltrader.com",
+        //                        "adult": true,
+        //                        "age": 30,
+        //                        "phone": "1234567890",
+        //                        "primary": true
+        //                    },
+        //                    {
+        //                        "firstName": "test1",
+        //                        "lastName": "booking1",
+        //                        "email": "test@hoteltrader.com",
+        //                        "adult": false,
+        //                        "age": 5,
+        //                        "phone": "1234567890",
+        //                        "primary": true
+        //                    }
+        //                ]
     }
 
     protected function makeSearchQueryString(): string
@@ -167,7 +219,172 @@ class HotelTraderClient
         QUERY;
     }
 
-    public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    protected function makeBookQueryString(): string
+    {
+        return <<<'QUERY'
+            mutation book($Book: BookRequestInput) {
+              book(bookRequest: $Book) {
+                htConfirmationCode
+                clientConfirmationCode
+                otaConfirmationCode
+                consolidatedComments
+                consolidatedHTMLComments
+                bookingDate
+                specialRequests
+                propertyDetails {
+                  ...propertyDetails
+                }
+                rooms {
+                  ...roomDetails
+                }
+              }
+            }
+
+            fragment addressDetails on Address {
+              address1
+              address2
+              cityName
+              countryCode
+              stateName
+              zipCode
+            }
+
+            fragment propertyDetails on PropertyResponseEntity {
+              address {
+                ...addressDetails
+              }
+              checkInTime
+              checkOutTime
+              city
+              hotelImageUrl
+              latitude
+              longitude
+              propertyId
+              propertyName
+              starRating
+              checkInPolicy
+              minAdultAgeForCheckIn
+            }
+
+            fragment roomDetails on RoomResponse {
+              cancellationDate
+              cancellationFee
+              cancelled
+              cancellationPolicies {
+                ...cancelPolicyDetails
+              }
+              checkInDate
+              checkOutDate
+              clientRoomConfirmationCode
+              htRoomConfirmationCode
+              crsConfirmationCode
+              crsCancelConfirmationCode
+              pmsConfirmationCode
+              refundable
+              roomName
+              rateplanTag
+              mealplanOptions {
+                mealplanDescription
+                mealplanCode
+                mealplanName
+              }
+              rates {
+                ...ratesDetails
+              }
+              occupancy {
+                guestAges
+              }
+              guests {
+                ...guestDetails
+              }
+              roomSpecialRequests
+            }
+            fragment cancelPolicyDetails on HtCancellationPolicy {
+              startWindowTime
+              endWindowTime
+              currency
+              cancellationCharge
+              timeZone
+              timeZoneUTC
+            }
+            fragment ratesDetails on RoomRatesResponseEntity {
+              bar
+              binding
+              commissionable
+              commissionAmount
+              currencyCode
+              netPrice
+              tax
+              grossPrice
+              dailyPrice
+              dailyTax
+              payAtProperty
+              aggregateTaxInfo {
+                payAtBooking {
+                  description
+                  name
+                  currency
+                  value
+                }
+                payAtProperty {
+                  description
+                  name
+                  currency
+                  value
+                }
+              }
+            }
+            fragment guestDetails on RoomGuestResponseEntity {
+              adult
+              age
+              email
+              firstName
+              lastName
+              phone
+              primary
+            }
+        QUERY;
+    }
+
+    public function book($filters, $inspectorBook)
+    {
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $flatGuests = array_merge(...$guests);
+
+        $mappedGuests = array_map(function ($guest) {
+            return [
+                'firstName' => $guest['given_name'],
+                'lastName' => $guest['family_name'],
+                'email' => 'test@hoteltrader.com', // or $guest['email'] if available
+                'adult' => true, // or derive from age/title if needed
+                'age' => $guest['age'] ?? 30,
+                'phone' => '1234567890', // or $guest['phone'] if available
+                'primary' => true, // or set logic if needed
+            ];
+        }, $flatGuests);
+
+        $request = [
+            'query' => $this->makeBookQueryString(),
+            'variables' => $this->makeBookVariables($filters, $mappedGuests),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.book', []),
+            'main_guest' => $mappedGuests,
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
         $payload = [
             'query' => $this->makeSearchQueryString(),
@@ -224,8 +441,8 @@ class HotelTraderClient
     /**
      * Sends a GraphQL query to the HotelTrader Search API.
      *
-     * @param  string  $query  The GraphQL query string.
      * @param  array  $variables  Optional variables for the query.
+     * @param  string|null  $query  The GraphQL query string.
      * @param  string|null  $operationName  Optional operation name for the query.
      * @return array|null The JSON decoded response data, or null on error.
      *
@@ -334,206 +551,49 @@ class HotelTraderClient
     }
 
     /**
-     * Sends a GraphQL mutation to the HotelTrader Book/Modify/Cancel API.
-     *
-     * @param  string  $mutation  The GraphQL mutation string.
-     * @param  array  $variables  Optional variables for the mutation.
-     * @param  string|null  $operationName  Optional operation name for the mutation.
-     * @return array|null The JSON decoded response data, or null on error.
-     *
-     * @throws Exception
-     */
-    public function sendBookingMutation(string $mutation, array $variables = [], ?string $operationName = null): ?array
-    {
-        return $this->executeGraphQlRequest(
-            $this->credentials->graphqlBookUrl,
-            [
-                'query' => $mutation,
-                'variables' => $variables,
-                'operationName' => $operationName,
-            ]
-        );
-    }
-
-    /**
      * Generic method to execute a GraphQL request.
      *
      * @param  string  $endpointUrl  The specific GraphQL endpoint to use.
      * @param  array  $payload  The GraphQL request payload (query, variables, operationName).
      * @return array|null The JSON decoded response data, or null on error.
      *
-     * @throws Exception
+     * @throws GuzzleException
      */
-    protected function executeGraphQlRequest(string $endpointUrl, array $payload): ?array
+    protected function executeGraphQlRequest(string $endpointUrl, array $payload, array $inspectorBook): ?array
     {
-        try {
-            $response = $this->httpClient($endpointUrl)->post($endpointUrl, $payload);
+//        try {
+            $client = new Client;
+            $response = $client->post($endpointUrl, [
+                'headers' => $this->headers,
+                'json' => $payload,
+                'timeout' => config('services.hotel_trader.timeout', 60),
+            ]);
 
-            if ($response->clientError() || $response->serverError()) {
-                Log::error('HotelTrader GraphQL HTTP Error: '.$response->status().' - '.$response->body().' for '.$endpointUrl);
-                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->status());
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+                Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
+                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
             }
 
-            $responseData = $response->json();
-
-            if (isset($responseData['errors'])) {
-                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']).' for '.$endpointUrl);
-                throw new Exception('HotelTrader GraphQL Error: '.json_encode($responseData['errors']));
-            }
-
-            Log::info('-------------------------------------------- HotelTrader GraphQL REQUEST --------------------------------------------');
-            Log::info('Endpoint: '.$endpointUrl);
-            Log::info(json_encode($payload, JSON_PRETTY_PRINT));
-            Log::info('-------------------------------------------- HotelTrader GraphQL RESPONSE --------------------------------------------');
-            Log::info(json_encode($responseData, JSON_PRETTY_PRINT));
-
-            return $responseData;
-
-        } catch (Exception $e) {
-            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
-
-            return null;
-        }
+            return json_decode($response->getBody()->getContents(), true);
+//        } catch (Exception $e) {
+//            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
+//
+//            return null;
+//        }
     }
 
-    /**
-     * Example method to fetch hotel availability using a GraphQL query.
-     * This will now specifically use the search GraphQL endpoint.
-     *
-     * @param  array  $filters  Example: ['checkin' => 'YYYY-MM-DD', 'checkout' => 'YYYY-MM-DD', 'occupancy' => [...]]
-     * @param  array  $searchInspector  Data for logging/inspection.
-     *
-     * @throws Exception
-     */
     public function getHotelAvailability(array $hotelIds, array $filters, array $searchInspector): ?array
     {
-        $query = '
-            query GetHotelAvailability($hotelIds: [ID!]!, $checkin: String!, $checkout: String!, $occupancy: [OccupancyInput!]!) {
-                hotels(ids: $hotelIds) {
-                    id
-                    name
-                    availability(checkin: $checkin, checkout: $checkout, occupancy: $occupancy) {
-                        roomType
-                        price {
-                            amount
-                            currency
-                        }
-                        # ... other availability fields
-                    }
-                }
-            }
-        ';
-
-        $variables = [
-            'hotelIds' => $hotelIds,
-            'checkin' => Arr::get($filters, 'checkin'),
-            'checkout' => Arr::get($filters, 'checkout'),
-            'occupancy' => Arr::get($filters, 'occupancy', []),
-        ];
-
-        // Call the specific search query sender
-        $response = $this->sendSearchQuery($query, $variables, 'GetHotelAvailability');
-
-        if (isset($response['data']['hotels'])) {
-            return $response['data']['hotels'];
-        }
-
         return null;
     }
 
-    /**
-     * Example method to create a booking using a GraphQL mutation.
-     * This will now specifically use the booking GraphQL endpoint.
-     *
-     * @throws Exception
-     */
-    public function createBooking(array $bookingData, array $inspectorBook): ?array
-    {
-        $mutation = '
-            mutation CreateBooking($input: CreateBookingInput!) {
-                createBooking(input: $input) {
-                    bookingId
-                    status
-                    # ... other booking confirmation details
-                }
-            }
-        ';
-
-        $variables = [
-            'input' => $bookingData,
-        ];
-
-        // Call the specific booking mutation sender
-        $response = $this->sendBookingMutation($mutation, $variables, 'CreateBooking');
-
-        if (isset($response['data']['createBooking'])) {
-            return $response['data']['createBooking'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Example method for a modify booking operation.
-     * This will use the booking GraphQL endpoint.
-     *
-     * @throws Exception
-     */
     public function modifyBooking(array $modifyData, array $inspector): ?array
     {
-        // Example mutation structure for modify based on pullapi-graphql.json "4. Modifications"
-        $mutation = '
-            mutation ModifyBooking($input: ModifyBookingInput!) {
-                modifyBooking(input: $input) {
-                    bookingId
-                    status
-                    # ... relevant fields after modification
-                }
-            }
-        ';
-
-        $variables = [
-            'input' => $modifyData,
-        ];
-
-        $response = $this->sendBookingMutation($mutation, $variables, 'ModifyBooking');
-
-        if (isset($response['data']['modifyBooking'])) {
-            return $response['data']['modifyBooking'];
-        }
-
         return null;
     }
 
-    /**
-     * Example method for a cancel booking operation.
-     * This will use the booking GraphQL endpoint.
-     *
-     * @throws Exception
-     */
     public function cancelBooking(string $bookingId, array $inspectorCancel): ?array
     {
-        // Example mutation structure for cancel based on pullapi-graphql.json
-        $mutation = '
-            mutation CancelBooking($bookingId: ID!) {
-                cancelBooking(bookingId: $bookingId) {
-                    bookingId
-                    status
-                    # ... relevant fields after cancellation
-                }
-            }
-        ';
-
-        $variables = [
-            'bookingId' => $bookingId,
-        ];
-
-        $response = $this->sendBookingMutation($mutation, $variables, 'CancelBooking');
-
-        if (isset($response['data']['cancelBooking'])) {
-            return $response['data']['cancelBooking'];
-        }
-
         return null;
     }
 }

@@ -179,7 +179,7 @@ class HotelTraderController implements SupplierControllerInterface
             /** get PriceData from HBSI */
             /* @var HotelTraderClient $hotelTraderClient */
             $hotelTraderClient = app(HotelTraderClient::class);
-            $priceDataRaw = $hotelTraderClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            $priceDataRaw = $hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
             $priceData = [];
 
             foreach (Arr::get($priceDataRaw, 'response', []) as $item) {

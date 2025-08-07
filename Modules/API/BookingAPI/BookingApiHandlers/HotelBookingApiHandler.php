@@ -70,37 +70,14 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             $filters['search_id'] = $apiBookingItem['search_id'];
 
             $filters = array_merge($filters, $request->all());
+            $filters = array_merge($filters, $booking_item_data);
 
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
-                $filters['hotel_id'] = $booking_item_data['hotel_id'];
-                $filters['room_id'] = $booking_item_data['room_id'];
-                $filters['rate'] = $booking_item_data['rate'];
-                $filters['bed_groups'] = $booking_item_data['bed_groups'];
-
-                $data = $this->expedia->addItem($filters);
-            }
-
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HOTEL_TRADER) {
-                $filters['hotel_id'] = $booking_item_data['hotel_id'];
-                $filters['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
-                $filters['room_code'] = $booking_item_data['room_code'];
-                $filters['rate_code'] = $booking_item_data['rate_code'];
-                $filters['rate_occupancy'] = $booking_item_data['rate_occupancy'];
-                $filters['rate_type'] = $booking_item_data['rate_type'];
-
-                $data = $this->hTrader->addItem($filters);
-            }
-
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
-                $filters['hotel_id'] = $booking_item_data['hotel_id'];
-                $filters['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
-                $filters['room_id'] = $booking_item_data['room_id'];
-                $filters['rate_ordinal'] = $booking_item_data['rate_ordinal'];
-                $filters['rate_type'] = $booking_item_data['rate_type'];
-                $filters['rate_occupancy'] = $booking_item_data['rate_occupancy'];
-
-                $data = $this->hbsi->addItem($filters);
-            }
+            $data = match (SupplierNameEnum::from($supplier)) {
+                SupplierNameEnum::EXPEDIA => $this->expedia->addItem($filters),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->addItem($filters),
+                default => [],
+            };
 
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem '.$e->getMessage());

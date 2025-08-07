@@ -326,7 +326,7 @@ class ExpediaBookApiController extends BaseBookApiController
         }
         $bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
 
-        $bodyArr['affiliate_reference_id'] = 'UJV_'.time();
+        $bodyArr['affiliate_reference_id'] = 'Fora_'.time();
 
         foreach ($bodyArr['payments'] as $key => $payment) {
             $bodyArr['payments'][$key]['type'] = self::PAYMENTS_TYPE;
