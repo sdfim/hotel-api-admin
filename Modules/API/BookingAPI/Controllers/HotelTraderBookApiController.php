@@ -33,6 +33,7 @@ use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookingRetrieveBookingTrans
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelBookTransformer;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use SimpleXMLElement;
@@ -169,49 +170,24 @@ class HotelTraderBookApiController extends BaseBookApiController
             $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
-        $changePassengersInspector = ApiBookingInspector::where('booking_id', $booking_id)
-            ->where('booking_item', $apiBookingsMetadata->booking_item)
-            ->where('type', 'change_passengers')->first();
-        if ($changePassengersInspector) {
-            $rooms = json_decode($changePassengersInspector->request, true)['rooms'];
-            $reservation = [
-                'booking_id' => $apiBookingsMetadata->supplier_booking_item_id,
-                'name' => $rooms[0][0]['given_name'],
-                'surname' => $rooms[0][0]['family_name'],
-            ];
-        } else {
-            $reservation = [
-                'booking_id' => $apiBookingsMetadata->supplier_booking_item_id,
-                'name' => $apiBookingsMetadata->booking_item_data['main_guest']['GivenName'],
-                'surname' => $apiBookingsMetadata->booking_item_data['main_guest']['Surname'],
-            ];
-        }
-
-        $xmlPriceData = $this->hbsiClient->retrieveBooking(
-            $reservation,
-            $apiBookingsMetadata->hotel_supplier_id ?? null,
+        $retrieveData = $this->hotelTraderClient->retrieve(
+            $apiBookingsMetadata,
             $bookingInspector
         );
 
-        if (! $xmlPriceData['response'] instanceof SimpleXMLElement) {
-            return [];
-        }
-        $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-
-        $dataResponse = json_decode(json_encode($response), true);
-
-        $dataResponseToSave = $dataResponse;
         $dataResponseToSave['original'] = [
-            'request' => $xmlPriceData['request'],
-            'response' => $xmlPriceData['response']->asXML(),
+            'request' => $retrieveData['request'],
+            'response' => $retrieveData['response'],
         ];
 
-        $clientDataResponse = $dataResponse['Errors'] ?? HbsiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = Arr::get($retrieveData, 'response') ?
+            HotelTraderiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel(Arr::get($retrieveData, 'response'))
+            : Arr::get($retrieveData, 'errors');
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientDataResponse);
 
         if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {
-            return (array) $dataResponse;
+            return Arr::get($retrieveData, 'response');
         } else {
             return $clientDataResponse;
         }
@@ -227,57 +203,18 @@ class HotelTraderBookApiController extends BaseBookApiController
         ]);
 
         try {
-            $xmlPriceData = $this->hbsiClient->cancelBooking(
-                $apiBookingsMetadata->booking_item_data,
-                $apiBookingsMetadata->hotel_supplier_id ?? null,
+            $canceleData = $this->hotelTraderClient->cancel(
+                $apiBookingsMetadata,
                 $inspectorCansel
             );
-            $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-            $dataResponse = json_decode(json_encode($response), true);
 
-            $dataResponseToSave = $dataResponse;
             $dataResponseToSave['original'] = [
-                'request' => $xmlPriceData['request'],
-                'response' => $xmlPriceData['response']->asXML(),
+                'request' => $canceleData['request'],
+                'response' => $canceleData['response'],
             ];
 
-            if (isset($dataResponse['Errors'])) {
-                $res = $dataResponse['Errors'];
-                $code = $response->children()->attributes()['Code'];
-
-                //                if (static::ALREADY_CANCELLED_CODE == $code) {
-                //                    return [
-                //                        'booking_item' => $apiBookingsMetadata->booking_item,
-                //                        'status' => 'Room canceled.',
-                //                    ];
-                //                }
-                //
-                //                if (in_array($code, static::NON_CANCELLABLE_BOOKING_CODE_ERRORS)) {
-                //                    return [
-                //                        ...$res,
-                //                        'booking_item' => $apiBookingsMetadata->booking_item,
-                //                        'cancellable' => false,
-                //                    ];
-                //                }
-                //
-                //                if (static::CODE_WRONG_PASSENGER_NAME == $code) {
-                //                    $mainGuest = $this->getNameFromError(Arr::get($dataResponse, 'Errors.Error'));
-                //
-                //                    if ($mainGuest === null) {
-                //                        return $dataResponse['Errors'];
-                //                    }
-                //
-                //                    $data = [
-                //                        ...$apiBookingsMetadata->booking_item_data,
-                //                        'main_guest' => $mainGuest,
-                //                    ];
-                //
-                //                    $apiBookingsMetadata = ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
-                //
-                //                    if ($iterations < static::MAX_CANCEL_BOOKING_RETRY_COUNT) {
-                //                        return $this->cancelBooking($filters, $apiBookingsMetadata, $iterations + 1);
-                //                    }
-                //                }
+            if (Arr::get($canceleData, 'errors')) {
+                $res = Arr::get($canceleData, 'errors');
             } else {
                 $res = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
@@ -287,11 +224,7 @@ class HotelTraderBookApiController extends BaseBookApiController
                 SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
             }
         } catch (Exception $e) {
-            $responseError = explode('response:', $e->getMessage());
-
-            $message = isset($responseError[1])
-                ? json_decode($responseError[1], true)['message']
-                : $e->getMessage();
+            $message = $e->getMessage();
             $res = [
                 'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $message,

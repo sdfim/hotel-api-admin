@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\HotelTraderSupplier;
 
+use App\Models\ApiBookingsMetadata;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Exception;
@@ -73,55 +74,6 @@ class HotelTraderClient
                 'occupancies' => $occupancies,
             ],
         ];
-    }
-
-    protected function makeBookVariables(array $filters, array $mappedGuests): array
-    {
-        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
-
-        //        dd($guests, $mappedGuests);
-
-        return [
-            'Book' => [
-                'clientConfirmationCode' => $filters['booking_item'],
-                'otaConfirmationCode' => $filters['booking_item'],
-                'otaClientName' => 'htrader',
-                'paymentInformation' => null,
-                'rooms' => [
-                    [
-                        'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
-                        'clientRoomConfirmationCode' => $filters['booking_item'].'-1',
-                        'roomSpecialRequests' => ['room test comment'],
-                        'rates' => Arr::get($bookingItemData, 'rate', []),
-                        'occupancy' => [
-                            'guestAges' => '30,30',
-                        ],
-                        'guests' => $mappedGuests,
-                    ],
-                ],
-            ],
-        ];
-
-        //        [
-        //                    {
-        //                        "firstName": "test",
-        //                        "lastName": "booking",
-        //                        "email": "test@hoteltrader.com",
-        //                        "adult": true,
-        //                        "age": 30,
-        //                        "phone": "1234567890",
-        //                        "primary": true
-        //                    },
-        //                    {
-        //                        "firstName": "test1",
-        //                        "lastName": "booking1",
-        //                        "email": "test@hoteltrader.com",
-        //                        "adult": false,
-        //                        "age": 5,
-        //                        "phone": "1234567890",
-        //                        "primary": true
-        //                    }
-        //                ]
     }
 
     protected function makeSearchQueryString(): string
@@ -217,6 +169,53 @@ class HotelTraderClient
                 }
             }
         QUERY;
+    }
+
+    protected function makeBookVariables(array $filters, array $mappedGuests): array
+    {
+        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+
+        return [
+            'Book' => [
+                'clientConfirmationCode' => $filters['booking_item'],
+                'otaConfirmationCode' => $filters['booking_item'],
+                'otaClientName' => 'htrader',
+                'paymentInformation' => null,
+                'rooms' => [
+                    [
+                        'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
+                        'clientRoomConfirmationCode' => $filters['booking_item'].'-1',
+                        'roomSpecialRequests' => ['room test comment'],
+                        'rates' => Arr::get($bookingItemData, 'rate', []),
+                        'occupancy' => [
+                            'guestAges' => '30,30',
+                        ],
+                        'guests' => $mappedGuests,
+                    ],
+                ],
+            ],
+        ];
+
+        //        [
+        //                    {
+        //                        "firstName": "test",
+        //                        "lastName": "booking",
+        //                        "email": "test@hoteltrader.com",
+        //                        "adult": true,
+        //                        "age": 30,
+        //                        "phone": "1234567890",
+        //                        "primary": true
+        //                    },
+        //                    {
+        //                        "firstName": "test1",
+        //                        "lastName": "booking1",
+        //                        "email": "test@hoteltrader.com",
+        //                        "adult": false,
+        //                        "age": 5,
+        //                        "phone": "1234567890",
+        //                        "primary": true
+        //                    }
+        //                ]
     }
 
     protected function makeBookQueryString(): string
@@ -344,6 +343,215 @@ class HotelTraderClient
               primary
             }
         QUERY;
+    }
+
+    protected function makeCncelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    {
+        return [
+            'Cancel' => [
+                'htConfirmationCode' => $apiBookingsMetadata->supplier_booking_item_id,
+            ],
+        ];
+    }
+
+    protected function makeCancelQueryString(): string
+    {
+        return <<<'QUERY'
+            mutation cancel($Cancel: CancelRequestInput) {
+              cancel(cancelRequest: $Cancel) {
+                htConfirmationCode
+                clientConfirmationCode
+                allRoomsCancelled
+                rooms {
+                  htRoomConfirmationCode
+                  clientRoomConfirmationCode
+                  cancelled
+                  currency
+                  cancellationDate
+                }
+              }
+            }
+        QUERY;
+    }
+
+    protected function makeRetrieveVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    {
+        return [
+            'GetReservation' => [
+                'htConfirmationCode' => $apiBookingsMetadata->supplier_booking_item_id,
+            ],
+        ];
+    }
+
+    protected function makeRetrieveQueryString(): string
+    {
+        return <<<'QUERY'
+            query getReservation($GetReservation: GetReservationRequestInput) {
+              getReservation(getReservationRequest: $GetReservation) {
+                htConfirmationCode
+                clientConfirmationCode
+                otaConfirmationCode
+                otaClientName
+                consolidatedComments
+                consolidatedHTMLComments
+                bookingDate
+                membershipId
+                specialRequests
+                aggregateGrossPrice
+                aggregateNetPrice
+                aggregateTax
+                aggregatePayAtProperty
+                aggregateCancellationFee
+                propertyDetails {
+                  ...propertyDetails
+                    }
+                rooms {
+                  ...roomDetails
+                    }
+                }
+            }
+            fragment addressDetails on Address {
+              address1
+              address2
+              cityName
+              countryCode
+              stateName
+              zipCode
+            }
+            fragment propertyDetails on PropertyResponseEntity {
+              address {
+                ...addressDetails
+                }
+              checkInTime
+              checkOutTime
+              city
+              hotelImageUrl
+              latitude
+              longitude
+              propertyId
+              propertyName
+              starRating
+              checkInPolicy
+              minAdultAgeForCheckIn
+            }
+            fragment roomDetails on RoomResponse {
+              cancellationDate
+              cancellationFee
+              cancelled
+              cancellationPolicies {
+                ...cancelPolicyDetails
+                }
+              checkInDate
+              checkOutDate
+              clientRoomConfirmationCode
+              htRoomConfirmationCode
+              crsConfirmationCode
+              crsCancelConfirmationCode
+              pmsConfirmationCode
+              refundable
+              rateplanTag
+              roomName
+              mealplanOptions {
+                mealplanDescription
+                mealplanCode
+                mealplanName
+                }
+              rates {
+                ...ratesDetails
+                }
+              occupancy {
+                guestAges
+                }
+              guests {
+                ...guestDetails
+                }
+              roomSpecialRequests
+            }
+            fragment cancelPolicyDetails on HtCancellationPolicy {
+              startWindowTime
+              endWindowTime
+              currency
+              cancellationCharge
+              timeZone
+              timeZoneUTC
+            }
+            fragment ratesDetails on RoomRatesResponseEntity {
+              bar
+              binding
+              commissionable
+              commissionAmount
+              currency
+              netPrice
+              tax
+              grossPrice
+              dailyPrice
+              dailyTax
+              payAtProperty
+              aggregateTaxInfo {
+                payAtBooking {
+                  description
+                  name
+                  currency
+                  value
+                    }
+                payAtProperty {
+                  description
+                  name
+                  currency
+                  value
+                    }
+                }
+            }
+            fragment guestDetails on RoomGuestResponseEntity {
+              adult
+              age
+              email
+              firstName
+              lastName
+              phone
+              primary
+            }
+        QUERY;
+    }
+
+    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    {
+        $request = [
+            'query' => $this->makeCancelQueryString(),
+            'variables' => $this->makeCncelVariables($apiBookingsMetadata),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.cancel', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    {
+        $request = [
+            'query' => $this->makeRetrieveQueryString(),
+            'variables' => $this->makeRetrieveVariables($apiBookingsMetadata),
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspectorBook
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.getReservation', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
     }
 
     public function book($filters, $inspectorBook)
@@ -561,25 +769,25 @@ class HotelTraderClient
      */
     protected function executeGraphQlRequest(string $endpointUrl, array $payload, array $inspectorBook): ?array
     {
-//        try {
-            $client = new Client;
-            $response = $client->post($endpointUrl, [
-                'headers' => $this->headers,
-                'json' => $payload,
-                'timeout' => config('services.hotel_trader.timeout', 60),
-            ]);
+        //        try {
+        $client = new Client;
+        $response = $client->post($endpointUrl, [
+            'headers' => $this->headers,
+            'json' => $payload,
+            'timeout' => config('services.hotel_trader.timeout', 60),
+        ]);
 
-            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
-                Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
-                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
-            }
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
+            throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
+        }
 
-            return json_decode($response->getBody()->getContents(), true);
-//        } catch (Exception $e) {
-//            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
-//
-//            return null;
-//        }
+        return json_decode($response->getBody()->getContents(), true);
+        //        } catch (Exception $e) {
+        //            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
+        //
+        //            return null;
+        //        }
     }
 
     public function getHotelAvailability(array $hotelIds, array $filters, array $searchInspector): ?array

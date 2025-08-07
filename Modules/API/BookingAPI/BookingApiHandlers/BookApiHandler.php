@@ -548,6 +548,7 @@ class BookApiHandler extends BaseController
                 $data[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->retrieveBooking($filters, $item),
                     SupplierNameEnum::HBSI => $this->hbsi->retrieveBooking($filters, $item),
+                    SupplierNameEnum::HOTEL_TRADER => $this->hTrader->retrieveBooking($filters, $item),
                     default => [],
                 };
             } catch (Exception $e) {
@@ -606,6 +607,7 @@ class BookApiHandler extends BaseController
                 $data[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->cancelBooking($filters, $item),
                     SupplierNameEnum::HBSI => $this->hbsi->cancelBooking($filters, $item),
+                    SupplierNameEnum::HOTEL_TRADER => $this->hTrader->cancelBooking($filters, $item),
                     default => [],
                 };
 

@@ -69,7 +69,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
          * Modify Reservation from Scenario #1 and Change the Arrival Date
          * Verify the ReadRQ return the booking Details
          * Cancel Reservation from Scenario #1
-         * 51721;Aug 5 - 10
+         * 2262291
          * BAR/Double
          *
          * #########################
@@ -77,8 +77,8 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *
          * Book Room Only with 2 Adult for 5 nights
          * Cancel Reservation from above scenario #2
-         * 51721;Aug 5 - 10
-         * Promo/Double
+         * 2262291
+         * HTREN3/DLX0001K
          *
          * #########################
          * Scenario #3
@@ -86,7 +86,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
          * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
          * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
          * Cancel Reservation from above scenario #3
-         * 51721;Aug 15 - 17
+         * 2262291
          * BAR/Suite
          *
          * #########################
@@ -94,21 +94,21 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *
          * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
          * Cancel Reservation from the above Scenario #4
-         * Use 51721
+         * Use 2262291
          *
          * #########################
          * Scenario #5
          *
          * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #5
-         * 51721;Book Double and Suite
+         * 2262291;Book Double and Suite
          *
          * #########################
          * Scenario #6
          *
          * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #6
-         * 51721;Book BAR and Promo
+         * 2262291;Book BAR and Promo
          *
          * #########################
          * Scenario #7
@@ -120,15 +120,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *  Scenario #8
          *
          * Book Room for 2 Adults with included mealplan as All inclusive
-         * 51721; Best /Suite
-         * Aug 25-28
+         * 2262291; Best /Suite
          *
          * #########################
          *   Scenario #9
          *
          * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
-         * 51721;BAR /Suite
-         * Aug 25-28
+         * 2262291; HTRET/SUP0002D/Free Breakfastt
+         *
          */
     }
 
@@ -189,7 +188,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_3(): void
@@ -226,7 +228,9 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
-        // $this->cancel($bookingId);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_5(): void
@@ -253,7 +257,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_6(): void
@@ -278,7 +285,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_7(): void
@@ -300,7 +310,9 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy2, $checkin2, $checkout2, [], null, $bookingId);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_8(): void
@@ -322,7 +334,9 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_9(): void
@@ -336,16 +350,20 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
-                'meal_plan' => 'Breakfast',
+                'rate_name' => 'HTRET',
+                'room_type' => 'SUP0002D',
+                'meal_plan' => 'Free Breakfastt',
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
+
+    // ######### additional methods ##########
 
     private function findBookingItemByRoomParams(array $searchResponse, array $roomParamsArray): ?string
     {
