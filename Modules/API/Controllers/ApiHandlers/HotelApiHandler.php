@@ -23,7 +23,7 @@ use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HotelTraderController;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
 use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
@@ -80,7 +80,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
         private readonly EnrichmentWeight $propsWeight,
         private readonly PricingRulesTools $pricingRulesService,
-        private readonly HbsiService $hbsiService,
     ) {
         $this->start();
     }
@@ -682,7 +681,16 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $clientResponse[$supplierName] = [];
             $count = 0;
             foreach ($hotelGenerator as $count => $hotel) {
-                $clientResponse[$supplierName][] = $hotel;
+                $hotels[] = $hotel;
+            }
+
+            /** Enrichment Room Combinations */
+            $countRooms = count($filters['occupancy']);
+            if ($countRooms > 1) {
+                $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
+                $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
+            } else {
+                $clientResponse[$supplierName] = $hotels;
             }
             $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
 
@@ -733,7 +741,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             /** Enrichment Room Combinations */
             $countRooms = count($filters['occupancy']);
             if ($countRooms > 1) {
-                $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($hotels, $filters);
+                $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
+                $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
             } else {
                 $clientResponse[$supplierName] = $hotels;
             }

@@ -26,10 +26,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelBookTransformer;
@@ -46,13 +45,9 @@ class HotelTraderBookApiController extends BaseBookApiController
         private readonly HbsiHotelBookTransformer $hbsiHotelBookDto,
         private readonly HotelTraderHotelBookTransformer $hotelTraderHotelBookTransformer,
         private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
-        private readonly HbsiService $hbsiService,
         private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
-    /**
-     * @throws GuzzleException
-     */
     public function book(array $filters, ApiBookingInspector $bookingInspector): ?array
     {
         $booking_id = $bookingInspector->booking_id;
@@ -240,6 +235,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $res;
     }
 
+    // TODO: Refactor this method to use the new HotelTraderClient
     public function listBookings(): ?array
     {
         $token_id = ChannelRepository::getTokenId(request()->bearerToken());
@@ -261,6 +257,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $data;
     }
 
+    // TODO: Refactor this method to use the new HotelTraderClient
     public function changeBooking(array $filters, string $mode = 'soft'): ?array
     {
         $dataResponse = [];
@@ -341,6 +338,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         return ['status' => 'Booking changed.'];
     }
 
+    // TODO: Refactor this method to use the new HotelTraderClient
     public function availabilityChange(array $filters): ?array
     {
         $booking_item = $filters['booking_item'];
@@ -392,10 +390,11 @@ class HotelTraderBookApiController extends BaseBookApiController
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
-            $this->hbsiService->updateBookingItemsData($filters['new_booking_item'], true);
+            $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
+            $hotelService->updateBookingItemsData($filters['new_booking_item'], true);
         }
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
             $filters['booking_id'], $filters, $supplierId, 'price-check', '', 'hotel',
         ]);
@@ -427,6 +426,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $data;
     }
 
+    // TODO: Refactor this method to use the new HotelTraderClient
     private function getCurrentBookingItem(array $itemPrice): array
     {
         return [
@@ -442,6 +442,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         ];
     }
 
+    // TODO: Refactor this method to use the new HotelTraderClient
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
     {
         try {
@@ -561,9 +562,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         }
     }
 
-    /**
-     * @throws Throwable
-     */
+    // TODO: Refactor this method to use the new HotelTraderClient
     private function handlePriceHbsi($supplierResponse, array $filters, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIgs): array
     {
         $dataResponse = [];
@@ -592,7 +591,8 @@ class HotelTraderBookApiController extends BaseBookApiController
         /** Enrichment Room Combinations */
         $countRooms = count($filters['occupancy']);
         if ($countRooms > 1) {
-            $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($hotels, $filters);
+            $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
+            $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
         } else {
             $clientResponse[$supplierName] = $hotels;
         }
@@ -616,6 +616,9 @@ class HotelTraderBookApiController extends BaseBookApiController
         ];
     }
 
+    /**
+     * Save booking info to metadata.
+     */
     private function saveBookingInfo(array $filters, array $bookingData, array $mainGuest): void
     {
         $filters['supplier_id'] = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;

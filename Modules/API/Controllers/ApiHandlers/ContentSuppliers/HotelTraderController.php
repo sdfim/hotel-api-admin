@@ -213,6 +213,7 @@ class HotelTraderController implements SupplierControllerInterface
                     //                    // Group rooms by roomCode into room_groups
                     if (isset($output[$giata_id]['rooms']) && is_array($output[$giata_id]['rooms'])) {
                         $rooms = [];
+                        $i = 1;
                         foreach ($output[$giata_id]['rooms'] as $room) {
                             $roomCode = $room['roomCode'] ?? null;
                             if (! $roomCode) {
@@ -229,7 +230,9 @@ class HotelTraderController implements SupplierControllerInterface
                             }
                             // Remove static fields from rate
                             $rate = $room;
+                            $rate['rate_ordinal'] = $i;
                             $rooms[$roomCode]['rates'][] = $rate;
+                            $i++;
                         }
                         // Re-index rooms numerically
                         $output[$giata_id]['rooms'] = array_values($rooms);

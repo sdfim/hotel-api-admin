@@ -2,12 +2,6 @@
 
 namespace Tests\Feature\API\BookingFlow;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
-use Illuminate\Testing\Fluent\AssertableJson;
-use Mockery;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
-
 test('search', function () {
     $this->stage = 2;
     $this->search();

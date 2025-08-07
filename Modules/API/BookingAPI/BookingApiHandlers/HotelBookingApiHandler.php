@@ -2,7 +2,6 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
-use App\Models\ApiBookingItem;
 use App\Models\ApiBookingItemCache;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -16,7 +15,7 @@ use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Services\HotelCombinationService;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -32,8 +31,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         private readonly ExpediaHotelBookingApiController $expedia,
         private readonly HbsiHotelBookingApiController $hbsi,
         private readonly HotelTraderHotelBookingApiController $hTrader,
-        private readonly HbsiService $hbsiService,
-
     ) {}
 
     public function addItem(Request $request, string $supplier): JsonResponse
@@ -56,9 +53,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $filters['booking_id'] = $request->booking_id;
             }
 
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
+            if (($supplier === SupplierNameEnum::HBSI->value || $supplier === SupplierNameEnum::HOTEL_TRADER->value)
                 && Cache::get('room_combinations:'.$request->booking_item)) {
-                $this->hbsiService->updateBookingItemsData($request->booking_item);
+                $hotelService = new HotelCombinationService($supplier);
+                $hotelService->updateBookingItemsData($request->booking_item);
             }
 
             if (! ApiBookingItemRepository::isComleteCache($request->booking_item)) {

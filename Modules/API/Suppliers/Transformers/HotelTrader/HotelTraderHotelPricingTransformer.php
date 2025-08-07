@@ -210,6 +210,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomCode = Arr::get($rate, 'roomCode', 0);
         $roomName = Arr::get($rate, 'roomName', '');
         $rateCode = Arr::get($rate, 'rateplanTag', '');
+        $roomId = Arr::get($rate, 'occupancyRefId', 1);
+        $htIdentifier = Arr::get($rate, 'htIdentifier', '');
 
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
 
@@ -260,10 +262,10 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomName);
-        $roomResponse->setSupplierRoomCode($roomCode);
+        $roomResponse->setSupplierRoomCode($roomId);
         $roomResponse->setUnifiedRoomCode($unifiedRoomCode);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
-//        $roomResponse->setRoomType($roomType);
+        $roomResponse->setSupplierRoomName($roomName);
         $roomResponse->setRoomType($roomCode);
 
         $rateDescriptionRaw = Arr::get($rate, 'longDescription', '');
@@ -272,7 +274,9 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $rateDescriptionClean = trim($rateDescriptionClean);
         $roomResponse->setRateDescription($rateDescriptionClean);
 
-        $roomResponse->setRateId($rateCode);
+        $rateOrdinal = Arr::get($rate, 'rate_ordinal', 0);
+
+        $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rateCode);
         $roomResponse->setRateName($rateCode);
         $roomResponse->setTotalPrice(round($pricingRulesApplier['total_price'], 2));
@@ -306,21 +310,23 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $this->roomCombinations[$bookingItem] = [$bookingItem];
 
-//        dd($rate);
-
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
             'supplier_id' => $this->supplier_id,
             'search_id' => $this->search_id,
             'rate_type' => $this->rate_type,
             'booking_item_data' => json_encode([
-                'hotel_id' => Arr::get($propertyGroup,'giata_id', 0),
+                'hotel_id' => Arr::get($propertyGroup, 'giata_id', 0),
                 'hotel_supplier_id' => $supplierHotelId,
                 'rate_occupancy' => $rateOccupancy,
+                'rate_type' => $this->rate_type,
+                'rate_ordinal' => $rateOrdinal,
+                'room_id' => $htIdentifier,
+
                 'rate_code' => $rateCode,
                 'room_code' => $roomCode,
-                'rate_type' => $this->rate_type,
-                'htIdentifier' => Arr::get($rate, 'htIdentifier', ''),
+
+                'htIdentifier' => $htIdentifier,
                 'rate' => [
                     'netPrice' => Arr::get($rate, 'rateInfo.netPrice', ''),
                     'tax' => Arr::get($rate, 'rateInfo.tax', ''),

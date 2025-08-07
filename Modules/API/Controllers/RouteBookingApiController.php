@@ -142,7 +142,7 @@ class RouteBookingApiController extends Controller
             }
             if ($cacheBookingItem) {
                 $this->type = TypeRequestEnum::HOTEL->value;
-                $this->supplier = SupplierNameEnum::HBSI->value;
+                $this->supplier = Cache::get('supplier:'.$request->booking_item);
             }
         }
 

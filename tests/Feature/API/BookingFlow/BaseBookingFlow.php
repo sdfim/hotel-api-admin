@@ -7,7 +7,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Mockery;
-use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Services\HotelCombinationService;
+use Modules\Enums\SupplierNameEnum;
 
 trait BaseBookingFlow
 {
@@ -80,7 +81,7 @@ trait BaseBookingFlow
     public function add_booking_item(): void
     {
         if ($this->stage === 2) {
-            (new HbsiService)
+            (new HotelCombinationService(SupplierNameEnum::HBSI->value))
                 ->updateBookingItemsData($this->bookingItem, $this->roomCombinations[$this->bookingItem]);
         }
 
