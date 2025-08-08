@@ -3,12 +3,12 @@
 namespace App\Livewire;
 
 use App\Helpers\Strings;
+use App\Livewire\Components\CustomRepeater;
 use App\Models\GiataGeography;
 use App\Models\Property;
 use Exception;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -74,20 +74,24 @@ class PropertiesTable extends Component implements HasForms, HasTable
         return [
             Grid::make(1)
                 ->schema([
-                    Repeater::make('mappings')
+                    CustomRepeater::make('mappings')
                         ->label('Mappings')
                         ->columns(2)
                         ->relationship('mappings')
                         ->schema([
                             Select::make('supplier')
+                                ->hiddenLabel()
                                 ->label('Supplier')
+                                ->placeholder('Select a supplier')
                                 ->options(fn () => array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
                                 ->default(fn ($record) => $record?->supplier)
                                 ->required()
                                 ->distinct(),
 
                             TextInput::make('supplier_id')
+                                ->hiddenLabel()
                                 ->label('Supplier ID')
+                                ->placeholder('Enter supplier ID')
                                 ->default(fn ($record) => $record?->supplier_id)
                                 ->required(),
 
@@ -322,9 +326,41 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->multiple()
                     ->options(array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
                     ->query(function (Builder $query, array $data) {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             $query->whereHas('mappings', function ($q) use ($data) {
                                 $q->whereIn('supplier', $data['values']);
+                            });
+                        }
+                    }),
+                \Filament\Tables\Filters\SelectFilter::make('all_providers')
+                    ->label('Mapped to All Providers')
+                    ->multiple()
+                    ->options(array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                    ->query(function (Builder $query, array $data) {
+                        if (! empty($data['values'])) {
+                            $query->whereHas('mappings', function ($q) use ($data) {
+                                $q->select('giata_id')
+                                    ->whereIn('supplier', $data['values'])
+                                    ->groupBy('giata_id')
+                                    ->havingRaw('COUNT(DISTINCT supplier) = ?', [count($data['values'])]);
+                            });
+                        }
+                    }),
+                \Filament\Tables\Filters\Filter::make('supplier_and_code')
+                    ->label('Supplier & Code')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('supplier')
+                            ->label('Supplier')
+                            ->options(array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                            ->searchable(),
+                        \Filament\Forms\Components\TextInput::make('supplier_id')
+                            ->label('Supplier Code'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (! empty($data['supplier']) && ! empty($data['supplier_id'])) {
+                            $query->whereHas('mappings', function ($q) use ($data) {
+                                $q->where('supplier', $data['supplier'])
+                                    ->where('supplier_id', $data['supplier_id']);
                             });
                         }
                     }),
