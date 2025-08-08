@@ -4,7 +4,7 @@
             'tab_name' => 'vendors-tab',
             'related' => [
                 ['title' => 'General Information', 'component' => 'vendors.vendor-form'],
-                ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
+//                ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
             ],
         ],
         'Products' => [

@@ -38,7 +38,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
-        $this->url = env('BASE_URI_FLOW_HOTEL_TRADER_BOOK_TEST');
+        $this->url = env('BASE_URI_FLOW_HOTEL_TRADER_BOOK_TEST', 'http://localhost');
         $this->isQueueSync = config('queue.default') === 'sync';
     }
 
