@@ -680,6 +680,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $hotelGenerator = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse($hTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
             $clientResponse[$supplierName] = [];
             $count = 0;
+            $hotels = [];
             foreach ($hotelGenerator as $count => $hotel) {
                 $hotels[] = $hotel;
             }

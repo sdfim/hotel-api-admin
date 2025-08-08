@@ -2,13 +2,16 @@
 
 namespace Modules\API\Suppliers\HotelTraderSupplier;
 
+use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Exception;
 use Fiber;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -654,25 +657,56 @@ class HotelTraderClient
      */
     protected function executeGraphQlRequest(string $endpointUrl, array $payload, array $inspectorBook): ?array
     {
-        //        try {
-        $client = new Client;
-        $response = $client->post($endpointUrl, [
-            'headers' => $this->headers,
-            'json' => $payload,
-            'timeout' => config('services.hotel_trader.timeout', 60),
-        ]);
+        $content['original']['request'] = $payload;
+        $content['original']['response'] = '';
 
-        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
-            Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
-            throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
+        try {
+            // Imitation error 500
+            // Uncomment the next line to simulate a server error for testing purposes
+//            throw new \GuzzleHttp\Exception\ServerException(
+//                'Server error',
+//                new \GuzzleHttp\Psr7\Request('POST', 'test'),
+//                new \GuzzleHttp\Psr7\Response(500)
+//            );
+            $client = new Client;
+            $response = $client->post($endpointUrl, [
+                'headers' => $this->headers,
+                'json' => $payload,
+                'timeout' => config('services.hotel_trader.timeout', 60),
+            ]);
+
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+                Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
+                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
+            }
+
+            $rs = $response->getBody()->getContents();
+            $content['original']['response'] = $rs;
+
+            if (str_contains($rs, 'errors')) {
+                SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'app', 'message' => $rs]);
+            }
+
+            return json_decode($rs, true);
+        } catch (ConnectException $e) {
+            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
+            // Timeout
+            Log::error('HotelTrader _ Connection timeout: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
+
+            return ['error' => 'HotelTrader Connection timeout'];
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('HotelTrader _ Server error: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
+
+            return ['error' => 'HotelTrader Server error'];
+        } catch (Exception $e) {
+            Log::error('HotelTrader _ Unexpected error: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
+
+            return ['error' => $e->getMessage()];
         }
-
-        return json_decode($response->getBody()->getContents(), true);
-        //        } catch (Exception $e) {
-        //            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
-        //
-        //            return null;
-        //        }
     }
 
     // ####### Search API Methods only test console comand ########
