@@ -196,9 +196,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #3');
-        // Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
+        // Book Room Only with 2 Adults and 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
         $occupancy = [
-            ['adults' => 2, 'children_ages' => [5, 1]], // 5: child, 1: infant
+            ['adults' => 1, 'children_ages' => [5, 1, 12]],
+            ['adults' => 3],
         ];
         $nights = 2;
         $checkin = $this->checkin;
@@ -206,8 +207,12 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
             ],
         ];
 
@@ -277,10 +282,16 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
+//                'rate_name' => 'HTRETN',
+//                'room_type' => 'STD0002D',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
             ],
             [
-                'rate_name' => 'Promo',
+//                'rate_name' => 'HTPKG3',
+//                'room_type' => 'STDAS01K',
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
             ],
         ];
 
@@ -326,9 +337,9 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'Best',
-                'room_type' => 'Suite',
-                'meal_plan' => 'All Inclusive',
+                'rate_name' => 'HTREN3',
+                'room_type' => 'DLX0001K',
+                'meal_plan' => 'Free Continental Breakfast',
             ],
         ];
 
@@ -389,6 +400,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
                         'rate_name' => $room['rate_name'] ?? null,
                         'meal_plan' => $room['meal_plan'] ?? null,
                         'non_refundable' => $room['non_refundable'] ?? false,
+                        'supplier_room_id' => $room['supplier_room_id'] ?? 1,
                     ];
                     $bookingItemParamsMap[$bookingItem] = $params;
                 }
@@ -423,6 +435,8 @@ class FlowHotelTraderBookDiffScenarios extends Command
     private function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
+
+//        dd($searchResponse);
 
         $bookingItem = null;
         if (! empty($roomParamsArray)) {
@@ -485,6 +499,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
             'checkout' => $checkout,
             'occupancy' => $occupancy,
             'results_per_page' => 100,
+            'destination_name' => 'Test Scenario: '.($this->argument('scenarios') ?? 'main'),
         ];
 
         if ($this->giata_id) {
