@@ -77,8 +77,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *
          * Book Room Only with 2 Adult for 5 nights
          * Cancel Reservation from above scenario #2
-         * 2262291
-         * HTREN3/DLX0001K
+         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K
          *
          * #########################
          * Scenario #3
@@ -86,29 +85,28 @@ class FlowHotelTraderBookDiffScenarios extends Command
          * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
          * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
          * Cancel Reservation from above scenario #3
-         * 2262291
-         * BAR/Suite
+         * giata 58615462	| HotelTrader 2256661; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
          * Scenario #4
          *
          * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
          * Cancel Reservation from the above Scenario #4
-         * Use 2262291
+         * giata 58615462	| HotelTrader 2256661; HTPKG3/STD0002D; HTRETN/STD0002D
          *
          * #########################
          * Scenario #5
          *
          * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #5
-         * 2262291;Book Double and Suite
+         * giata 69002077	| HotelTrader 2262291; HTRET/STD0002D; HTRETN/STDAS01K
          *
          * #########################
          * Scenario #6
          *
          * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #6
-         * 2262291;Book BAR and Promo
+         * giata 69002077	| HotelTrader 2262291; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
          * Scenario #7
@@ -120,7 +118,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
          *  Scenario #8
          *
          * Book Room for 2 Adults with included mealplan as All inclusive
-         * 2262291; Best /Suite
+         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K/Free Continental Breakfast
          *
          * #########################
          *   Scenario #9
@@ -250,12 +248,12 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-//                'rate_name' => 'HTRET',
+                //                'rate_name' => 'HTRET',
                 'room_type' => 'STD0002D',
                 'non_refundable' => false,
             ],
             [
-//                'rate_name' => 'HTRETN',
+                //                'rate_name' => 'HTRETN',
                 'room_type' => 'STDAS01K',
                 'non_refundable' => false,
             ],
@@ -282,14 +280,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-//                'rate_name' => 'HTRETN',
-//                'room_type' => 'STD0002D',
+                //                'rate_name' => 'HTRETN',
+                //                'room_type' => 'STD0002D',
                 'non_refundable' => false,
                 'supplier_room_id' => 1,
             ],
             [
-//                'rate_name' => 'HTPKG3',
-//                'room_type' => 'STDAS01K',
+                //                'rate_name' => 'HTPKG3',
+                //                'room_type' => 'STDAS01K',
                 'non_refundable' => false,
                 'supplier_room_id' => 2,
             ],
@@ -436,7 +434,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
 
-//        dd($searchResponse);
+        //        dd($searchResponse);
 
         $bookingItem = null;
         if (! empty($roomParamsArray)) {
