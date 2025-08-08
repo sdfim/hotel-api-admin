@@ -57,6 +57,8 @@ class FlowHotelTraderBookDiffScenarios extends Command
                 'scenario_5',
                 'scenario_6',
                 'scenario_7',
+                'scenario_8',
+                'scenario_9',
             ];
 
         $this->runScenarios($scenariosToRun);
