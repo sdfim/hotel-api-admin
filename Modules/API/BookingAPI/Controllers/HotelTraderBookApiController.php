@@ -26,25 +26,21 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Modules\API\Services\HotelCombinationService;
-use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelBookTransformer;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelBookTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderiHotelBookingRetrieveBookingTransformer;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
-use SimpleXMLElement;
 
 class HotelTraderBookApiController extends BaseBookApiController
 {
     public function __construct(
         private readonly HotelTraderClient $hotelTraderClient,
-        private readonly HbsiClient $hbsiClient,
-        private readonly HbsiHotelBookTransformer $hbsiHotelBookDto,
         private readonly HotelTraderHotelBookTransformer $hotelTraderHotelBookTransformer,
-        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
+        private readonly HotelTraderHotelPricingTransformer $hotelTraderHotelPricingTransformer,
         private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
@@ -144,7 +140,7 @@ class HotelTraderBookApiController extends BaseBookApiController
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
-            $res = (array) $bookingData;
+            $res = $bookingData;
         } elseif ($error) {
             $res = $clientResponse;
         } else {
@@ -257,48 +253,69 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $data;
     }
 
-    // TODO: Refactor this method to use the new HotelTraderClient
     public function changeBooking(array $filters, string $mode = 'soft'): ?array
     {
-        $dataResponse = [];
-        $soapError = false;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'change_book', 'change-'.$mode, 'hotel',
+            $filters['booking_id'], $filters, $supplierId, 'change_book', 'change-' . $mode, 'hotel',
         ]);
 
         try {
-            $xmlPriceData = $this->hbsiClient->modifyBook($filters, $bookingInspector);
-
-            if ($xmlPriceData['response'] instanceof SimpleXMLElement) {
-                $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-                $dataResponse = json_decode(json_encode($response), true);
-            } else {
-                $soapError = true;
+            // Валидация для hard change
+            if ($mode === 'hard') {
+                $isNonRefundable = ApiBookingItemRepository::isNonRefundable($filters['booking_item']);
+                if ($isNonRefundable) {
+                    $clientResponse = [
+                        'Errors' => ['This booking is non-refundable and cannot be hard-modified.'],
+                        'booking_item' => $filters['booking_item'],
+                        'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
+                    ];
+                    SaveBookingInspector::dispatch($bookingInspector, [], $clientResponse, 'error', [
+                        'side' => 'validation',
+                        'message' => 'Attempted hard change for non-refundable booking.',
+                    ]);
+                    return $clientResponse;
+                }
             }
 
-            $dataResponseToSave = $dataResponse;
-            $mainGuest = Arr::get($xmlPriceData, 'main_guest');
-            $dataResponseToSave['original'] = [
-                'request' => $xmlPriceData['request'],
-                'response' => $xmlPriceData['response'] instanceof SimpleXMLElement ? $xmlPriceData['response']->asXML() : $xmlPriceData['response'],
-                'main_guest' => $mainGuest,
+            // Подготовка данных
+            if ($mode === 'soft') {
+                $modifyData = $this->prepareSoftChangeData($filters);
+            } elseif ($mode === 'hard') {
+                $modifyData = $this->prepareHardChangeData($filters);
+            } else {
+                throw new InvalidArgumentException("Unsupported change mode: $mode");
+            }
+
+            // Вызов клиента
+            $result = $this->hotelTraderClient->modifyBooking($modifyData, $bookingInspector);
+
+            $response = $result['response'] ?? [];
+            $errors = $result['errors'] ?? [];
+            $mainGuest = Arr::get($result, 'main_guest');
+
+            $dataResponseToSave = [
+                'original' => [
+                    'request' => $result['request'],
+                    'response' => $response,
+                    'main_guest' => $mainGuest,
+                ],
             ];
-            if ($soapError) {
-                SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, [],
-                    'error', ['side' => 'app', 'message' => $xmlPriceData['response']]);
 
-                return [$xmlPriceData['response']];
-            } elseif (! isset($dataResponse['Errors'])) {
-                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
-            } else {
-                $clientResponse = $dataResponse['Errors'];
+            if (!empty($errors)) {
+                $clientResponse = $errors;
                 $clientResponse['booking_item'] = $filters['booking_item'];
-                $clientResponse['supplier'] = SupplierNameEnum::HBSI->value;
+                $clientResponse['supplier'] = SupplierNameEnum::HOTEL_TRADER->value;
+
+                SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientResponse, 'error');
+                return $clientResponse;
             }
 
+            // Трансформация и сохранение
+            $clientResponse = $this->hotelTraderHotelBookTransformer->toHotelBookResponseModel($filters);
             SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientResponse);
+
             $apiBookingsMetadata = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
             $data = [
                 ...$apiBookingsMetadata->booking_item_data,
@@ -306,36 +323,49 @@ class HotelTraderBookApiController extends BaseBookApiController
             ];
             ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
 
-        } catch (RequestException $e) {
-            Log::error('HotelTraderBookApiController | changeBooking '.$e->getResponse()->getBody());
+            return ['status' => 'Booking changed.'];
+
+        } catch (RequestException | GuzzleException $e) {
+            $message = $e->getResponse()?->getBody()?->getContents() ?? $e->getMessage();
+            Log::error('HotelTraderBookApiController | changeBooking '.$message);
             Log::error($e->getTraceAsString());
-            $dataResponse = json_decode(''.$e->getResponse()->getBody());
 
-            SaveBookingInspector::dispatch($bookingInspector, $dataResponse, [], 'error',
-                ['side' => 'app', 'message' => $e->getResponse()->getBody()]);
+            SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', [
+                'side' => 'app',
+                'message' => $message,
+            ]);
+            return ['Errors' => [$message]];
 
-            return (array) $dataResponse;
         } catch (Exception $e) {
-            $dataResponse['Errors'] = [$e->getMessage()];
             Log::error('HotelTraderBookApiController | changeBooking '.$e->getMessage());
-            Log::error('HotelTraderBookApiController | changeBooking '.$e->getMessage(),
-                [
-                    'booking_id' => $filters['booking_id'],
-                    'dataResponseToSave' => $dataResponseToSave ?? '',
-                ]);
             Log::error($e->getTraceAsString());
 
-            SaveBookingInspector::dispatch($bookingInspector, [], [], 'error',
-                ['side' => 'app', 'message' => $e->getMessage()]);
-
-            return (array) $dataResponse;
+            SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', [
+                'side' => 'app',
+                'message' => $e->getMessage(),
+            ]);
+            return ['Errors' => [$e->getMessage()]];
         }
+    }
 
-        if (! $dataResponseToSave) {
-            return [];
-        }
+    protected function prepareSoftChangeData(array $filters): array
+    {
+        return [
+            'booking_id' => $filters['booking_id'],
+            'booking_item' => $filters['booking_item'],
+            'passengers' => $filters['passengers'] ?? [],
+            'special_requests' => $filters['special_requests'] ?? [],
+        ];
+    }
 
-        return ['status' => 'Booking changed.'];
+    protected function prepareHardChangeData(array $filters): array
+    {
+        return [
+            'booking_id' => $filters['booking_id'],
+            'booking_item' => $filters['booking_item'],
+            'search_id' => $filters['search_id'] ?? null,
+            'new_booking_item' => $filters['new_booking_item'] ?? null,
+        ];
     }
 
     // TODO: Refactor this method to use the new HotelTraderClient
@@ -345,7 +375,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $searchId = (string) Str::uuid();
         $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
 
         $response = $this->priceByHotel($hotelId, $filters, $searchInspector);
@@ -353,7 +383,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         // TODO: Check $giataIgs - need to be used in the future from $filters
         $giataIgs = Arr::get($filters, 'giata_ids', []);
 
-        $handleResponse = $this->handlePriceHbsi(
+        $handleResponse = $this->handlePriceHotelTrader(
             $response,
             $filters,
             $searchId,
@@ -461,7 +491,7 @@ class HotelTraderBookApiController extends BaseBookApiController
             }
 
             /** get PriceData from HotelTrader */
-            $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            $xmlPriceData = $this->hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
 
             if (isset($xmlPriceData['error'])) {
                 return [
@@ -563,7 +593,7 @@ class HotelTraderBookApiController extends BaseBookApiController
     }
 
     // TODO: Refactor this method to use the new HotelTraderClient
-    private function handlePriceHbsi($supplierResponse, array $filters, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIgs): array
+    private function handlePriceHotelTrader($supplierResponse, array $filters, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIgs): array
     {
         $dataResponse = [];
         $clientResponse = [];
@@ -571,14 +601,14 @@ class HotelTraderBookApiController extends BaseBookApiController
         $countResponse = 0;
         $countClientResponse = 0;
 
-        $hbsiResponse = $supplierResponse;
+        $hotelTraderResponse = $supplierResponse;
 
-        $supplierName = SupplierNameEnum::HBSI->name;
-        $dataResponse[$supplierName] = $hbsiResponse['array'];
-        $dataOriginal[$supplierName] = $hbsiResponse['original'];
+        $supplierName = SupplierNameEnum::HOTEL_TRADER->name;
+        $dataResponse[$supplierName] = $hotelTraderResponse['array'];
+        $dataOriginal[$supplierName] = $hotelTraderResponse['original'];
 
         $st = microtime(true);
-        $hotelGenerator = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIgs);
+        $hotelGenerator = $this->hotelTraderHotelPricingTransformer->HotelTraderToHotelResponse($hotelTraderResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIgs);
 
         $clientResponse[$supplierName] = [];
         $count = 0;
@@ -591,17 +621,17 @@ class HotelTraderBookApiController extends BaseBookApiController
         /** Enrichment Room Combinations */
         $countRooms = count($filters['occupancy']);
         if ($countRooms > 1) {
-            $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
+            $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
             $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
         } else {
             $clientResponse[$supplierName] = $hotels;
         }
-        $bookingItems[$supplierName] = $this->HbsiHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
+        $bookingItems[$supplierName] = $this->hotelTraderHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
 
-        Log::info('HotelApiHandler | price | DTO hbsiResponse '.(microtime(true) - $st).'s');
+        Log::info('HotelApiHandler | price | DTO hotelTraderResponse '.(microtime(true) - $st).'s');
 
-        $countResponse += count($hbsiResponse['array']);
-        $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
+        $countResponse += count($hotelTraderResponse['array']);
+        $totalPages[$supplierName] = $hotelTraderResponse['total_pages'] ?? 0;
         $countClientResponse += count($clientResponse[$supplierName]);
 
         return [

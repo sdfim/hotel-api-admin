@@ -12,9 +12,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HotelTraderClient
 {
@@ -27,14 +27,15 @@ class HotelTraderClient
 
     public function __construct(
         private readonly Client $client,
-    ) {
+    )
+    {
         $this->credentials = CredentialsFactory::fromConfig();
-        $authString = base64_encode($this->credentials->username.':'.$this->credentials->password);
+        $authString = base64_encode($this->credentials->username . ':' . $this->credentials->password);
 
         $this->headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'Authorization' => 'Basic '.$authString,
+            'Authorization' => 'Basic ' . $authString,
         ];
     }
 
@@ -66,7 +67,7 @@ class HotelTraderClient
             ];
 
             if (isset($responseData['errors'])) {
-                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
+                Log::error('HotelTrader GraphQL Application Error: ' . json_encode($responseData['errors']));
 
                 return ['error' => $responseData['errors']];
             }
@@ -77,22 +78,25 @@ class HotelTraderClient
                 'request' => $rq,
                 'response' => $res,
             ];
-        } catch (\GuzzleHttp\Exception\ConnectException $e) {
-            Log::error('Connection timeout: '.$e->getMessage());
+        } catch (ConnectException $e) {
+            Log::error('Connection timeout: ' . $e->getMessage());
 
             return ['error' => 'Connection timeout'];
-        } catch (\GuzzleHttp\Exception\ServerException $e) {
-            Log::error('Server error: '.$e->getMessage());
+        } catch (ServerException $e) {
+            Log::error('Server error: ' . $e->getMessage());
 
             return ['error' => 'Server error'];
-        } catch (\Throwable $e) {
-            Log::error('Unexpected error: '.$e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('Unexpected error: ' . $e->getMessage());
 
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function book($filters, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function book($filters, $inspectorBook): array
     {
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
@@ -130,11 +134,14 @@ class HotelTraderClient
         ];
     }
 
-    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook): array
     {
         $request = [
             'query' => $this->makeCancelQueryString(),
-            'variables' => $this->makeCncelVariables($apiBookingsMetadata),
+            'variables' => $this->makeCancelVariables($apiBookingsMetadata),
         ];
 
         $response = $this->executeGraphQlRequest(
@@ -150,7 +157,10 @@ class HotelTraderClient
         ];
     }
 
-    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook): array
     {
         $request = [
             'query' => $this->makeRetrieveQueryString(),
@@ -175,9 +185,28 @@ class HotelTraderClient
         return null;
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function modifyBooking(array $modifyData, array $inspector): ?array
     {
-        return null;
+        $request = [
+            'query' => $this->makeModifyQueryString(),
+            'variables' => $this->makeModifyVariables($modifyData),
+            'operationName' => 'modify',
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspector
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.modify', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
     }
 
     protected function makeSearchVariables(array $filters, array $hotelIds): array
@@ -314,7 +343,7 @@ class HotelTraderClient
                 $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
                 $rooms[] = [
                     'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
-                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
+                    'clientRoomConfirmationCode' => $childBookingItem . '-' . $roomNumber,
                     'roomSpecialRequests' => ['room test comment'],
                     'rates' => Arr::get($childBookingItemData, 'rate', []),
                     'occupancy' => [
@@ -477,7 +506,7 @@ class HotelTraderClient
         QUERY;
     }
 
-    protected function makeCncelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    protected function makeCancelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
         return [
             'Cancel' => [
@@ -649,8 +678,8 @@ class HotelTraderClient
     /**
      * Generic method to execute a GraphQL request.
      *
-     * @param  string  $endpointUrl  The specific GraphQL endpoint to use.
-     * @param  array  $payload  The GraphQL request payload (query, variables, operationName).
+     * @param string $endpointUrl The specific GraphQL endpoint to use.
+     * @param array $payload The GraphQL request payload (query, variables, operationName).
      * @return array|null The JSON decoded response data, or null on error.
      *
      * @throws GuzzleException
@@ -676,8 +705,8 @@ class HotelTraderClient
             ]);
 
             if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
-                Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
-                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
+                Log::error('HotelTrader GraphQL HTTP Error: ' . $response->getStatusCode() . ' for ' . $endpointUrl);
+                throw new Exception('HotelTrader GraphQL HTTP Error: ' . $response->getStatusCode());
             }
 
             $rs = $response->getBody()->getContents();
@@ -689,20 +718,20 @@ class HotelTraderClient
 
             return json_decode($rs, true);
         } catch (ConnectException $e) {
-            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
+            Log::error('HotelTrader GraphQL Client Exception: ' . $e->getMessage());
             // Timeout
-            Log::error('HotelTrader _ Connection timeout: '.$e->getMessage());
+            Log::error('HotelTrader _ Connection timeout: ' . $e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
 
             return ['error' => 'HotelTrader Connection timeout'];
         } catch (ServerException $e) {
             // Error 500
-            Log::error('HotelTrader _ Server error: '.$e->getMessage());
+            Log::error('HotelTrader _ Server error: ' . $e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
 
             return ['error' => 'HotelTrader Server error'];
         } catch (Exception $e) {
-            Log::error('HotelTrader _ Unexpected error: '.$e->getMessage());
+            Log::error('HotelTrader _ Unexpected error: ' . $e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
 
             return ['error' => $e->getMessage()];
@@ -714,12 +743,12 @@ class HotelTraderClient
     /**
      * Sends a GraphQL query to the HotelTrader Search API.
      *
-     * @param  array  $variables  Optional variables for the query.
-     * @param  string|null  $query  The GraphQL query string.
-     * @param  string|null  $operationName  Optional operation name for the query.
+     * @param array $variables Optional variables for the query.
+     * @param string|null $query The GraphQL query string.
+     * @param string|null $operationName Optional operation name for the query.
      * @return array|null The JSON decoded response data, or null on error.
      *
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     public function sendSearchQueryTest(array $variables = [], ?string $query = null, ?string $operationName = null): ?array
     {
@@ -821,5 +850,173 @@ class HotelTraderClient
                 'operationName' => $operationName,
             ]
         );
+    }
+
+    protected function makeModifyQueryString(): string
+    {
+        return <<<'GRAPHQL'
+        mutation modify($Modify: ModifyRequestInput) {
+            modify(modifyRequest: $Modify) {
+                htConfirmationCode
+                clientConfirmationCode
+                otaConfirmationCode
+                otaClientName
+                consolidatedComments
+                consolidatedHTMLComments
+                bookingDate
+                aggregateTax
+                membershipId
+                specialRequests
+                aggregateGrossPrice
+                aggregateNetPrice
+                aggregateTax
+                aggregatePayAtProperty
+                aggregateCancellationFee
+                propertyDetails {
+                    propertyId
+                    propertyName
+                    address {
+                        address1
+                        address2
+                        cityName
+                        countryCode
+                        stateName
+                        zipCode
+                    }
+                    checkInTime
+                    checkOutTime
+                    city
+                    hotelImageUrl
+                    latitude
+                    longitude
+                    starRating
+                    checkInPolicy
+                    minAdultAgeForCheckIn
+                    timeZone
+                    shortDescription
+                    longDescription
+                }
+                rooms {
+                    cancellationDate
+                    cancellationFee
+                    cancelled
+                    cancellationPolicies {
+                        startWindowTime
+                        endWindowTime
+                        currency
+                        cancellationCharge
+                        timeZone
+                        timeZoneUTC
+                    }
+                    checkInDate
+                    checkOutDate
+                    clientRoomConfirmationCode
+                    htRoomConfirmationCode
+                    crsConfirmationCode
+                    crsCancelConfirmationCode
+                    pmsConfirmationCode
+                    refundable
+                    roomName
+                    rateplanTag
+                    rateplanCode
+                    shortDescription
+                    longDescription
+                    mealplanOptions {
+                        breakfastIncluded
+                        lunchIncluded
+                        dinnerIncluded
+                        allInclusive
+                        mealplanName
+                        mealplanCode
+                        mealplanDescription
+                    }
+                    rates {
+                        bar
+                        binding
+                        commissionable
+                        commissionAmount
+                        netPrice
+                        tax
+                        currency
+                        grossPrice
+                        dailyPrice
+                        dailyTax
+                        payAtProperty
+                        taxInfo {
+                            payAtBooking {
+                                date
+                                description
+                                name
+                                currency
+                                value
+                            }
+                            payAtProperty {
+                                date
+                                description
+                                name
+                                currency
+                                value
+                            }
+                        }
+                        aggregateTaxInfo {
+                            payAtBooking {
+                                description
+                                name
+                                currency
+                                value
+                            }
+                            payAtProperty {
+                                description
+                                name
+                                currency
+                                value
+                            }
+                        }
+                    }
+                    occupancy {
+                        noOfAdults
+                        noOfChildren
+                        childrenAges
+                    }
+                    guests {
+                        adult
+                        age
+                        email
+                        firstName
+                        lastName
+                        phone
+                        primary
+                    }
+                    roomSpecialRequests
+                    status
+                }
+            }
+        }
+    GRAPHQL;
+    }
+
+    protected function makeModifyVariables(array $modifyData): array
+    {
+        $modifyData['rooms'] = array_map([$this, 'sanitizeRoomData'], $modifyData['rooms']);
+
+        return [
+            'Modify' => $modifyData,
+        ];
+    }
+
+    protected function sanitizeRoomData(array $room): array
+    {
+        // Допустимые поля по GraphQL-схеме ModifyRoomInput
+        $allowedKeys = [
+            'htRoomConfirmationCode',
+            'clientRoomConfirmationCode',
+            'status',
+            'guests',
+            'occupancy',
+            'rates',
+            'roomSpecialRequests',
+        ];
+
+        return array_intersect_key($room, array_flip($allowedKeys));
     }
 }
