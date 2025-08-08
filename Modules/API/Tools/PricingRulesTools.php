@@ -198,171 +198,70 @@ class PricingRulesTools
                                 });
                             });
                     });
-                }
 
-                if ($totalGuests) {
-                    $q->where(function (Builder $q) use ($totalGuests) {
-                        $q->whereNot('field', 'total_guests')
-                            ->orWhere(function (Builder $q) use ($totalGuests) {
-                                $q->where('field', 'total_guests')
-                                    ->where('compare', '=')
-                                    ->where('value_from', $totalGuests);
-                            })
-                            ->orWhere(function (Builder $q) use ($totalGuests) {
-                                $q->where('field', 'total_guests')
-                                    ->where('compare', '!=')
-                                    ->where('value_from', $totalGuests);
-                            })
-                            ->orWhere(function (Builder $q) use ($totalGuests) {
-                                $q->where('field', 'total_guests')
-                                    ->where('compare', '<')
-                                    ->where('value_from', '<', $totalGuests);
-                            })
-                            ->orWhere(function (Builder $q) use ($totalGuests) {
-                                $q->where('field', 'total_guests')
-                                    ->where('compare', '>')
-                                    ->where('value_from', '>', $totalGuests);
-                            })
-                            ->orWhere(function (Builder $q) use ($totalGuests) {
-                                $q->where('field', 'total_guests')
-                                    ->where('compare', 'between')
-                                    ->where('value_from', '<=', $totalGuests);
+                    $q->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
+                        $q->where('field', 'travel_date')
+                            ->where(function (Builder $q) use ($checkIn, $checkOut) {
+                                $q->where(function (Builder $q) use ($checkIn, $checkOut) {
+                                    $q->where('compare', '=')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") NOT BETWEEN ? AND ?', [$checkIn, $checkOut]);
+                                })->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
+                                    $q->where('compare', '!=')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") BETWEEN ? AND ?', [$checkIn, $checkOut]);
+                                })->orWhere(function (Builder $q) use ($checkIn) {
+                                    $q->where('compare', '<')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") >= ?', [$checkIn]);
+                                })->orWhere(function (Builder $q) use ($checkOut) {
+                                    $q->where('compare', '>')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") <= ?', [$checkOut]);
+                                })->orWhere(function (Builder $q) use ($checkIn) {
+                                    $q->where('compare', '<=')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") < ?', [$checkIn]);
+                                })->orWhere(function (Builder $q) use ($checkOut) {
+                                    $q->where('compare', '>=')
+                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") > ?', [$checkOut]);
+                                })->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
+                                    $q->where('compare', 'between')
+                                        ->where(function (Builder $q) use ($checkIn, $checkOut) {
+                                            $q->whereRaw('? > value_to OR ? < value_from', [$checkIn, $checkOut]);
+                                        });
+                                });
                             });
                     });
+
                 }
 
-                if ($daysUntilDeparture) {
-                    $q->where(function (Builder $q) use ($daysUntilDeparture) {
-                        $q->whereNot('field', 'days_until_departure')
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '=')
-                                    ->where('value_from', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '!=')
-                                    ->where('value_from', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '<')
-                                    ->where('value_from', '<', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '<=')
-                                    ->where('value_from', '<=', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '>')
-                                    ->where('value_from', '>', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', '>=')
-                                    ->where('value_from', '>=', $daysUntilDeparture);
-                            })
-                            ->orWhere(function (Builder $q) use ($daysUntilDeparture) {
-                                $q->where('field', 'days_until_departure')
-                                    ->where('compare', 'between')
-                                    ->where('value_from', '<=', $daysUntilDeparture);
-                            });
-                    });
-                }
-
-                if ($nights) {
-                    $q->where(function (Builder $q) use ($nights) {
-                        $q->whereNot('field', 'nights')
-                            ->orWhere(function (Builder $q) use ($nights) {
-                                $q->where('field', 'nights')
-                                    ->where('compare', '=')
-                                    ->where('value_from', $nights);
-                            })
-                            ->orWhere(function (Builder $q) use ($nights) {
-                                $q->where('field', 'nights')
-                                    ->where('compare', '!=')
-                                    ->where('value_from', $nights);
-                            })
-                            ->orWhere(function (Builder $q) use ($nights) {
-                                $q->where('field', 'nights')
-                                    ->where('compare', '<')
-                                    ->where('value_from', '<', $nights);
-                            })
-                            ->orWhere(function (Builder $q) use ($nights) {
-                                $q->where('field', 'nights')
-                                    ->where('compare', '>')
-                                    ->where('value_from', '>', $nights);
-                            })
-                            ->orWhere(function (Builder $q) use ($nights) {
-                                $q->where('field', 'nights')
-                                    ->where('compare', 'between')
-                                    ->where('value_from', '<=', $nights);
-                            });
-                    });
-                }
-
-                if ($rating) {
-                    $q->where(function (Builder $q) use ($rating) {
-                        $q->whereNot('field', 'rating')
-                            ->orWhere(function (Builder $q) use ($rating) {
-                                $q->where('field', 'rating')
-                                    ->where('compare', '=')
-                                    ->where('value_from', $rating);
-                            })
-                            ->orWhere(function (Builder $q) use ($rating) {
-                                $q->where('field', 'rating')
-                                    ->where('compare', '!=')
-                                    ->where('value_from', $rating);
-                            })
-                            ->orWhere(function (Builder $q) use ($rating) {
-                                $q->where('field', 'rating')
-                                    ->where('compare', '<')
-                                    ->where('value_from', '<', $rating);
-                            })
-                            ->orWhere(function (Builder $q) use ($rating) {
-                                $q->where('field', 'rating')
-                                    ->where('compare', '>')
-                                    ->where('value_from', '>', $rating);
-                            })
-                            ->orWhere(function (Builder $q) use ($rating) {
-                                $q->where('field', 'rating')
-                                    ->where('compare', 'between')
-                                    ->where('value_from', '<=', $rating);
-                            });
-                    });
-                }
-
-                if ($numberOfRooms) {
-                    $q->where(function (Builder $q) use ($numberOfRooms) {
-                        $q->whereNot('field', 'number_of_rooms')
-                            ->orWhere(function (Builder $q) use ($numberOfRooms) {
-                                $q->where('field', 'number_of_rooms')
-                                    ->where('compare', '=')
-                                    ->where('value_from', $numberOfRooms);
-                            })
-                            ->orWhere(function (Builder $q) use ($numberOfRooms) {
-                                $q->where('field', 'number_of_rooms')
-                                    ->where('compare', '!=')
-                                    ->where('value_from', $numberOfRooms);
-                            })
-                            ->orWhere(function (Builder $q) use ($numberOfRooms) {
-                                $q->where('field', 'number_of_rooms')
-                                    ->where('compare', '<')
-                                    ->where('value_from', '<', $numberOfRooms);
-                            })
-                            ->orWhere(function (Builder $q) use ($numberOfRooms) {
-                                $q->where('field', 'number_of_rooms')
-                                    ->where('compare', '>')
-                                    ->where('value_from', '>', $numberOfRooms);
-                            })
-                            ->orWhere(function (Builder $q) use ($numberOfRooms) {
-                                $q->where('field', 'number_of_rooms')
-                                    ->where('compare', 'between')
-                                    ->where('value_from', '<=', $numberOfRooms);
-                            });
-                    });
+                foreach ([
+                    'total_guests' => $totalGuests,
+                    'days_until_departure' => $daysUntilDeparture,
+                    'nights' => $nights,
+                    'rating' => $rating,
+                    'number_of_rooms' => $numberOfRooms,
+                ] as $field => $value) {
+                    if ($value !== null) {
+                        $q->orWhere(function (Builder $q) use ($field, $value) {
+                            $q->where('field', $field)
+                                ->where(function (Builder $q) use ($value) {
+                                    $q->where(function (Builder $q) use ($value) {
+                                        $q->where('compare', '=')
+                                            ->where('value_from', '!=', $value);
+                                    })->orWhere(function (Builder $q) use ($value) {
+                                        $q->where('compare', '!=')
+                                            ->where('value_from', '=', $value);
+                                    })->orWhere(function (Builder $q) use ($value) {
+                                        $q->where('compare', '<')
+                                            ->where('value_to', '>=', $value);
+                                    })->orWhere(function (Builder $q) use ($value) {
+                                        $q->where('compare', '>')
+                                            ->where('value_from', '<=', $value);
+                                    })->orWhere(function (Builder $q) use ($value) {
+                                        $q->where('compare', 'between')
+                                            ->where('value_from', '>', $value)
+                                            ->where('value_to', '<', $value);
+                                    });
+                                });
+                        });
+                    }
                 }
             })
 

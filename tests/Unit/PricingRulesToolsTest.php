@@ -424,7 +424,6 @@ test('rules handles travel date conditions', function () {
     expect($result[0]['id'])->toEqual($matchingRule->id);
     expect($result[1]['id'])->toEqual($gteRule->id);
     expect($result[2]['id'])->toEqual($ltRule->id);
-    expect($result[3]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles date of stay conditions', function () {
@@ -658,10 +657,9 @@ test('rules handles total guests conditions', function () {
     $result = $this->pricingRulesTools->rules($query, $this->supplierRequestGiataIds);
 
     // Should return 3 matching rules, ordered by weight desc
-    expect($result)->toHaveCount(3);
+    expect($result)->toHaveCount(2);
     expect($result[0]['id'])->toEqual($equalsRule->id);
     expect($result[1]['id'])->toEqual($lteRule->id);
-    expect($result[2]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles days until departure conditions', function () {
@@ -746,11 +744,10 @@ test('rules handles days until departure conditions', function () {
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
     // Should return 3 matching rules, ordered by weight desc
-    expect($result)->toHaveCount(4);
+    expect($result)->toHaveCount(3);
     expect($result[0]['id'])->toEqual($equalsRule->id);
     expect($result[1]['id'])->toEqual($gteRule->id);
     expect($result[2]['id'])->toEqual($ltRule->id);
-    expect($result[3]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles nights conditions', function () {
@@ -796,9 +793,8 @@ test('rules handles nights conditions', function () {
     // Test the rules method
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
-    expect($result)->toHaveCount(2);
+    expect($result)->toHaveCount(1);
     expect($result[0]['id'])->toEqual($matchingRule->id);
-    expect($result[1]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles rating conditions', function () {
@@ -844,9 +840,8 @@ test('rules handles rating conditions', function () {
     // Test the rules method
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
-    expect($result)->toHaveCount(2);
+    expect($result)->toHaveCount(1);
     expect($result[0]['id'])->toEqual($matchingRule->id);
-    expect($result[1]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles number of rooms conditions', function () {
@@ -892,9 +887,8 @@ test('rules handles number of rooms conditions', function () {
     // Test the rules method
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
-    expect($result)->toHaveCount(2);
+    expect($result)->toHaveCount(1);
     expect($result[0]['id'])->toEqual($matchingRule->id);
-    expect($result[1]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules handles multiple conditions', function () {
@@ -970,9 +964,8 @@ test('rules handles multiple conditions', function () {
     // Test the rules method
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
-    expect($result)->toHaveCount(2);
+    expect($result)->toHaveCount(1);
     expect($result[0]['id'])->toEqual($matchingRule->id);
-    expect($result[1]['id'])->toEqual($nonMatchingRule->id);
 });
 
 test('rules ordered by weight', function () {
