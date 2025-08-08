@@ -382,6 +382,7 @@ class BookApiHandler extends BaseController
             $data = match (SupplierNameEnum::from($apiBookingItem->supplier->name)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->changeSoftBooking($filters),
                 SupplierNameEnum::HBSI => $this->hbsi->changeBooking($filters, 'hard'),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->changeBooking($filters, 'hard'),
                 default => [],
             };
         } catch (Exception $e) {

@@ -72,8 +72,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
             $data = match (SupplierNameEnum::from($supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->addItem($filters),
-                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters),
                 SupplierNameEnum::HBSI => $this->hbsi->addItem($filters),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters),
                 default => [],
             };
 

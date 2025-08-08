@@ -35,7 +35,6 @@ class HotelTraderClient
         ];
     }
 
-
     public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
         $payload = [
@@ -90,25 +89,24 @@ class HotelTraderClient
         }
     }
 
-
     public function book($filters, $inspectorBook)
     {
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
-        $flatGuests = array_merge(...$guests);
-
-        $mappedGuests = array_map(function ($guest) {
-            return [
-                'firstName' => $guest['given_name'],
-                'lastName' => $guest['family_name'],
-                'email' => 'test@hoteltrader.com', // or $guest['email'] if available
-                'adult' => true, // or derive from age/title if needed
-                'age' => $guest['age'] ?? 30,
-                'phone' => '1234567890', // or $guest['phone'] if available
-                'primary' => true, // or set logic if needed
-            ];
-        }, $flatGuests);
+        $mappedGuests = array_map(function ($guests) {
+            return array_map(function ($guest) {
+                return [
+                    'firstName' => $guest['given_name'],
+                    'lastName' => $guest['family_name'],
+                    'email' => 'test@hoteltrader.com',
+                    'adult' => ($guest['age'] ?? 30) >= 18,
+                    'age' => $guest['age'] ?? 30,
+                    'phone' => '1234567890', // TODO: replace with actual phone if available
+                    'primary' => true,
+                ];
+            }, $guests);
+        }, $guests);
 
         $request = [
             'query' => $this->makeBookQueryString(),
@@ -169,7 +167,6 @@ class HotelTraderClient
         ];
     }
 
-
     public function availability(array $hotelIds, array $filters, array $searchInspector): ?array
     {
         return null;
@@ -179,7 +176,6 @@ class HotelTraderClient
     {
         return null;
     }
-
 
     protected function makeSearchVariables(array $filters, array $hotelIds): array
     {
@@ -303,10 +299,42 @@ class HotelTraderClient
         QUERY;
     }
 
-
     protected function makeBookVariables(array $filters, array $mappedGuests): array
     {
-        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+        $rooms = [];
+        $childrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($filters['booking_item']);
+
+        if ($childrenBookingItems) {
+            $roomNumber = 1;
+            foreach ($childrenBookingItems as $k => $childBookingItem) {
+                $childBookingItemData = ApiBookingItemRepository::getItemData($childBookingItem);
+                $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
+                $rooms[] = [
+                    'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
+                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
+                    'roomSpecialRequests' => ['room test comment'],
+                    'rates' => Arr::get($childBookingItemData, 'rate', []),
+                    'occupancy' => [
+                        'guestAges' => $guestAges,
+                    ],
+                    'guests' => $mappedGuests[$k] ?? [],
+                ];
+                $roomNumber++;
+            }
+        } else {
+            $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+            $guestAges = implode(',', array_column($mappedGuests[0], 'age'));
+            $rooms[] = [
+                'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
+                'clientRoomConfirmationCode' => $filters['booking_item'],
+                'roomSpecialRequests' => ['room test comment'],
+                'rates' => Arr::get($bookingItemData, 'rate', []),
+                'occupancy' => [
+                    'guestAges' => $guestAges,
+                ],
+                'guests' => $mappedGuests[0] ?? [],
+            ];
+        }
 
         return [
             'Book' => [
@@ -314,41 +342,9 @@ class HotelTraderClient
                 'otaConfirmationCode' => $filters['booking_item'],
                 'otaClientName' => 'htrader',
                 'paymentInformation' => null,
-                'rooms' => [
-                    [
-                        'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
-                        'clientRoomConfirmationCode' => $filters['booking_item'].'-1',
-                        'roomSpecialRequests' => ['room test comment'],
-                        'rates' => Arr::get($bookingItemData, 'rate', []),
-                        'occupancy' => [
-                            'guestAges' => '30,30',
-                        ],
-                        'guests' => $mappedGuests,
-                    ],
-                ],
+                'rooms' => $rooms,
             ],
         ];
-
-        //        [
-        //                    {
-        //                        "firstName": "test",
-        //                        "lastName": "booking",
-        //                        "email": "test@hoteltrader.com",
-        //                        "adult": true,
-        //                        "age": 30,
-        //                        "phone": "1234567890",
-        //                        "primary": true
-        //                    },
-        //                    {
-        //                        "firstName": "test1",
-        //                        "lastName": "booking1",
-        //                        "email": "test@hoteltrader.com",
-        //                        "adult": false,
-        //                        "age": 5,
-        //                        "phone": "1234567890",
-        //                        "primary": true
-        //                    }
-        //                ]
     }
 
     protected function makeBookQueryString(): string
@@ -478,7 +474,6 @@ class HotelTraderClient
         QUERY;
     }
 
-
     protected function makeCncelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
         return [
@@ -507,7 +502,6 @@ class HotelTraderClient
             }
         QUERY;
     }
-
 
     protected function makeRetrieveVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
@@ -680,7 +674,6 @@ class HotelTraderClient
         //            return null;
         //        }
     }
-
 
     // ####### Search API Methods only test console comand ########
 

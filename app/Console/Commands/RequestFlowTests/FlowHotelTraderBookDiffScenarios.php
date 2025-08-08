@@ -161,7 +161,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-//        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
+        //        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
         //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
         $this->cancel($bookingId, $bookingItem);
@@ -245,12 +245,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'HTRET',
+//                'rate_name' => 'HTRET',
                 'room_type' => 'STD0002D',
+                'non_refundable' => false,
             ],
             [
-                'rate_name' => 'HTRETN',
+//                'rate_name' => 'HTRETN',
                 'room_type' => 'STDAS01K',
+                'non_refundable' => false,
             ],
         ];
 
@@ -421,8 +423,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
     private function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
-
-//        dd($searchResponse);
 
         $bookingItem = null;
         if (! empty($roomParamsArray)) {
