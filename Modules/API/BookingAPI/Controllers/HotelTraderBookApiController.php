@@ -12,6 +12,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
+use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -350,21 +351,132 @@ class HotelTraderBookApiController extends BaseBookApiController
 
     protected function prepareSoftChangeData(array $filters): array
     {
+        $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
+        $htCode = $meta->supplier_booking_item_id;
+
+        // guests по комнатам
+        $guestsByRoom = [];
+        foreach (($filters['passengers'] ?? []) as $p) {
+            $r = (int)($p['room'] ?? 1);
+            $guestsByRoom[$r][] = [
+                'firstName' => $p['given_name'] ?? '',
+                'lastName'  => $p['family_name'] ?? '',
+                'email'     => $p['email'] ?? 'test@hoteltrader.com',
+                'adult'     => true,
+                'age'       => $p['age'] ?? 30,
+                'phone'     => $p['phone'] ?? '1234567890',
+                'primary'   => true,
+            ];
+        }
+
+        // roomSpecialRequests по комнатам
+        $srByRoom = [];
+        foreach (($filters['special_requests'] ?? []) as $sr) {
+            $r = (int)($sr['room'] ?? 1);
+            $srByRoom[$r][] = $sr['special_request'];
+        }
+
+        $roomsIdx = array_unique(array_merge(array_keys($guestsByRoom), array_keys($srByRoom))) ?: [1];
+
+        $rooms = [];
+        foreach ($roomsIdx as $r) {
+            $room = [
+                'clientRoomConfirmationCode' => $filters['booking_item'] . ($r > 1 ? "-$r" : ''),
+                'status' => 'MODIFY',
+            ];
+            if (!empty($guestsByRoom[$r]))      $room['guests'] = $guestsByRoom[$r];
+            if (!empty($srByRoom[$r]))          $room['roomSpecialRequests'] = $srByRoom[$r];
+            $rooms[] = $room;
+        }
+
         return [
-            'booking_id' => $filters['booking_id'],
-            'booking_item' => $filters['booking_item'],
-            'passengers' => $filters['passengers'] ?? [],
-            'special_requests' => $filters['special_requests'] ?? [],
+            'htConfirmationCode'      => $htCode,
+            'clientConfirmationCode'  => $filters['booking_item'],
+            'otaConfirmationCode'     => $filters['booking_item'],
+            'otaClientName'           => 'htrader',
+            'specialRequests'         => [], // общие при желании
+            'rooms'                   => $rooms,
         ];
     }
 
+    /**
+     * HardChange (replace): CANCEL old room + BOOK new room в одном modify.
+     * $filters: booking_id, booking_item (old), new_booking_item, search_id
+     */
     protected function prepareHardChangeData(array $filters): array
     {
+        // 1) Общие данные резервации
+        $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
+        $htConfirmationCode = $meta?->supplier_booking_item_id; // наподобие "HT-XXXXXX"
+
+        // 2) Старый room -> CANCEL
+        // Желательно передавать оба: htRoomConfirmationCode (если хранится) и clientRoomConfirmationCode.
+        $htRoomCodeOld = $meta?->supplier_booking_room_id ?? null; // если не храните — можно опустить
+        $cancelRoom = array_filter([
+            'htRoomConfirmationCode'     => $htRoomCodeOld,
+            'clientRoomConfirmationCode' => $filters['booking_item'],
+            'roomSpecialRequests'        => ['cancelling room to replace with new one'],
+            'status'                     => 'CANCEL',
+        ], fn($v) => $v !== null);
+
+        // 3) Новые данные для BOOK (берём из new_booking_item кеша/репозитория)
+        $newData = ApiBookingItemRepository::getItemData($filters['new_booking_item']) ?? [];
+        // guests — можно подтянуть из последнего "change_passengers" по booking_item,
+        // либо собрать из текущих пассажиров:
+        $pass = BookingRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $roomsSaved = $pass ? (json_decode($pass->request, true)['rooms'] ?? []) : [];
+        $guests = [];
+        foreach (($roomsSaved[0] ?? []) as $g) {
+            $guests[] = [
+                'firstName' => $g['given_name'] ?? 'Guest',
+                'lastName'  => $g['family_name'] ?? 'Name',
+                'email'     => 'test@hoteltrader.com',
+                'adult'     => ($g['age'] ?? 30) >= 18,
+                'age'       => $g['age'] ?? 30,
+                'phone'     => '1234567890',
+                'primary'   => true,
+            ];
+        }
+        if (!$guests) {
+            $guests = [[
+                'firstName' => 'Test','lastName' => 'Guest','email' => 'test@hoteltrader.com',
+                'adult' => true,'age' => 30,'phone' => '1234567890','primary' => true,
+            ]];
+        }
+
+        // occupancy: если нет в newData — собери из исходного search запроса
+        $occ = $newData['occupancy'] ?? null;
+        if (!$occ) {
+            $sid = ApiBookingItemRepository::getSearchId($filters['new_booking_item'])
+                ?? ApiBookingItemRepository::getSearchId($filters['booking_item']);
+            $req = \App\Models\ApiSearchInspector::where('search_id', $sid)->value('request');
+            $search = $req ? json_decode($req, true) : [];
+            $o0 = $search['occupancy'][0] ?? [];
+            $occ = [
+                'numberOfAdults'   => (int)($o0['adults'] ?? 2),
+                'numberOfChildren' => isset($o0['children_ages']) ? count($o0['children_ages']) : 0,
+                'childrenAges'     => isset($o0['children_ages']) ? implode(',', $o0['children_ages']) : null,
+            ];
+        }
+
+        // BOOK новая комната (по new_booking_item)
+        $bookRoom = array_filter([
+            'htIdentifier'               => $newData['htIdentifier'] ?? null,
+            'clientRoomConfirmationCode' => $filters['new_booking_item'],
+            'roomSpecialRequests'        => ['adding replacement room'],
+            'rates'                      => $newData['rate'] ?? null,      // { netPrice, tax, grossPrice, payAtProperty, dailyPrice[], dailyTax[] }
+            'occupancy'                  => $occ,                          // { numberOfAdults, numberOfChildren, childrenAges }
+            'guests'                     => $guests,                       // как в примерах HT
+            'status'                     => 'BOOK',
+        ], fn($v) => $v !== null);
+
         return [
-            'booking_id' => $filters['booking_id'],
-            'booking_item' => $filters['booking_item'],
-            'search_id' => $filters['search_id'] ?? null,
-            'new_booking_item' => $filters['new_booking_item'] ?? null,
+            'htConfirmationCode'     => $htConfirmationCode,
+            'clientConfirmationCode' => $filters['booking_item'], // ок — любой свой id
+            'otaConfirmationCode'    => $filters['booking_item'],
+            'otaClientName'          => 'htrader',
+            'specialRequests'        => [],                       // опционально
+            'rooms'                  => [$cancelRoom, $bookRoom],
         ];
     }
 
