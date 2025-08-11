@@ -22,20 +22,18 @@ class HotelTraderClient
 
     // We no longer need a single $baseUrl property, as it will be dynamic
     // protected string $baseUrl;
-
     protected array $headers;
 
     public function __construct(
         private readonly Client $client,
-    )
-    {
+    ) {
         $this->credentials = CredentialsFactory::fromConfig();
-        $authString = base64_encode($this->credentials->username . ':' . $this->credentials->password);
+        $authString = base64_encode($this->credentials->username.':'.$this->credentials->password);
 
         $this->headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . $authString,
+            'Authorization' => 'Basic '.$authString,
         ];
     }
 
@@ -67,7 +65,7 @@ class HotelTraderClient
             ];
 
             if (isset($responseData['errors'])) {
-                Log::error('HotelTrader GraphQL Application Error: ' . json_encode($responseData['errors']));
+                Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
 
                 return ['error' => $responseData['errors']];
             }
@@ -79,15 +77,15 @@ class HotelTraderClient
                 'response' => $res,
             ];
         } catch (ConnectException $e) {
-            Log::error('Connection timeout: ' . $e->getMessage());
+            Log::error('Connection timeout: '.$e->getMessage());
 
             return ['error' => 'Connection timeout'];
         } catch (ServerException $e) {
-            Log::error('Server error: ' . $e->getMessage());
+            Log::error('Server error: '.$e->getMessage());
 
             return ['error' => 'Server error'];
         } catch (Throwable $e) {
-            Log::error('Unexpected error: ' . $e->getMessage());
+            Log::error('Unexpected error: '.$e->getMessage());
 
             return ['error' => $e->getMessage()];
         }
@@ -180,9 +178,28 @@ class HotelTraderClient
         ];
     }
 
-    public function availability(array $hotelIds, array $filters, array $searchInspector): ?array
+    /**
+     * @throws GuzzleException
+     */
+    public function availability(array $hotelIds, array $filters, array $inspector): array
     {
-        return null;
+        $request = [
+            'query' => $this->makeSearchQueryString(),
+            'variables' => $this->makeSearchVariables($filters, $hotelIds),
+            'operationName' => 'getPropertiesByIds',
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlSearchUrl,
+            $request,
+            $inspector
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.getPropertiesByIds.properties', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
     }
 
     /**
@@ -343,7 +360,7 @@ class HotelTraderClient
                 $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
                 $rooms[] = [
                     'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
-                    'clientRoomConfirmationCode' => $childBookingItem . '-' . $roomNumber,
+                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
                     'roomSpecialRequests' => ['room test comment'],
                     'rates' => Arr::get($childBookingItemData, 'rate', []),
                     'occupancy' => [
@@ -678,8 +695,8 @@ class HotelTraderClient
     /**
      * Generic method to execute a GraphQL request.
      *
-     * @param string $endpointUrl The specific GraphQL endpoint to use.
-     * @param array $payload The GraphQL request payload (query, variables, operationName).
+     * @param  string  $endpointUrl  The specific GraphQL endpoint to use.
+     * @param  array  $payload  The GraphQL request payload (query, variables, operationName).
      * @return array|null The JSON decoded response data, or null on error.
      *
      * @throws GuzzleException
@@ -692,11 +709,11 @@ class HotelTraderClient
         try {
             // Imitation error 500
             // Uncomment the next line to simulate a server error for testing purposes
-//            throw new \GuzzleHttp\Exception\ServerException(
-//                'Server error',
-//                new \GuzzleHttp\Psr7\Request('POST', 'test'),
-//                new \GuzzleHttp\Psr7\Response(500)
-//            );
+            //            throw new \GuzzleHttp\Exception\ServerException(
+            //                'Server error',
+            //                new \GuzzleHttp\Psr7\Request('POST', 'test'),
+            //                new \GuzzleHttp\Psr7\Response(500)
+            //            );
             $client = new Client;
             $response = $client->post($endpointUrl, [
                 'headers' => $this->headers,
@@ -705,8 +722,8 @@ class HotelTraderClient
             ]);
 
             if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
-                Log::error('HotelTrader GraphQL HTTP Error: ' . $response->getStatusCode() . ' for ' . $endpointUrl);
-                throw new Exception('HotelTrader GraphQL HTTP Error: ' . $response->getStatusCode());
+                Log::error('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode().' for '.$endpointUrl);
+                throw new Exception('HotelTrader GraphQL HTTP Error: '.$response->getStatusCode());
             }
 
             $rs = $response->getBody()->getContents();
@@ -718,20 +735,20 @@ class HotelTraderClient
 
             return json_decode($rs, true);
         } catch (ConnectException $e) {
-            Log::error('HotelTrader GraphQL Client Exception: ' . $e->getMessage());
+            Log::error('HotelTrader GraphQL Client Exception: '.$e->getMessage());
             // Timeout
-            Log::error('HotelTrader _ Connection timeout: ' . $e->getMessage());
+            Log::error('HotelTrader _ Connection timeout: '.$e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
 
             return ['error' => 'HotelTrader Connection timeout'];
         } catch (ServerException $e) {
             // Error 500
-            Log::error('HotelTrader _ Server error: ' . $e->getMessage());
+            Log::error('HotelTrader _ Server error: '.$e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
 
             return ['error' => 'HotelTrader Server error'];
         } catch (Exception $e) {
-            Log::error('HotelTrader _ Unexpected error: ' . $e->getMessage());
+            Log::error('HotelTrader _ Unexpected error: '.$e->getMessage());
             SaveBookingInspector::dispatch($inspectorBook, $content, [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
 
             return ['error' => $e->getMessage()];
@@ -743,9 +760,9 @@ class HotelTraderClient
     /**
      * Sends a GraphQL query to the HotelTrader Search API.
      *
-     * @param array $variables Optional variables for the query.
-     * @param string|null $query The GraphQL query string.
-     * @param string|null $operationName Optional operation name for the query.
+     * @param  array  $variables  Optional variables for the query.
+     * @param  string|null  $query  The GraphQL query string.
+     * @param  string|null  $operationName  Optional operation name for the query.
      * @return array|null The JSON decoded response data, or null on error.
      *
      * @throws Exception|GuzzleException
