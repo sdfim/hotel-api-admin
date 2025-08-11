@@ -20,6 +20,7 @@ use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
 use App\Repositories\HbsiRepository;
+use App\Repositories\HotelTraderContentRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -493,23 +494,41 @@ class HotelTraderBookApiController extends BaseBookApiController
 
     public function availabilityChange(array $filters): ?array
     {
-        $bookingItemCode = $filters['booking_item'];
+        $bookingItemCode = $filters['booking_item'] ?? null;
+        if (! $bookingItemCode) {
+            return ['errors' => ['booking_item is required']];
+        }
+
         $bookingItem = ApiBookingItem::where('booking_item', $bookingItemCode)->first();
+        if (! $bookingItem) {
+            return ['errors' => ['Booking item not found']];
+        }
+
         $searchId = (string) Str::uuid();
+        $bookingItemData = json_decode($bookingItem->booking_pricing_data ?? $bookingItem->booking_item_data ?? '{}', true);
+        $hotelGiataId = Arr::get($bookingItemData, 'hotel_id');
 
-        // giata по текущему booking_item
-        $hotelGiataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
+        if (! $hotelGiataId) {
+            return ['errors' => ['GIATA id not found in booking item']];
+        }
 
-        // маппинг giata -> supplier_id + (по возможности) имя отеля
-        $hbsiHotel = \App\Repositories\HbsiRepository::getByGiataId($hotelGiataId);
-        $hotelIds = isset($hbsiHotel['supplier_id']) ? [(string) $hbsiHotel['supplier_id']] : [];
+        // Получаем supplier hotel ids по giata и сразу нормализуем в массив строк
+        $hotelIds = array_map('strval', HotelTraderContentRepository::getIdsByGiataIds([$hotelGiataId]) ?? []);
+
+        // Если маппинга нет — короткий ответ без похода к HotelTrader
+        if (empty($hotelIds)) {
+            return [
+                'result' => [],
+                'change_search_id' => $searchId,
+                'warnings' => ['No HotelTrader mapping found for this GIATA id'],
+            ];
+        }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([
             $searchId, $filters, [$supplierId], 'change', 'hotel',
         ]);
 
-        // 1) сырой GraphQL от клиента
         $raw = $this->hotelTraderClient->availability($hotelIds, $filters, $searchInspector);
 
         if (! empty($raw['errors'])) {
@@ -523,21 +542,25 @@ class HotelTraderBookApiController extends BaseBookApiController
             return ['errors' => $raw['errors']];
         }
 
-        // 2) нормализация под вход трансформера (GIATA-контекст отдельным аргументом)
+        // Giata context (безопасно достаём имя)
+        $details = HotelTraderContentRepository::getDetailByGiataId($hotelGiataId);
+        $giataName = $details->first()?->name ?? '';
+
         $giataContext = [
-            'giata_id' => $hbsiHotel['giata_id'] ?? $hotelGiataId,
-            'name' => $hbsiHotel['name'] ?? '',
+            'giata_id' => $hotelGiataId,
+            'name' => $giataName,
         ];
+
+        // Нормализация ответа под трансформер
         $normalized = $this->normalizeHotelTraderGraphQl($raw['response'] ?? [], $giataContext);
 
-        // упаковать как «supplierResponse» для handlePriceHotelTrader
+        // Упаковка в формат supplierResponse для handlePriceHotelTrader
         $supplierResponse = [
             'original' => ['request' => $raw['request'], 'response' => $raw['response']],
             'array' => $normalized,
             'total_pages' => 1,
         ];
 
-        // 3) трансформер/комбинации/правила
         $giataIgs = Arr::get($filters, 'giata_ids', []);
         $handled = $this->handlePriceHotelTrader(
             $supplierResponse,
@@ -550,21 +573,22 @@ class HotelTraderBookApiController extends BaseBookApiController
 
         $clientResponse = $handled['clientResponse'];
 
-        // логирование в инспектор
-        $content = [
-            'count' => $handled['countResponse'],
-            'query' => $filters,
-            'results' => $handled['dataResponse'],
-        ];
-        $result = [
-            'count' => $handled['countClientResponse'],
-            'total_pages' => max($handled['totalPages']),
-            'query' => $filters,
-            'results' => $clientResponse,
-        ];
-        SaveSearchInspector::dispatch($searchInspector, $handled['dataOriginal'] ?? [], $content, $result);
+        SaveSearchInspector::dispatch(
+            $searchInspector,
+            $handled['dataOriginal'] ?? [],
+            [
+                'count' => $handled['countResponse'],
+                'query' => $filters,
+                'results' => $handled['dataResponse'],
+            ],
+            [
+                'count' => $handled['countClientResponse'],
+                'total_pages' => max($handled['totalPages']),
+                'query' => $filters,
+                'results' => $clientResponse,
+            ]
+        );
 
-        // booking_items
         if (! empty($handled['bookingItems'])) {
             foreach ($handled['bookingItems'] as $items) {
                 SaveBookingItems::dispatch($items);
