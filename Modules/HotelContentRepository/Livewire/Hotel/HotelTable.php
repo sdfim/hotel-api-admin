@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
+use App\Models\Supplier;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -30,12 +31,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
 use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
 use Modules\HotelContentRepository\Actions\Product\DeleteProduct;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
-use ZipArchive;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
@@ -214,7 +215,14 @@ class HotelTable extends Component implements HasForms, HasTable
                     })
                     ->modalHeading('Add Hotel with GIATA Code')
                     ->modalWidth('lg')
-                    ->form(HotelForm::getCoreFields())
+                    ->form(array_merge(
+                        HotelForm::getCoreFields(),
+                        [
+                            Select::make('supplier')
+                                ->label('Room Level is taken from the Supplier')
+                                ->options(SupplierNameEnum::contentOptions()),
+                        ]
+                    ))
                     ->visible(! $this->vendor?->id),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('exportDatabase')

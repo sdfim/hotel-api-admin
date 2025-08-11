@@ -494,6 +494,7 @@ class HotelForm extends Component implements HasForms
             Select::make('giata_code')
                 ->label('GIATA code')
                 ->searchable()
+                ->required()
                 ->getSearchResultsUsing(function (string $search): ?array {
                     $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                     $result = Property::select(
