@@ -1525,14 +1525,11 @@
                     {
                         "name": "room_type_codes",
                         "in": "query",
-                        "description": "Array of room type codes. (e.g., ['ODK'])",
+                        "description": "String with codes delimitted by coma. (e.g., ODK,Single)",
                         "required": false,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "example": "ODK"
-                            }
+                            "type": "string",
+                            "example": "ODK,Single"
                         }
                     }
                 ],
@@ -1547,6 +1544,130 @@
                                 "examples": {
                                     "ContentDetailResponse": {
                                         "$ref": "#/components/examples/ContentDetailResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/content/detail": {
+            "get": {
+                "tags": [
+                    "Content API"
+                ],
+                "summary": "Detail Hotels",
+                "description": "Get detailed information about a hotel.",
+                "operationId": "428b0a67da284b74c28c8a088a083a8d",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type of content to search (e.g., 'hotel').",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "hotel"
+                        }
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "Giata IDs of the properties to get details for (e.g., 98736411, 12345678).",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "26319691,21569211"
+                        }
+                    },
+                    {
+                        "name": "consortia_affiliation",
+                        "in": "query",
+                        "description": "Filter by Consortia",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Virtuoso"
+                        }
+                    },
+                    {
+                        "name": "supplier_data",
+                        "in": "query",
+                        "description": "Get Supplier Data",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": "true"
+                        }
+                    },
+                    {
+                        "name": "consortia_affiliation",
+                        "in": "query",
+                        "description": "Filter by Consortia",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Virtuoso"
+                        }
+                    },
+                    {
+                        "name": "room_type_codes",
+                        "in": "query",
+                        "description": "String with codes delimitted by coma. (e.g., ODK,Single)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ODK,Single"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContentDetailV1Response"
+                                },
+                                "examples": {
+                                    "ContentDetailV1Response": {
+                                        "$ref": "#/components/examples/ContentDetailV1Response"
                                     }
                                 }
                             }
@@ -1721,6 +1842,112 @@
                                     },
                                     "PricingSearchResponseLondon": {
                                         "$ref": "#/components/examples/PricingSearchResponseLondon"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/content/search": {
+            "post": {
+                "tags": [
+                    "Content API"
+                ],
+                "summary": "Search Hotels",
+                "description": "Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
+                "operationId": "976eb65d47ac061f60170c56ed81eeca",
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestGooglePlace"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestDestination"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
+                                    }
+                                ]
+                            },
+                            "examples": {
+                                "ContentSearchWithoutFilterAmenities": {
+                                    "$ref": "#/components/examples/ContentSearchWithoutFilterAmenities"
+                                },
+                                "ContentSearchWithFilterAmenities": {
+                                    "$ref": "#/components/examples/ContentSearchWithFilterAmenities"
+                                },
+                                "ContentSearchRequestGooglePlace": {
+                                    "$ref": "#/components/examples/ContentSearchRequestGooglePlace"
+                                },
+                                "ContentSearchRequestDestination": {
+                                    "$ref": "#/components/examples/ContentSearchRequestDestination"
+                                },
+                                "ContentSearchRequestCoordinates": {
+                                    "$ref": "#/components/examples/ContentSearchRequestCoordinates"
+                                },
+                                "ContentSearchRequestSupplierHotelName": {
+                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContentSearchResponse"
+                                },
+                                "examples": {
+                                    "ContentSearchResponse": {
+                                        "$ref": "#/components/examples/ContentSearchResponse"
                                     }
                                 }
                             }
