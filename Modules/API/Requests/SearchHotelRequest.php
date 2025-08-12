@@ -2,7 +2,6 @@
 
 namespace Modules\API\Requests;
 
-use App\Models\Configurations\ConfigConsortium;
 use Modules\API\Validate\ApiRequest;
 
 class SearchHotelRequest extends ApiRequest
