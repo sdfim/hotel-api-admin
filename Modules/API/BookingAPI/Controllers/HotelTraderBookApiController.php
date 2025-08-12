@@ -35,6 +35,8 @@ use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransf
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 
 class HotelTraderBookApiController extends BaseBookApiController
@@ -113,7 +115,7 @@ class HotelTraderBookApiController extends BaseBookApiController
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::info("BOOK ACTION - ERROR - HotelTrader - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
             Log::error('HotelTraderBookApiController | book | Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -152,6 +154,9 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $res;
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
     {
         $booking_id = $filters['booking_id'];
@@ -196,18 +201,18 @@ class HotelTraderBookApiController extends BaseBookApiController
         ]);
 
         try {
-            $canceleData = $this->hotelTraderClient->cancel(
+            $cancelData = $this->hotelTraderClient->cancel(
                 $apiBookingsMetadata,
                 $inspectorCansel
             );
 
             $dataResponseToSave['original'] = [
-                'request' => $canceleData['request'],
-                'response' => $canceleData['response'],
+                'request' => $cancelData['request'],
+                'response' => $cancelData['response'],
             ];
 
-            if (Arr::get($canceleData, 'errors')) {
-                $res = Arr::get($canceleData, 'errors');
+            if (Arr::get($cancelData, 'errors')) {
+                $res = Arr::get($cancelData, 'errors');
             } else {
                 $res = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
@@ -234,6 +239,11 @@ class HotelTraderBookApiController extends BaseBookApiController
     }
 
     // TODO: Refactor this method to use the new HotelTraderClient
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws GuzzleException
+     */
     public function listBookings(): ?array
     {
         $token_id = ChannelRepository::getTokenId(request()->bearerToken());
@@ -368,7 +378,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         foreach (($filters['passengers'] ?? []) as $p) {
             $room = (int) ($p['room'] ?? 1);
 
-            // Определяем primary только для первого пассажира в каждой комнате
+            // We only set the primary for the first passenger in each room.
             $isPrimary = empty($guestsByRoom[$room]);
 
             $guestsByRoom[$room][] = [
@@ -382,14 +392,14 @@ class HotelTraderBookApiController extends BaseBookApiController
             ];
         }
 
-        // special_requests по комнатам
+        // special_requests by room
         $srByRoom = [];
         foreach (($filters['special_requests'] ?? []) as $sr) {
             $room = (int) ($sr['room'] ?? 1);
             $srByRoom[$room][] = $sr['special_request'];
         }
 
-        // Индексы всех комнат, где что-то меняем
+        // Indexes of all rooms where something is changed
         $roomsIdx = array_unique(array_merge(array_keys($guestsByRoom), array_keys($srByRoom))) ?: [1];
 
         $rooms = [];
@@ -416,24 +426,24 @@ class HotelTraderBookApiController extends BaseBookApiController
             'clientConfirmationCode' => $filters['booking_item'],
             'otaConfirmationCode' => $filters['booking_item'],
             'otaClientName' => 'htrader',
-            'specialRequests' => [], // глобальных запросов нет
+            'specialRequests' => [], // if necessary, you can pass general specialRequests
             'rooms' => $rooms,
         ];
     }
 
     protected function prepareHardChangeData(array $filters): array
     {
-        // 1) базовые идентификаторы
+        // 1) basic identifiers
         $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
         $htConfirmationCode = $meta->supplier_booking_item_id;         // "HT-XXXXXX"
         $htRoomCodeOld = $meta->supplier_booking_room_id ?? null;  // если есть
 
-        // 2) новые данные из new_booking_item (кэш/репо после priceCheck)
+        // 2) new data from new_booking_item (cache/repo after priceCheck)
         $newData = ApiBookingItemRepository::getItemData($filters['new_booking_item']) ?? [];
         $htIdentifier = $newData['htIdentifier'] ?? null;    // обязателен для смены типа/рейта
         $rates = $newData['rate'] ?? null;            // { netPrice, tax, grossPrice, payAtProperty, dailyPrice[], dailyTax[] }
 
-        // 3) occupancy: из search_id (из запроса), иначе из связанного поиска
+        // 3) occupancy: from search_id (from the query), otherwise from the related search
         $searchId = $filters['search_id']
             ?? ApiBookingItemRepository::getSearchId($filters['new_booking_item'])
             ?? ApiBookingItemRepository::getSearchId($filters['booking_item']);
@@ -447,10 +457,10 @@ class HotelTraderBookApiController extends BaseBookApiController
             'childrenAges' => isset($o0['children_ages']) ? implode(',', $o0['children_ages']) : null,
         ];
 
-        // 4) гости: берём последних сохранённых пассажиров по booking_item; primary = только первый
+        // 4) guests: take the last saved passengers by booking_item; primary = only the first
         $pass = BookingRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $roomsSaved = $pass ? (json_decode($pass->request, true)['rooms'] ?? []) : [];
-        $srcGuests = $roomsSaved[0] ?? []; // первая комната — как и раньше
+        $srcGuests = $roomsSaved[0] ?? []; // the first room — as before
         $guests = [];
         foreach ($srcGuests as $idx => $g) {
             $guests[] = [
@@ -460,7 +470,7 @@ class HotelTraderBookApiController extends BaseBookApiController
                 'adult' => ($g['age'] ?? 30) >= 18,
                 'age' => $g['age'] ?? 30,
                 'phone' => $g['phone'] ?? '1234567890',
-                'primary' => $idx === 0, // <-- только первый true
+                'primary' => $idx === 0, // only the first true
             ];
         }
         if (! $guests) {
@@ -470,11 +480,11 @@ class HotelTraderBookApiController extends BaseBookApiController
             ]];
         }
 
-        // 5) собираем единственный room с статусом MODIFY — «замена» без CANCEL
+        // 5) collect the only room with MODIFY status — “replacement” without CANCEL
         $room = array_filter([
-            'htIdentifier' => $htIdentifier,                         // новый номер/рейтаплан
-            'htRoomConfirmationCode' => $htRoomCodeOld,                         // если есть
-            'clientRoomConfirmationCode' => $filters['booking_item'],               // твой client code для старой комнаты
+            'htIdentifier' => $htIdentifier, // new number/rate plan
+            'htRoomConfirmationCode' => $htRoomCodeOld, // if there are any
+            'clientRoomConfirmationCode' => $filters['booking_item'], // client code for the old room
             'roomSpecialRequests' => ['rate/roomtype replacement via hard-change'],
             'rates' => $rates,
             'occupancy' => $occupancy,
@@ -487,7 +497,7 @@ class HotelTraderBookApiController extends BaseBookApiController
             'clientConfirmationCode' => $filters['booking_item'],
             'otaConfirmationCode' => $filters['booking_item'],
             'otaClientName' => 'htrader',
-            'specialRequests' => [],           // при необходимости можешь прокинуть общие
+            'specialRequests' => [], // if necessary, you can pass general specialRequests
             'rooms' => [$room],
         ];
     }
@@ -499,24 +509,24 @@ class HotelTraderBookApiController extends BaseBookApiController
         $searchId = (string) Str::uuid();
         $hotelGiataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([
-            $searchId, $filters, [$supplierId], 'change', 'hotel',
-        ]);
+        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
 
         $response = $this->priceByHotel($hotelGiataId, $filters, $searchInspector);
+
+        $giataIds = [$hotelGiataId];
 
         $handled = $this->handlePriceHotelTrader(
             $response,
             $filters,
             $searchId,
-            $this->pricingRulesService->rules($filters, [$hotelGiataId]),
-            $this->pricingRulesService->rules($filters, [$hotelGiataId], true),
-            [$hotelGiataId]
+            $this->pricingRulesService->rules($filters, $giataIds),
+            $this->pricingRulesService->rules($filters, $giataIds, true),
+            $giataIds
         );
 
         $clientResponse = $handled['clientResponse'];
 
-        SaveSearchInspector::dispatch(
+        SaveSearchInspector::dispatchSync(
             $searchInspector,
             $handled['dataOriginal'] ?? [],
             [
@@ -602,7 +612,7 @@ class HotelTraderBookApiController extends BaseBookApiController
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
     {
         try {
-            // 1) GIATA -> список supplier propertyIds (HotelTrader)
+            // 1) GIATA -> list of supplier propertyIds (HotelTrader)
             $hotelIds = HotelTraderContentRepository::getIdsByGiataIds([$hotelId]) ?? [];
             $hotelIds = array_values(array_map('strval', $hotelIds));
 
@@ -614,10 +624,10 @@ class HotelTraderBookApiController extends BaseBookApiController
                 ];
             }
 
-            // 2) Вызов HotelTrader GraphQL
+            // 2) Calling HotelTrader GraphQL
             $raw = $this->hotelTraderClient->availability($hotelIds, $filters, $searchInspector);
 
-            // Ошибки от клиента — вернём их в совместимом виде
+            // Errors from the client — we will return them in a compatible form
             if (! empty($raw['errors'])) {
                 return [
                     'error' => $raw['errors'],
@@ -627,7 +637,7 @@ class HotelTraderBookApiController extends BaseBookApiController
                 ];
             }
 
-            // 3) Собираем giata-контекст (имя отеля по желанию; null-safe)
+            // 3) Collect giata context (hotel name optional; null-safe)
             $details = HotelTraderContentRepository::getDetailByGiataId($hotelId);
             $giataName = $details->first()?->name ?? '';
             $giataContext = [
@@ -635,11 +645,11 @@ class HotelTraderBookApiController extends BaseBookApiController
                 'name' => $giataName,
             ];
 
-            // 4) Нормализация ответа под вход трансформера
+            // 4) Normalization of the response to the transformer input
             $properties = $raw['response'] ?? [];
             $normalized = $this->normalizeHotelTraderGraphQl($properties, $giataContext);
 
-            // 5) Вернём «привычный» каркас
+            // 5) Let's return to the “familiar” framework
             return [
                 'original' => ['request' => $raw['request'] ?? [], 'response' => $properties],
                 'array' => $normalized,
@@ -673,7 +683,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         return array_map(function (array $p) use ($giata) {
             $rooms = $p['rooms'] ?? [];
 
-            // если пришёл плоский список ставок — заворачиваем в одну группу
+            // if a flat list of bids arrives, we wrap it into one group
             if (! empty($rooms) && ! isset(($rooms[0] ?? [])['rates'])) {
                 $rooms = [['rates' => $rooms]];
             }
