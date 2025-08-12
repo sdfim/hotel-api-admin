@@ -19,7 +19,6 @@ use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
-use App\Repositories\HbsiRepository;
 use App\Repositories\HotelTraderContentRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -36,6 +35,7 @@ use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransf
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
+use Throwable;
 
 class HotelTraderBookApiController extends BaseBookApiController
 {
@@ -495,80 +495,23 @@ class HotelTraderBookApiController extends BaseBookApiController
     public function availabilityChange(array $filters): ?array
     {
         $bookingItemCode = $filters['booking_item'] ?? null;
-        if (! $bookingItemCode) {
-            return ['errors' => ['booking_item is required']];
-        }
-
         $bookingItem = ApiBookingItem::where('booking_item', $bookingItemCode)->first();
-        if (! $bookingItem) {
-            return ['errors' => ['Booking item not found']];
-        }
-
         $searchId = (string) Str::uuid();
-        $bookingItemData = json_decode($bookingItem->booking_pricing_data ?? $bookingItem->booking_item_data ?? '{}', true);
-        $hotelGiataId = Arr::get($bookingItemData, 'hotel_id');
-
-        if (! $hotelGiataId) {
-            return ['errors' => ['GIATA id not found in booking item']];
-        }
-
-        // Получаем supplier hotel ids по giata и сразу нормализуем в массив строк
-        $hotelIds = array_map('strval', HotelTraderContentRepository::getIdsByGiataIds([$hotelGiataId]) ?? []);
-
-        // Если маппинга нет — короткий ответ без похода к HotelTrader
-        if (empty($hotelIds)) {
-            return [
-                'result' => [],
-                'change_search_id' => $searchId,
-                'warnings' => ['No HotelTrader mapping found for this GIATA id'],
-            ];
-        }
-
+        $hotelGiataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([
             $searchId, $filters, [$supplierId], 'change', 'hotel',
         ]);
 
-        $raw = $this->hotelTraderClient->availability($hotelIds, $filters, $searchInspector);
+        $response = $this->priceByHotel($hotelGiataId, $filters, $searchInspector);
 
-        if (! empty($raw['errors'])) {
-            SaveSearchInspector::dispatch(
-                $searchInspector,
-                ['original' => $raw],
-                [],
-                ['errors' => $raw['errors']]
-            );
-
-            return ['errors' => $raw['errors']];
-        }
-
-        // Giata context (безопасно достаём имя)
-        $details = HotelTraderContentRepository::getDetailByGiataId($hotelGiataId);
-        $giataName = $details->first()?->name ?? '';
-
-        $giataContext = [
-            'giata_id' => $hotelGiataId,
-            'name' => $giataName,
-        ];
-
-        // Нормализация ответа под трансформер
-        $normalized = $this->normalizeHotelTraderGraphQl($raw['response'] ?? [], $giataContext);
-
-        // Упаковка в формат supplierResponse для handlePriceHotelTrader
-        $supplierResponse = [
-            'original' => ['request' => $raw['request'], 'response' => $raw['response']],
-            'array' => $normalized,
-            'total_pages' => 1,
-        ];
-
-        $giataIgs = Arr::get($filters, 'giata_ids', []);
         $handled = $this->handlePriceHotelTrader(
-            $supplierResponse,
+            $response,
             $filters,
             $searchId,
-            $this->pricingRulesService->rules($filters, $giataIgs),
-            $this->pricingRulesService->rules($filters, $giataIgs, true),
-            $giataIgs
+            $this->pricingRulesService->rules($filters, [$hotelGiataId]),
+            $this->pricingRulesService->rules($filters, [$hotelGiataId], true),
+            [$hotelGiataId]
         );
 
         $clientResponse = $handled['clientResponse'];
@@ -656,120 +599,69 @@ class HotelTraderBookApiController extends BaseBookApiController
         ];
     }
 
-    // TODO: Refactor this method to use the new HotelTraderClient
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
     {
         try {
-            $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = isset($hbsiHotel['supplier_id']) ? [$hbsiHotel['supplier_id']] : [];
+            // 1) GIATA -> список supplier propertyIds (HotelTrader)
+            $hotelIds = HotelTraderContentRepository::getIdsByGiataIds([$hotelId]) ?? [];
+            $hotelIds = array_values(array_map('strval', $hotelIds));
 
             if (empty($hotelIds)) {
                 return [
-                    'original' => [
-                        'request' => [],
-                        'response' => [],
-                    ],
+                    'original' => ['request' => [], 'response' => []],
                     'array' => [],
                     'total_pages' => 0,
                 ];
             }
 
-            /** get PriceData from HotelTrader */
-            $xmlPriceData = $this->hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            // 2) Вызов HotelTrader GraphQL
+            $raw = $this->hotelTraderClient->availability($hotelIds, $filters, $searchInspector);
 
-            if (isset($xmlPriceData['error'])) {
+            // Ошибки от клиента — вернём их в совместимом виде
+            if (! empty($raw['errors'])) {
                 return [
-                    'error' => $xmlPriceData['error'],
-                    'original' => [
-                        'request' => '',
-                        'response' => '',
-                    ],
+                    'error' => $raw['errors'],
+                    'original' => ['request' => $raw['request'] ?? [], 'response' => $raw['response'] ?? []],
                     'array' => [],
                     'total_pages' => 0,
                 ];
             }
 
-            $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-            $arrayResponse = json_decode(json_encode($response), 1);
-            if (isset($arrayResponse['Errors'])) {
-                Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
-            }
-            if (! isset($arrayResponse['RoomStays']['RoomStay'])) {
-                return [
-                    'original' => [
-                        'request' => [],
-                        'response' => [],
-                    ],
-                    'array' => [],
-                    'total_pages' => 0,
-                ];
-            }
-
-            /**
-             * Normally RoomStay is an array when several rates come from the same hotel, if only one rate comes, the
-             * array becomes assoc instead of sequential, so we force it to be sequential so the foreach below does not
-             * fail
-             */
-            $priceData = Arr::isAssoc($arrayResponse['RoomStays']['RoomStay'])
-                ? [$arrayResponse['RoomStays']['RoomStay']]
-                : $arrayResponse['RoomStays']['RoomStay'];
-
-            $i = 1;
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hbsiHotel, &$i) {
-                $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
-                $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
-                $item['rate_ordinal'] = $i;
-                $result[$hotelCode] = [
-                    'property_id' => $hotelCode,
-                    'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
-                    'hotel_name_giata' => $hbsiHotel['name'] ?? '',
-                    'giata_id' => $hbsiHotel['giata_id'] ?? 0,
-                    'rooms' => $result[$hotelCode]['rooms'] ?? [],
-                ];
-                if (! isset($result[$hotelCode]['rooms'][$roomCode])) {
-                    $result[$hotelCode]['rooms'][$roomCode] = [
-                        'room_code' => $roomCode,
-                        'room_name' => $item['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '',
-                    ];
-                }
-                $result[$hotelCode]['rooms'][$roomCode]['rates'][] = $item;
-                $i++;
-
-                return $result;
-            }, []);
-
-            return [
-                'original' => [
-                    'request' => $xmlPriceData['request'],
-                    'response' => $xmlPriceData['response']->asXML(),
-                ],
-                'array' => $groupedPriceData,
-                'total_pages' => 1,
+            // 3) Собираем giata-контекст (имя отеля по желанию; null-safe)
+            $details = HotelTraderContentRepository::getDetailByGiataId($hotelId);
+            $giataName = $details->first()?->name ?? '';
+            $giataContext = [
+                'giata_id' => $hotelId,
+                'name' => $giataName,
             ];
 
+            // 4) Нормализация ответа под вход трансформера
+            $properties = $raw['response'] ?? [];
+            $normalized = $this->normalizeHotelTraderGraphQl($properties, $giataContext);
+
+            // 5) Вернём «привычный» каркас
+            return [
+                'original' => ['request' => $raw['request'] ?? [], 'response' => $properties],
+                'array' => $normalized,
+                'total_pages' => 1,
+            ];
         } catch (GuzzleException $e) {
-            Log::error('HBSIHotelApiHandler GuzzleException '.$e);
+            Log::error('HotelTrader priceByHotel GuzzleException '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             return [
                 'error' => $e->getMessage(),
-                'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
-                ],
+                'original' => ['request' => [], 'response' => []],
                 'array' => [],
                 'total_pages' => 0,
             ];
-        } catch (\Throwable $e) {
-            Log::error('HBSIHotelApiHandler Exception '.$e);
+        } catch (Throwable $e) {
+            Log::error('HotelTrader priceByHotel Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             return [
                 'error' => $e->getMessage(),
-                'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
-                ],
+                'original' => ['request' => [], 'response' => []],
                 'array' => [],
                 'total_pages' => 0,
             ];
