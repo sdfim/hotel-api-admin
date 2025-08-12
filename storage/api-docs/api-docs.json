@@ -1503,16 +1503,6 @@
                         }
                     },
                     {
-                        "name": "consortia_affiliation",
-                        "in": "query",
-                        "description": "Consortium affiliation name. Valid values depend on system configuration.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Virtuoso"
-                        }
-                    },
-                    {
                         "name": "supplier_data",
                         "in": "query",
                         "description": "Get Supplier Data",
@@ -1617,16 +1607,6 @@
                         }
                     },
                     {
-                        "name": "consortia_affiliation",
-                        "in": "query",
-                        "description": "Filter by Consortia",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Virtuoso"
-                        }
-                    },
-                    {
                         "name": "supplier_data",
                         "in": "query",
                         "description": "Get Supplier Data",
@@ -1634,16 +1614,6 @@
                         "schema": {
                             "type": "boolean",
                             "example": "true"
-                        }
-                    },
-                    {
-                        "name": "consortia_affiliation",
-                        "in": "query",
-                        "description": "Filter by Consortia",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Virtuoso"
                         }
                     },
                     {

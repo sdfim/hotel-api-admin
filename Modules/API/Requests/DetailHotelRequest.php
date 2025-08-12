@@ -38,18 +38,6 @@ class DetailHotelRequest extends ApiRequest
      *    ),
      *
      *   @OA\Parameter(
-     *       name="consortia_affiliation",
-     *       in="query",
-     *       required=false,
-     *       description="Consortium affiliation name. Valid values depend on system configuration.",
-     *
-     *       @OA\Schema(
-     *         type="string",
-     *         example="Virtuoso"
-     *       )
-     *     ),
-     *
-     *   @OA\Parameter(
      *       name="supplier_data",
      *       in="query",
      *       required=false,
@@ -141,18 +129,6 @@ class DetailHotelRequest extends ApiRequest
      *       )
      *     ),
      *
-     *     @OA\Parameter(
-     *        name="consortia_affiliation",
-     *        in="query",
-     *        required=false,
-     *        description="Filter by Consortia",
-     *
-     *        @OA\Schema(
-     *          type="string",
-     *          example="Virtuoso"
-     *        )
-     *      ),
-     *
      *   @OA\Parameter(
      *       name="supplier_data",
      *       in="query",
@@ -164,16 +140,6 @@ class DetailHotelRequest extends ApiRequest
      *         example="true"
      *       )
      *     ),
-     *     @OA\Parameter(
-     *        name="consortia_affiliation",
-     *        in="query",
-     *        required=false,
-     *        description="Filter by Consortia",
-     *        @OA\Schema(
-     *          type="string",
-     *          example="Virtuoso"
-     *        )
-     *      ),
      *   @OA\Parameter(
      *      name="room_type_codes",
      *      in="query",
