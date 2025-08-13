@@ -373,34 +373,36 @@ class HotelTraderBookApiController extends BaseBookApiController
 
         $htCode = $meta->supplier_booking_item_id;
 
-        // guests по комнатам
+        // Guests by room (based on room from passenger.booking_items for the CURRENT booking_item)
         $guestsByRoom = [];
         foreach (($filters['passengers'] ?? []) as $p) {
-            $room = (int) ($p['room'] ?? 1);
+            $bi = Arr::first($p['booking_items'] ?? [], fn ($x) => ($x['booking_item'] ?? null) === $filters['booking_item']);
+            $room = (int) ($bi['room'] ?? 1);
 
-            // We only set the primary for the first passenger in each room.
+            // primary — only the first in the room
             $isPrimary = empty($guestsByRoom[$room]);
 
             $guestsByRoom[$room][] = [
                 'firstName' => $p['given_name'] ?? '',
                 'lastName' => $p['family_name'] ?? '',
                 'email' => $p['email'] ?? 'test@hoteltrader.com',
-                'adult' => true,
-                'age' => $p['age'] ?? 30,
+                'adult' => (isset($p['age']) ? (int) $p['age'] : 30) >= 18,
+                'age' => isset($p['age']) ? (int) $p['age'] : 30,
                 'phone' => $p['phone'] ?? '1234567890',
                 'primary' => $isPrimary,
             ];
         }
 
-        // special_requests by room
+        // special_requests by room (if no room — send to the 1st one)
         $srByRoom = [];
         foreach (($filters['special_requests'] ?? []) as $sr) {
             $room = (int) ($sr['room'] ?? 1);
             $srByRoom[$room][] = $sr['special_request'];
         }
 
-        // Indexes of all rooms where something is changed
+        // Which rooms actually change
         $roomsIdx = array_unique(array_merge(array_keys($guestsByRoom), array_keys($srByRoom))) ?: [1];
+        sort($roomsIdx);
 
         $rooms = [];
         foreach ($roomsIdx as $room) {
@@ -413,7 +415,6 @@ class HotelTraderBookApiController extends BaseBookApiController
             if (! empty($guestsByRoom[$room])) {
                 $roomData['guests'] = $guestsByRoom[$room];
             }
-
             if (! empty($srByRoom[$room])) {
                 $roomData['roomSpecialRequests'] = $srByRoom[$room];
             }
@@ -426,78 +427,136 @@ class HotelTraderBookApiController extends BaseBookApiController
             'clientConfirmationCode' => $filters['booking_item'],
             'otaConfirmationCode' => $filters['booking_item'],
             'otaClientName' => 'htrader',
-            'specialRequests' => [], // if necessary, you can pass general specialRequests
+            'specialRequests' => [],
             'rooms' => $rooms,
         ];
     }
 
     protected function prepareHardChangeData(array $filters): array
     {
-        // 1) basic identifiers
+        // 1) ids
         $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
-        $htConfirmationCode = $meta->supplier_booking_item_id;         // "HT-XXXXXX"
-        $htRoomCodeOld = $meta->supplier_booking_room_id ?? null;  // если есть
+        $htConfirmationCode = $meta->supplier_booking_item_id;
+        $htRoomCodeOld = $meta->supplier_booking_room_id ?? null;
 
-        // 2) new data from new_booking_item (cache/repo after priceCheck)
+        // derive room index from old room code suffix
+        $roomIndex = 1;
+        if (is_string($htRoomCodeOld) && preg_match('/-(\d+)$/', $htRoomCodeOld, $m)) {
+            $roomIndex = max(1, (int) $m[1]);
+        }
+
+        // 2) new product/rate data
         $newData = ApiBookingItemRepository::getItemData($filters['new_booking_item']) ?? [];
-        $htIdentifier = $newData['htIdentifier'] ?? null;    // обязателен для смены типа/рейта
-        $rates = $newData['rate'] ?? null;            // { netPrice, tax, grossPrice, payAtProperty, dailyPrice[], dailyTax[] }
+        $htIdentifier = $newData['htIdentifier'] ?? null; // only when changing product/rate
+        $rates = $newData['rate'] ?? null;
 
-        // 3) occupancy: from search_id (from the query), otherwise from the related search
-        $searchId = $filters['search_id']
-            ?? ApiBookingItemRepository::getSearchId($filters['new_booking_item'])
-            ?? ApiBookingItemRepository::getSearchId($filters['booking_item']);
+        // 3) occupancy: compute only if we do product/rate change (htIdentifier present)
+        $occupancy = null;
+        if ($htIdentifier) {
+            $searchId = $filters['search_id']
+                ?? ApiBookingItemRepository::getSearchId($filters['new_booking_item'])
+                ?? ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
-        $searchReq = ApiSearchInspector::where('search_id', $searchId)->value('request');
-        $search = $searchReq ? json_decode($searchReq, true) : [];
-        $o0 = $search['occupancy'][0] ?? [];
-        $occupancy = [
-            'numberOfAdults' => (int) ($o0['adults'] ?? 2),
-            'numberOfChildren' => isset($o0['children_ages']) ? count($o0['children_ages']) : 0,
-            'childrenAges' => isset($o0['children_ages']) ? implode(',', $o0['children_ages']) : null,
-        ];
+            $searchReq = $searchId ? ApiSearchInspector::where('search_id', $searchId)->value('request') : null;
+            $search = $searchReq ? json_decode($searchReq, true) : [];
 
-        // 4) guests: take the last saved passengers by booking_item; primary = only the first
-        $pass = BookingRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
-        $roomsSaved = $pass ? (json_decode($pass->request, true)['rooms'] ?? []) : [];
-        $srcGuests = $roomsSaved[0] ?? []; // the first room — as before
-        $guests = [];
-        foreach ($srcGuests as $idx => $g) {
-            $guests[] = [
-                'firstName' => $g['given_name'] ?? 'Guest',
-                'lastName' => $g['family_name'] ?? 'Name',
-                'email' => $g['email'] ?? 'test@hoteltrader.com',
-                'adult' => ($g['age'] ?? 30) >= 18,
-                'age' => $g['age'] ?? 30,
-                'phone' => $g['phone'] ?? '1234567890',
-                'primary' => $idx === 0, // only the first true
+            $o0 = $search['occupancy'][0] ?? [];
+            $numberOfAdults = (int) ($o0['adults'] ?? 2);
+            $childrenAgesList = isset($o0['children_ages']) ? (array) $o0['children_ages'] : [];
+            $numberOfChildren = count($childrenAgesList);
+            $childrenAges = $numberOfChildren ? implode(',', $childrenAgesList) : null;
+
+            // if request includes passengers — override from them
+            if (! empty($filters['passengers']) && is_array($filters['passengers'])) {
+                $adults = 0;
+                $kids = [];
+                foreach ($filters['passengers'] as $p) {
+                    $age = isset($p['age']) ? (int) $p['age'] : 30;
+                    if ($age >= 18) {
+                        $adults++;
+                    } else {
+                        $kids[] = $age;
+                    }
+                }
+                if ($adults > 0 || ! empty($kids)) {
+                    $numberOfAdults = max(1, $adults);
+                    $numberOfChildren = count($kids);
+                    $childrenAges = $numberOfChildren ? implode(',', $kids) : null;
+                }
+            }
+
+            $occupancy = [
+                'numberOfAdults' => $numberOfAdults,
+                'numberOfChildren' => $numberOfChildren,
+                'childrenAges' => $childrenAges,
             ];
         }
-        if (! $guests) {
-            $guests = [[
-                'firstName' => 'Test', 'lastName' => 'Guest', 'email' => 'test@hoteltrader.com',
-                'adult' => true, 'age' => 30, 'phone' => '1234567890', 'primary' => true,
-            ]];
+
+        // 4) guests: only from filters; if empty — omit the key
+        $guests = [];
+        if (! empty($filters['passengers']) && is_array($filters['passengers'])) {
+            $byRoom = [];
+            foreach ($filters['passengers'] as $p) {
+                // prefer room from booking_items for the current booking_item
+                $bi = Arr::first($p['booking_items'] ?? [], fn ($x) => ($x['booking_item'] ?? null) === $filters['booking_item']);
+                $r = (int) ($bi['room'] ?? ($p['room'] ?? $roomIndex));
+                $byRoom[$r][] = $p;
+            }
+            $srcPassengers = $byRoom[$roomIndex] ?? (reset($byRoom) ?: []);
+            foreach ($srcPassengers as $idx => $g) {
+                $age = isset($g['age']) ? (int) $g['age'] : 30;
+                $guests[] = [
+                    'firstName' => $g['given_name'] ?? 'Guest',
+                    'lastName' => $g['family_name'] ?? 'Name',
+                    'email' => $g['email'] ?? 'test@hoteltrader.com',
+                    'adult' => $age >= 18,
+                    'age' => $age,
+                    'phone' => $g['phone'] ?? '1234567890',
+                    'primary' => $idx === 0,
+                ];
+            }
         }
 
-        // 5) collect the only room with MODIFY status — “replacement” without CANCEL
-        $room = array_filter([
-            'htIdentifier' => $htIdentifier, // new number/rate plan
-            'htRoomConfirmationCode' => $htRoomCodeOld, // if there are any
-            'clientRoomConfirmationCode' => $filters['booking_item'], // client code for the old room
-            'roomSpecialRequests' => ['rate/roomtype replacement via hard-change'],
-            'rates' => $rates,
-            'occupancy' => $occupancy,
-            'guests' => $guests,
+        // 5) final room payload with suffixes
+        $clientRoomCode = $filters['booking_item'].($roomIndex > 1 ? "-$roomIndex" : '');
+        $htRoomCode = $htRoomCodeOld ?: ($htConfirmationCode.($roomIndex > 1 ? "-$roomIndex" : ''));
+
+        $room = [
+            // identifiers
+            'clientRoomConfirmationCode' => $clientRoomCode,
+            'htRoomConfirmationCode' => $htRoomCode,
             'status' => 'MODIFY',
-        ], fn ($v) => $v !== null && $v !== []);
+            // optional fields conditionally included:
+            // - htIdentifier + rates + occupancy only if changing product/rate
+            // - guests only if provided in filters
+        ];
+
+        if ($htIdentifier) {
+            $room['htIdentifier'] = $htIdentifier;
+        }
+        if ($htIdentifier && $rates) {
+            $room['rates'] = $rates;
+        }
+        if ($htIdentifier && $occupancy) {
+            $room['occupancy'] = $occupancy;
+        }
+        if (! empty($guests)) {
+            $room['guests'] = $guests;
+        }
+
+        // validation: must have either htIdentifier (product/rate change) or htRoomConfirmationCode (we have it)
+        if (empty($room['htIdentifier']) && empty($room['htRoomConfirmationCode'])) {
+            throw new InvalidArgumentException(
+                'Hard-change: required either htIdentifier (change product/rate) or htRoomConfirmationCode (modify guests/requests only).'
+            );
+        }
 
         return [
             'htConfirmationCode' => $htConfirmationCode,
             'clientConfirmationCode' => $filters['booking_item'],
             'otaConfirmationCode' => $filters['booking_item'],
             'otaClientName' => 'htrader',
-            'specialRequests' => [], // if necessary, you can pass general specialRequests
+            'specialRequests' => [],
             'rooms' => [$room],
         ];
     }

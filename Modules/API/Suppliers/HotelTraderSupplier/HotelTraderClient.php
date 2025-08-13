@@ -677,14 +677,15 @@ class HotelTraderClient
 
     protected function sanitizeRoomData(array $room): array
     {
-        // Допустимые поля по GraphQL-схеме ModifyRoomInput
+        // Valid fields according to the GraphQL schema ModifyRoomInput
         $allowedKeys = [
+            'htIdentifier',
             'htRoomConfirmationCode',
             'clientRoomConfirmationCode',
-            'status',
+            'status', // BOOK | MODIFY | CANCEL
             'guests',
-            'occupancy',
-            'rates',
+            'occupancy', // numberOfAdults/numberOfChildren/childrenAges
+            'rates', // netPrice/tax/grossPrice/... (if pass)
             'roomSpecialRequests',
         ];
 
