@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HotelTraderContentRatePlan extends Model
+class HotelTraderContentRatePlanPush extends Model
 {
     use HasFactory;
 
@@ -47,4 +47,3 @@ class HotelTraderContentRatePlan extends Model
         'is_promo' => 'boolean',
     ];
 }
-

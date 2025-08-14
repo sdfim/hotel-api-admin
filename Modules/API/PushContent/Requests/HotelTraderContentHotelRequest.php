@@ -2,7 +2,7 @@
 
 namespace Modules\API\PushContent\Requests;
 
-use App\Models\HotelTraderContentHotel;
+use App\Models\HotelTraderContentHotelPush;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -17,7 +17,7 @@ class HotelTraderContentHotelRequest extends FormRequest
 
     public function rules()
     {
-        $model = app(HotelTraderContentHotel::class);
+        $model = app(HotelTraderContentHotelPush::class);
         $connection = $model->getConnectionName();
         $table = $model->getTable();
 

@@ -3,13 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\GiataPlace;
-use App\Models\HotelTraderProperty;
+use App\Models\HotelTraderContentHotelPush;
 use App\Models\Mapping;
 use App\Models\Property;
 use Illuminate\Support\Collection;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
-class HotelTraderContentRepository
+class HotelTraderContentPushRepository
 {
     public static function dtoDbToResponse($results, $fields): Collection
     {
@@ -80,7 +80,7 @@ class HotelTraderContentRepository
     {
         $mainDB = config('database.connections.mysql.database');
 
-        return HotelTraderProperty::where('propertyId', function ($query) use ($giata_id, $mainDB) {
+        return HotelTraderContentHotelPush::where('code', function ($query) use ($giata_id, $mainDB) {
             $query->from($mainDB.'.mappings')
                 ->leftJoin('properties', $mainDB.'.mappings.giata_id', '=', 'properties.code')
                 ->select($mainDB.'.mappings.supplier_id')
@@ -92,7 +92,7 @@ class HotelTraderContentRepository
 
     public static function getHotelNameByHotelId(int $hotel_id): string
     {
-        return HotelTraderProperty::where('propertyId', $hotel_id)
+        return HotelTraderContentHotelPush::where('code', $hotel_id)
             ->select('name')
             ->first()
             ->name;

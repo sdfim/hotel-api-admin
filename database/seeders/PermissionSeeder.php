@@ -24,7 +24,7 @@ class PermissionSeeder extends Seeder
         'reservation',
         'property_weighting',
         'ice_portal_property',
-        'hotel_trader_content',
+        'hotel_trader_property',
         'expedia_content',
         'mapping',
         'user',

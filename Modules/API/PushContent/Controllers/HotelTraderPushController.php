@@ -3,11 +3,12 @@
 namespace Modules\API\PushContent\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\HotelTraderContentCancellationPolicy;
-use App\Models\HotelTraderContentHotel;
-use App\Models\HotelTraderContentProduct;
-use App\Models\HotelTraderContentRatePlan;
-use App\Models\HotelTraderContentRoomType;
+use App\Models\HotelTraderContentCancellationPolicyPush;
+//use App\Models\HotelTraderContentHotelPush;
+use App\Models\HotelTraderContentHotelPush;
+use App\Models\HotelTraderContentProductPush;
+use App\Models\HotelTraderContentRatePlanPush;
+use App\Models\HotelTraderContentRoomTypePush;
 use App\Models\HotelTraderContentTax;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
@@ -34,7 +35,7 @@ class HotelTraderPushController extends Controller
 
             $mappedHotelData = $this->mapHotelKeysToSnakeCase($hotelData);
 
-            $hotel = HotelTraderContentHotel::create($mappedHotelData);
+            $hotel = HotelTraderContentHotelPush::create($mappedHotelData);
 
             return response()->json([
                 'messageId' => $messageId,
@@ -99,7 +100,7 @@ class HotelTraderPushController extends Controller
     {
         $messageId = Str::uuid()->toString();
         try {
-            $hotel = HotelTraderContentHotel::where('code', $code)->first();
+            $hotel = HotelTraderContentHotelPush::where('code', $code)->first();
 
             if (! $hotel) {
                 return response()->json([
@@ -197,7 +198,7 @@ class HotelTraderPushController extends Controller
                 $room['hotel_code'] = $propertyCode;
                 $room['bedtypes'] = Arr::get($room, 'bedtypes', []);
                 $room['amenities'] = Arr::get($room, 'amenities', []);
-                $createdRoom = HotelTraderContentRoomType::create($this->mapRoomTypeKeysToSnakeCase($room));
+                $createdRoom = HotelTraderContentRoomTypePush::create($this->mapRoomTypeKeysToSnakeCase($room));
                 $created[] = $createdRoom->code;
             }
 
@@ -238,7 +239,7 @@ class HotelTraderPushController extends Controller
         $messageId = Str::uuid()->toString();
         try {
             $code = $request->input('room.code', '');
-            $room = HotelTraderContentRoomType::where('code', $code)->first();
+            $room = HotelTraderContentRoomTypePush::where('code', $code)->first();
             if (! $room) {
                 return response()->json([
                     'messageId' => $messageId,
@@ -306,7 +307,7 @@ class HotelTraderPushController extends Controller
                 $rateplan['is_tax_inclusive'] = $rateplan['isTaxInclusive'] ?? false;
                 $rateplan['is_refundable'] = $rateplan['isRefundable'] ?? false;
                 $rateplan['is_promo'] = $rateplan['isPromo'] ?? false;
-                $createdRatePlan = HotelTraderContentRatePlan::create($this->mapRatePlanKeysToSnakeCase($rateplan));
+                $createdRatePlan = HotelTraderContentRatePlanPush::create($this->mapRatePlanKeysToSnakeCase($rateplan));
                 $created[] = $createdRatePlan->code;
             }
 
@@ -347,7 +348,7 @@ class HotelTraderPushController extends Controller
         $messageId = Str::uuid()->toString();
         try {
             $code = $request->input('rateplan.code', $code);
-            $rateplan = HotelTraderContentRatePlan::where('code', $code)->first();
+            $rateplan = HotelTraderContentRatePlanPush::where('code', $code)->first();
             if (! $rateplan) {
                 return response()->json([
                     'messageId' => $messageId,
@@ -415,7 +416,7 @@ class HotelTraderPushController extends Controller
             foreach ($policies as $policy) {
                 $policy['hotel_code'] = $propertyCode;
                 $policy['penalty_windows'] = Arr::get($policy, 'penaltyWindows', []);
-                $createdPolicy = HotelTraderContentCancellationPolicy::create($this->mapCancellationPolicyKeysToSnakeCase($policy));
+                $createdPolicy = HotelTraderContentCancellationPolicyPush::create($this->mapCancellationPolicyKeysToSnakeCase($policy));
                 $created[] = $createdPolicy->code;
             }
 
@@ -456,7 +457,7 @@ class HotelTraderPushController extends Controller
         $messageId = Str::uuid()->toString();
         try {
             $code = $request->input('cancellationPolicy.code', $code);
-            $policy = HotelTraderContentCancellationPolicy::where('code', $code)->first();
+            $policy = HotelTraderContentCancellationPolicyPush::where('code', $code)->first();
             if (! $policy) {
                 return response()->json([
                     'messageId' => $messageId,
@@ -625,7 +626,7 @@ class HotelTraderPushController extends Controller
             ], 400);
         }
 
-        $hotel = HotelTraderContentHotel::where('code', $propertyCode)->first();
+        $hotel = HotelTraderContentHotelPush::where('code', $propertyCode)->first();
         if (! $hotel) {
             return response()->json([
                 'messageId' => $messageId,
@@ -730,7 +731,7 @@ class HotelTraderPushController extends Controller
                 'bedtypes' => $room->bedtypes ?? [],
                 'amenities' => $room->amenities ?? [],
                 'images' => $room->images ?? [],
-            ];
+            };
         })->toArray();
 
         return response()->json([
@@ -818,7 +819,7 @@ class HotelTraderPushController extends Controller
             ], 400);
         }
 
-        $query = HotelTraderContentCancellationPolicy::where('hotel_code', $propertyCode);
+        $query = HotelTraderContentCancellationPolicyPush::where('hotel_code', $propertyCode);
         if (is_array($cancellationPolicyCodes) && count($cancellationPolicyCodes) > 0) {
             $query->whereIn('code', $cancellationPolicyCodes);
         }

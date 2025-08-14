@@ -16,7 +16,7 @@ class HotelTraderContentCancellationPolicyRequest extends FormRequest
 
     public function rules()
     {
-        $model = app(\App\Models\HotelTraderContentCancellationPolicy::class);
+        $model = app(\App\Models\HotelTraderContentCancellationPolicyPush::class);
         $connection = $model->getConnectionName();
         $table = $model->getTable();
 

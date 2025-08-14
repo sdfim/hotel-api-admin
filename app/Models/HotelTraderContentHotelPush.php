@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HotelTraderContentHotel extends Model
+class HotelTraderContentHotelPush extends Model
 {
     use HasFactory;
 
@@ -88,7 +88,7 @@ class HotelTraderContentHotel extends Model
 
     public function cellationPolicies()
     {
-        return $this->hasMany(HotelTraderContentCancellationPolicy::class, 'hotel_code', 'code');
+        return $this->hasMany(HotelTraderContentCancellationPolicyPush::class, 'hotel_code', 'code');
     }
 
     public function taxes()

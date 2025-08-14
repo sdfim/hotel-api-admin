@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HotelTraderContentRoomType extends Model
+class HotelTraderContentRoomTypePush extends Model
 {
     use HasFactory;
 
@@ -40,4 +40,3 @@ class HotelTraderContentRoomType extends Model
         'images' => 'array',
     ];
 }
-

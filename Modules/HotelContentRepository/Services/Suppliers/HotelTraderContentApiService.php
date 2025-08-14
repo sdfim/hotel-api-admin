@@ -2,26 +2,26 @@
 
 namespace Modules\HotelContentRepository\Services\Suppliers;
 
-use App\Models\HiltonProperty;
+use App\Models\HotelTraderProperty;
 use App\Models\Mapping;
-use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentDetailTransformer;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentDetailTransformer;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 
 class HotelTraderContentApiService implements SupplierInterface
 {
     public function __construct(
-        protected readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
+        protected readonly HotelTraderContentDetailTransformer $hotelTraderContentDetailTransformer
     ) {}
 
     public function getResults(array $giataCodes): array
     {
-        $hiltonCodes = Mapping::hilton()->whereIn('giata_id', $giataCodes)->pluck('giata_id', 'supplier_id')->toArray();
-        $resultsHilton = HiltonProperty::whereIn('prop_code', array_keys($hiltonCodes))->get();
+        $hotelTraderCodes = Mapping::hotelTrader()->whereIn('giata_id', $giataCodes)->pluck('giata_id', 'supplier_id')->toArray();
+        $resultsHotelTrader = HotelTraderProperty::whereIn('propertyId', array_keys($hotelTraderCodes))->get();
 
         $results = [];
-        foreach ($resultsHilton as $item) {
-            $giataId = $hiltonCodes[$item->prop_code];
-            $contentDetailResponse = $this->hiltonHotelContentDetailTransformer->HiltonToContentDetailResponse($item, $giataId);
+        foreach ($resultsHotelTrader as $item) {
+            $giataId = $hotelTraderCodes[$item->propertyId];
+            $contentDetailResponse = $this->hotelTraderContentDetailTransformer->HotelTraderToContentDetailResponse($item, $giataId);
             $results = array_merge($results, $contentDetailResponse);
         }
 

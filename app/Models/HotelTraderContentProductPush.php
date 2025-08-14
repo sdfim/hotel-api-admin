@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HotelTraderContentCancellationPolicy extends Model
+class HotelTraderContentProductPush extends Model
 {
     use HasFactory;
 
-    protected $table = 'hotel_trader_content_cancellation_policies';
+    protected $table = 'hotel_trader_content_products';
 
     public function __construct(array $attributes = [])
     {
@@ -19,14 +19,12 @@ class HotelTraderContentCancellationPolicy extends Model
 
     protected $fillable = [
         'hotel_code',
-        'code',
-        'name',
-        'description',
-        'penalty_windows', // JSON
+        'rateplan_code',
+        'roomtype_code',
+        'taxes', // JSON array of tax codes
     ];
 
     protected $casts = [
-        'penalty_windows' => 'array',
+        'taxes' => 'array',
     ];
 }
-

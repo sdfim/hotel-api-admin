@@ -2,7 +2,7 @@
 
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
-use App\Models\HotelTraderProperty;
+use App\Models\HotelTraderContentHotelPush;
 use App\Models\Mapping;
 use App\Repositories\HotelTraderContentRepository as Repository;
 use Exception;
@@ -16,7 +16,7 @@ use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
 use Modules\API\Tools\Geography;
 
-class HotelTraderController implements SupplierControllerInterface
+class HotelTraderPushController implements SupplierControllerInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
@@ -43,8 +43,8 @@ class HotelTraderController implements SupplierControllerInterface
 
             $mappingsArray = array_column($mappings, 'giata_code', 'hotel_trader_code');
 
-            /** @var HotelTraderProperty $hotelTrader */
-            $hotelTrader = app(HotelTraderProperty::class);
+            /** @var HotelTraderContentHotelPush $hotelTrader */
+            $hotelTrader = app(HotelTraderContentHotelPush::class);
             /** @var Geography $geography */
             $geography = app(Geography::class);
 
@@ -76,16 +76,16 @@ class HotelTraderController implements SupplierControllerInterface
                 return $mappingsArray[$id] ?? null;
             }, $filters['ids']));
 
-            $fields = isset($filters['fullList']) ? HotelTraderProperty::getFullListFields() : HotelTraderProperty::getShortListFields();
+            $fields = isset($filters['fullList']) ? HotelTraderContentHotelPush::getFullListFields() : HotelTraderContentHotelPush::getShortListFields();
 
             $query = $hotelTrader->select();
 
             if (isset($filters['ids'])) {
-                $query->whereIn('propertyId', $filters['ids']);
+                $query->whereIn('code', $filters['ids']);
             }
 
             if (isset($filters['rating'])) {
-                $query->where('starRating', '>=', $filters['rating']);
+                $query->where('star_rating', '>=', $filters['rating']);
             }
 
             if ($initiator === 'price') {
@@ -95,12 +95,12 @@ class HotelTraderController implements SupplierControllerInterface
                     ->toArray();
             } else {
                 $selectFields = [
-                    'hotel_trader_properties.*',
+                    'hotel_trader_content_hotels.*',
                     $mainDB.'.mappings.supplier_id',
                     $mainDB.'.mappings.giata_id',
                 ];
 
-                $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'hotel_trader_properties.propertyId')
+                $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'hotel_trader_content_hotels.code')
                     ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
                     ->select($selectFields);
             }
@@ -108,7 +108,7 @@ class HotelTraderController implements SupplierControllerInterface
             if (isset($filters['hotel_name'])) {
                 $hotelNameArr = explode(' ', $filters['hotel_name']);
                 foreach ($hotelNameArr as $hotelName) {
-                    $query->where('hotel_trader_properties.propertyName', 'like', '%'.$hotelName.'%');
+                    $query->where('hotel_trader_content_hotels.name', 'like', '%'.$hotelName.'%');
                 }
             }
 
@@ -157,7 +157,7 @@ class HotelTraderController implements SupplierControllerInterface
     {
         $results = Repository::getDetailByGiataId($request->get('property_id'));
 
-        return Repository::dtoDbToResponse($results, HotelTraderProperty::getFullListFields());
+        return Repository::dtoDbToResponse($results, HotelTraderContentHotelPush::getFullListFields());
     }
 
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array

@@ -29,8 +29,8 @@ use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransfor
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
-use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
@@ -67,19 +67,19 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly BaseHotelPricingTransformer $baseHotelPricingTransformer,
         private readonly HbsiHotelController $hbsi,
         private readonly HotelTraderController $hTrader,
-        private readonly PricingDtoTools $pricingDtoTools,
-        private readonly ExpediaHotelController $expedia,
-        private readonly IcePortalHotelController $icePortal,
-        private readonly HiltonHotelController $hiltonHotel,
-        private readonly SearchInspectorController $apiInspector,
-        private readonly ExpediaHotelContentTransformer $expediaHotelContentTransformer,
-        private readonly IcePortalHotelContentTransformer $icePortalHotelContentTransformer,
+        private readonly PricingDtoTools                        $pricingDtoTools,
+        private readonly ExpediaHotelController                 $expedia,
+        private readonly IcePortalHotelController               $icePortal,
+        private readonly HiltonHotelController                  $hiltonHotel,
+        private readonly SearchInspectorController              $apiInspector,
+        private readonly ExpediaHotelContentTransformer         $expediaHotelContentTransformer,
+        private readonly IcePortalHotelContentTransformer       $icePortalHotelContentTransformer,
         private readonly IcePortalHotelContentDetailTransformer $hbsiHotelContentDetailTransformer,
-        private readonly ExpediaHotelContentDetailTransformer $expediaHotelContentDetailTransformer,
-        private readonly HiltonHotelContentTransformer $hiltonHotelContentTransformer,
-        private readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
-        private readonly EnrichmentWeight $propsWeight,
-        private readonly PricingRulesTools $pricingRulesService,
+        private readonly ExpediaHotelContentDetailTransformer   $expediaHotelContentDetailTransformer,
+        private readonly HiltonHotelContentTransformer          $hiltonHotelContentTransformer,
+        private readonly HotelTraderContentDetailTransformer    $hiltonHotelContentDetailTransformer,
+        private readonly EnrichmentWeight                       $propsWeight,
+        private readonly PricingRulesTools                      $pricingRulesService,
     ) {
         $this->start();
     }

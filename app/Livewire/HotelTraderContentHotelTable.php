@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\HotelTraderContentHotel;
+use App\Models\HotelTraderProperty;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -22,32 +22,33 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(HotelTraderContentHotel::query())
+            ->query(HotelTraderProperty::query())
             ->columns([
-                TextColumn::make('code')
+                TextColumn::make('propertyId')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('name')
+                TextColumn::make('propertyName')
                     ->sortable()
+                    ->wrap()
                     ->toggleable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('city')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('country')
+                TextColumn::make('countryCode')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('star_rating')
+                TextColumn::make('starRating')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('address_line_1')
+                TextColumn::make('address1')
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('phone_1')
+                TextColumn::make('phone1')
                     ->toggleable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('latitude')
@@ -66,4 +67,3 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
         return view('livewire.hotel-trader-content-table');
     }
 }
-

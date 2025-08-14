@@ -2,12 +2,12 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\HotelTraderContentHotel;
+use App\Models\HotelTraderProperty;
 use Illuminate\Contracts\View\View;
 
 class HotelTraderController extends BaseWithPolicyController
 {
-    protected static string $model = HotelTraderContentHotel::class;
+    protected static string $model = HotelTraderProperty::class;
 
     /**
      * Display a listing of the resource.
