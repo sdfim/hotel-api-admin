@@ -12,9 +12,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HotelTraderClient
 {
@@ -22,7 +22,6 @@ class HotelTraderClient
 
     // We no longer need a single $baseUrl property, as it will be dynamic
     // protected string $baseUrl;
-
     protected array $headers;
 
     public function __construct(
@@ -77,22 +76,25 @@ class HotelTraderClient
                 'request' => $rq,
                 'response' => $res,
             ];
-        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+        } catch (ConnectException $e) {
             Log::error('Connection timeout: '.$e->getMessage());
 
             return ['error' => 'Connection timeout'];
-        } catch (\GuzzleHttp\Exception\ServerException $e) {
+        } catch (ServerException $e) {
             Log::error('Server error: '.$e->getMessage());
 
             return ['error' => 'Server error'];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Unexpected error: '.$e->getMessage());
 
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function book($filters, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function book($filters, $inspectorBook): array
     {
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
@@ -130,11 +132,62 @@ class HotelTraderClient
         ];
     }
 
-    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function availability(array $hotelIds, array $filters, array $inspector): array
+    {
+        $request = [
+            'query' => $this->makeSearchQueryString(),
+            'variables' => $this->makeSearchVariables($filters, $hotelIds),
+            'operationName' => 'getPropertiesByIds',
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlSearchUrl,
+            $request,
+            $inspector
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.getPropertiesByIds.properties', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function modifyBooking(array $modifyData, array $inspector): ?array
+    {
+        $request = [
+            'query' => $this->makeModifyQueryString(),
+            'variables' => $this->makeModifyVariables($modifyData),
+            'operationName' => 'modify',
+        ];
+
+        $response = $this->executeGraphQlRequest(
+            $this->credentials->graphqlBookUrl,
+            $request,
+            $inspector
+        );
+
+        return [
+            'request' => $request,
+            'response' => Arr::get($response, 'data.modify', []),
+            'errors' => Arr::get($response, 'errors', []),
+        ];
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook): array
     {
         $request = [
             'query' => $this->makeCancelQueryString(),
-            'variables' => $this->makeCncelVariables($apiBookingsMetadata),
+            'variables' => $this->makeCancelVariables($apiBookingsMetadata),
         ];
 
         $response = $this->executeGraphQlRequest(
@@ -150,7 +203,10 @@ class HotelTraderClient
         ];
     }
 
-    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook)
+    /**
+     * @throws GuzzleException
+     */
+    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, $inspectorBook): array
     {
         $request = [
             'query' => $this->makeRetrieveQueryString(),
@@ -167,43 +223,6 @@ class HotelTraderClient
             'request' => $request,
             'response' => Arr::get($response, 'data.getReservation', []),
             'errors' => Arr::get($response, 'errors', []),
-        ];
-    }
-
-    public function availability(array $hotelIds, array $filters, array $searchInspector): ?array
-    {
-        return null;
-    }
-
-    public function modifyBooking(array $modifyData, array $inspector): ?array
-    {
-        return null;
-    }
-
-    protected function makeSearchVariables(array $filters, array $hotelIds): array
-    {
-        foreach ($filters['occupancy'] as $occupancy) {
-            $guestAges = [];
-            // Add adults (each adult is 33 years old)
-            if (isset($occupancy['adults']) && is_numeric($occupancy['adults'])) {
-                $guestAges = array_merge($guestAges, array_fill(0, $occupancy['adults'], 33));
-            }
-            // Add children ages
-            if (isset($occupancy['children_ages']) && is_array($occupancy['children_ages'])) {
-                $guestAges = array_merge($guestAges, $occupancy['children_ages']);
-            }
-            $occupancies[] = [
-                'checkInDate' => $filters['checkin'],
-                'checkOutDate' => $filters['checkout'],
-                'guestAges' => implode(',', $guestAges),
-            ];
-        }
-
-        return [
-            'SearchCriteriaByIds' => [
-                'propertyIds' => $hotelIds,
-                'occupancies' => $occupancies,
-            ],
         ];
     }
 
@@ -302,50 +321,29 @@ class HotelTraderClient
         QUERY;
     }
 
-    protected function makeBookVariables(array $filters, array $mappedGuests): array
+    protected function makeSearchVariables(array $filters, array $hotelIds): array
     {
-        $rooms = [];
-        $childrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($filters['booking_item']);
-
-        if ($childrenBookingItems) {
-            $roomNumber = 1;
-            foreach ($childrenBookingItems as $k => $childBookingItem) {
-                $childBookingItemData = ApiBookingItemRepository::getItemData($childBookingItem);
-                $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
-                $rooms[] = [
-                    'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
-                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
-                    'roomSpecialRequests' => ['room test comment'],
-                    'rates' => Arr::get($childBookingItemData, 'rate', []),
-                    'occupancy' => [
-                        'guestAges' => $guestAges,
-                    ],
-                    'guests' => $mappedGuests[$k] ?? [],
-                ];
-                $roomNumber++;
+        foreach ($filters['occupancy'] as $occupancy) {
+            $guestAges = [];
+            // Add adults (each adult is 33 years old)
+            if (isset($occupancy['adults']) && is_numeric($occupancy['adults'])) {
+                $guestAges = array_merge($guestAges, array_fill(0, $occupancy['adults'], 33));
             }
-        } else {
-            $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
-            $guestAges = implode(',', array_column($mappedGuests[0], 'age'));
-            $rooms[] = [
-                'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
-                'clientRoomConfirmationCode' => $filters['booking_item'],
-                'roomSpecialRequests' => ['room test comment'],
-                'rates' => Arr::get($bookingItemData, 'rate', []),
-                'occupancy' => [
-                    'guestAges' => $guestAges,
-                ],
-                'guests' => $mappedGuests[0] ?? [],
+            // Add children ages
+            if (isset($occupancy['children_ages']) && is_array($occupancy['children_ages'])) {
+                $guestAges = array_merge($guestAges, $occupancy['children_ages']);
+            }
+            $occupancies[] = [
+                'checkInDate' => $filters['checkin'],
+                'checkOutDate' => $filters['checkout'],
+                'guestAges' => implode(',', $guestAges),
             ];
         }
 
         return [
-            'Book' => [
-                'clientConfirmationCode' => $filters['booking_item'],
-                'otaConfirmationCode' => $filters['booking_item'],
-                'otaClientName' => 'htrader',
-                'paymentInformation' => null,
-                'rooms' => $rooms,
+            'SearchCriteriaByIds' => [
+                'propertyIds' => $hotelIds,
+                'occupancies' => $occupancies,
             ],
         ];
     }
@@ -477,13 +475,220 @@ class HotelTraderClient
         QUERY;
     }
 
-    protected function makeCncelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    protected function makeBookVariables(array $filters, array $mappedGuests): array
     {
+        $rooms = [];
+        $childrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($filters['booking_item']);
+
+        if ($childrenBookingItems) {
+            $roomNumber = 1;
+            foreach ($childrenBookingItems as $k => $childBookingItem) {
+                $childBookingItemData = ApiBookingItemRepository::getItemData($childBookingItem);
+                $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
+                $rooms[] = [
+                    'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
+                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
+                    'roomSpecialRequests' => ['room test comment'],
+                    'rates' => Arr::get($childBookingItemData, 'rate', []),
+                    'occupancy' => [
+                        'guestAges' => $guestAges,
+                    ],
+                    'guests' => $mappedGuests[$k] ?? [],
+                ];
+                $roomNumber++;
+            }
+        } else {
+            $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+            $guestAges = implode(',', array_column($mappedGuests[0], 'age'));
+            $rooms[] = [
+                'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
+                'clientRoomConfirmationCode' => $filters['booking_item'],
+                'roomSpecialRequests' => ['room test comment'],
+                'rates' => Arr::get($bookingItemData, 'rate', []),
+                'occupancy' => [
+                    'guestAges' => $guestAges,
+                ],
+                'guests' => $mappedGuests[0] ?? [],
+            ];
+        }
+
         return [
-            'Cancel' => [
-                'htConfirmationCode' => $apiBookingsMetadata->supplier_booking_item_id,
+            'Book' => [
+                'clientConfirmationCode' => $filters['booking_item'],
+                'otaConfirmationCode' => $filters['booking_item'],
+                'otaClientName' => 'htrader',
+                'paymentInformation' => null,
+                'rooms' => $rooms,
             ],
         ];
+    }
+
+    protected function makeModifyQueryString(): string
+    {
+        return <<<'GRAPHQL'
+        mutation modify($Modify: ModifyRequestInput) {
+            modify(modifyRequest: $Modify) {
+                htConfirmationCode
+                clientConfirmationCode
+                otaConfirmationCode
+                otaClientName
+                consolidatedComments
+                consolidatedHTMLComments
+                bookingDate
+                aggregateTax
+                membershipId
+                specialRequests
+                aggregateGrossPrice
+                aggregateNetPrice
+                aggregateTax
+                aggregatePayAtProperty
+                aggregateCancellationFee
+                propertyDetails {
+                    propertyId
+                    propertyName
+                    address {
+                        address1
+                        address2
+                        cityName
+                        countryCode
+                        stateName
+                        zipCode
+                    }
+                    checkInTime
+                    checkOutTime
+                    city
+                    hotelImageUrl
+                    latitude
+                    longitude
+                    starRating
+                    checkInPolicy
+                    minAdultAgeForCheckIn
+                    timeZone
+                    shortDescription
+                    longDescription
+                }
+                rooms {
+                    cancellationDate
+                    cancellationFee
+                    cancelled
+                    cancellationPolicies {
+                        startWindowTime
+                        endWindowTime
+                        currency
+                        cancellationCharge
+                        timeZone
+                        timeZoneUTC
+                    }
+                    checkInDate
+                    checkOutDate
+                    clientRoomConfirmationCode
+                    htRoomConfirmationCode
+                    crsConfirmationCode
+                    crsCancelConfirmationCode
+                    pmsConfirmationCode
+                    refundable
+                    roomName
+                    rateplanTag
+                    rateplanCode
+                    shortDescription
+                    longDescription
+                    mealplanOptions {
+                        breakfastIncluded
+                        lunchIncluded
+                        dinnerIncluded
+                        allInclusive
+                        mealplanName
+                        mealplanCode
+                        mealplanDescription
+                    }
+                    rates {
+                        bar
+                        binding
+                        commissionable
+                        commissionAmount
+                        netPrice
+                        tax
+                        currency
+                        grossPrice
+                        dailyPrice
+                        dailyTax
+                        payAtProperty
+                        taxInfo {
+                            payAtBooking {
+                                date
+                                description
+                                name
+                                currency
+                                value
+                            }
+                            payAtProperty {
+                                date
+                                description
+                                name
+                                currency
+                                value
+                            }
+                        }
+                        aggregateTaxInfo {
+                            payAtBooking {
+                                description
+                                name
+                                currency
+                                value
+                            }
+                            payAtProperty {
+                                description
+                                name
+                                currency
+                                value
+                            }
+                        }
+                    }
+                    occupancy {
+                        noOfAdults
+                        noOfChildren
+                        childrenAges
+                    }
+                    guests {
+                        adult
+                        age
+                        email
+                        firstName
+                        lastName
+                        phone
+                        primary
+                    }
+                    roomSpecialRequests
+                }
+            }
+        }
+    GRAPHQL;
+    }
+
+    protected function makeModifyVariables(array $modifyData): array
+    {
+        $modifyData['rooms'] = array_map([$this, 'sanitizeRoomData'], $modifyData['rooms']);
+
+        return [
+            'Modify' => $modifyData,
+        ];
+    }
+
+    protected function sanitizeRoomData(array $room): array
+    {
+        // Valid fields according to the GraphQL schema ModifyRoomInput
+        $allowedKeys = [
+            'htIdentifier',
+            'htRoomConfirmationCode',
+            'clientRoomConfirmationCode',
+            'status', // BOOK | MODIFY | CANCEL
+            'guests',
+            'occupancy', // numberOfAdults/numberOfChildren/childrenAges
+            'rates', // netPrice/tax/grossPrice/... (if pass)
+            'roomSpecialRequests',
+        ];
+
+        return array_intersect_key($room, array_flip($allowedKeys));
     }
 
     protected function makeCancelQueryString(): string
@@ -506,10 +711,10 @@ class HotelTraderClient
         QUERY;
     }
 
-    protected function makeRetrieveVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    protected function makeCancelVariables(ApiBookingsMetadata $apiBookingsMetadata): array
     {
         return [
-            'GetReservation' => [
+            'Cancel' => [
                 'htConfirmationCode' => $apiBookingsMetadata->supplier_booking_item_id,
             ],
         ];
@@ -646,6 +851,15 @@ class HotelTraderClient
         QUERY;
     }
 
+    protected function makeRetrieveVariables(ApiBookingsMetadata $apiBookingsMetadata): array
+    {
+        return [
+            'GetReservation' => [
+                'htConfirmationCode' => $apiBookingsMetadata->supplier_booking_item_id,
+            ],
+        ];
+    }
+
     /**
      * Generic method to execute a GraphQL request.
      *
@@ -663,11 +877,11 @@ class HotelTraderClient
         try {
             // Imitation error 500
             // Uncomment the next line to simulate a server error for testing purposes
-//            throw new \GuzzleHttp\Exception\ServerException(
-//                'Server error',
-//                new \GuzzleHttp\Psr7\Request('POST', 'test'),
-//                new \GuzzleHttp\Psr7\Response(500)
-//            );
+            //            throw new \GuzzleHttp\Exception\ServerException(
+            //                'Server error',
+            //                new \GuzzleHttp\Psr7\Request('POST', 'test'),
+            //                new \GuzzleHttp\Psr7\Response(500)
+            //            );
             $client = new Client;
             $response = $client->post($endpointUrl, [
                 'headers' => $this->headers,
@@ -719,7 +933,7 @@ class HotelTraderClient
      * @param  string|null  $operationName  Optional operation name for the query.
      * @return array|null The JSON decoded response data, or null on error.
      *
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     public function sendSearchQueryTest(array $variables = [], ?string $query = null, ?string $operationName = null): ?array
     {

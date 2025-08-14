@@ -1,9 +1,9 @@
 services:
-  booking-engine:
+  fora:
     build:
       context: .
       dockerfile: dev.Dockerfile
-    container_name: booking-engine
+    container_name: fora
     restart: unless-stopped
     environment:
       WEB_DOCUMENT_ROOT: /app/public
@@ -17,12 +17,12 @@ services:
       XDEBUG_MODE: develop,debug,coverage
       XDEBUG_START_WITH_REQUEST: yes
       XDEBUG_CLIENT_HOST: docker.for.mac.localhost
-      XDEBUG_CLIENT_PORT: 9000
+      XDEBUG_CLIENT_PORT: 9003
       XDEBUG_OUTPUT_DIR: /var/log
       XDEBUG_IDE_KEY: INTELLIJ-IDEA
     ports:
       - '${FORWARD_HTTP_PORT:-80}:80'
-      - '${FORWARD_HTTPS_PORT:-8443}:443'
+      - '${FORWARD_HTTPS_PORT:-443}:443'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     tty: true
@@ -37,7 +37,7 @@ services:
 
   mysql:
     image: mysql:8.0.33
-    container_name: booking-engine-mysql
+    container_name: fora-mysql
     restart: unless-stopped
     command:
       - "mysqld"
@@ -48,10 +48,9 @@ services:
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
       MYSQL_ROOT_HOST: "%"
       MYSQL_USER: '${DB_USERNAME}'
-      MYSQL_DATABASE: '${DB_DATABASE}'
       MYSQL_PASSWORD: '${DB_PASSWORD}'
     volumes:
-      - 'booking-engine-mysql:/var/lib/mysql'
+      - 'fora-mysql:/var/lib/mysql'
     networks:
       - fora-network
     healthcheck:
@@ -61,14 +60,14 @@ services:
 
   redis:
     image: redis
-    container_name: booking-engine-redis
+    container_name: fora-redis
     restart: unless-stopped
     ports:
       - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
       - fora-network
     volumes:
-      - 'booking-engine-redis:/data'
+      - 'fora-redis:/data'
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       retries: 3
@@ -79,7 +78,7 @@ networks:
     driver: bridge
 
 volumes:
-  booking-engine-mysql:
+  fora-mysql:
     driver: local
-  booking-engine-redis:
+  fora-redis:
     driver: local
