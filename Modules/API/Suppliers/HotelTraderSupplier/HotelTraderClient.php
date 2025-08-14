@@ -659,7 +659,6 @@ class HotelTraderClient
                         primary
                     }
                     roomSpecialRequests
-                    status
                 }
             }
         }
