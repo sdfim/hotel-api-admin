@@ -5,6 +5,8 @@ namespace App\Livewire\Users;
 use App\Actions\Jetstream\CreateTeam;
 use App\Actions\Jetstream\DeleteTeam;
 use App\Helpers\ClassHelper;
+use App\Models\Channel;
+use App\Models\Enums\RoleSlug;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Team;
@@ -49,6 +51,7 @@ class UsersForm extends Component implements HasForms, HasTable
             ...$this->record->attributesToArray(),
             'role' => $this->record->roles()->first()?->id,
             'vendor_ids' => $vendorIds,
+            'channel_id' => $this->record->channel_id,
         ]);
     }
 
@@ -64,7 +67,9 @@ class UsersForm extends Component implements HasForms, HasTable
                 ->formatStateUsing(fn () => Str::password(10));
         }
 
-        $externalUserRoleId = Role::where('slug', 'external-user')->first()?->id;
+        // Resolve both role ids once to reuse in closures (avoid repeated queries)
+        $externalUserRoleId = Role::where('slug', RoleSlug::EXTERNAL_USER->value)->value('id');
+        $apiUserRoleId = Role::where('slug', RoleSlug::API_USER->value)->value('id');
 
         return $form
             ->schema([
@@ -80,6 +85,12 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->options(Role::pluck('name', 'id'))
                     ->required()
                     ->reactive(),
+                Select::make('channel_id')
+                    ->relationship('channel', 'name')
+                    ->searchable()
+                    ->visible(fn ($get) => (int) $get('role') === (int) $apiUserRoleId)
+                    ->optionsLimit(20)
+                    ->preload(),
                 Select::make('vendor_ids')
                     ->label('Can View Vendors')
                     ->multiple()
@@ -139,16 +150,37 @@ class UsersForm extends Component implements HasForms, HasTable
     {
         $exists = $this->record->exists;
         $data = $this->form->getState();
+
+        // Fill basic fields
         $this->record->fill(Arr::only($data, ['name', 'email']));
 
         if (! $exists) {
             $this->record->password = bcrypt($data['password']);
         }
 
+        // If role is API USER => require channel_id; else clear it
+        $apiUserRoleId = Role::where('slug', RoleSlug::API_USER->value)->value('id');
+
+        if ((int) ($data['role'] ?? 0) === (int) $apiUserRoleId) {
+            // Optional: validate presence
+            if (empty($data['channel_id'])) {
+                Notification::make()
+                    ->title('Channel is required for API User')
+                    ->danger()
+                    ->send();
+
+                return redirect()->back();
+            }
+            $this->record->channel_id = $data['channel_id'];
+        } else {
+            // Not an API user — drop channel binding to keep invariant clean
+            $this->record->channel_id = null;
+        }
+
         $this->record->save();
         $this->record->roles()->sync([$data['role']]);
 
-        if ($data['role'] === Role::where('slug', 'external-user')->first()?->id) {
+        if ($data['role'] === Role::where('slug', RoleSlug::EXTERNAL_USER->value)->value('id')) {
             $this->addUserToGroups($data['vendor_ids'], $this->record);
         }
 
