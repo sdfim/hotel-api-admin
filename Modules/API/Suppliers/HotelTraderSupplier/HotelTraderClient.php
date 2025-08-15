@@ -3,9 +3,11 @@
 namespace Modules\API\Suppliers\HotelTraderSupplier;
 
 use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingsMetadata;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use Exception;
 use Fiber;
 use GuzzleHttp\Client;
@@ -14,6 +16,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class HotelTraderClient
@@ -64,6 +67,8 @@ class HotelTraderClient
                 'payload' => $payload,
             ];
 
+            $original = ['HotelTrader' => ['request' => $responseData]];
+
             if (isset($responseData['errors'])) {
                 Log::error('HotelTrader GraphQL Application Error: '.json_encode($responseData['errors']));
 
@@ -78,14 +83,27 @@ class HotelTraderClient
             ];
         } catch (ConnectException $e) {
             Log::error('Connection timeout: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
 
             return ['error' => 'Connection timeout'];
         } catch (ServerException $e) {
             Log::error('Server error: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'HotelTrader Server error', 'parent_search_id' => $parent_search_id]);
+
 
             return ['error' => 'Server error'];
         } catch (Throwable $e) {
             Log::error('Unexpected error: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'Unexpected error', 'parent_search_id' => $parent_search_id]);
 
             return ['error' => $e->getMessage()];
         }
@@ -99,19 +117,10 @@ class HotelTraderClient
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
-        $mappedGuests = array_map(function ($guests) {
-            return array_map(function ($guest) {
-                return [
-                    'firstName' => $guest['given_name'],
-                    'lastName' => $guest['family_name'],
-                    'email' => 'test@hoteltrader.com',
-                    'adult' => ($guest['age'] ?? 30) >= 18,
-                    'age' => $guest['age'] ?? 30,
-                    'phone' => '1234567890', // TODO: replace with actual phone if available
-                    'primary' => true,
-                ];
-            }, $guests);
-        }, $guests);
+        $bookingContactEmail = Arr::get($filters, 'booking_contact.email');
+        $bookingContactPhone = Arr::get($filters, 'booking_contact.phone.number');
+
+        $mappedGuests = $this->mapGuests($guests, $bookingContactEmail, $bookingContactPhone);
 
         $request = [
             'query' => $this->makeBookQueryString(),
@@ -159,11 +168,29 @@ class HotelTraderClient
     /**
      * @throws GuzzleException
      */
-    public function modifyBooking(array $modifyData, array $inspector): ?array
+    public function modifyBooking(array $filters, array $inspector): ?array
     {
+        $passengersData = Arr::get($filters, 'passengers');
+        $guests = [];
+        foreach ($passengersData as $passenger) {
+            $room = $passenger['room'];
+            if (! isset($guests[$room - 1])) {
+                $guests[$room - 1] = [];
+            }
+            $guests[$room - 1][] = $passenger;
+        }
+
+        $bookIdData = ApiBookingInspectorRepository::bookedItem($filters['booking_id'], $filters['booking_item']);
+        $bookIdDataRs = json_decode($bookIdData->request, true);
+
+        $bookingContactEmail = Arr::get($bookIdDataRs, 'booking_contact.email');
+        $bookingContactPhone = Arr::get($bookIdDataRs, 'booking_contact.phone.number');
+
+        $mappedGuests = $this->mapGuests($guests, $bookingContactEmail, $bookingContactPhone);
+
         $request = [
             'query' => $this->makeModifyQueryString(),
-            'variables' => $this->makeModifyVariables($modifyData),
+            'variables' => $this->makeModifyVariables($filters, $mappedGuests),
             'operationName' => 'modify',
         ];
 
@@ -477,40 +504,8 @@ class HotelTraderClient
 
     protected function makeBookVariables(array $filters, array $mappedGuests): array
     {
-        $rooms = [];
-        $childrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($filters['booking_item']);
-
-        if ($childrenBookingItems) {
-            $roomNumber = 1;
-            foreach ($childrenBookingItems as $k => $childBookingItem) {
-                $childBookingItemData = ApiBookingItemRepository::getItemData($childBookingItem);
-                $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
-                $rooms[] = [
-                    'htIdentifier' => Arr::get($childBookingItemData, 'htIdentifier', []),
-                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
-                    'roomSpecialRequests' => ['room test comment'],
-                    'rates' => Arr::get($childBookingItemData, 'rate', []),
-                    'occupancy' => [
-                        'guestAges' => $guestAges,
-                    ],
-                    'guests' => $mappedGuests[$k] ?? [],
-                ];
-                $roomNumber++;
-            }
-        } else {
-            $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
-            $guestAges = implode(',', array_column($mappedGuests[0], 'age'));
-            $rooms[] = [
-                'htIdentifier' => Arr::get($bookingItemData, 'htIdentifier', []),
-                'clientRoomConfirmationCode' => $filters['booking_item'],
-                'roomSpecialRequests' => ['room test comment'],
-                'rates' => Arr::get($bookingItemData, 'rate', []),
-                'occupancy' => [
-                    'guestAges' => $guestAges,
-                ],
-                'guests' => $mappedGuests[0] ?? [],
-            ];
-        }
+        $roomSpecialRequests = $this->getRoomSpecialRequests($filters, $filters['booking_item']);
+        $rooms = $this->buildRoomsArray($mappedGuests, $roomSpecialRequests, $filters['booking_item']);
 
         return [
             'Book' => [
@@ -665,30 +660,58 @@ class HotelTraderClient
     GRAPHQL;
     }
 
-    protected function makeModifyVariables(array $modifyData): array
+    protected function makeModifyVariables(array $filters, array $mappedGuests): array
     {
-        $modifyData['rooms'] = array_map([$this, 'sanitizeRoomData'], $modifyData['rooms']);
+        $isSoftChange = ! Arr::get($filters, 'new_booking_item');
+
+        $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
+        $htCode = $meta->supplier_booking_item_id;
+        $roomSpecialRequests = $this->getRoomSpecialRequests($filters, $filters['booking_item']);
+
+        if ($isSoftChange) {
+            $rooms = $this->buildRoomsArray($mappedGuests, $roomSpecialRequests, $filters['booking_item'], 'modify');
+            foreach ($rooms as &$room) {
+                unset($room['occupancy'], $room['rates']);
+            }
+        } else {
+            $rooms = $this->buildRoomsArray($mappedGuests, $roomSpecialRequests, $filters['new_booking_item'], 'modify');
+        }
+
+        $k = 1;
+        foreach ($rooms as &$room) {
+            $room['htRoomConfirmationCode'] = $htCode.'-'.$k;
+            $room['status'] = 'MODIFY';
+            $k++;
+        }
+
+        //        dd($isSoftChange, $htCode, $filters['booking_item'], $rooms);
 
         return [
-            'Modify' => $modifyData,
+            'Modify' => [
+                'htConfirmationCode' => $htCode,
+                'clientConfirmationCode' => $filters['booking_item'],
+                'otaConfirmationCode' => $filters['booking_item'],
+                'otaClientName' => 'htrader',
+                'rooms' => $rooms,
+            ],
         ];
     }
 
-    protected function sanitizeRoomData(array $room): array
+    protected function getRoomSpecialRequests(array $filters, string $bookingItem): array
     {
-        // Valid fields according to the GraphQL schema ModifyRoomInput
-        $allowedKeys = [
-            'htIdentifier',
-            'htRoomConfirmationCode',
-            'clientRoomConfirmationCode',
-            'status', // BOOK | MODIFY | CANCEL
-            'guests',
-            'occupancy', // numberOfAdults/numberOfChildren/childrenAges
-            'rates', // netPrice/tax/grossPrice/... (if pass)
-            'roomSpecialRequests',
-        ];
+        $result = [];
+        $specialRequests = Arr::get($filters, 'special_requests', []);
+        foreach ($specialRequests as $request) {
+            if ($request['booking_item'] === $bookingItem) {
+                $room = $request['room'];
+                if (! isset($result[$room - 1])) {
+                    $result[$room - 1] = [];
+                }
+                $result[$room - 1][] = $request['special_request'];
+            }
+        }
 
-        return array_intersect_key($room, array_flip($allowedKeys));
+        return $result;
     }
 
     protected function makeCancelQueryString(): string
@@ -860,6 +883,76 @@ class HotelTraderClient
         ];
     }
 
+    protected function buildRoomsArray(array $mappedGuests, array $roomSpecialRequests, string $bookingItem, string $mode = 'book'): array
+    {
+        $rooms = [];
+        $childrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($bookingItem);
+
+        if ($childrenBookingItems) {
+            $roomNumber = 1;
+            foreach ($childrenBookingItems as $k => $childBookingItem) {
+                $childBookingItemData = ApiBookingItemRepository::getItemData($childBookingItem);
+                $guestAges = implode(',', array_column($mappedGuests[$k], 'age'));
+                $room = [
+                    'clientRoomConfirmationCode' => $childBookingItem.'-'.$roomNumber,
+                    'rates' => Arr::get($childBookingItemData, 'rate', []),
+                    'occupancy' => [
+                        'guestAges' => $guestAges,
+                    ],
+                    'guests' => $mappedGuests[$k] ?? [],
+                ];
+                if ($mode === 'book') {
+                    $room['htIdentifier'] = Arr::get($childBookingItemData, 'htIdentifier', []);
+                }
+                if (isset($roomSpecialRequests[$k])) {
+                    $room['roomSpecialRequests'] = $roomSpecialRequests[$k];
+                }
+                $rooms[] = $room;
+                $roomNumber++;
+            }
+        } else {
+            $bookingItemData = ApiBookingItemRepository::getItemData($bookingItem);
+            $guestAges = implode(',', array_column($mappedGuests[0], 'age'));
+            $room = [
+                'clientRoomConfirmationCode' => $bookingItem.'-1',
+                'rates' => Arr::get($bookingItemData, 'rate', []),
+                'occupancy' => [
+                    'guestAges' => $guestAges,
+                ],
+                'guests' => $mappedGuests[0] ?? [],
+            ];
+            if ($mode === 'book') {
+                $room['htIdentifier'] = Arr::get($bookingItemData, 'htIdentifier', []);
+            }
+            if (isset($roomSpecialRequests[0])) {
+                $room['roomSpecialRequests'] = $roomSpecialRequests[0];
+            }
+            $rooms[] = $room;
+        }
+
+        return $rooms;
+    }
+
+    protected function mapGuests(array $guests, ?string $сontactEmail, ?string $сontactPhone): array
+    {
+        return array_map(function ($roomGuests) use ($сontactEmail, $сontactPhone) {
+            $result = [];
+            foreach ($roomGuests as $i => $guest) {
+                $result[] = [
+                    'firstName' => Arr::get($guest, 'given_name', ''),
+                    'lastName' => Arr::get($guest, 'family_name', ''),
+                    'email' => Arr::get($guest, 'email') ?? $сontactEmail ?? 'test@hoteltrader.com',
+                    'adult' => (Arr::get($guest, 'age') ?? 30) >= 18,
+                    'age' => Arr::get($guest, 'age') ?? 30,
+                    'phone' => Arr::get($guest, 'phone') ?? $сontactPhone ?? '1234567890',
+                    'primary' => $i === 0,
+                ];
+            }
+
+            return $result;
+        }, $guests);
+    }
+
     /**
      * Generic method to execute a GraphQL request.
      *
@@ -924,7 +1017,6 @@ class HotelTraderClient
     }
 
     // ####### Search API Methods only test console comand ########
-
     /**
      * Sends a GraphQL query to the HotelTrader Search API.
      *

@@ -10,7 +10,6 @@ use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
@@ -26,7 +25,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelBookTransformer;
@@ -321,6 +319,8 @@ class HotelTraderBookApiController extends BaseBookApiController
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
             $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
             $hotelService->updateBookingItemsData($filters['new_booking_item'], true);
+        } else {
+            MoveBookingItemCache::dispatchSync($filters['new_booking_item']);
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
@@ -332,7 +332,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         $itemPrice = json_decode($item->booking_pricing_data, true);
         $totalPrice = $itemPrice['total_price'] ?? 0;
 
-        $itemNew = ApiBookingItemCache::where('booking_item', $filters['new_booking_item'])->first();
+        $itemNew = ApiBookingItem::where('booking_item', $filters['new_booking_item'])->first();
         $itemPriceNew = json_decode($itemNew->booking_pricing_data, true);
         $totalPriceNew = $itemPriceNew['total_price'] ?? 0;
 
@@ -349,7 +349,6 @@ class HotelTraderBookApiController extends BaseBookApiController
         $data['result']['new_booking_item'] = $this->getCurrentBookingItem($itemPriceNew);
         $data['result']['new_booking_item']['booking_item'] = $filters['booking_item'];
 
-        MoveBookingItemCache::dispatchSync($itemNew->booking_item);
         SaveBookingInspector::dispatchSync($bookingInspector, [], $data);
 
         return $data;
@@ -364,35 +363,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         ]);
 
         try {
-            // Validation for hard change
-            if ($mode === 'hard') {
-                $isNonRefundable = ApiBookingItemRepository::isNonRefundable($filters['booking_item']);
-                if ($isNonRefundable) {
-                    $clientResponse = [
-                        'Errors' => ['This booking is non-refundable and cannot be hard-modified.'],
-                        'booking_item' => $filters['booking_item'],
-                        'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
-                    ];
-                    SaveBookingInspector::dispatch($bookingInspector, [], $clientResponse, 'error', [
-                        'side' => 'validation',
-                        'message' => 'Attempted hard change for non-refundable booking.',
-                    ]);
-
-                    return $clientResponse;
-                }
-            }
-
-            // Data preparation
-            if ($mode === 'soft') {
-                $modifyData = $this->prepareSoftChangeData($filters);
-            } elseif ($mode === 'hard') {
-                $modifyData = $this->prepareHardChangeData($filters);
-            } else {
-                throw new InvalidArgumentException("Unsupported change mode: $mode");
-            }
-
-            // Client call
-            $result = $this->hotelTraderClient->modifyBooking($modifyData, $bookingInspector);
+            $result = $this->hotelTraderClient->modifyBooking($filters, $bookingInspector);
 
             $response = $result['response'] ?? [];
             $errors = $result['errors'] ?? [];
@@ -454,194 +425,6 @@ class HotelTraderBookApiController extends BaseBookApiController
         }
     }
 
-    protected function prepareSoftChangeData(array $filters): array
-    {
-        $meta = ApiBookingsMetadataRepository::getBookedItem(
-            $filters['booking_id'],
-            $filters['booking_item']
-        );
-        $htCode = $meta->supplier_booking_item_id;
-
-        // 1) guests → by room number from passenger.room
-        $guestsByRoom = [];
-        foreach (($filters['passengers'] ?? []) as $p) {
-            $room = max(1, (int) ($p['room'] ?? 1)); // only p.room
-            $isPrimary = empty($guestsByRoom[$room]); // first in the room — primary
-
-            $guestsByRoom[$room][] = [
-                'firstName' => $p['given_name'] ?? '',
-                'lastName' => $p['family_name'] ?? '',
-                'email' => $p['email'] ?? 'test@hoteltrader.com',
-                'adult' => (isset($p['age']) ? (int) $p['age'] : 30) >= 18,
-                'age' => isset($p['age']) ? (int) $p['age'] : 30,
-                'phone' => $p['phone'] ?? '1234567890',
-                'primary' => $isPrimary,
-            ];
-        }
-
-        // 2) Special requests for rooms
-        $srByRoom = [];
-        foreach (($filters['special_requests'] ?? []) as $sr) {
-            $room = max(1, (int) ($sr['room'] ?? 1));
-            $srByRoom[$room][] = $sr['special_request'];
-        }
-
-        // 3) list of rooms
-        $roomsIdx = array_unique(array_merge(array_keys($guestsByRoom), array_keys($srByRoom))) ?: [1];
-        sort($roomsIdx);
-
-        // 4) payload formation: ALWAYS with the suffix -<room> for both client and ht
-        $rooms = [];
-        foreach ($roomsIdx as $room) {
-            $roomData = [
-                'clientRoomConfirmationCode' => $filters['booking_item'].'-'.$room,
-                'htRoomConfirmationCode' => $htCode.'-'.$room,
-                'status' => 'MODIFY', // input is possible, we do not request in selection set
-            ];
-
-            if (! empty($guestsByRoom[$room])) {
-                $roomData['guests'] = $guestsByRoom[$room];
-            }
-            if (! empty($srByRoom[$room])) {
-                $roomData['roomSpecialRequests'] = $srByRoom[$room];
-            }
-
-            $rooms[] = $roomData;
-        }
-
-        return [
-            'htConfirmationCode' => $htCode,
-            'clientConfirmationCode' => $filters['booking_item'],
-            'otaConfirmationCode' => $filters['booking_item'],
-            'otaClientName' => 'htrader',
-            'specialRequests' => [], // general comments, if any — put them here
-            'rooms' => $rooms,
-        ];
-    }
-
-    protected function prepareHardChangeData(array $filters): array
-    {
-        // 1) basic identifiers
-        $meta = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
-        $htConfirmationCode = $meta->supplier_booking_item_id;
-
-        // 2) details of the new product/tariff (if this is a change of tariff/number)
-        $newData = isset($filters['new_booking_item'])
-            ? (ApiBookingItemRepository::getItemData($filters['new_booking_item']) ?? [])
-            : [];
-        $htIdentifier = $newData['htIdentifier'] ?? null; // при смене rate/roomtype
-        $rates = $newData['rate'] ?? null;  // опционально
-
-        // 3) Group passengers by room (only by passenger.room)
-        $passengers = is_array($filters['passengers'] ?? null) ? $filters['passengers'] : [];
-        $byRoom = [];
-        foreach ($passengers as $p) {
-            $room = max(1, (int) ($p['room'] ?? 1));
-            $byRoom[$room][] = $p;
-        }
-
-        // if there are no passengers — at least one room: 1
-        if (empty($byRoom)) {
-            $byRoom = [1 => []];
-        }
-
-        // if changing product/tariff — limit to one room
-        if ($htIdentifier && count($byRoom) > 1) {
-            throw new InvalidArgumentException(
-                'Hard-change: product/rate replacement must target exactly one room. Provide passengers for a single room or omit htIdentifier.'
-            );
-        }
-
-        // 4) Special requests for rooms
-        $srByRoom = [];
-        foreach (($filters['special_requests'] ?? []) as $sr) {
-            $room = max(1, (int) ($sr['room'] ?? 1));
-            $srByRoom[$room][] = $sr['special_request'];
-        }
-
-        // 5) collect room payloads
-        ksort($byRoom);
-        $roomsPayload = [];
-
-        foreach ($byRoom as $roomIdx => $roomPassengers) {
-            // guests
-            $guests = [];
-            foreach (array_values($roomPassengers) as $i => $g) {
-                $age = isset($g['age']) ? (int) $g['age'] : 30;
-                $guests[] = [
-                    'firstName' => $g['given_name'] ?? 'Guest',
-                    'lastName' => $g['family_name'] ?? 'Name',
-                    'email' => $g['email'] ?? 'test@hoteltrader.com',
-                    'adult' => $age >= 18,
-                    'age' => $age,
-                    'phone' => $g['phone'] ?? '1234567890',
-                    'primary' => $i === 0,
-                ];
-            }
-
-            // occupancy — we count from the guests in this room; if there are no guests, you can take it from the search, but this is not necessary
-            $adults = array_values(array_filter($guests, fn ($x) => $x['adult'] === true));
-            $kidsAges = array_map(fn ($x) => (int) $x['age'], array_values(array_filter($guests, fn ($x) => $x['adult'] === false)));
-
-            $occupancy = null;
-            // When changing a product/tariff occupancy, it is advisable to transfer
-            if ($htIdentifier || ! empty($kidsAges)) {
-                $occupancy = [
-                    'numberOfAdults' => max(1, count($adults) ?: 1),
-                    'numberOfChildren' => count($kidsAges),
-                    'childrenAges' => count($kidsAges) ? implode(',', $kidsAges) : null,
-                ];
-            }
-
-            // room codes — ALWAYS with the suffix -<roomIdx>
-            $roomData = [
-                'clientRoomConfirmationCode' => $filters['booking_item'].'-'.$roomIdx,
-                'htRoomConfirmationCode' => $htConfirmationCode.'-'.$roomIdx,
-                'status' => 'MODIFY',
-            ];
-
-            // if changing product/tariff — add identifier and prices
-            if ($htIdentifier) {
-                $roomData['htIdentifier'] = $htIdentifier;
-                if (! empty($rates)) {
-                    $roomData['rates'] = $rates;
-                }
-            }
-
-            if ($occupancy !== null) {
-                $roomData['occupancy'] = $occupancy;
-            }
-            if (! empty($guests)) {
-                $roomData['guests'] = $guests;
-            }
-            if (! empty($srByRoom[$roomIdx] ?? [])) {
-                $roomData['roomSpecialRequests'] = $srByRoom[$roomIdx];
-            }
-
-            $roomsPayload[] = $roomData;
-        }
-
-        // Mini-check: each room must have either an htIdentifier (for product changes)
-        // or an htRoomConfirmationCode (we always have this).
-        foreach ($roomsPayload as $r) {
-            if (empty($r['htIdentifier']) && empty($r['htRoomConfirmationCode'])) {
-                throw new InvalidArgumentException(
-                    'Hard-change: each room must include htIdentifier (when changing product) or htRoomConfirmationCode.'
-                );
-            }
-        }
-
-        return [
-            'htConfirmationCode' => $htConfirmationCode,
-            'clientConfirmationCode' => $filters['booking_item'],
-            'otaConfirmationCode' => $filters['booking_item'],
-            'otaClientName' => 'htrader',
-            'specialRequests' => [], // general comments, if any — put them here
-            'rooms' => $roomsPayload,
-        ];
-    }
-
-    // TODO: Refactor this method to use the new HotelTraderClient
     private function getCurrentBookingItem(array $itemPrice): array
     {
         return [
@@ -780,6 +563,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         if (count($filters['occupancy']) > 1) {
             $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
             $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
+            logger()->debug('HotelTraderBookApiController _ enrichmentRoomCombinations');
         } else {
             $clientResponse[$supplierName] = $hotels;
         }

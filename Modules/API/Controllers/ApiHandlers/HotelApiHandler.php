@@ -300,7 +300,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
                         SupplierNameEnum::EXPEDIA => $preSearchData,
                         SupplierNameEnum::HOTEL_TRADER => $preSearchData,
-                        SupplierNameEnum::HOTEL_TRADER => $preSearchData,
                         default => [],
                     };
 

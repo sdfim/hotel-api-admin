@@ -304,7 +304,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
-            ->get();
+            ->first();
     }
 
     public static function getPassengers(string $booking_id, string $booking_item): ?object

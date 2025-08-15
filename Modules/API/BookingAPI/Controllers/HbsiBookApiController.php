@@ -505,11 +505,14 @@ class HbsiBookApiController extends BaseBookApiController
         ];
     }
 
+    // TODO: need to be refactored for multiple booking items
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
-            $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
+            $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
             $hotelService->updateBookingItemsData($filters['new_booking_item'], true);
+        } else {
+            MoveBookingItemCache::dispatchSync($filters['new_booking_item']);
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -521,7 +524,7 @@ class HbsiBookApiController extends BaseBookApiController
         $itemPrice = json_decode($item->booking_pricing_data, true);
         $totalPrice = $itemPrice['total_price'] ?? 0;
 
-        $itemNew = ApiBookingItemCache::where('booking_item', $filters['new_booking_item'])->first();
+        $itemNew = ApiBookingItem::where('booking_item', $filters['new_booking_item'])->first();
         $itemPriceNew = json_decode($itemNew->booking_pricing_data, true);
         $totalPriceNew = $itemPriceNew['total_price'] ?? 0;
 
@@ -538,7 +541,6 @@ class HbsiBookApiController extends BaseBookApiController
         $data['result']['new_booking_item'] = $this->getCurrentBookingItem($itemPriceNew);
         $data['result']['new_booking_item']['booking_item'] = $filters['booking_item'];
 
-        MoveBookingItemCache::dispatchSync($itemNew->booking_item);
         SaveBookingInspector::dispatchSync($bookingInspector, [], $data);
 
         return $data;

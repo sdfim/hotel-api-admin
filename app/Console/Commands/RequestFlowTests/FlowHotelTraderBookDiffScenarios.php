@@ -59,6 +59,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
                 'scenario_7',
                 'scenario_8',
                 'scenario_9',
+                'scenario_10',
             ];
 
         $this->runScenarios($scenariosToRun);
@@ -146,6 +147,40 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #1');
+        $occupancy = [['adults' => 2], ['adults' => 1, 'children_ages' => [5]]];
+        $nights = 1;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                //                'rate_name' => 'HTPKG1',
+                'room_type' => 'SKVA',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                //                                'rate_name' => 'HTOPQR',
+                'room_type' => 'S1KV',
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
+        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
+    }
+
+    private function scenario_10(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #1');
         $occupancy = [['adults' => 2]];
         $nights = 1;
         $checkin = $this->checkin;
@@ -153,16 +188,17 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'HTOPQR',
-                'room_type' => 'L1KA',
+                //                'rate_name' => 'HTPKG1',
+                'room_type' => 'SKVA',
                 'non_refundable' => false,
+                'supplier_room_id' => 1,
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        //        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
-        //        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
+        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
         $this->cancel($bookingId, $bookingItem);
 

@@ -1107,7 +1107,7 @@ class FlowHbsiBookDiffScenarios extends Command
     private function handleSleep(): void
     {
         if (! $this->isQueueSync) {
-            sleep(5);
+            sleep(10);
         }
     }
 }

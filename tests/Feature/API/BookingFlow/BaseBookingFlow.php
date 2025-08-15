@@ -82,7 +82,7 @@ trait BaseBookingFlow
     {
         if ($this->stage === 2) {
             (new HotelCombinationService(SupplierNameEnum::HBSI->value))
-                ->updateBookingItemsData($this->bookingItem, $this->roomCombinations[$this->bookingItem]);
+                ->updateBookingItemsData($this->bookingItem, false, $this->roomCombinations[$this->bookingItem]);
         }
 
         $response = $this->request()->post(route('addItem'), [

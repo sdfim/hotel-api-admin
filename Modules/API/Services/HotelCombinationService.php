@@ -28,6 +28,7 @@ class HotelCombinationService
         $this->rate_type = ItemTypeEnum::SINGLE->value;
     }
 
+    // Update booking items data for hotel combinations
     public function updateBookingItemsData(string $completeItem, bool $isChangeBookFlow = false, array $room_combinations = []): void
     {
         logger()->debug('HotelCombinationService::updateBookingItemsData', [
@@ -57,7 +58,9 @@ class HotelCombinationService
                 $waitTime++;
             }
 
-            $isChangeBookFlow ?: ApiBookingItem::insertOrIgnore($bookingItem->toArray());
+//            $isChangeBookFlow ?: ApiBookingItem::insertOrIgnore($bookingItem->toArray());
+
+            ApiBookingItem::insertOrIgnore($bookingItem->toArray());
 
             $booking_item_data = json_decode($bookingItem->booking_item_data, true);
             $booking_pricing_data = json_decode($bookingItem->booking_pricing_data, true);
@@ -280,6 +283,10 @@ class HotelCombinationService
                         $keyCache = 'room_combinations:'.$uuid;
                         Cache::put($keyCache, $bookingItemsCombo, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
                         Cache::put('supplier:'.$uuid, SupplierNameEnum::HOTEL_TRADER->value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
+                        logger()->debug('HotelCombinationService _ enrichmentRoomCombinations', [
+                            'keyCache' => $keyCache,
+                            'bookingItemsCombo' => $bookingItemsCombo,
+                        ]);
                     }
                 }
                 $input[$hk]['room_combinations'] = $finalResult;
