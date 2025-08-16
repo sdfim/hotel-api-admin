@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace App\Console\Commands\Assistants;
 
 use App\Models\Channel;
 use App\Models\ExpediaContentSlave;
@@ -52,7 +52,7 @@ class FetchPricingData extends Command
             'supplier' => 'HBSI',
             'checkin' => $checkin,
             'checkout' => $checkout,
-            'occupancy' => [['adults' => 2]],
+            'occupancy' => [['adults' => 2], ['adults' => 1]],
         ];
 
         logger()->info('Fetch pricing data from the API', $requestData);
@@ -127,9 +127,7 @@ class FetchPricingData extends Command
         $roomsFound = count($dataPricingSupplier);
 
         $responseOpenAI = OpenAI::chat()->create([
-            //            'model' => 'gpt-4',
             'model' => 'gpt-4.1-mini',
-            //            'model' => 'gpt-3.5-turbo',
             'messages' => [
                 [
                     'role' => 'system',

@@ -19,13 +19,7 @@ class PricingRulesTools
         }
 
         $token = ChannelRepository::getTokenId(request()->bearerToken());
-
-        \Log::info('TOKEN:', ['inspector' => [
-            'token' => $token,
-            'bearer' => request()->bearerToken(),
-        ]]);
-
-        $channelId = Channel::where('token_id', $token)->first()->id;
+        $channelId = Channel::where('token_id', $token)->first()?->id;
 
         /** @var GeneralTools $generalTools */
         $generalTools = app(GeneralTools::class);

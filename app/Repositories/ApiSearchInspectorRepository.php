@@ -207,20 +207,20 @@ class ApiSearchInspectorRepository
          * @param  string  $type
          * @param  string  $search_type
          * @param  string  $suppliers
-         * @param  array  $request
+         * @param  array  $filters
          */
-        [$search_id, $request, $suppliers, $type, $search_type] = $input;
+        [$search_id, $filters, $suppliers, $type, $search_type] = $input;
 
-        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRepository::getTokenId($filters['token_id']);
 
         $inspector = new ApiSearchInspector();
         $inspector->search_id = $search_id;
         $inspector->type = $type;
         $inspector->search_type = $search_type;
         $inspector->suppliers = implode(',', $suppliers);
-        $inspector->request = json_encode($request);
+        $inspector->request = json_encode($filters);
         $inspector->token_id = $token_id;
-        $inspector->destination_name = Arr::get($request, 'destination_name');
+        $inspector->destination_name = Arr::get($filters, 'destination_name');
 
         \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
 

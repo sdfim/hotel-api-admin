@@ -67,19 +67,19 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly BaseHotelPricingTransformer $baseHotelPricingTransformer,
         private readonly HbsiHotelController $hbsi,
         private readonly HotelTraderController $hTrader,
-        private readonly PricingDtoTools                        $pricingDtoTools,
-        private readonly ExpediaHotelController                 $expedia,
-        private readonly IcePortalHotelController               $icePortal,
-        private readonly HiltonHotelController                  $hiltonHotel,
-        private readonly SearchInspectorController              $apiInspector,
-        private readonly ExpediaHotelContentTransformer         $expediaHotelContentTransformer,
-        private readonly IcePortalHotelContentTransformer       $icePortalHotelContentTransformer,
+        private readonly PricingDtoTools $pricingDtoTools,
+        private readonly ExpediaHotelController $expedia,
+        private readonly IcePortalHotelController $icePortal,
+        private readonly HiltonHotelController $hiltonHotel,
+        private readonly SearchInspectorController $apiInspector,
+        private readonly ExpediaHotelContentTransformer $expediaHotelContentTransformer,
+        private readonly IcePortalHotelContentTransformer $icePortalHotelContentTransformer,
         private readonly IcePortalHotelContentDetailTransformer $hbsiHotelContentDetailTransformer,
-        private readonly ExpediaHotelContentDetailTransformer   $expediaHotelContentDetailTransformer,
-        private readonly HiltonHotelContentTransformer          $hiltonHotelContentTransformer,
-        private readonly HotelTraderContentDetailTransformer    $hiltonHotelContentDetailTransformer,
-        private readonly EnrichmentWeight                       $propsWeight,
-        private readonly PricingRulesTools                      $pricingRulesService,
+        private readonly ExpediaHotelContentDetailTransformer $expediaHotelContentDetailTransformer,
+        private readonly HiltonHotelContentTransformer $hiltonHotelContentTransformer,
+        private readonly HotelTraderContentDetailTransformer $hiltonHotelContentDetailTransformer,
+        private readonly EnrichmentWeight $propsWeight,
+        private readonly PricingRulesTools $pricingRulesService,
     ) {
         $this->start();
     }
@@ -269,6 +269,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $search_id = (string) Str::uuid();
+                $filters['token_id'] = $token;
                 $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$search_id, $filters, $suppliers, 'price', 'hotel']);
 
                 /** @var FiberManager $fiberManager */

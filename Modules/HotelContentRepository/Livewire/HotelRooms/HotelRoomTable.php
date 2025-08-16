@@ -128,7 +128,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             CustomRepeater::make('supplier_codes')
                                 ->label('Supplier Room Codes')
                                 ->schema([
-                                    Grid::make(2)->schema([
+                                    Grid::make(3)->schema([
                                         Select::make('supplier')
                                             ->placeholder('Select Supplier')
                                             ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
@@ -136,6 +136,9 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                                         TextInput::make('code')
                                             ->placeholder('Enter Code')
                                             ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
+                                        TextInput::make('name')
+                                            ->placeholder('Enter Name')
+                                            ->label(fn ($get) => $get('supplier_codes.0.name') ? 'Name' : false),
                                     ]),
                                 ]),
                         ]),

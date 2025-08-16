@@ -2,13 +2,18 @@
 
 namespace Modules\HotelContentRepository\Actions\Hotel;
 
+use App\Jobs\GetHBSIDataJob;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
+use App\Models\HotelTraderProperty;
+use App\Models\Mapping;
 use App\Models\Property;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Services\MappingCacheService;
 use Modules\Enums\ContentSourceEnum;
@@ -48,8 +53,84 @@ class AddHotel
         $dataSupplier['mealPlansRes'] = [MealPlansEnum::NO_MEAL_PLAN->value];
         $dataSupplier['ratingSupplier'] = 0;
 
-        if ($data['supplier'] === SupplierNameEnum::EXPEDIA->value) {
+        if ($data['main_supplier'] === SupplierNameEnum::EXPEDIA->value) {
             $dataSupplier = $this->getExpediaHotelData($property);
+        }
+
+        if ($data['main_supplier'] === SupplierNameEnum::HOTEL_TRADER->value) {
+            $dataSupplier = $this->getHotelTraderHotelData($property);
+        }
+
+        foreach ($data['suppliers'] as $supplier) {
+            if ($supplier === SupplierNameEnum::HOTEL_TRADER->value) {
+                $dataRoomSupplier[$supplier] = $this->getHotelTraderHotelData($property)['roomsData'] ?? [];
+            } elseif ($supplier === SupplierNameEnum::EXPEDIA->value) {
+                $dataRoomSupplier[$supplier] = $this->getExpediaHotelData($property)['roomsData'] ?? [];
+                foreach ($dataRoomSupplier[$supplier] as &$roomSupplier) {
+                    $roomSupplier['supplier'] = SupplierNameEnum::EXPEDIA->value;
+                }
+            }
+        }
+
+        $aiSupplierCodes = [];
+        if ($data['auto_marge']) {
+            $giataId = $property->code;
+            $supplierDataForMerge = [];
+            foreach ($dataRoomSupplier as $supplierName => $rooms) {
+                foreach ($rooms as $room) {
+                    $supplierDataForMerge[$supplierName][] = [
+                        'code' => $room['id'] ?? $room['code'] ?? '',
+                        'name' => $room['name'] ?? '',
+                    ];
+                }
+            }
+
+            // get HBSI data by request
+            Artisan::call('hbsi:get-data', ['giataId' => $giataId]);
+
+            $hbsiDataForMerge = Cache::get('hbsi_supplier_data_'.$giataId, []);
+            if (! empty($hbsiDataForMerge)) {
+                $supplierDataForMerge[SupplierNameEnum::HBSI->value] = $hbsiDataForMerge;
+            }
+
+            $supplierDataJson = json_encode($supplierDataForMerge, JSON_UNESCAPED_UNICODE);
+            // Call the merge:suppliers console command
+            Artisan::call('merge:suppliers', [
+                'supplierData' => $supplierDataJson,
+                'giata_id' => $giataId,
+            ]);
+            // Retrieve merged data from cache
+            $cacheKey = 'supplier_merge_data'.($giataId ? "_{$giataId}" : '');
+            $mergedDataArray = Cache::get($cacheKey);
+
+            foreach ($mergedDataArray as $mergedRoom) {
+                $supplierCodes = [];
+                $externalCode = '';
+                foreach ($mergedRoom['listings_to_merge'] as $listing) {
+                    $supplierCodes[] = [
+                        'code' => $listing['code'],
+                        'name' => $listing['name'],
+                        'supplier' => $listing['supplier'],
+                    ];
+                    if ($listing['supplier'] === $data['main_supplier']) {
+                        $externalCode = $listing['code'];
+                    }
+                }
+                $aiSupplierCodes[$externalCode]['supplier_codes'] = json_encode($supplierCodes, JSON_UNESCAPED_UNICODE);
+                $aiSupplierCodes[$externalCode]['external_code'] = 'external_'.$externalCode;
+            }
+            //            dd($dataSupplier, $mergedDataArray, $data, $aiSupplierCodes);
+
+        } else {
+            $dataSupplier['roomsData'] = array_merge(...array_values($dataRoomSupplier));
+            foreach ($dataSupplier['roomsData'] as &$room) {
+                $room['supplier_codes'] = json_encode([[
+                    'code' => $room['id'],
+                    'name' => $room['name'] ?? '',
+                    'supplier' => $room['supplier'] ?? '',
+                ]]);
+                $room['external_code'] = $room['id'] ? 'external_'.$room['id'] : '';
+            }
         }
 
         /** @var HotelForm $hotelForm */
@@ -59,7 +140,7 @@ class AddHotel
             : [];
 
         return DB::transaction(function () use (
-            $property, $vendorId, $source_id, $address, $dataSupplier) {
+            $property, $vendorId, $source_id, $address, $dataSupplier, $aiSupplierCodes) {
             $hotel = Hotel::updateOrCreate(
                 ['giata_code' => $property->code],
                 [
@@ -97,11 +178,17 @@ class AddHotel
                     $description = Arr::get($room, 'descriptions.overview');
                     $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
                     $maxRoomOccupancy = Arr::get($dataSupplier['roomsOccupancy'], $roomId.'.occupancy.max_allowed.total', 0);
+
+                    $roomSupplierCodes = Arr::get($room, 'supplier_codes') ?? json_encode([['code' => Arr::get($room, 'id'), 'supplier' => $room['supplier']]]);
+                    $roomSupplierCodes = ! empty($aiSupplierCodes) && isset($aiSupplierCodes[$roomId])
+                        ? $aiSupplierCodes[$roomId]['supplier_codes']
+                        : $roomSupplierCodes;
+
                     $hotelRoom = $hotel->rooms()->updateOrCreate(
-                        ['name' => Arr::get($room, 'name')],
+                        ['name' => Arr::get($room, 'name').' ('.Arr::get($room, 'id').')'],
                         [
                             'description' => $descriptionAfterLayout,
-                            'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']]),
+                            'supplier_codes' => $roomSupplierCodes,
                             'area' => Arr::get($room, 'area.square_feet', 0),
                             'room_views' => array_values(array_map(function ($view) {
                                 return $view['name'];
@@ -112,6 +199,7 @@ class AddHotel
                                 }, $group['configuration']);
                             }, Arr::get($room, 'bed_groups', []))),
                             'max_occupancy' => $maxRoomOccupancy,
+                            'external_code' => Arr::get($room, 'external_code', 'external_'.$roomId),
                         ]);
                     $attributeIds = [];
                     $amenities = Arr::get($room, 'amenities', []);
@@ -130,6 +218,7 @@ class AddHotel
                     }
                     // Attach the attribute IDs to the room
                     $hotelRoom->attributes()->sync($attributeIds);
+                    //                    dump($hotelRoom->name);
                 }
             }
 
@@ -295,18 +384,90 @@ class AddHotel
         return $hotel;
     }
 
-    public function getMaxOccupancy(array $data): int
+    protected function getHotelTraderHotelData($property): array
     {
-        $maxOccupancy = 0;
+        $hotelTraderCode = Mapping::where('giata_id', $property->code)
+            ->where('supplier', 'hotelTrader')
+            ->first()?->supplier_id;
 
-        foreach ($data as $item) {
-            $currentOccupancy = $item['occupancy']['max_allowed']['total'] ?? 0;
-            if ($currentOccupancy > $maxOccupancy) {
-                $maxOccupancy = $currentOccupancy;
-            }
+        $result = [
+            'hotelTraderCode' => $hotelTraderCode,
+            'roomsData' => [],
+            'roomsOccupancy' => [],
+            'numRooms' => 0,
+            'attributes' => [],
+            'mealPlansRes' => [MealPlansEnum::NO_MEAL_PLAN->value],
+            'ratingSupplier' => 0,
+        ];
+
+        if (! $hotelTraderCode) {
+            Notification::make()
+                ->title('HotelTrader hotel not found in the mapper.')
+                ->danger()
+                ->send();
+
+            return $result;
         }
 
-        return $maxOccupancy;
+        $hotelTraderData = HotelTraderProperty::where('propertyId', $hotelTraderCode)->first();
+        $hotelTraderData = $hotelTraderData ? $hotelTraderData->toArray() : [];
+
+        if (empty($hotelTraderData)) {
+            Notification::make()
+                ->title('HotelTrader hotel not found in the mapper.')
+                ->danger()
+                ->send();
+
+            return $result;
+        }
+
+        // Transform ratingSupplier
+        $result['ratingSupplier'] = (float) ($hotelTraderData['starRating'] ?? 0);
+
+        // Transform roomsData and roomsOccupancy
+        $rooms = $hotelTraderData['rooms'] ?? [];
+
+        $result['numRooms'] = count($rooms);
+        foreach ($rooms as $room) {
+            $roomId = $room['roomCode'] ?? $room['displayName'] ?? null;
+            $result['roomsData'][] = [
+                'id' => $roomId,
+                'name' => $room['displayName'] ?? '',
+                'descriptions' => [
+                    'overview' => $room['shortDesc'] ?? '',
+                ],
+                'area' => null, // Not provided
+                'views' => [], // Not provided
+                'bed_groups' => [], // Not provided
+                'amenities' => [], // Not provided
+                'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
+            ];
+            $result['roomsOccupancy'][$roomId] = [
+                'occupancy' => [
+                    'max_allowed' => [
+                        'total' => (int) ($room['totalMaxOccupancy'] ?? 0),
+                        'adults' => (int) ($room['maxAdultOccupancy'] ?? 0),
+                        'children' => (int) ($room['maxChildOccupancy'] ?? 0),
+                    ],
+                ],
+            ];
+        }
+
+        // Transform attributes (if any hotel-level attributes are available)
+        $attributes = [];
+        if (! empty($hotelTraderData['longDescription'])) {
+            $attributes[] = [
+                'name' => 'Description',
+                'value' => $hotelTraderData['longDescription'],
+                'categories' => ['general'],
+            ];
+        }
+        $result['attributes'] = $attributes;
+
+        // Meal plans (default to NO_MEAL_PLAN, can be extended if data available)
+        $result['mealPlansRes'] = [MealPlansEnum::NO_MEAL_PLAN->value];
+
+        return $result;
     }
 
     protected function getExpediaHotelData($property): array

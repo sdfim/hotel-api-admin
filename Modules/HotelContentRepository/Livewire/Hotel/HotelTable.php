@@ -5,11 +5,12 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
-use App\Models\Supplier;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -104,21 +105,12 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->html()
                     ->getStateUsing(function ($record) {
                         return $record->giataCode?->mappings
-                            ->filter(fn ($mapping) => $mapping->supplier !== 'HBSI')
+//                            ->filter(fn ($mapping) => $mapping->supplier !== 'HBSI')
                             ->map(fn ($mapping) => "{$mapping->supplier_id}: {$mapping->supplier}")
                             ->join('<br>');
                     })
                     ->toggleable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('crmMapping.crm_hotel_id')
-                    ->label('CRM ID')
-                    ->sortable()
-                    ->url(fn ($record) => $record->crmMapping ? "https://staging.travelagentadmin.net/hotels/edit/{$record->crmMapping->crm_hotel_id}" : '#')
-                    ->openUrlInNewTab()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->extraAttributes(['style' => 'max-width: 50px;'])
-                    ->getStateUsing(fn ($record) => $record->crmMapping->crm_hotel_id ?? 'N/A'),
 
                 TextColumn::make('product.address')
                     ->label('Address')
@@ -214,15 +206,37 @@ class HotelTable extends Component implements HasForms, HasTable
                         $this->saveHotelWithGiataCode($data);
                     })
                     ->modalHeading('Add Hotel with GIATA Code')
-                    ->modalWidth('lg')
-                    ->form(array_merge(
-                        HotelForm::getCoreFields(),
-                        [
-                            Select::make('supplier')
-                                ->label('Room Level is taken from the Supplier')
-                                ->options(SupplierNameEnum::contentOptions()),
-                        ]
-                    ))
+                    ->modalWidth('4xl')
+                    ->form([
+                        Section::make('main')->schema([
+                            ...HotelForm::getCoreFields(),
+                        ]),
+                        Section::make('advanced')
+                            ->collapsible()
+                            ->collapsed()
+                            ->schema([
+                                Grid::make(3)->schema([
+                                    Select::make('main_supplier')
+                                        ->label('Main Supplier')
+                                        ->required()
+                                        ->default(SupplierNameEnum::HOTEL_TRADER->value)
+                                        ->options(SupplierNameEnum::contentOptions())
+                                        ->columnSpan(1),
+                                    Select::make('suppliers')
+                                        ->multiple()
+                                        ->required()
+                                        ->default([SupplierNameEnum::HOTEL_TRADER->value])
+                                        ->label('Room Level is taken from the Suppliers')
+                                        ->options(SupplierNameEnum::contentOptions())
+                                        ->columnSpan(2),
+                                    Checkbox::make('auto_marge')
+                                        ->label('Auto Merge Different Suppliers')
+                                        ->default(true)
+                                        ->helperText('Automatically combine numbers from different providers into one unified number code.')
+                                        ->columnSpan(3),
+                                ]),
+                            ]),
+                    ])
                     ->visible(! $this->vendor?->id),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('exportDatabase')
