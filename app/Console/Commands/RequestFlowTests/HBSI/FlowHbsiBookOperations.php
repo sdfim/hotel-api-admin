@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace App\Console\Commands\RequestFlowTests\HBSI;
 
+use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingItemRepository;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
@@ -13,16 +14,18 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Ramsey\Uuid\Uuid;
 
-class FlowHotelTraderBookDiffScenarios extends Command
+class FlowHbsiBookOperations extends Command
 {
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'flow:htrader-book-diff-scenarios {scenarios?} {checkin?} {giata_id?}';
+    protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {checkin?} {giata_id?}';
 
     protected PendingRequest $client;
 
     protected string $url;
+
+    private ?string $destination;
 
     private ?string $checkin;
 
@@ -38,7 +41,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
-        $this->url = env('BASE_URI_FLOW_HOTEL_TRADER_BOOK_TEST', 'http://localhost');
+        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
         $this->isQueueSync = config('queue.default') === 'sync';
     }
 
@@ -60,74 +63,89 @@ class FlowHotelTraderBookDiffScenarios extends Command
                 'scenario_8',
                 'scenario_9',
                 'scenario_10',
+                'scenario_11',
             ];
 
         $this->runScenarios($scenariosToRun);
 
         /**
          * #########################
-         * Scenario #1
+         * Scenario #1 (One Room, HardChange)
          *
-         * Book Room Only with 2 Adults for 5 days for Initial test
+         * Book Room Only with 1 Adult for 5 nights for Initial test
          * Modify Reservation from Scenario #1 and Change the Arrival Date
-         * Verify the ReadRQ return the booking Details
+         * ReadRQ- Retrive booking modification details from DG
          * Cancel Reservation from Scenario #1
-         * 2262291
-         * HTPKG3/STD0002D
          *
          * #########################
-         * Scenario #2
+         * Scenario #2 (One Room, HardChange)
          *
          * Book Room Only with 2 Adult for 5 nights
+         * Modify Reservation from Scenario #1 and Change the Departure date Date
          * Cancel Reservation from above scenario #2
-         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K
          *
          * #########################
-         * Scenario #3
+         * Scenario #3 (One Room, SoftChange)
          *
-         * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
-         * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
+         * Book Room Only with 2 Adult  and 1 infant,1 child  and 1 teenager for 3 nights - verify Child rate
+         * Modify above booking and change the adult name
+         * ReadRQ- Retrive booking modification details from DG
+         * Modify the above booking and  add 1 more adults to the same booking
+         * Modify the above booking and  cancel the added adult
          * Cancel Reservation from above scenario #3
-         * giata 58615462	| HotelTrader 2256661; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
-         * Scenario #4
+         * Scenario #4 (Two Room, HardChange)
          *
-         * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
+         * Book Room Only with 4 Adults and two rooms for 5 nights
+         * Modify Reservation from the above scenarios and Delete one room and 2 Adults
          * Cancel Reservation from the above Scenario #4
-         * giata 58615462	| HotelTrader 2256661; HTPKG3/STD0002D; HTRETN/STD0002D
          *
          * #########################
-         * Scenario #5
+         * Scenario #5 (Two Room, HardChange)
+         *
+         * Book 2 rooms with 2 different occupancies. 1 adult and 1 child in one room and 3 adults in second room
+         * Modify Reservation from above Scenario and Add 1 adult, 1 child and one additional room
+         * Cancel Reservation from the above Scenario #5
+         *
+         * #########################
+         * Scenario #6 (Two Room, HardChange)
          *
          * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
-         * Cancel Reservation from the above Scenario #5
-         * giata 69002077	| HotelTrader 2262291; HTRET/STD0002D; HTRETN/STDAS01K
-         *
-         * #########################
-         * Scenario #6
-         *
-         * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
+         * Modify Reservation from above Scenario and delete 1 adult, 1 child and one additional room
          * Cancel Reservation from the above Scenario #6
-         * giata 69002077	| HotelTrader 2262291; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
-         * Scenario #7
+         * Scenario #7 (One Room, SoftChange)
          *
-         * Partial Cancellation in multi room booking
-         * Cancel Reservation from above scenario #7 only one room
-         *
-         *  #########################
-         *  Scenario #8
-         *
-         * Book Room for 2 Adults with included mealplan as All inclusive
-         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K/Free Continental Breakfast
+         * Book 1 rooms with 2 adults
+         * Modify reservation by adding a comment
+         * Cancel Reservation from above scenario #7
          *
          * #########################
-         *   Scenario #9
+         * Scenario #8 (One Room, SoftChange)
          *
-         * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
-         * 2262291; HTRET/SUP0002D/Free Breakfastt
+         * Book 1 rooms with 2 adults
+         * Modify reservation by adding a special request
+         * Cancel Reservation from above scenario #8
+         *
+         * #########################
+         * Scenario #9 (Three Room, HardChange)
+         * Book 3 rooms with 2 different occupancies. 1 adult and 1 child in one room and 3 adults in second room
+         * Modify Reservation from above Scenario and Add 1 adult, 1 child and one additional room
+         * Cancel Reservation from the above Scenario #9
+         *
+         * #########################
+         * Scenario #10 (Two Room, HardChange, Different Room Types)
+         * Book 2 rooms with 2 different room types 2 adults in each room
+         * Modify Reservation from above Scenario and delete 1 room and change room type
+         * Cancel Reservation from the above Scenario #10
+         *
+         * #########################
+         * Scenario #11 (Two Room, HardChange, Different Room Types)
+         * Book 1 room with 2 adult and room type Luxury
+         * Modify Reservation from above Scenario change room type to STD
+         * Cancel Reservation from the above Scenario #11
          */
     }
 
@@ -147,62 +165,16 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #1');
-        $occupancy = [['adults' => 2], ['adults' => 1, 'children_ages' => [5]]];
-        $nights = 1;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $occupancy = [['adults' => 1]];
+        $nights = 5;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                //                'rate_name' => 'HTPKG1',
-                'room_type' => 'SKVA',
-                'non_refundable' => false,
-                'supplier_room_id' => 1,
-            ],
-            [
-                //                                'rate_name' => 'HTOPQR',
-                'room_type' => 'S1KV',
-                'non_refundable' => false,
-                'supplier_room_id' => 2,
-            ],
-        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
 
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
-        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
-    }
-
-    private function scenario_10(): void
-    {
-        $this->info('------------------------------------');
-        $this->warn('Starting Scenario #1');
-        $occupancy = [['adults' => 2]];
-        $nights = 1;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
-
-        $options = [
-            [
-                //                'rate_name' => 'HTPKG1',
-                'room_type' => 'SKVA',
-                'non_refundable' => false,
-                'supplier_room_id' => 1,
-            ],
-        ];
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
-        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
     private function scenario_2(): void
@@ -211,65 +183,45 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->warn('Starting Scenario #2');
         $occupancy = [['adults' => 2]];
         $nights = 5;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                'rate_name' => 'HTREN3',
-                'room_type' => 'DLX0001K',
-            ],
-        ];
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
+        $checkin = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
     private function scenario_3(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #3');
-        // Book Room Only with 2 Adults and 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
-        $occupancy = [
-            ['adults' => 1, 'children_ages' => [5, 1, 12]],
-            ['adults' => 3],
-        ];
-        $nights = 2;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $occupancy = [['adults' => 2, 'children_ages' => [1, 5, 15]]];
+        //        $occupancy = [['adults' => 2]];
+        $nights = 3;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                'non_refundable' => false,
-                'supplier_room_id' => 1,
-            ],
-            [
-                'non_refundable' => false,
-                'supplier_room_id' => 2,
-            ],
-        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
 
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+        $this->softChange($bookingId, $bookingItem);
+        $this->cancel($bookingId);
     }
 
     private function scenario_4(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #4');
+        $occupancy = [['adults' => 2], ['adults' => 2]];
+        $nights = 5;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
+
         $occupancy = [['adults' => 2]];
-        $nights = 3;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
     private function scenario_5(): void
@@ -277,31 +229,21 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #5');
         $occupancy = [
-            ['adults' => 1, 'children_ages' => [1]],
-            ['adults' => 2],
+            ['adults' => 1, 'children_ages' => [5]],
+            ['adults' => 3],
         ];
         $nights = 5;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                //                'rate_name' => 'HTRET',
-                'room_type' => 'STD0002D',
-                'non_refundable' => false,
-            ],
-            [
-                //                'rate_name' => 'HTRETN',
-                'room_type' => 'STDAS01K',
-                'non_refundable' => false,
-            ],
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
+
+        $occupancy = [
+            ['adults' => 2, 'children_ages' => [5, 7]],
+            ['adults' => 3],
         ];
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
     private function scenario_6(): void
@@ -313,29 +255,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
             ['adults' => 1, 'children_ages' => [1]],
         ];
         $nights = 5;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                //                'rate_name' => 'HTRETN',
-                //                'room_type' => 'STD0002D',
-                'non_refundable' => false,
-                'supplier_room_id' => 1,
-            ],
-            [
-                //                'rate_name' => 'HTPKG3',
-                //                'room_type' => 'STDAS01K',
-                'non_refundable' => false,
-                'supplier_room_id' => 2,
-            ],
-        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
 
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $occupancy = [['adults' => 1, 'children_ages' => [1]]];
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
     private function scenario_7(): void
@@ -344,22 +271,19 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->warn('Starting Scenario #7');
         $occupancy = [['adults' => 2]];
         $nights = 3;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
 
-        $this->info('------------------------------------');
-
-        $occupancy2 = [['adults' => 1, 'children_ages' => [5]]];
-        $checkin2 = Carbon::now()->addDays($this->daysAfter)->toDateString();
-        $checkout2 = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy2, $checkin2, $checkout2, [], null, $bookingId);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $faker = Faker::create();
+        $newComment[] = [
+            'booking_item' => $bookingItem,
+            'comment' => $faker->sentence(),
+            'room' => 1,
+        ];
+        $this->softChange($bookingId, $bookingItem, [], $newComment);
+        $this->cancel($bookingId);
     }
 
     private function scenario_8(): void
@@ -368,125 +292,100 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->warn('Starting Scenario #8');
         $occupancy = [['adults' => 2]];
         $nights = 3;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        $options = [
-            [
-                'rate_name' => 'HTREN3',
-                'room_type' => 'DLX0001K',
-                'meal_plan' => 'Free Continental Breakfast',
-            ],
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
+
+        $faker = Faker::create();
+        $newSpecialRequests[] = [
+            'special_request' => $faker->sentence(),
+            'room' => 1,
         ];
-
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $this->softChange($bookingId, $bookingItem, $newSpecialRequests, []);
+        $this->cancel($bookingId);
     }
 
     private function scenario_9(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #9');
-        $occupancy = [['adults' => 1, 'children_ages' => [5]]];
-        $nights = 3;
-        $checkin = $this->checkin;
-        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
-
-        $options = [
-            [
-                'rate_name' => 'HTRET',
-                'room_type' => 'SUP0002D',
-                'meal_plan' => 'Free Breakfastt',
-            ],
+        $occupancy = [
+            ['adults' => 1, 'children_ages' => [14]],
+            ['adults' => 3],
         ];
+        $nights = 5;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
 
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+        $occupancy = [
+            ['adults' => 1, 'children_ages' => [14]],
+            ['adults' => 3],
+            ['adults' => 1, 'children_ages' => [14]],
+        ];
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+        $this->cancel($bookingId);
     }
 
-    // ######### additional methods ##########
-
-    private function findBookingItemByRoomParams(array $searchResponse, array $roomParamsArray): ?string
+    private function scenario_10(): void
     {
-        $results = Arr::get($searchResponse, 'data.results');
-        if (! $results) {
-            return null;
-        }
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #10');
+        $occupancy = [
+            ['adults' => 2],
+            ['adults' => 2],
+        ];
+        $roomTypes = ['STD', 'Luxury'];
+        $nights = 5;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
-        foreach ($results as $hotel) {
-            $roomCombinations = Arr::get($hotel, 'room_combinations');
-            $roomGroups = Arr::get($hotel, 'room_groups');
-            if (! $roomCombinations || ! $roomGroups) {
-                continue;
-            }
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout, $roomTypes);
 
-            // Сопоставление booking_item => room params
-            $bookingItemParamsMap = [];
-            foreach ($roomGroups as $group) {
-                foreach ($group['rooms'] as $room) {
-                    $bookingItem = $room['booking_item'];
-                    $params = [
-                        'room_type' => $room['room_type'] ?? null,
-                        'rate_name' => $room['rate_name'] ?? null,
-                        'meal_plan' => $room['meal_plan'] ?? null,
-                        'non_refundable' => $room['non_refundable'] ?? false,
-                        'supplier_room_id' => $room['supplier_room_id'] ?? 1,
-                    ];
-                    $bookingItemParamsMap[$bookingItem] = $params;
-                }
-            }
-
-            foreach ($roomCombinations as $parentId => $childIds) {
-                if (count($childIds) !== count($roomParamsArray)) {
-                    continue;
-                }
-                $matched = true;
-                foreach ($childIds as $idx => $childId) {
-                    $expected = $roomParamsArray[$idx];
-                    $actual = $bookingItemParamsMap[$childId] ?? [];
-                    foreach ($expected as $key => $val) {
-                        if (! isset($actual[$key]) || $actual[$key] != $val) {
-                            $matched = false;
-                            break 2;
-                        }
-                    }
-                }
-                if ($matched) {
-                    $this->info('Booking ITEM: '.$parentId);
-
-                    return $parentId;
-                }
-            }
-        }
-
-        return null;
+        $occupancy = [
+            ['adults' => 2],
+        ];
+        $roomType = 'Luxury';
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout, $roomType);
+        $this->cancel($bookingId);
     }
 
-    private function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
+    private function scenario_11(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #10');
+        $occupancy = [
+            ['adults' => 2],
+        ];
+        $roomTypes = ['Luxury'];
+        $nights = 5;
+        $checkin = Carbon::now()->addDays($this->daysAfter)->toDateString();
+        $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout, $roomTypes);
+
+        $occupancy = [
+            ['adults' => 1],
+        ];
+        $roomType = 'STD';
+        $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout, $roomType);
+        $this->cancel($bookingId);
+    }
+
+    private function processBooking(array $occupancy, int $nights, string $checkin, string $checkout, array $difRoomType = []): array|bool
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
-
-        //        dd($searchResponse);
-
-        $bookingItem = null;
-        if (! empty($roomParamsArray)) {
-            $bookingItem = $this->findBookingItemByRoomParams($searchResponse, $roomParamsArray);
-        } else {
-            $bookingItem = $this->fetchBookingItem($searchResponse);
-        }
-
-        if (! $bookingItem) {
-            $this->error('Booking item not found by given room params');
+        $bookingItem = ! empty($difRoomType)
+            ? $this->fetchBookingItemWithDifferentRoomTypes($searchResponse, $difRoomType)
+            : $this->fetchBookingItem($searchResponse);
+        if (! $bookingItem && empty($difRoomType)) {
+            $this->error('non_refundable Booking item not found');
             exit(1);
         }
         $this->handleSleep();
-        $bookingId = $this->addBookingItem($bookingItem, $inputBookingId);
+        $bookingId = $this->addBookingItem($bookingItem);
 
         $this->handleSleep();
         $responseAddPassengers = $this->addPassengers($bookingId, [$bookingItem], [$occupancy]);
@@ -501,16 +400,16 @@ class FlowHotelTraderBookDiffScenarios extends Command
             $this->error('Booking failed');
             exit(1);
         }
-        sleep(5);
 
         return [$bookingId, $bookingItem];
     }
 
     private function preset(): void
     {
+        $this->destination = $this->argument('destination') ?? '508';
         $this->checkin = $this->argument('checkin') ?? null;
         $this->giata_id = $this->argument('giata_id') ?? null;
-        $this->supplier = 'HotelTrader';
+        $this->supplier = 'HBSI';
         $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 20) : 240;
     }
 
@@ -529,13 +428,12 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'giata_ids' => [$this->giata_id ?? 0],
+            'destination' => $this->destination,
             'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
             'results_per_page' => 100,
-            'destination_name' => 'Test Scenario: '.($this->argument('scenarios') ?? 'main'),
         ];
 
         if ($this->giata_id) {
@@ -571,12 +469,12 @@ class FlowHotelTraderBookDiffScenarios extends Command
             foreach ($roomCombinations as $parentId => $childIds) {
                 $allNonRefundable = true;
 
-                //                foreach ($childIds as $childId) {
-                //                    if ($bookingItemNonRefundableMap[$childId] !== false) {
-                //                        $allNonRefundable = false;
-                //                        break;
-                //                    }
-                //                }
+                foreach ($childIds as $childId) {
+                    if ($bookingItemNonRefundableMap[$childId] !== false) {
+                        $allNonRefundable = false;
+                        break;
+                    }
+                }
 
                 if ($allNonRefundable) {
                     $this->info('Booking ITEM: '.$bookingItem);
@@ -633,100 +531,24 @@ class FlowHotelTraderBookDiffScenarios extends Command
         return null;
     }
 
-    private function fetchAnyBookingItemWithDifferentRoomTypes(array $searchResponse, array $difRoomType): ?string
-    {
-        $results = Arr::get($searchResponse, 'data.results');
-
-        foreach ($results as $hotel) {
-            $roomCombinations = Arr::get($hotel, 'room_combinations');
-            $roomGroups = Arr::get($hotel, 'room_groups');
-
-            $bookingItemNonRefundableMap = [];
-            $roomTypeMap = [];
-
-            foreach ($roomGroups as $group) {
-                foreach ($group['rooms'] as $room) {
-                    $bookingItem = $room['booking_item'];
-                    $nonRefundable = $room['non_refundable'];
-                    $roomType = $room['room_type'];
-                    $bookingItemNonRefundableMap[$bookingItem] = $nonRefundable;
-                    $roomTypeMap[$bookingItem] = $roomType;
-                }
-            }
-
-            foreach ($roomCombinations as $parentId => $childIds) {
-                $allNonRefundable = true;
-                $roomTypes = [];
-
-                foreach ($childIds as $childId) {
-                    //                    if ($bookingItemNonRefundableMap[$childId] !== false) {
-                    //                        $allNonRefundable = false;
-                    //                        break;
-                    //                    }
-                    $roomTypes[] = $roomTypeMap[$childId];
-                }
-
-                if ($allNonRefundable && count(array_unique($roomTypes)) === count($roomTypes) && ! array_diff($difRoomType, $roomTypes)) {
-                    $this->info('Booking ITEM: '.$parentId);
-
-                    return $parentId;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function fetchAnyBookingItemWithDifferentRateTypes(array $searchResponse, array $difRateType): ?string
-    {
-        $results = Arr::get($searchResponse, 'data.results');
-
-        foreach ($results as $hotel) {
-            $roomCombinations = Arr::get($hotel, 'room_combinations');
-            $roomGroups = Arr::get($hotel, 'room_groups');
-
-            $bookingItemNonRefundableMap = [];
-            $rateTypeMap = [];
-
-            foreach ($roomGroups as $group) {
-                foreach ($group['rooms'] as $room) {
-                    $bookingItem = $room['booking_item'];
-                    $nonRefundable = $room['non_refundable'];
-                    $rateType = $room['rate_name'];
-                    $bookingItemNonRefundableMap[$bookingItem] = $nonRefundable;
-                    $rateTypeMap[$bookingItem] = $rateType;
-                }
-            }
-
-            foreach ($roomCombinations as $parentId => $childIds) {
-                $allNonRefundable = true;
-                $rateTypes = [];
-
-                foreach ($childIds as $childId) {
-                    //                    if ($bookingItemNonRefundableMap[$childId] !== false) {
-                    //                        $allNonRefundable = false;
-                    //                        break;
-                    //                    }
-                    $rateTypes[] = $rateTypeMap[$childId];
-                }
-
-                if ($allNonRefundable && count(array_unique($rateTypes)) === count($rateTypes) && ! array_diff($difRateType, $rateTypes)) {
-                    $this->info('Booking ITEM: '.$parentId);
-
-                    return $parentId;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string|bool
     {
         $requestData = ['booking_item' => $bookingItem];
-
-        if ($bookingId) {
+        if ($bookingId !== null) {
             $requestData['booking_id'] = $bookingId;
+        }
+
+        for ($i = 1; $i <= 2; $i++) {
+            $isWriteDb = ApiBookingItem::where('booking_item', $bookingItem)->exists();
+            if ($isWriteDb) {
+                break;
+            }
+            $this->handleSleep();
+        }
+
+        if (! $isWriteDb) {
+            $this->error('Booking item not found in the database');
+            exit(1);
         }
 
         $responseAddItem = $this->client->post($this->url.'/api/booking/add-item', $requestData);
@@ -843,16 +665,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
             ],
         ];
 
-        if ($this->argument('scenarios') === '4') {
-            $requestData['comments'] = [
-                [
-                    'booking_item' => $bookingItems[0],
-                    'room' => 1,
-                    'comment' => 'Test Comment, please disregard.',
-                ],
-            ];
-        }
-
         foreach ($bookingItems as $item) {
             $cards[] = [
                 'credit_card' => [
@@ -873,25 +685,22 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->info('book: '.json_encode($response->json()));
     }
 
-    private function cancel(string $bookingId, ?string $bookingItem = null): void
+    private function cancel(string $bookingId): void
     {
         $requestData = [
             'booking_id' => $bookingId,
         ];
-        if ($bookingItem) {
-            $requestData['booking_item'] = $bookingItem;
-        }
 
         $response = $this->client->delete($this->url.'/api/booking/cancel-booking', $requestData);
         $this->info('------------------------------------');
-        if ($response->ok()) {
+        if ($response->successful()) {
             $this->info('Cancelled booking: '.$bookingId);
         } else {
             $this->error('Failed to cancel booking: '.$bookingId);
         }
     }
 
-    private function flowHardChange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, ?string $roomType = null): void
+    private function flowHardCange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, ?string $roomType = null): void
     {
         $this->info('------------------------------------');
         $this->handleSleep();
@@ -996,6 +805,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
             'page' => 1,
+            'results_per_page' => 10,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,

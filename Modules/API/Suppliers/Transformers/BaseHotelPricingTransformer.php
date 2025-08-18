@@ -192,9 +192,9 @@ class BaseHotelPricingTransformer
         $this->unifiedRoomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
             // Skip hotels that are not on sale if force_on_sale is false
-            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
-                continue;
-            }
+//            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
+//                continue;
+//            }
 
             $hbsiHotelData = $expediaHotelData = [
                 'hotel_code' => $hotel->giata_code,

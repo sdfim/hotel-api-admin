@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace App\Console\Commands\RequestFlowTests\Expedia;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;

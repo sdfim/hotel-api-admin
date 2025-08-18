@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace App\Console\Commands\RequestFlowTests\HotelTrader;
 
 use App\Repositories\ApiBookingItemRepository;
 use Faker\Factory as Faker;
@@ -13,18 +13,16 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Ramsey\Uuid\Uuid;
 
-class FlowHbsiBookDiffScenarios extends Command
+class FlowHotelTraderBookDiffScenarios extends Command
 {
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'flow:hbsi-book-diff-scenarios {scenarios?} {destination?} {checkin?} {giata_id?}';
+    protected $signature = 'flow:htrader-book-diff-scenarios {scenarios?} {checkin?} {giata_id?}';
 
     protected PendingRequest $client;
 
     protected string $url;
-
-    private ?string $destination;
 
     private ?string $checkin;
 
@@ -40,7 +38,7 @@ class FlowHbsiBookDiffScenarios extends Command
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
-        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
+        $this->url = env('BASE_URI_FLOW_HOTEL_TRADER_BOOK_TEST', 'http://localhost');
         $this->isQueueSync = config('queue.default') === 'sync';
     }
 
@@ -59,6 +57,9 @@ class FlowHbsiBookDiffScenarios extends Command
                 'scenario_5',
                 'scenario_6',
                 'scenario_7',
+                'scenario_8',
+                'scenario_9',
+                'scenario_10',
             ];
 
         $this->runScenarios($scenariosToRun);
@@ -71,16 +72,15 @@ class FlowHbsiBookDiffScenarios extends Command
          * Modify Reservation from Scenario #1 and Change the Arrival Date
          * Verify the ReadRQ return the booking Details
          * Cancel Reservation from Scenario #1
-         * 51721;Aug 5 - 10
-         * BAR/Double
+         * 2262291
+         * HTPKG3/STD0002D
          *
          * #########################
          * Scenario #2
          *
          * Book Room Only with 2 Adult for 5 nights
          * Cancel Reservation from above scenario #2
-         * 51721;Aug 5 - 10
-         * Promo/Double
+         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K
          *
          * #########################
          * Scenario #3
@@ -88,29 +88,28 @@ class FlowHbsiBookDiffScenarios extends Command
          * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
          * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
          * Cancel Reservation from above scenario #3
-         * 51721;Aug 15 - 17
-         * BAR/Suite
+         * giata 58615462	| HotelTrader 2256661; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
          * Scenario #4
          *
          * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
          * Cancel Reservation from the above Scenario #4
-         * Use 51721
+         * giata 58615462	| HotelTrader 2256661; HTPKG3/STD0002D; HTRETN/STD0002D
          *
          * #########################
          * Scenario #5
          *
          * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #5
-         * 51721;Book Double and Suite
+         * giata 69002077	| HotelTrader 2262291; HTRET/STD0002D; HTRETN/STDAS01K
          *
          * #########################
          * Scenario #6
          *
          * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
          * Cancel Reservation from the above Scenario #6
-         * 51721;Book BAR and Promo
+         * giata 69002077	| HotelTrader 2262291; HTRETN/STD0002D; HTPKG3/STDAS01K
          *
          * #########################
          * Scenario #7
@@ -122,15 +121,13 @@ class FlowHbsiBookDiffScenarios extends Command
          *  Scenario #8
          *
          * Book Room for 2 Adults with included mealplan as All inclusive
-         * 51721; Best /Suite
-         * Aug 25-28
+         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K/Free Continental Breakfast
          *
          * #########################
          *   Scenario #9
          *
          * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
-         * 51721;BAR /Suite
-         * Aug 25-28
+         * 2262291; HTRET/SUP0002D/Free Breakfastt
          */
     }
 
@@ -150,28 +147,62 @@ class FlowHbsiBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #1');
-        $occupancy = [['adults' => 2]];
-        $nights = 5;
+        $occupancy = [['adults' => 2], ['adults' => 1, 'children_ages' => [5]]];
+        $nights = 1;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Double',
+                //                'rate_name' => 'HTPKG1',
+                'room_type' => 'SKVA',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                //                                'rate_name' => 'HTOPQR',
+                'room_type' => 'S1KV',
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
+        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
         $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
-        // $this->cancel($bookingId);
+        $this->cancel($bookingId, $bookingItem);
 
-        // sleep(2);
+        $this->retrieveBooking($bookingId);
+    }
 
-        // $this->retrieveBooking($bookingId);
+    private function scenario_10(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #1');
+        $occupancy = [['adults' => 2]];
+        $nights = 1;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                //                'rate_name' => 'HTPKG1',
+                'room_type' => 'SKVA',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $checkout = Carbon::parse($checkout)->addDays(1)->toDateString();
+        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_2(): void
@@ -185,22 +216,26 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'Promo',
-                'room_type' => 'Double',
+                'rate_name' => 'HTREN3',
+                'room_type' => 'DLX0001K',
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_3(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #3');
-        // Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
+        // Book Room Only with 2 Adults and 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
         $occupancy = [
-            ['adults' => 2, 'children_ages' => [5, 1]], // 5: child, 1: infant
+            ['adults' => 1, 'children_ages' => [5, 1, 12]],
+            ['adults' => 3],
         ];
         $nights = 2;
         $checkin = $this->checkin;
@@ -208,8 +243,12 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
             ],
         ];
 
@@ -228,7 +267,9 @@ class FlowHbsiBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
-        // $this->cancel($bookingId);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_5(): void
@@ -237,7 +278,7 @@ class FlowHbsiBookDiffScenarios extends Command
         $this->warn('Starting Scenario #5');
         $occupancy = [
             ['adults' => 1, 'children_ages' => [1]],
-            ['adults' => 1, 'children_ages' => [1]],
+            ['adults' => 2],
         ];
         $nights = 5;
         $checkin = $this->checkin;
@@ -245,17 +286,22 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Double',
+                //                'rate_name' => 'HTRET',
+                'room_type' => 'STD0002D',
+                'non_refundable' => false,
             ],
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
+                //                'rate_name' => 'HTRETN',
+                'room_type' => 'STDAS01K',
+                'non_refundable' => false,
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_6(): void
@@ -272,15 +318,24 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
+                //                'rate_name' => 'HTRETN',
+                //                'room_type' => 'STD0002D',
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
             ],
             [
-                'rate_name' => 'Promo',
+                //                'rate_name' => 'HTPKG3',
+                //                'room_type' => 'STDAS01K',
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-        // $this->cancel($bookingId);
+
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_7(): void
@@ -302,7 +357,9 @@ class FlowHbsiBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy2, $checkin2, $checkout2, [], null, $bookingId);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_8(): void
@@ -316,15 +373,17 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'Best',
-                'room_type' => 'Suite',
-                'meal_plan' => 'All Inclusive',
+                'rate_name' => 'HTREN3',
+                'room_type' => 'DLX0001K',
+                'meal_plan' => 'Free Continental Breakfast',
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_9(): void
@@ -338,16 +397,20 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Suite',
-                'meal_plan' => 'Breakfast',
+                'rate_name' => 'HTRET',
+                'room_type' => 'SUP0002D',
+                'meal_plan' => 'Free Breakfastt',
             ],
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        // $this->cancel($bookingId, $bookingItem);
+        $this->cancel($bookingId, $bookingItem);
+
+        $this->retrieveBooking($bookingId);
     }
+
+    // ######### additional methods ##########
 
     private function findBookingItemByRoomParams(array $searchResponse, array $roomParamsArray): ?string
     {
@@ -372,6 +435,8 @@ class FlowHbsiBookDiffScenarios extends Command
                         'room_type' => $room['room_type'] ?? null,
                         'rate_name' => $room['rate_name'] ?? null,
                         'meal_plan' => $room['meal_plan'] ?? null,
+                        'non_refundable' => $room['non_refundable'] ?? false,
+                        'supplier_room_id' => $room['supplier_room_id'] ?? 1,
                     ];
                     $bookingItemParamsMap[$bookingItem] = $params;
                 }
@@ -407,6 +472,8 @@ class FlowHbsiBookDiffScenarios extends Command
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
 
+        //        dd($searchResponse);
+
         $bookingItem = null;
         if (! empty($roomParamsArray)) {
             $bookingItem = $this->findBookingItemByRoomParams($searchResponse, $roomParamsArray);
@@ -441,10 +508,9 @@ class FlowHbsiBookDiffScenarios extends Command
 
     private function preset(): void
     {
-        $this->destination = $this->argument('destination') ?? '508';
         $this->checkin = $this->argument('checkin') ?? null;
         $this->giata_id = $this->argument('giata_id') ?? null;
-        $this->supplier = 'HBSI';
+        $this->supplier = 'HotelTrader';
         $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 20) : 240;
     }
 
@@ -463,12 +529,13 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'destination' => $this->destination,
+            'giata_ids' => [$this->giata_id ?? 0],
             'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
             'results_per_page' => 100,
+            'destination_name' => 'Test Scenario: '.($this->argument('scenarios') ?? 'main'),
         ];
 
         if ($this->giata_id) {
@@ -1107,7 +1174,7 @@ class FlowHbsiBookDiffScenarios extends Command
     private function handleSleep(): void
     {
         if (! $this->isQueueSync) {
-            sleep(10);
+            sleep(5);
         }
     }
 }

@@ -426,7 +426,7 @@ class DownloadExpediaData extends Command
                     ]));
                 }
                 $batchCount++;
-                $this->info('Data imported batchData: '.$batchCount.' count =  '.count($batchData));
+                $this->info('['.date('Y-m-d H:i:s').'] Data imported batchData: '.$batchCount.' count =  '.count($batchData));
                 $batchData = [];
                 $batchDataSlave = [];
                 $propertyIds = [];
