@@ -46,7 +46,7 @@ class ChannelAuthController extends Controller
 
         // Return channel token
         return response()->json([
-            'channel_id' => $channel->id,
+            'user_id' => $user->id,
             'token' => $channel->plain_access_token, // the part after "|"
         ]);
     }

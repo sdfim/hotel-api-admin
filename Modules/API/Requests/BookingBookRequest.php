@@ -2,12 +2,14 @@
 
 namespace Modules\API\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Validator;
+use Modules\API\Requests\Traits\ValidatesApiClient;
 use Modules\API\Validate\ApiRequest;
 
 class BookingBookRequest extends ApiRequest
 {
+    use ValidatesApiClient;
+
     /**
      * @OA\Post(
      *   tags={"Booking API | Booking"},
@@ -75,7 +77,6 @@ class BookingBookRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-
     public function rules(): array
     {
         // List of country telephone codes
@@ -92,6 +93,9 @@ class BookingBookRequest extends ApiRequest
 
         $rules = [
             'booking_id' => 'required|size:36',
+            // Optional API client identification (either id or email or both)
+            'api_client.id' => 'nullable|integer|exists:users,id',
+            'api_client.email' => 'nullable|email:rfc,dns|exists:users,email',
             'amount_pay' => 'required|string|in:Deposit,Full Payment',
             'travel_agency_identifier' => 'string|size:3',
             'booking_contact.first_name' => 'required|string',
@@ -133,6 +137,17 @@ class BookingBookRequest extends ApiRequest
         }
 
         return $rules;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $v) {
+            // Read nested inputs safely
+            $id = data_get($this->all(), 'api_client.id');
+            $email = data_get($this->all(), 'api_client.email');
+
+            $this->validateApiClient($v, $id, $email);
+        });
     }
 
     public function validatedDate(): array
