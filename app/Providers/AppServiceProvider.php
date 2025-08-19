@@ -63,7 +63,9 @@ class AppServiceProvider extends ServiceProvider
         $this->bootRoute();
 
         // Fill all keys with constant prefix: when the application starts
-        $this->cacheAllConstants();
+        if (! $this->app->runningInConsole()) {
+            $this->cacheAllConstants();
+        }
     }
 
     protected function cacheAllConstants(): void
