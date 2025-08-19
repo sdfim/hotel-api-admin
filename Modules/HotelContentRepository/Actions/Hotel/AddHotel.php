@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\Actions\Hotel;
 
-use App\Jobs\GetHBSIDataJob;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\ExpediaContent;
@@ -85,12 +84,18 @@ class AddHotel
                 }
             }
 
-            // get HBSI data by request
+//            $recipient = auth()->user();
             Artisan::call('hbsi:get-data', ['giataId' => $giataId]);
+//            FetchHbsiData::dispatch($giataId, $recipient);
 
             $hbsiDataForMerge = Cache::get('hbsi_supplier_data_'.$giataId, []);
             if (! empty($hbsiDataForMerge)) {
                 $supplierDataForMerge[SupplierNameEnum::HBSI->value] = $hbsiDataForMerge;
+            } else {
+                Notification::make()
+                    ->title('HBSI data not found in cache for giataId: '.$giataId)
+                    ->danger()
+                    ->send();
             }
 
             $supplierDataJson = json_encode($supplierDataForMerge, JSON_UNESCAPED_UNICODE);
@@ -101,7 +106,7 @@ class AddHotel
             ]);
             // Retrieve merged data from cache
             $cacheKey = 'supplier_merge_data'.($giataId ? "_{$giataId}" : '');
-            $mergedDataArray = Cache::get($cacheKey);
+            $mergedDataArray = Cache::get($cacheKey) ?? [];
 
             foreach ($mergedDataArray as $mergedRoom) {
                 $supplierCodes = [];
@@ -119,8 +124,6 @@ class AddHotel
                 $aiSupplierCodes[$externalCode]['supplier_codes'] = json_encode($supplierCodes, JSON_UNESCAPED_UNICODE);
                 $aiSupplierCodes[$externalCode]['external_code'] = 'external_'.$externalCode;
             }
-            //            dd($dataSupplier, $mergedDataArray, $data, $aiSupplierCodes);
-
         } else {
             $dataSupplier['roomsData'] = array_merge(...array_values($dataRoomSupplier));
             foreach ($dataSupplier['roomsData'] as &$room) {

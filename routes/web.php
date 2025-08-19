@@ -31,7 +31,6 @@ use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\HotelTraderController;
 use Modules\AdministrationSuite\Http\Controllers\IcePortalController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
-use Modules\AdministrationSuite\Http\Controllers\MappingRoomController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertiesController;
@@ -102,8 +101,6 @@ Route::prefix('admin')->group(function () {
         Route::resource('teams', TeamController::class)->only(['index', 'edit']);
 
         Route::resource('activities', ActivityController::class)->only(['index', 'show']);
-
-        Route::resource('mapping-room', MappingRoomController::class);
 
         Route::resource('channels', ChannelsController::class);
         Route::resource('pricing-rules', PricingRulesController::class);

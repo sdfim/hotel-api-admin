@@ -69,10 +69,10 @@ class HotelContentApiService
 
     public function fetchDetailResults(array $giataCodes, bool $isUI = false): array
     {
-//        if (! $isUI) {
-//            ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-//            $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
-//        }
+        //        if (! $isUI) {
+        //            ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
+        //            $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+        //        }
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -240,6 +240,10 @@ class HotelContentApiService
         $rooms = $this->getRooms($repoData, $giataCodes);
 
         $roomMappers = $this->getRoomMappers($rooms);
+
+        if (empty($roomMappers)) {
+            return [];
+        }
 
         $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::EXPEDIA->value);
 
