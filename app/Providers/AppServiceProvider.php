@@ -62,20 +62,22 @@ class AppServiceProvider extends ServiceProvider
 
         $this->bootRoute();
 
-        // Fill all keys with constant prefix: when the application starts
+        // warm up cache
         if (! $this->app->runningInConsole()) {
-            $this->cacheAllConstants();
+            $this->warmUpConstantsCache();
         }
     }
 
-    protected function cacheAllConstants(): void
+    protected function warmUpConstantsCache(): void
     {
+        // cache content_supplier constant
         $config = \App\Models\GeneralConfiguration::first();
         if ($config) {
             if (! is_null($config->content_supplier)) {
                 Cache::forever('constant:content_supplier', $config->content_supplier);
             }
         }
+        // add more constants to warm up here
     }
 
     public function bootRoute(): void
