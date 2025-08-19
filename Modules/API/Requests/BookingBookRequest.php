@@ -17,63 +17,179 @@ class BookingBookRequest extends ApiRequest
      *   summary="Create a new booking for a service or event",
      *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
      *
-     *    @OA\Parameter(
+     *   @OA\Parameter(
      *      name="booking_id",
      *      in="query",
      *      required=true,
-     *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
-     *      In the response object for each rate is a **booking_id** property.",
+     *      description="To retrieve the **booking_id**, you need to execute '/api/booking/add-item'.",
+     *
+     *      @OA\Schema(type="string", example="550e8400-e29b-41d4-a716-446655440000")
      *   ),
      *
      *   @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
      *     required=true,
      *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookRequest",
-     *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
-     *           "example2": @OA\Schema(ref="#/components/examples/BookingBookRequestExpedia", example="BookingBookRequestExpedia"),
-     *       },
-     *     ),
-     *   ),
+     *     @OA\MediaType(
+     *       mediaType="application/json",
      *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
+     *       @OA\Schema(
+     *         type="object",
+     *         required={"amount_pay","booking_contact"},
      *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponse", example="BookingBookResponse"),
-     *       }
+     *         @OA\Property(
+     *           property="api_client",
+     *           type="object",
+     *           description="Optional identification of API client (id or email or both)",
+     *           anyOf={
+     *
+     *             @OA\Schema(required={"id"}),
+     *             @OA\Schema(required={"email"})
+     *           },
+     *
+     *           @OA\Property(property="id", type="integer", example=3),
+     *           @OA\Property(property="email", type="string", format="email", example="user@example.com")
+     *         ),
+     *         @OA\Property(property="amount_pay", type="string", enum={"Deposit","Full Payment"}, example="Deposit"),
+     *         @OA\Property(property="travel_agency_identifier", type="string", description="IATA/ARC or internal 3-letter code", example="ABC"),
+     *         @OA\Property(
+     *           property="booking_contact",
+     *           type="object",
+     *           required={"first_name","last_name","email","phone","address"},
+     *           @OA\Property(property="first_name", type="string", example="John"),
+     *           @OA\Property(property="last_name", type="string", example="Doe"),
+     *           @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *           @OA\Property(
+     *             property="phone",
+     *             type="object",
+     *             required={"country_code","area_code","number"},
+     *             @OA\Property(property="country_code", type="integer", example=380, description="E.164 country code"),
+     *             @OA\Property(property="area_code", type="integer", example=44),
+     *             @OA\Property(property="number", type="string", example="1234567")
+     *           ),
+     *           @OA\Property(
+     *             property="address",
+     *             type="object",
+     *             required={"line_1","city","state_province_code","postal_code","country_code"},
+     *             @OA\Property(property="line_1", type="string", example="123 Main St"),
+     *             @OA\Property(property="city", type="string", example="Kyiv"),
+     *             @OA\Property(property="state_province_code", type="string", example="30"),
+     *             @OA\Property(property="postal_code", type="string", example="01001"),
+     *             @OA\Property(property="country_code", type="string", example="UA")
+     *           )
+     *         ),
+     *         @OA\Property(
+     *           property="credit_cards",
+     *           type="array",
+     *
+     *           @OA\Items(
+     *             type="object",
+     *             required={"booking_item","credit_card"},
+     *
+     *             @OA\Property(property="booking_item", type="string", example="550e8400-e29b-41d4-a716-446655440000"),
+     *             @OA\Property(
+     *               property="credit_card",
+     *               type="object",
+     *               required={"name_card","number","card_type","expiry_date","cvv"},
+     *               @OA\Property(property="name_card", type="string", example="John Doe"),
+     *               @OA\Property(property="number", type="string", example="4111111111111111"),
+     *               @OA\Property(property="card_type", type="string", enum={"MSC","VISA","AMEX","DIS"}, example="VISA"),
+     *               @OA\Property(property="expiry_date", type="string", example="12/2030", description="Format m/Y"),
+     *               @OA\Property(property="cvv", type="string", example="123"),
+     *               @OA\Property(property="billing_address", type="string", nullable=true, example="123 Main St, Kyiv")
+     *             )
+     *           )
+     *         ),
+     *         @OA\Property(
+     *           property="special_requests",
+     *           type="array",
+     *
+     *           @OA\Items(
+     *             type="object",
+     *
+     *             @OA\Property(property="booking_item", type="string", nullable=true, example="550e8400-e29b-41d4-a716-446655440000"),
+     *             @OA\Property(property="room", type="integer", nullable=true, example=1, minimum=1, maximum=5),
+     *             @OA\Property(property="special_request", type="string", nullable=true, example="Late check-in")
+     *           )
+     *         ),
+     *         @OA\Property(
+     *           property="comments",
+     *           type="array",
+     *
+     *           @OA\Items(
+     *             type="object",
+     *             required={"booking_item","room","comment"},
+     *
+     *             @OA\Property(property="booking_item", type="string", example="550e8400-e29b-41d4-a716-446655440000"),
+     *             @OA\Property(property="room", type="integer", example=1, minimum=1, maximum=5),
+     *             @OA\Property(property="comment", type="string", example="Customer prefers quiet room")
+     *           )
+     *         )
+     *       ),
+     *
+     *       @OA\Examples(
+     *         example="Example Booking Book Request",
+     *         summary="Example Booking Book Request",
+     *         value={
+     *           "api_client"={"id"=3,"email"="user@example.com"},
+     *           "amount_pay"="Deposit",
+     *           "booking_contact"={
+     *             "first_name"="John",
+     *             "last_name"="Doe",
+     *             "email"="john.doe@example.com",
+     *             "phone"={"country_code"=380,"area_code"=44,"number"="1234567"},
+     *             "address"={"line_1"="123 Main St","city"="Kyiv","state_province_code"="30","postal_code"="01001","country_code"="UA"}
+     *           }
+     *         }
+     *       ),
+     *       @OA\Examples(
+     *         example="Example Booking Book Request Expedia",
+     *         summary="Example Booking Book Request Expedia",
+     *         value={
+     *           "api_client"={"id"=3,"email"="user@example.com"},
+     *           "amount_pay"="Full Payment",
+     *           "travel_agency_identifier"="ABC",
+     *           "booking_contact"={
+     *             "first_name"="Jane",
+     *             "last_name"="Roe",
+     *             "email"="jane.roe@example.com",
+     *             "phone"={"country_code"=380,"area_code"=44,"number"="9876543"},
+     *             "address"={"line_1"="Velyka Vasylkivska 1","city"="Kyiv","state_province_code"="30","postal_code"="01004","country_code"="UA"}
+     *           },
+     *           "credit_cards"={
+     *             {
+     *               "booking_item"="550e8400-e29b-41d4-a716-446655440000",
+     *               "credit_card"={
+     *                 "name_card"="Jane Roe",
+     *                 "number"="4111111111111111",
+     *                 "card_type"="VISA",
+     *                 "expiry_date"="11/2031",
+     *                 "cvv"="123",
+     *                 "billing_address"="Velyka Vasylkivska 1, Kyiv"
+     *               }
+     *             }
+     *           },
+     *           "special_requests"={
+     *             {
+     *               "booking_item"="550e8400-e29b-41d4-a716-446655440000",
+     *               "room"=1,
+     *               "special_request"="High floor"
+     *             }
+     *           },
+     *           "comments"={
+     *             {
+     *               "booking_item"="550e8400-e29b-41d4-a716-446655440000",
+     *               "room"=1,
+     *               "comment"="Customer prefers quiet room"
+     *             }
+     *           }
+     *         }
+     *       )
      *     )
      *   ),
      *
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookResponseErrorItem",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorItem", example="BookingBookResponseErrorItem"),
-     *       "example2": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorBooked", example="BookingBookResponseErrorBooked"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
+     *   @OA\Response(response=200, description="OK", @OA\JsonContent(ref="#/components/schemas/BookingBookResponse")),
+     *   @OA\Response(response=400, description="Bad Request", @OA\JsonContent(ref="#/components/schemas/BookingBookResponseErrorItem")),
+     *   @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/UnAuthenticatedResponse")),
      *   security={{ "apiAuth": {} }}
      * )
      */

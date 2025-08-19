@@ -9,6 +9,7 @@ use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
@@ -163,15 +164,18 @@ class ApiBookingInspectorRepository
         return $json_response->links->retrieve->href;
     }
 
-    public static function getAffiliateReferenceIdByChannel($channel): ?array
+    public static function getAffiliateReferenceIdByChannel($channel, $filters = []): ?array
     {
-        $inspectors = ApiBookingInspector::where('token_id', $channel)
-            ->where(function ($query) {
-                $query->where(function ($query) {
-                    $query->where('type', 'book')
-                        ->where('sub_type', 'like', 'retrieve'.'%')
-                        ->where('status', '!=', InspectorStatusEnum::ERROR->value);
-                });
+        $inspectors = ApiBookingInspector::query()
+            ->where('token_id', $channel)
+            ->where('type', 'book')
+            ->where('sub_type', 'like', 'retrieve%')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->when(filled(data_get($filters, 'api_client.id')), function ($q) use ($filters) {
+                $q->where('request->api_client->id', (int) data_get($filters, 'api_client.id'));
+            })
+            ->when(filled(data_get($filters, 'api_client.email')), function ($q) use ($filters) {
+                $q->where('request->api_client->email', data_get($filters, 'api_client.email'));
             })
             ->get();
 
@@ -464,7 +468,7 @@ class ApiBookingInspectorRepository
         $inspector->sub_type = $subType;
         $inspector->request = $query;
 
-        \Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
+        Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
 
         return $inspector->toArray();
     }

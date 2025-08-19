@@ -523,6 +523,7 @@ class BookApiHandler extends BaseController
             $data = match (SupplierNameEnum::from($request->supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->listBookings(),
                 SupplierNameEnum::HBSI => $this->hbsi->listBookings(),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->listBookings(),
                 default => [],
             };
         } catch (Exception $e) {
@@ -796,7 +797,7 @@ class BookApiHandler extends BaseController
                 if (! empty($bi)) {
                     break;
                 }
-                \Log::debug('Waiting for booking_id to be available '.$waitTime.' s');
+                Log::debug('Waiting for booking_id to be available '.$waitTime.' s');
                 sleep(1);
                 $waitTime++;
             }

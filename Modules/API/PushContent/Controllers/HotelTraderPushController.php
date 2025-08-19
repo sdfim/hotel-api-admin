@@ -4,9 +4,8 @@ namespace Modules\API\PushContent\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\HotelTraderContentCancellationPolicyPush;
-//use App\Models\HotelTraderContentHotelPush;
+// use App\Models\HotelTraderContentHotelPush;
 use App\Models\HotelTraderContentHotelPush;
-use App\Models\HotelTraderContentProductPush;
 use App\Models\HotelTraderContentRatePlanPush;
 use App\Models\HotelTraderContentRoomTypePush;
 use App\Models\HotelTraderContentTax;
@@ -731,7 +730,7 @@ class HotelTraderPushController extends Controller
                 'bedtypes' => $room->bedtypes ?? [],
                 'amenities' => $room->amenities ?? [],
                 'images' => $room->images ?? [],
-            };
+            ];
         })->toArray();
 
         return response()->json([

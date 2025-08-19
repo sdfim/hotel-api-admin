@@ -393,24 +393,341 @@
                     {
                         "name": "booking_id",
                         "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n     *      In the response object for each rate is a **booking_id** property.",
-                        "required": true
+                        "description": "To retrieve the **booking_id**, you need to execute '/api/booking/add-item'.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
                     }
                 ],
                 "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BookingBookRequest"
+                                "required": [
+                                    "amount_pay",
+                                    "booking_contact"
+                                ],
+                                "properties": {
+                                    "api_client": {
+                                        "description": "Optional identification of API client (id or email or both)",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "user@example.com"
+                                            }
+                                        },
+                                        "type": "object",
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "id"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "email"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "amount_pay": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Deposit",
+                                            "Full Payment"
+                                        ],
+                                        "example": "Deposit"
+                                    },
+                                    "travel_agency_identifier": {
+                                        "description": "IATA/ARC or internal 3-letter code",
+                                        "type": "string",
+                                        "example": "ABC"
+                                    },
+                                    "booking_contact": {
+                                        "required": [
+                                            "first_name",
+                                            "last_name",
+                                            "email",
+                                            "phone",
+                                            "address"
+                                        ],
+                                        "properties": {
+                                            "first_name": {
+                                                "type": "string",
+                                                "example": "John"
+                                            },
+                                            "last_name": {
+                                                "type": "string",
+                                                "example": "Doe"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "john.doe@example.com"
+                                            },
+                                            "phone": {
+                                                "required": [
+                                                    "country_code",
+                                                    "area_code",
+                                                    "number"
+                                                ],
+                                                "properties": {
+                                                    "country_code": {
+                                                        "description": "E.164 country code",
+                                                        "type": "integer",
+                                                        "example": 380
+                                                    },
+                                                    "area_code": {
+                                                        "type": "integer",
+                                                        "example": 44
+                                                    },
+                                                    "number": {
+                                                        "type": "string",
+                                                        "example": "1234567"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "address": {
+                                                "required": [
+                                                    "line_1",
+                                                    "city",
+                                                    "state_province_code",
+                                                    "postal_code",
+                                                    "country_code"
+                                                ],
+                                                "properties": {
+                                                    "line_1": {
+                                                        "type": "string",
+                                                        "example": "123 Main St"
+                                                    },
+                                                    "city": {
+                                                        "type": "string",
+                                                        "example": "Kyiv"
+                                                    },
+                                                    "state_province_code": {
+                                                        "type": "string",
+                                                        "example": "30"
+                                                    },
+                                                    "postal_code": {
+                                                        "type": "string",
+                                                        "example": "01001"
+                                                    },
+                                                    "country_code": {
+                                                        "type": "string",
+                                                        "example": "UA"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "credit_cards": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "booking_item",
+                                                "credit_card"
+                                            ],
+                                            "properties": {
+                                                "booking_item": {
+                                                    "type": "string",
+                                                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                                                },
+                                                "credit_card": {
+                                                    "required": [
+                                                        "name_card",
+                                                        "number",
+                                                        "card_type",
+                                                        "expiry_date",
+                                                        "cvv"
+                                                    ],
+                                                    "properties": {
+                                                        "name_card": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "number": {
+                                                            "type": "string",
+                                                            "example": "4111111111111111"
+                                                        },
+                                                        "card_type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "MSC",
+                                                                "VISA",
+                                                                "AMEX",
+                                                                "DIS"
+                                                            ],
+                                                            "example": "VISA"
+                                                        },
+                                                        "expiry_date": {
+                                                            "description": "Format m/Y",
+                                                            "type": "string",
+                                                            "example": "12/2030"
+                                                        },
+                                                        "cvv": {
+                                                            "type": "string",
+                                                            "example": "123"
+                                                        },
+                                                        "billing_address": {
+                                                            "type": "string",
+                                                            "example": "123 Main St, Kyiv",
+                                                            "nullable": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "special_requests": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "booking_item": {
+                                                    "type": "string",
+                                                    "example": "550e8400-e29b-41d4-a716-446655440000",
+                                                    "nullable": true
+                                                },
+                                                "room": {
+                                                    "type": "integer",
+                                                    "maximum": 5,
+                                                    "minimum": 1,
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
+                                                "special_request": {
+                                                    "type": "string",
+                                                    "example": "Late check-in",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "comments": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "booking_item",
+                                                "room",
+                                                "comment"
+                                            ],
+                                            "properties": {
+                                                "booking_item": {
+                                                    "type": "string",
+                                                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                                                },
+                                                "room": {
+                                                    "type": "integer",
+                                                    "maximum": 5,
+                                                    "minimum": 1,
+                                                    "example": 1
+                                                },
+                                                "comment": {
+                                                    "type": "string",
+                                                    "example": "Customer prefers quiet room"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
                             },
                             "examples": {
-                                "BookingBookRequest": {
-                                    "$ref": "#/components/examples/BookingBookRequest"
+                                "Example Booking Book Request": {
+                                    "summary": "Example Booking Book Request",
+                                    "value": {
+                                        "api_client": {
+                                            "id": 3,
+                                            "email": "user@example.com"
+                                        },
+                                        "amount_pay": "Deposit",
+                                        "booking_contact": {
+                                            "first_name": "John",
+                                            "last_name": "Doe",
+                                            "email": "john.doe@example.com",
+                                            "phone": {
+                                                "country_code": 380,
+                                                "area_code": 44,
+                                                "number": "1234567"
+                                            },
+                                            "address": {
+                                                "line_1": "123 Main St",
+                                                "city": "Kyiv",
+                                                "state_province_code": "30",
+                                                "postal_code": "01001",
+                                                "country_code": "UA"
+                                            }
+                                        }
+                                    }
                                 },
-                                "BookingBookRequestExpedia": {
-                                    "$ref": "#/components/examples/BookingBookRequestExpedia"
+                                "Example Booking Book Request Expedia": {
+                                    "summary": "Example Booking Book Request Expedia",
+                                    "value": {
+                                        "api_client": {
+                                            "id": 3,
+                                            "email": "user@example.com"
+                                        },
+                                        "amount_pay": "Full Payment",
+                                        "travel_agency_identifier": "ABC",
+                                        "booking_contact": {
+                                            "first_name": "Jane",
+                                            "last_name": "Roe",
+                                            "email": "jane.roe@example.com",
+                                            "phone": {
+                                                "country_code": 380,
+                                                "area_code": 44,
+                                                "number": "9876543"
+                                            },
+                                            "address": {
+                                                "line_1": "Velyka Vasylkivska 1",
+                                                "city": "Kyiv",
+                                                "state_province_code": "30",
+                                                "postal_code": "01004",
+                                                "country_code": "UA"
+                                            }
+                                        },
+                                        "credit_cards": [
+                                            {
+                                                "booking_item": "550e8400-e29b-41d4-a716-446655440000",
+                                                "credit_card": {
+                                                    "name_card": "Jane Roe",
+                                                    "number": "4111111111111111",
+                                                    "card_type": "VISA",
+                                                    "expiry_date": "11/2031",
+                                                    "cvv": "123",
+                                                    "billing_address": "Velyka Vasylkivska 1, Kyiv"
+                                                }
+                                            }
+                                        ],
+                                        "special_requests": [
+                                            {
+                                                "booking_item": "550e8400-e29b-41d4-a716-446655440000",
+                                                "room": 1,
+                                                "special_request": "High floor"
+                                            }
+                                        ],
+                                        "comments": [
+                                            {
+                                                "booking_item": "550e8400-e29b-41d4-a716-446655440000",
+                                                "room": 1,
+                                                "comment": "Customer prefers quiet room"
+                                            }
+                                        ]
+                                    }
                                 }
                             }
                         }
@@ -423,11 +740,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BookingBookResponse"
-                                },
-                                "examples": {
-                                    "BookingBookResponse": {
-                                        "$ref": "#/components/examples/BookingBookResponse"
-                                    }
                                 }
                             }
                         }
@@ -438,14 +750,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BookingBookResponseErrorItem"
-                                },
-                                "examples": {
-                                    "BookingBookResponseErrorItem": {
-                                        "$ref": "#/components/examples/BookingBookResponseErrorItem"
-                                    },
-                                    "BookingBookResponseErrorBooked": {
-                                        "$ref": "#/components/examples/BookingBookResponseErrorBooked"
-                                    }
                                 }
                             }
                         }
@@ -456,11 +760,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
                                 }
                             }
                         }
@@ -1686,17 +1985,22 @@
                 "tags": [
                     "Booking API | Booking"
                 ],
-                "summary": "Retrieve a list of all your booking reservations. ",
+                "summary": "Retrieve a list of all your booking reservations.",
                 "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
                 "operationId": "88beee7f3ae11bff635fc9eb4810163f",
                 "parameters": [
                     {
                         "name": "type",
                         "in": "query",
-                        "description": "Type",
+                        "description": "Type of booking",
                         "required": true,
                         "schema": {
                             "type": "string",
+                            "enum": [
+                                "hotel",
+                                "flight",
+                                "combo"
+                            ],
                             "example": "hotel"
                         }
                     },
@@ -1708,6 +2012,48 @@
                         "schema": {
                             "type": "string",
                             "example": "Expedia"
+                        }
+                    },
+                    {
+                        "name": "client_id",
+                        "in": "query",
+                        "description": "Alias for api_client.id",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 123
+                        }
+                    },
+                    {
+                        "name": "client_email",
+                        "in": "query",
+                        "description": "Alias for api_client.email",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
+                    },
+                    {
+                        "name": "api_client[id]",
+                        "in": "query",
+                        "description": "API client user ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 123
+                        }
+                    },
+                    {
+                        "name": "api_client[email]",
+                        "in": "query",
+                        "description": "API client email",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
                         }
                     }
                 ],
@@ -1721,11 +2067,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
                                 }
                             }
                         }
@@ -1736,11 +2077,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
                                 }
                             }
                         }
