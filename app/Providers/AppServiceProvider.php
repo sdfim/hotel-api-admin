@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\GeneralConfiguration;
-use App\Observers\GeneralConfigurationObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -63,8 +61,6 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         $this->bootRoute();
-
-        GeneralConfiguration::observe(GeneralConfigurationObserver::class);
 
         // Fill all keys with constant prefix: when the application starts
         $this->cacheAllConstants();
