@@ -230,7 +230,7 @@ class HotelTable extends Component implements HasForms, HasTable
                                         ->options(SupplierNameEnum::contentOptions())
                                         ->columnSpan(2),
                                     Checkbox::make('auto_marge')
-                                        ->label('Auto Merge Different Suppliers')
+                                        ->label('AI Assistant. Auto Merge Different Suppliers')
                                         ->default(true)
                                         ->helperText('Automatically combine numbers from different providers into one unified number code.')
                                         ->columnSpan(3),

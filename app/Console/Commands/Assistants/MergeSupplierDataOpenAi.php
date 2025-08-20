@@ -8,23 +8,10 @@ use OpenAI\Laravel\Facades\OpenAI;
 
 class MergeSupplierData extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'merge:suppliers {supplierData} {giata_id?}';
+    protected $signature = 'merge:suppliers:openai-provider {supplierData} {giata_id?}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Merges room data from multiple suppliers based on semantic similarity and caches the result.';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         $this->info('Starting data merge process...');
@@ -99,6 +86,9 @@ EOT
 
             $this->info('Storing data in cache...');
             Cache::put($cacheKey, $mergedDataArray, now()->addHours(24));
+
+            logger()->debug('LoggerFlowHotel _ MergeSupplierData Command', ['cacheKey' => $cacheKey, 'output' => $mergedDataArray]);
+
         }
 
         $this->info('Final result:');

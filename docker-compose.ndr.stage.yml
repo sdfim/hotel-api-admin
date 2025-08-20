@@ -199,6 +199,25 @@ services:
     depends_on:
       - app
 
+  reverb:
+    image: fora/php:latest
+    build:
+      context: ./docker/php
+      dockerfile: stage.Dockerfile
+    volumes:
+      - '.:/var/www/html'
+      - './docker/php/php.stage.ini:/usr/local/etc/php/php.ini'
+      - './docker/php/supervisor:/etc/supervisor'
+    command: [ "supervisord", "-c", "/etc/supervisor/reverb.conf" ]
+    user: root
+    ports:
+      - "6011:6011"
+    networks:
+      - fora
+    depends_on:
+      - app
+      - redis
+
 volumes:
   rabbitmq_data:
     driver: local

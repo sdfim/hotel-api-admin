@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'notifications' => [
+        'broadcast' => true,
+    ],
+
     'broadcasting' => [
 
         // 'echo' => [

@@ -2,6 +2,9 @@
 
 namespace Modules\HotelContentRepository\Actions\Hotel;
 
+use App\Jobs\AddHotel\AiMergeSuppliers;
+use App\Jobs\AddHotel\FetchHbsiData;
+use App\Jobs\AddHotel\ProcessHotelRoomsJob;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\ExpediaContent;
@@ -11,8 +14,6 @@ use App\Models\Mapping;
 use App\Models\Property;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Services\MappingCacheService;
 use Modules\Enums\ContentSourceEnum;
@@ -84,46 +85,9 @@ class AddHotel
                 }
             }
 
-//            $recipient = auth()->user();
-            Artisan::call('hbsi:get-data', ['giataId' => $giataId]);
-//            FetchHbsiData::dispatch($giataId, $recipient);
-
-            $hbsiDataForMerge = Cache::get('hbsi_supplier_data_'.$giataId, []);
-            if (! empty($hbsiDataForMerge)) {
-                $supplierDataForMerge[SupplierNameEnum::HBSI->value] = $hbsiDataForMerge;
-            } else {
-                Notification::make()
-                    ->title('HBSI data not found in cache for giataId: '.$giataId)
-                    ->danger()
-                    ->send();
-            }
-
-            $supplierDataJson = json_encode($supplierDataForMerge, JSON_UNESCAPED_UNICODE);
-            // Call the merge:suppliers console command
-            Artisan::call('merge:suppliers', [
-                'supplierData' => $supplierDataJson,
-                'giata_id' => $giataId,
-            ]);
-            // Retrieve merged data from cache
-            $cacheKey = 'supplier_merge_data'.($giataId ? "_{$giataId}" : '');
-            $mergedDataArray = Cache::get($cacheKey) ?? [];
-
-            foreach ($mergedDataArray as $mergedRoom) {
-                $supplierCodes = [];
-                $externalCode = '';
-                foreach ($mergedRoom['listings_to_merge'] as $listing) {
-                    $supplierCodes[] = [
-                        'code' => $listing['code'],
-                        'name' => $listing['name'],
-                        'supplier' => $listing['supplier'],
-                    ];
-                    if ($listing['supplier'] === $data['main_supplier']) {
-                        $externalCode = $listing['code'];
-                    }
-                }
-                $aiSupplierCodes[$externalCode]['supplier_codes'] = json_encode($supplierCodes, JSON_UNESCAPED_UNICODE);
-                $aiSupplierCodes[$externalCode]['external_code'] = 'external_'.$externalCode;
-            }
+            $recipient = auth()->user();
+            FetchHbsiData::dispatch($giataId, $recipient);
+            AiMergeSuppliers::dispatch($giataId, $recipient, $supplierDataForMerge);
         } else {
             $dataSupplier['roomsData'] = array_merge(...array_values($dataRoomSupplier));
             foreach ($dataSupplier['roomsData'] as &$room) {
@@ -143,7 +107,7 @@ class AddHotel
             : [];
 
         return DB::transaction(function () use (
-            $property, $vendorId, $source_id, $address, $dataSupplier, $aiSupplierCodes) {
+            $property, $vendorId, $source_id, $address, $dataSupplier, $recipient, $data) {
             $hotel = Hotel::updateOrCreate(
                 ['giata_code' => $property->code],
                 [
@@ -176,53 +140,13 @@ class AddHotel
             );
 
             if (! empty($dataSupplier['roomsData'])) {
-                foreach ($dataSupplier['roomsData'] as $room) {
-                    $roomId = Arr::get($room, 'id', 0);
-                    $description = Arr::get($room, 'descriptions.overview');
-                    $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
-                    $maxRoomOccupancy = Arr::get($dataSupplier['roomsOccupancy'], $roomId.'.occupancy.max_allowed.total', 0);
-
-                    $roomSupplierCodes = Arr::get($room, 'supplier_codes') ?? json_encode([['code' => Arr::get($room, 'id'), 'supplier' => $room['supplier']]]);
-                    $roomSupplierCodes = ! empty($aiSupplierCodes) && isset($aiSupplierCodes[$roomId])
-                        ? $aiSupplierCodes[$roomId]['supplier_codes']
-                        : $roomSupplierCodes;
-
-                    $hotelRoom = $hotel->rooms()->updateOrCreate(
-                        ['name' => Arr::get($room, 'name').' ('.Arr::get($room, 'id').')'],
-                        [
-                            'description' => $descriptionAfterLayout,
-                            'supplier_codes' => $roomSupplierCodes,
-                            'area' => Arr::get($room, 'area.square_feet', 0),
-                            'room_views' => array_values(array_map(function ($view) {
-                                return $view['name'];
-                            }, Arr::get($room, 'views', []))),
-                            'bed_groups' => array_merge(...array_map(function ($group) {
-                                return array_map(function ($config) {
-                                    return $config['quantity'].' '.$config['size'].' Beds';
-                                }, $group['configuration']);
-                            }, Arr::get($room, 'bed_groups', []))),
-                            'max_occupancy' => $maxRoomOccupancy,
-                            'external_code' => Arr::get($room, 'external_code', 'external_'.$roomId),
-                        ]);
-                    $attributeIds = [];
-                    $amenities = Arr::get($room, 'amenities', []);
-                    foreach ($amenities as $k => $amenity) {
-                        if (! is_array($amenity)) {
-                            continue;
-                        }
-                        $amenityName = Arr::get($amenity, 'name' ?? '');
-                        // Check if the attribute already exists
-                        $attribute = ConfigAttribute::firstOrCreate([
-                            'name' => $amenityName,
-                            'default_value' => $amenityName.' room',
-                        ]);
-                        // Collect the attribute ID
-                        $attributeIds[] = $attribute->id;
-                    }
-                    // Attach the attribute IDs to the room
-                    $hotelRoom->attributes()->sync($attributeIds);
-                    //                    dump($hotelRoom->name);
-                }
+                ProcessHotelRoomsJob::dispatch(
+                    $hotel,
+                    $dataSupplier,
+                    $property->code,
+                    $recipient,
+                    $data,
+                );
             }
 
             // Check and add amenities to ConfigAttribute and attach to ProductAttribute

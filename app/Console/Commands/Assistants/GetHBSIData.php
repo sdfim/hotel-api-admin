@@ -23,21 +23,21 @@ class GetHBSIData extends Command
         $giataId = $this->argument('giataId');
         $cacheKey = 'hbsi_supplier_data_'.$giataId;
 
+        $cachedData = Cache::get($cacheKey);
+
+        if ($cachedData !== null) {
+            $this->info('Returned cached supplierDataForMerge with key: '.$cacheKey);
+            $this->info(json_encode($cachedData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
+            return;
+        }
+
         $mapperExists = Mapping::where('giata_id', $giataId)
             ->where('supplier', SupplierNameEnum::HBSI->value)
             ->exists();
 
         if (! $mapperExists) {
             $this->error('No mapper record found for supplier and giataId.');
-
-            return;
-        }
-
-        $cachedData = Cache::get($cacheKey);
-
-        if ($cachedData !== null) {
-            $this->info('Returned cached supplierDataForMerge with key: '.$cacheKey);
-            $this->info(json_encode($cachedData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
             return;
         }
@@ -88,16 +88,15 @@ class GetHBSIData extends Command
             }
             $supplierDataForMerge = array_values($uniqueSupplierData);
             // Cache the supplier data for merge with giataId prefix
-            $cacheKey = 'hbsi_supplier_data_'.$giataId;
             Cache::put($cacheKey, $supplierDataForMerge, now()->addHour());
             $this->info('Cached supplierDataForMerge with key: '.$cacheKey);
+            logger()->debug('LoggerFlowHotel _ GetHBSIData Command', ['cacheKey' => $cacheKey, 'output' => $supplierDataForMerge]);
         }
 
         $this->info('Status: '.$response->getStatusCode());
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $this->info('Data fetched successfully.');
             $this->info(json_encode($supplierDataForMerge, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            //            $this->line(json_encode($response->json(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         } else {
             $this->error('Failed to fetch data: '.$response->body());
         }
