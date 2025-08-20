@@ -23,18 +23,14 @@ class FetchHbsiData implements ShouldQueue
 
     public function handle(): void
     {
-        Notification::make()
-            ->title('Started receiving data from HBSI...')
-            ->info()
-            ->broadcast($this->recipient);
-
         Artisan::call('hbsi:get-data', ['giataId' => $this->giataId]);
 
         Cache::put('hbsi_data_fetched_'.$this->giataId, true);
 
         Notification::make()
-            ->title('Data from HBSI received successfully.')
+            ->title('✅ Data from HBSI received successfully. HotelGiataCode = '.$this->giataId)
             ->success()
+            ->duration(10000)
             ->broadcast($this->recipient);
     }
 }

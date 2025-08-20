@@ -73,8 +73,9 @@ class AiMergeSuppliers implements ShouldQueue
         ]);
 
         Notification::make()
-            ->title('Suppliers merged successfully.')
+            ->title('✅ Suppliers merged successfully. HotelGiataCode = '.$this->giataId)
             ->success()
+            ->duration(10000)
             ->broadcast($this->recipient);
     }
 }

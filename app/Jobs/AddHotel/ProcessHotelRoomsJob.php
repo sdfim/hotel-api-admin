@@ -25,17 +25,13 @@ class ProcessHotelRoomsJob implements ShouldQueue
 
     public function handle()
     {
-        Notification::make()
-            ->title('Started writing rooms data to the database...')
-            ->info()
-            ->broadcast($this->recipient);
-
         $aiSupplierCodes = $this->fetchAiSupplierCodes();
         $this->processRooms($aiSupplierCodes);
 
         Notification::make()
-            ->title('Rooms data written successfully.')
-            ->info()
+            ->title('✅ Rooms data written successfully.. HotelGiataCode = '.$this->giataId)
+            ->success()
+            ->duration(10000)
             ->broadcast($this->recipient);
     }
 
