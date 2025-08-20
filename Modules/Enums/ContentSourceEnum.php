@@ -7,7 +7,7 @@ enum ContentSourceEnum: string
     case EXPEDIA = 'Expedia';
     case ICE_PORTAL = 'IcePortal';
     case HBSI = 'HBSI';
-//    case HILTON = 'Hilton';
+    case HILTON = 'Hilton';
     case INTERNAL = 'Internal';
     case HOTEL_TRADER = 'HotelTrader';
 
@@ -18,6 +18,7 @@ enum ContentSourceEnum: string
             self::ICE_PORTAL->value => self::ICE_PORTAL->value,
             self::HBSI->value => self::HBSI->value,
             self::HOTEL_TRADER->value => self::HOTEL_TRADER->value,
+            self::HILTON->value => self::HILTON->value,
         ];
     }
 }

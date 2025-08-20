@@ -9,6 +9,7 @@ use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
+use App\Models\HiltonProperty;
 use App\Models\HotelTraderProperty;
 use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
@@ -66,6 +67,10 @@ class AddHotel
             $dataSupplier = $this->getIcePortalHotelData($property);
         }
 
+        if ($data['main_supplier'] === SupplierNameEnum::HILTON->value) {
+            $dataSupplier = $this->getHiltonHotelData($property);
+        }
+
         $dataRoomSupplier = [];
         foreach ($data['suppliers'] as $supplier) {
             if ($supplier === SupplierNameEnum::HOTEL_TRADER->value) {
@@ -77,6 +82,8 @@ class AddHotel
                 }
             } elseif ($supplier === SupplierNameEnum::ICE_PORTAL->value) {
                 $dataRoomSupplier[$supplier] = $this->getIcePortalHotelData($property)['roomsData'] ?? [];
+            } elseif ($supplier === SupplierNameEnum::HILTON->value) {
+                $dataRoomSupplier[$supplier] = $this->getHiltonHotelData($property)['roomsData'] ?? [];
             }
         }
 
@@ -590,6 +597,92 @@ class AddHotel
 
         // Rating (if available)
         $result['ratingSupplier'] = (float) ($icePortalData['starRating'] ?? 0);
+
+        return $result;
+    }
+
+    protected function getHiltonHotelData($property): array
+    {
+        $hiltonCode = Mapping::where('giata_id', $property->code)
+            ->where('supplier', SupplierNameEnum::HILTON->value)
+            ->first()?->supplier_id;
+
+        $result = [
+            'hiltonCode' => $hiltonCode,
+            'roomsData' => [],
+            'roomsOccupancy' => [],
+            'numRooms' => 0,
+            'attributes' => [],
+            'mealPlansRes' => [MealPlansEnum::NO_MEAL_PLAN->value],
+            'ratingSupplier' => 0,
+        ];
+
+        if (! $hiltonCode) {
+            Notification::make()
+                ->title('Hilton hotel not found in the mapper.')
+                ->danger()
+                ->send();
+
+            return $result;
+        }
+
+        $hiltonData = HiltonProperty::where('prop_code', $hiltonCode)->first();
+        $hiltonData = $hiltonData ? $hiltonData->toArray() : [];
+
+        if (empty($hiltonData)) {
+            Notification::make()
+                ->title('Hilton hotel not found in the DB.')
+                ->danger()
+                ->send();
+
+            return $result;
+        }
+
+        // Example transformation, adjust according to your IcePortalPropertyAsset structure
+        $rooms = $hiltonData['guest_room_descriptions'] ?? [];
+        $result['numRooms'] = count($rooms);
+
+        foreach ($rooms as $room) {
+            $roomId = $room['roomTypeCode'] ?? null;
+            $result['roomsData'][] = [
+                'id' => $roomId,
+                'name' => $room['shortDescription'],
+                'descriptions' => $room['enhancedDescription'],
+                'area' => $room['area'] ?? null,
+                'views' => '',
+                'bed_groups' => $room['bedClass'] ?? [],
+                'amenities' => $room['roomAmenities'] ?? [],
+                'supplier' => SupplierNameEnum::HILTON->value,
+                'roomsOccupancy' => $room['maxOccupancy'],
+            ];
+        }
+
+        // Extract attributes from $hiltonData['props']
+        $attributes = [];
+
+        // Parking
+        if (! empty($hiltonData['props']['services']['parking'])) {
+            $parking = $hiltonData['props']['services']['parking'];
+            $attributes[] = [
+                'name' => 'Parking',
+                'value' => 'Free: '.($parking['hasFreeParking'] ? 'Yes' : 'No').', Self: '.($parking['hasSelfParking'] ? 'Yes' : 'No').', Valet: '.($parking['hasValetParking'] ? 'Yes' : 'No'),
+                'categories' => ['general'],
+            ];
+        }
+
+        // Restaurants
+        if (! empty($hiltonData['props']['services']['restaurants'])) {
+            foreach ($hiltonData['props']['services']['restaurants'] as $restaurant) {
+                $attributes[] = [
+                    'name' => 'Restaurant: '.$restaurant['name'],
+                    'value' => $restaurant['description'],
+                    'categories' => ['dining'],
+                ];
+            }
+        }
+        $result['attributes'] = $attributes;
+
+        $result['ratingSupplier'] = (float) ($hiltonData['star_rating'] ?? 0);
 
         return $result;
     }
