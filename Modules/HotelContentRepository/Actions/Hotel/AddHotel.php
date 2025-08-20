@@ -322,7 +322,7 @@ class AddHotel
     protected function getHotelTraderHotelData($property): array
     {
         $hotelTraderCode = Mapping::where('giata_id', $property->code)
-            ->where('supplier', 'hotelTrader')
+            ->where('supplier', SupplierNameEnum::HOTEL_TRADER->value)
             ->first()?->supplier_id;
 
         $result = [
@@ -450,7 +450,7 @@ class AddHotel
         }
         if (empty($expediaData) && empty($expediaMainData)) {
             Notification::make()
-                ->title('Expedia hotel not found in the mapper.')
+                ->title('Expedia hotel not found in the DB.')
                 ->danger()
                 ->send();
         }
@@ -506,7 +506,7 @@ class AddHotel
     protected function getIcePortalHotelData($property): array
     {
         $icePortalCode = Mapping::where('giata_id', $property->code)
-            ->where('supplier', 'icePortal')
+            ->where('supplier', SupplierNameEnum::ICE_PORTAL->value)
             ->first()?->supplier_id;
 
         $result = [
@@ -533,7 +533,7 @@ class AddHotel
 
         if (empty($icePortalData)) {
             Notification::make()
-                ->title('IcePortal hotel not found in the mapper.')
+                ->title('IcePortal hotel not found in the DB.')
                 ->danger()
                 ->send();
 

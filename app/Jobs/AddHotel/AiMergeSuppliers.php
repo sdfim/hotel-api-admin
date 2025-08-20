@@ -22,21 +22,24 @@ class AiMergeSuppliers implements ShouldQueue
 
     public function __construct(public int $giataId, public User $recipient, public array $supplierDataForMerge) {}
 
+    // ...
     public function handle(): void
     {
         logger()->info('LoggerFlowHotel _ AiMergeSuppliers s1', ['supplierDataForMerge' => $this->supplierDataForMerge]);
 
-        $maxWait = 20;
+        $startTime = microtime(true);
+        $maxWaitTime = 20;
+
         $statusFetched = false;
-        for ($i = 0; $i < $maxWait; $i++) {
 
-            logger()->info('LoggerFlowHotel _ Waiting for HBSI data for giataId: '.$this->giataId.' (iteration: '.$i.')');
+        while (! $statusFetched && (microtime(true) - $startTime) < $maxWaitTime) {
+            logger()->info('LoggerFlowHotel _ Waiting for HBSI data for giataId: '.$this->giataId);
 
-            $statusFetched = Cache::get('hbsi_data_fetched_'.$this->giataId, false);
-            if ($statusFetched) {
-                break;
+            $statusFetched = Cache::get('make_hotel:'.$this->giataId.':hbsi_data_fetched', false);
+
+            if (! $statusFetched) {
+                sleep(1);
             }
-            sleep(1);
         }
 
         if (! $statusFetched) {
@@ -44,8 +47,6 @@ class AiMergeSuppliers implements ShouldQueue
                 ->title('Timeout waiting for HBSI data.')
                 ->danger()
                 ->broadcast($this->recipient);
-
-            return;
         } else {
             $hbsiDataForMerge = Cache::get('hbsi_supplier_data_'.$this->giataId, []);
             if (! empty($hbsiDataForMerge)) {
@@ -71,6 +72,8 @@ class AiMergeSuppliers implements ShouldQueue
             'supplierData' => $supplierDataJson,
             'giata_id' => $this->giataId,
         ]);
+
+        Cache::put('make_hotel:'.$this->giataId.':data_merged', true, 60 * 60 * 24);
 
         Notification::make()
             ->title('✅ Suppliers merged successfully. HotelGiataCode = '.$this->giataId)

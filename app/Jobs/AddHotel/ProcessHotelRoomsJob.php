@@ -25,6 +25,30 @@ class ProcessHotelRoomsJob implements ShouldQueue
 
     public function handle()
     {
+        if ($this->dataForm['auto_marge']) {
+            $startTime = microtime(true);
+            $maxWaitTime = 60;
+
+            $dataMerged = false;
+
+            while (! $dataMerged && (microtime(true) - $startTime) < $maxWaitTime) {
+                logger()->info('LoggerFlowHotel _ Waiting for Gemini merged data for giataId: '.$this->giataId);
+                $dataMerged = Cache::get('make_hotel:'.$this->giataId.':data_merged', false);
+
+                if (! $dataMerged) {
+                    sleep(1);
+                }
+            }
+
+            if (! $dataMerged) {
+                Notification::make()
+                    ->title('Timeout waiting for Gemini merged data.')
+                    ->danger()
+                    ->duration(10000)
+                    ->broadcast($this->recipient);
+            }
+        }
+
         $aiSupplierCodes = $this->fetchAiSupplierCodes();
         $this->processRooms($aiSupplierCodes);
 
