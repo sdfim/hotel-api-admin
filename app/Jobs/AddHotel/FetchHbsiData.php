@@ -24,6 +24,7 @@ class FetchHbsiData implements ShouldQueue
     public function handle(): void
     {
         Artisan::call('hbsi:get-data', ['giataId' => $this->giataId]);
+        sleep(1);
         Cache::put('make_hotel:'.$this->giataId.':hbsi_data_fetched', true, 60 * 60 * 24);
 
         logger()->info('LoggerFlowHotel _ FetchHbsiData', [
