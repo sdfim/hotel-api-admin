@@ -66,6 +66,7 @@ class AddHotel
             $dataSupplier = $this->getIcePortalHotelData($property);
         }
 
+        $dataRoomSupplier = [];
         foreach ($data['suppliers'] as $supplier) {
             if ($supplier === SupplierNameEnum::HOTEL_TRADER->value) {
                 $dataRoomSupplier[$supplier] = $this->getHotelTraderHotelData($property)['roomsData'] ?? [];

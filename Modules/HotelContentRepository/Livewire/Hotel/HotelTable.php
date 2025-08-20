@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
+use App\Models\Mapping;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -225,9 +226,33 @@ class HotelTable extends Component implements HasForms, HasTable
                                     Select::make('suppliers')
                                         ->multiple()
                                         ->required()
-                                        ->default([SupplierNameEnum::HOTEL_TRADER->value])
+                                        ->default(function (callable $get) {
+                                            $giataCode = $get('giata_code');
+                                            if ($giataCode) {
+                                                $mapping = Mapping::where('giata_id', $giataCode)
+                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+                                                    ->get();
+                                                if (! empty($mapping)) {
+                                                    return $mapping->pluck('supplier', 'supplier')->unique()->keys()->toArray();
+                                                }
+                                            }
+
+                                            return array_keys(SupplierNameEnum::contentOptions());
+                                        })
                                         ->label('Room Level is taken from the Suppliers')
-                                        ->options(SupplierNameEnum::contentOptions())
+                                        ->options(function (callable $get) {
+                                            $giataCode = $get('giata_code');
+                                            if ($giataCode) {
+                                                $mapping = Mapping::where('giata_id', $giataCode)
+                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+                                                    ->get();
+                                                if (! empty($mapping)) {
+                                                    return $mapping->pluck('supplier', 'supplier')->unique()->toArray();
+                                                }
+                                            }
+
+                                            return SupplierNameEnum::contentOptions();
+                                        })
                                         ->columnSpan(2),
                                     Checkbox::make('auto_marge')
                                         ->label('AI Assistant. Auto Merge Different Suppliers')
