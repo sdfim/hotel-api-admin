@@ -555,7 +555,7 @@ class AddHotel
             $roomId = $room['roomCode'] ?? null;
 
             // Take description string
-            $description = $room['description'] ?? '';
+            $description = Arr::get($room, 'description', '');
             $parts = array_map('trim', explode(',', $description));
 
             // The last element is considered as a "view", all others make up the name
@@ -586,10 +586,10 @@ class AddHotel
 
         // Example attribute
         $attributes = [];
-        if (! empty($icePortalData['description'])) {
+        if (Arr::get($icePortalData, 'description')) {
             $attributes[] = [
                 'name' => 'Description',
-                'value' => $icePortalData['description'],
+                'value' => Arr::get($icePortalData, 'description'),
                 'categories' => ['general'],
             ];
         }
@@ -675,7 +675,7 @@ class AddHotel
             foreach ($hiltonData['props']['services']['restaurants'] as $restaurant) {
                 $attributes[] = [
                     'name' => 'Restaurant: '.$restaurant['name'],
-                    'value' => $restaurant['description'],
+                    'value' => Arr::get($restaurant, 'description', ''),
                     'categories' => ['dining'],
                 ];
             }
