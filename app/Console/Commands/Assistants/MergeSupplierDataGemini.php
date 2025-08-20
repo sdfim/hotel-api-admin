@@ -67,7 +67,7 @@ EOT;
                 $model = config('services.gemini.model');
                 $apiKey = config('services.gemini.api_key');
 
-                $responseGemini = Http::post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                $responseGemini = Http::timeout(60)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                     'contents' => [
                         [
                             'role' => 'user',

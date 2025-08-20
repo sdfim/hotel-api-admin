@@ -10,6 +10,7 @@ use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
 use App\Models\HotelTraderProperty;
+use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use App\Models\Property;
 use Filament\Notifications\Notification;
@@ -61,6 +62,10 @@ class AddHotel
             $dataSupplier = $this->getHotelTraderHotelData($property);
         }
 
+        if ($data['main_supplier'] === SupplierNameEnum::ICE_PORTAL->value) {
+            $dataSupplier = $this->getIcePortalHotelData($property);
+        }
+
         foreach ($data['suppliers'] as $supplier) {
             if ($supplier === SupplierNameEnum::HOTEL_TRADER->value) {
                 $dataRoomSupplier[$supplier] = $this->getHotelTraderHotelData($property)['roomsData'] ?? [];
@@ -69,10 +74,13 @@ class AddHotel
                 foreach ($dataRoomSupplier[$supplier] as &$roomSupplier) {
                     $roomSupplier['supplier'] = SupplierNameEnum::EXPEDIA->value;
                 }
+            } elseif ($supplier === SupplierNameEnum::ICE_PORTAL->value) {
+                $dataRoomSupplier[$supplier] = $this->getIcePortalHotelData($property)['roomsData'] ?? [];
             }
         }
 
-        $aiSupplierCodes = [];
+        $recipient = auth()->user();
+
         if ($data['auto_marge']) {
             $giataId = $property->code;
             $supplierDataForMerge = [];
@@ -85,7 +93,6 @@ class AddHotel
                 }
             }
 
-            $recipient = auth()->user();
             FetchHbsiData::dispatch($giataId, $recipient);
             AiMergeSuppliers::dispatch($giataId, $recipient, $supplierDataForMerge);
         } else {
@@ -491,6 +498,97 @@ class AddHotel
                 ->danger()
                 ->send();
         }
+
+        return $result;
+    }
+
+    protected function getIcePortalHotelData($property): array
+    {
+        $icePortalCode = Mapping::where('giata_id', $property->code)
+            ->where('supplier', 'icePortal')
+            ->first()?->supplier_id;
+
+        $result = [
+            'icePortalCode' => $icePortalCode,
+            'roomsData' => [],
+            'roomsOccupancy' => [],
+            'numRooms' => 0,
+            'attributes' => [],
+            'mealPlansRes' => [MealPlansEnum::NO_MEAL_PLAN->value],
+            'ratingSupplier' => 0,
+        ];
+
+        if (! $icePortalCode) {
+            Notification::make()
+                ->title('IcePortal hotel not found in the mapper.')
+                ->danger()
+                ->send();
+
+            return $result;
+        }
+
+        $icePortalData = IcePortalPropertyAsset::where('listingID', $icePortalCode)->first();
+        $icePortalData = $icePortalData ? $icePortalData->toArray() : [];
+
+        if (empty($icePortalData)) {
+            Notification::make()
+                ->title('IcePortal hotel not found in the mapper.')
+                ->danger()
+                ->send();
+
+            return $result;
+        }
+
+        // Example transformation, adjust according to your IcePortalPropertyAsset structure
+        $rooms = $icePortalData['roomTypes'] ?? [];
+        $result['numRooms'] = count($rooms);
+
+        foreach ($rooms as $room) {
+            $roomId = $room['roomCode'] ?? null;
+
+            // Take description string
+            $description = $room['description'] ?? '';
+            $parts = array_map('trim', explode(',', $description));
+
+            // The last element is considered as a "view", all others make up the name
+            $lastPart = array_pop($parts);
+            $views = $lastPart ?? '';
+
+            $result['roomsData'][] = [
+                'id' => $roomId,
+                'name' => $description, // room name without the last part
+                'descriptions' => $description, // full original string
+                'area' => $room['area'] ?? null, // area is not provided
+                'views' => $views, // last part (if exists) is considered a view
+                'bed_groups' => $room['bed_groups'] ?? [],
+                'amenities' => $room['amenities'] ?? [],
+                'supplier' => SupplierNameEnum::ICE_PORTAL->value,
+            ];
+
+            $result['roomsOccupancy'][$roomId] = [
+                'occupancy' => [
+                    'max_allowed' => [
+                        'total' => 0,
+                        'adults' => 0,
+                        'children' => 0,
+                    ],
+                ],
+            ];
+        }
+
+        // Example attribute
+        $attributes = [];
+        if (! empty($icePortalData['description'])) {
+            $attributes[] = [
+                'name' => 'Description',
+                'value' => $icePortalData['description'],
+                'categories' => ['general'],
+            ];
+        }
+        $result['attributes'] = $attributes;
+
+        // Rating (if available)
+        $result['ratingSupplier'] = (float) ($icePortalData['starRating'] ?? 0);
 
         return $result;
     }
