@@ -89,7 +89,7 @@ class ListBookingsRequest extends ApiRequest
         return [
             'supplier' => 'required|string',
             'type' => 'required|string|in:hotel,flight,combo',
-            'api_client.id' => 'nullable|integer|exists:users,id',
+            'api_client.id' => 'nullable|integer',
             'api_client.email' => 'nullable|email',
         ];
     }

@@ -777,7 +777,7 @@
                 "tags": [
                     "Booking API | Booking"
                 ],
-                "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
+                "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require.",
                 "description": "Cancel Booking",
                 "operationId": "296211f80976d5cd5344388f85dc5125",
                 "parameters": [
@@ -786,13 +786,41 @@
                         "in": "query",
                         "description": "Booking ID",
                         "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                        "schema": {
+                            "type": "string",
+                            "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                        }
                     },
                     {
                         "name": "booking_item",
                         "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property. <br>\n     *      If there is no booking_item, all items will be deleted",
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request.\n     *      In the response object for each rate is a **booking_item** property.\n     *      If there is no booking_item, all items will be deleted",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                        }
+                    },
+                    {
+                        "name": "api_client[id]",
+                        "in": "query",
+                        "description": "API client user ID (optional)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3
+                        }
+                    },
+                    {
+                        "name": "api_client[email]",
+                        "in": "query",
+                        "description": "API client email (optional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "user@example.com"
+                        }
                     }
                 ],
                 "responses": {
@@ -1656,6 +1684,132 @@
                         "apiAuth": []
                     }
                 ]
+            }
+        },
+        "/api/auth/channel-token": {
+            "post": {
+                "tags": [
+                    "Auth API | Channel Clients"
+                ],
+                "summary": "Issue a channel token for an API user bound to a channel",
+                "description": "Authenticates by email/password, requires 'api-user' role and an active channel assignment. Returns channel token.",
+                "operationId": "b23e4cbb14ddc188f12830eb1e4a1912",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "Example Channel Token Request": {
+                                    "summary": "Minimal login payload",
+                                    "value": {
+                                        "email": "user@example.com",
+                                        "password": "secret"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "user_id",
+                                        "token"
+                                    ],
+                                    "properties": {
+                                        "user_id": {
+                                            "type": "integer",
+                                            "example": 42
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "p1a2r3t4OfPlainAccessToken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "User is not allowed or no active channel",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "required": [
+                                                "message"
+                                            ],
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "User is not allowed to access API."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "required": [
+                                                "message"
+                                            ],
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "No active channel assigned."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
             }
         },
         "/api/content/destinations": {
@@ -10474,6 +10628,10 @@
         {
             "name": "Booking API | Change Booking",
             "description": "API Endpoints of Booking Changes (modification)"
+        },
+        {
+            "name": "Auth API | Channel Clients",
+            "description": "Issue channel tokens for API clients. Authenticates user by email/password, requires 'api-user' role and an active bound channel, returns channel token for subsequent requests."
         }
     ]
 }

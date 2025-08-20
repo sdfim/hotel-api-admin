@@ -210,8 +210,8 @@ class BookingBookRequest extends ApiRequest
         $rules = [
             'booking_id' => 'required|size:36',
             // Optional API client identification (either id or email or both)
-            'api_client.id' => 'nullable|integer|exists:users,id',
-            'api_client.email' => 'nullable|email:rfc,dns|exists:users,email',
+            'api_client.id' => 'nullable|integer',
+            'api_client.email' => 'nullable|email:rfc,dns',
             'amount_pay' => 'required|string|in:Deposit,Full Payment',
             'travel_agency_identifier' => 'string|size:3',
             'booking_contact.first_name' => 'required|string',
