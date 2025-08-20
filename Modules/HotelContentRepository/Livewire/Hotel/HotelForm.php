@@ -271,18 +271,17 @@ class HotelForm extends Component implements HasForms
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
-                                                $filamentPath = config('filament.default_filesystem_disk') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 $publicPath = Storage::url($originalPath);
 
                                                 if (Storage::exists($originalPath)) {
                                                     $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
-                                                    ? Http::get($publicPath)->body()
-                                                    : Image::read(Storage::get($originalPath));
+                                                        ? Http::get($publicPath)->body()
+                                                        : Image::read(Storage::get($originalPath));
 
                                                     $image = Image::read($imageData);
                                                     $image->resize(150, 150);
-                                                    Storage::put($filamentPath.$thumbnailPath, (string) $image->encode());
+                                                    Storage::put($thumbnailPath, (string) $image->encode());
                                                     $set('product.hero_image_thumbnails', $thumbnailPath);
                                                 }
                                             }
