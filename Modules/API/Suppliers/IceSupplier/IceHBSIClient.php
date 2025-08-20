@@ -173,6 +173,32 @@ class IceHBSIClient
             }
         }
 
+        // Fetch room types for each listing
+        $roomTypeResponses = Http::pool(function (Pool $pool) use ($listingIDs, $mapListingID) {
+            foreach ($listingIDs as $listingID) {
+                $giataId = $mapListingID[$listingID];
+                $pool->as($giataId)
+                    ->withToken($this->fetchToken())
+                    ->get($this->url('/v1/listings/'.$listingID.'/roomtypes'), [
+                        'includeAssets' => 'true',
+                        'page' => '1',
+                        'pageSize' => '100',
+                    ]);
+            }
+        });
+
+        foreach ($roomTypeResponses as $giataId => $roomTypeResponse) {
+            if ($roomTypeResponse instanceof \Illuminate\Http\Client\Response && $roomTypeResponse->successful()) {
+                $results[$giataId]['roomTypes'] = $roomTypeResponse->json();
+            } else {
+                Log::error('IceHBSIClient _ search _ error fetching room types', [
+                    'giataId' => $giataId,
+                    'response' => $roomTypeResponse instanceof \Illuminate\Http\Client\Response ? $roomTypeResponse->json() : null,
+                    'error' => $roomTypeResponse instanceof \Illuminate\Http\Client\Response ? $roomTypeResponse->serverError() : 'Connection error',
+                ]);
+            }
+        }
+
         if (! empty($results)) {
             $this->saveListings($results);
         }
@@ -204,7 +230,7 @@ class IceHBSIClient
                     $toBatch['latitude'] = Arr::get($result, 'address.latitude', 0.0);
                     $toBatch['longitude'] = Arr::get($result, 'address.longitude', 0.0);
                     $toBatch['assets'] = json_encode(Arr::get($result, 'assets', []));
-                    $toBatch['roomTypes'] = json_encode(Arr::get($result, 'roomTypes', []));
+                    $toBatch['roomTypes'] = json_encode(Arr::get($result, 'roomTypes.results') ?? Arr::get($result, 'roomTypes', []));
                     $toBatch['meetingRooms'] = json_encode(Arr::get($result, 'meetingRooms', []));
                     $toBatch['iceListingCategoryScore'] = Arr::get($result, 'iceListingCategoryScore', 0); // Default to 0 if null
                     $toBatch = array_filter($toBatch, fn ($k) => in_array($k, $fields), ARRAY_FILTER_USE_KEY);

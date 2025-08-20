@@ -140,7 +140,12 @@ class IcePortalHotelContentDetailTransformer
                 continue;
             }
 
-            $images = array_merge(Arr::get($roomImages, Arr::get($room, 'roomID'), []), $roomAmenitiesGeneral);
+            $inpetDescriptions = Arr::get($room, 'description', '');
+            $inpetDescriptionsArray = explode(',', $inpetDescriptions);
+            $roomName = Arr::get($inpetDescriptionsArray, '0', '');
+            $roomImages = array_column(Arr::get($room, 'roomTypeAssets', []), 'links');
+            $mediaLinks = array_column($roomImages, 'mediaLinkURL');
+
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setContentSupplier(SupplierNameEnum::ICE_PORTAL->value);
             $roomResponse->setSupplierRoomId(Arr::get($room, 'roomID'));
@@ -152,8 +157,9 @@ class IcePortalHotelContentDetailTransformer
                     'category' => 'general',
                 ];
             }, $roomAmenities)));
-            $roomResponse->setImages($images);
-            $roomResponse->setDescriptions(Arr::get($room, 'description', ''));
+            $roomResponse->setImages($mediaLinks);
+            $roomResponse->setDescriptions($inpetDescriptions);
+            $roomResponse->setSupplierRoomName($roomName);
             $rooms[] = $roomResponse->toArray();
         }
         $hotelResponse->setRooms($rooms);
