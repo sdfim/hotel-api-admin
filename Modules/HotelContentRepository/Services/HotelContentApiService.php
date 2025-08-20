@@ -69,10 +69,10 @@ class HotelContentApiService
 
     public function fetchDetailResults(array $giataCodes, bool $isUI = false): array
     {
-        //        if (! $isUI) {
-        //            ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
-        //            $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
-        //        }
+//                if (! $isUI) {
+//                    ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
+//                    $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
+//                }
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
@@ -209,22 +209,7 @@ class HotelContentApiService
 
     public function getRepoData(array $giataCodes): ?Collection
     {
-        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale] = $this->resolveChannelAndForceParams();
-
-        $query = Hotel::whereIn('giata_code', $giataCodes);
-
-        if (! $forceOnSale && ! $forceVerified) {
-            $query->whereHas('product', function ($productQuery) use ($forceVerified, $forceOnSale) {
-                if (! $forceOnSale) {
-                    $productQuery->where('onSale', 1);
-                }
-                if (! $forceVerified) {
-                    $productQuery->where('verified', 1);
-                }
-            });
-        }
-
-        $hotels = $query->get();
+        $hotels = Hotel::whereIn('giata_code', $giataCodes)->get();
 
         foreach ($hotels as $hotel) {
             if (! $hotel->product) {
