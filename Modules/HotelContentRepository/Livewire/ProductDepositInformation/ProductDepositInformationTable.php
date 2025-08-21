@@ -22,7 +22,6 @@ use Livewire\Component;
 use Modules\HotelContentRepository\Actions\ProductDepositInformation\AddProductDepositInformation;
 use Modules\HotelContentRepository\Actions\ProductDepositInformation\EditProductDepositInformation;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductDepositInformation;
 
@@ -37,7 +36,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
 
     public string $title;
 
-    public function mount(Product $product, ?int $rateId = null)
+    public function mount(Product $product)
     {
         $this->productId = $product->id;
         $this->title = 'Deposit Information for '.$product->name;

@@ -24,8 +24,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRate;
-use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 

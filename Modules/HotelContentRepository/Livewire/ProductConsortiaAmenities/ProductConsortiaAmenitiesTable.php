@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductConsortiaAmenity;
@@ -51,14 +50,8 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
         $this->productId = $product->id;
         $this->rateId = $rateId;
         $this->roomId = $roomId;
-        $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Consortia Amenities for '.$product->name;
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-            $this->title .= ' - Rate Name: '.$rate->name;
-        }
         if ($this->roomId) {
             $this->title .= ' - Room ID: '.$this->roomId;
             $this->title .= ' - Room Name: '.$room->name;

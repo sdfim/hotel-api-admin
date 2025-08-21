@@ -14,7 +14,6 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityCon
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeCategoryController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigContactInformationDepartmentController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
@@ -42,13 +41,11 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
-use Modules\HotelContentRepository\Http\Controllers\HotelRateController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
-use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
 
 /*
@@ -134,8 +131,6 @@ Route::prefix('admin')->group(function () {
         Route::resource('product-repository', ProductController::class);
         Route::resource('vendor-repository', VendorController::class);
         Route::resource('hotel-rooms', HotelRoomController::class)->only(['index']);
-        Route::resource('hotel-rates', HotelRateController::class);
-        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('pd-grid', PdGridController::class)->only(['index']);
 
@@ -151,7 +146,6 @@ Route::prefix('admin')->group(function () {
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
             Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
-            Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
         });
 
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);

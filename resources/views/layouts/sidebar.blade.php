@@ -19,7 +19,6 @@
     use Modules\HotelContentRepository\Models\Hotel;
     use Modules\HotelContentRepository\Models\Product;
     use Modules\HotelContentRepository\Models\Vendor;
-    use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigAttributeCategory;
@@ -31,7 +30,6 @@
     use App\Models\Configurations\ConfigInsuranceDocumentationType;
     use App\Models\Configurations\ConfigContactInformationDepartment;
     use Modules\HotelContentRepository\Models\KeyMappingOwner;
-    use Modules\HotelContentRepository\Models\Commission;
     use Modules\HotelContentRepository\Models\ImageGallery;
     use Modules\HotelContentRepository\Models\Image;
     use App\Models\Team;
@@ -64,7 +62,6 @@
         ['route' => 'configurations.attributes.index', 'text' => 'Attributes', 'model' => ConfigAttribute::class],
         ['route' => 'configurations.attribute-categories.index', 'text' => 'Attribute Categories', 'model' => ConfigAttributeCategory::class],
         ['route' => 'configurations.amenities.index', 'text' => 'Amenities', 'model' => ConfigAmenity::class],
-        ['route' => 'configurations.consortia.index', 'text' => 'Consortia', 'model' => ConfigConsortium::class],
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
         ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],

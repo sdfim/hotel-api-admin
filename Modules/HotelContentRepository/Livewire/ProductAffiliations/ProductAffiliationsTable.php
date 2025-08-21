@@ -31,7 +31,6 @@ use Livewire\Component;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAffiliation;
@@ -47,10 +46,6 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
 
     public Product $product;
 
-    public ?int $rateId = null;
-
-    public ?array $rateRoomIds = [];
-
     public ?int $roomId = null;
 
     public string $title;
@@ -59,16 +54,9 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
     {
         $this->product = $product;
         $this->productId = $product->id;
-        $this->rateId = $rateId;
         $this->roomId = $roomId;
-        $rate = HotelRate::where('id', $rateId)->first();
-        $this->rateRoomIds = $rate ? $rate->rooms->pluck('id')->toArray() : [];
         $room = HotelRoom::where('id', $roomId)->first();
         $this->title = 'Amenities for '.$product->name;
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-            $this->title .= ' - Rate Name: '.$rate->name;
-        }
         if ($this->roomId) {
             $this->title .= ' - Room ID: '.$this->roomId;
             $this->title .= ' - Room Name: '.$room->name;
@@ -79,7 +67,6 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
     {
         return [
             Hidden::make('product_id')->default($this->productId),
-            Hidden::make('rate_id')->default($this->rateId),
             Hidden::make('room_id')->default($this->roomId),
 
             Grid::make(2)->schema([
