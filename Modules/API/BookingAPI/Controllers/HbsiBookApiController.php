@@ -375,7 +375,9 @@ class HbsiBookApiController extends BaseBookApiController
             ->where('sub_type', 'create')
             ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
             ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
-            ->with('metadata')
+            ->has('metadata')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
             ->get();
 
         $data = [];

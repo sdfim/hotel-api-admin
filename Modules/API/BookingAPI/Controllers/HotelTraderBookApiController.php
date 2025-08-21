@@ -176,7 +176,7 @@ class HotelTraderBookApiController extends BaseBookApiController
         ];
 
         $clientDataResponse = Arr::get($retrieveData, 'response') ?
-            HotelTraderiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel(Arr::get($retrieveData, 'response'))
+            HotelTraderiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, Arr::get($retrieveData, 'response'))
             : Arr::get($retrieveData, 'errors');
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientDataResponse);
@@ -235,7 +235,6 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $res;
     }
 
-    // TODO: Refactor this method to use the new HotelTraderClient
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
@@ -246,8 +245,8 @@ class HotelTraderBookApiController extends BaseBookApiController
         $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
 
-        $apiClientId = data_get(request()->all(), 'api_client.id') ?? request()->query('client_id');
-        $apiClientEmail = data_get(request()->all(), 'api_client.email') ?? request()->query('client_email');
+        $apiClientId = request()->query('api_client_id');
+        $apiClientEmail = request()->query('api_client_email');
 
         $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
             ->where('supplier_id', $supplierId)
@@ -255,13 +254,14 @@ class HotelTraderBookApiController extends BaseBookApiController
             ->where('sub_type', 'create')
             ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
             ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', $apiClientEmail))
-            ->with('metadata')
+            ->has('metadata')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
             ->get();
 
         $data = [];
         foreach ($itemsBooked as $item) {
             $filters['booking_id'] = $item->metadata?->booking_id;
-
             $data[] = $this->retrieveBooking($filters, $item->metadata);
         }
 

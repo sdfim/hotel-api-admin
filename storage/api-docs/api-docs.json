@@ -2169,7 +2169,7 @@
                         }
                     },
                     {
-                        "name": "api_client[id]",
+                        "name": "api_client_id",
                         "in": "query",
                         "description": "API client user ID",
                         "required": false,
@@ -2179,7 +2179,7 @@
                         }
                     },
                     {
-                        "name": "api_client[email]",
+                        "name": "api_client_email",
                         "in": "query",
                         "description": "API client email",
                         "required": false,

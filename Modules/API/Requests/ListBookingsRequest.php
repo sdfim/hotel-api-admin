@@ -36,7 +36,7 @@ class ListBookingsRequest extends ApiRequest
      *   ),
      *
      *   @OA\Parameter(
-     *      name="api_client[id]",
+     *      name="api_client_id",
      *      in="query",
      *      required=false,
      *      description="API client user ID",
@@ -45,7 +45,7 @@ class ListBookingsRequest extends ApiRequest
      *   ),
      *
      *   @OA\Parameter(
-     *      name="api_client[email]",
+     *      name="api_client_email",
      *      in="query",
      *      required=false,
      *      description="API client email",

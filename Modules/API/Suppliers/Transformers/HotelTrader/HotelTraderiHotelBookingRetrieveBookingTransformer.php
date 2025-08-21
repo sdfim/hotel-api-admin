@@ -2,14 +2,21 @@
 
 namespace Modules\API\Suppliers\Transformers\HotelTrader;
 
+use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
 class HotelTraderiHotelBookingRetrieveBookingTransformer
 {
-    public static function RetrieveBookingToHotelBookResponseModel(array $data): array
+    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $data): array
     {
         $status = Arr::get($data, 'rooms.0.cancelled', false) ? 'cancelled' : 'booked';
+
+        $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
+        $saveResponse = $bookData ? json_decode(Storage::get($bookData->client_response_path), true) : [];
+        $bookRequest = json_decode($bookData?->request ?? '', true) ?? [];
 
         $property = Arr::get($data, 'propertyDetails', []);
         $roomsData = Arr::get($data, 'rooms', []);
@@ -30,23 +37,28 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         /** @var ResponseModel $responseModel */
         $responseModel = app(ResponseModel::class);
         $responseModel->setStatus($status);
-        $responseModel->setBookingId(Arr::get($data, 'clientConfirmationCode', ''));
-        $responseModel->setBookringItem(Arr::get($data, 'clientConfirmationCode', ''));
-        $responseModel->setSupplier('HotelTrader');
-        $responseModel->setHotelName(Arr::get($property, 'propertyName', ''));
+        $responseModel->setBookingId(Arr::get($saveResponse, 'booking_id', ''));
+        $responseModel->setBookringItem(Arr::get($saveResponse, 'booking_item', ''));
+        $responseModel->setSupplier(Arr::get($saveResponse, 'supplier', ''));
+        $responseModel->setHotelName(Arr::get($saveResponse, 'hotel_name', ''));
+
         $responseModel->setRooms($rooms);
-        $responseModel->setCancellationTerms(Arr::get($roomsData[0], 'cancellationPolicies', []));
-        $responseModel->setRate(Arr::get($roomsData[0], 'rates.grossPrice', 0));
-        $responseModel->setTotalPrice(Arr::get($data, 'aggregateGrossPrice', 0));
-        $responseModel->setTotalTax(Arr::get($data, 'aggregateTax', 0));
-        $responseModel->setTotalFees(0);
-        $responseModel->setTotalNet(Arr::get($data, 'aggregateNetPrice', 0));
-        $responseModel->setMarkup(0);
-        $responseModel->setCurrency(Arr::get($roomsData[0], 'rates.currency', 'USD'));
-//        $responseModel->setPerNightBreakdown(json_encode(Arr::get($roomsData[0], 'rates.dailyPrice', [])));
+
+        $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
+            ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
+        $responseModel->setCancellationTerms($cancellationTerms);
+        $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
+        $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
+        $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
+        $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
+        $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
+        $responseModel->setMarkup(Arr::get($saveResponse, 'markup', 0));
+        $responseModel->setCurrency(Arr::get($saveResponse, 'markup', ''));
+        $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setPerNightBreakdown(0.0);
         $responseModel->setBoardBasis(Arr::get($roomsData[0], 'mealplanOptions.mealplanDescription', ''));
-        $responseModel->setQuery([]);
+
+        $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId(Arr::get($data, 'htConfirmationCode', ''));
         $responseModel->setConfirmationNumbers([
             [
@@ -56,9 +68,9 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
             ],
         ]);
         $responseModel->setCancellationNumber(Arr::get($roomsData[0], 'crsCancelConfirmationCode', null));
-        $responseModel->setBillingContact([]);
-        $responseModel->setBillingEmail('');
-        $responseModel->setBillingPhone([]);
+        $responseModel->setBillingContact(Arr::get($bookRequest, 'booking_contact.address', []));
+        $responseModel->setBillingEmail(Arr::get($bookRequest, 'booking_contact.email', ''));
+        $responseModel->setBillingPhone(Arr::get($bookRequest, 'booking_contact.phone', []));
 
         return $responseModel->toRetrieveArray();
     }
