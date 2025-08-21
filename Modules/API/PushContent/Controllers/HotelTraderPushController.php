@@ -731,7 +731,7 @@ class HotelTraderPushController extends Controller
                 'bedtypes' => $room->bedtypes ?? [],
                 'amenities' => $room->amenities ?? [],
                 'images' => $room->images ?? [],
-            };
+            ];
         })->toArray();
 
         return response()->json([
