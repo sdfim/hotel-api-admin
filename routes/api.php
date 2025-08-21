@@ -1,5 +1,6 @@
 <?php
 
+use Modules\API\Auth\routes\AuthApiRoutes;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\Channels\routes\ChannelsApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
@@ -30,3 +31,5 @@ BookingApiRoutes::routes();
 ReportApiRoutes::routes();
 
 ChannelsApiRoutes::routes();
+
+AuthApiRoutes::routes();

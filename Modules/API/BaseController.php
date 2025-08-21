@@ -41,7 +41,11 @@ use Symfony\Component\HttpFoundation\StreamedJsonResponse;
  * @OA\Tag(
  *   name="Booking API | Change Booking",
  *   description="API Endpoints of Booking Changes (modification)"
- *  )
+ * ),
+ * @OA\Tag(
+ *   name="Auth API | Channel Clients",
+ *   description="Issue channel tokens for API clients. Authenticates user by email/password, requires 'api-user' role and an active bound channel, returns channel token for subsequent requests."
+ * )
  */
 class BaseController extends Controller
 {
@@ -63,8 +67,7 @@ class BaseController extends Controller
             $response['message'] = $message;
         }
 
-        if ($stream)
-        {
+        if ($stream) {
             return response()->streamJson($response, $code);
         }
 

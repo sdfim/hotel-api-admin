@@ -132,9 +132,10 @@ class ExpediaBookApiController extends BaseBookApiController
         }
 
         if (empty($dataResponse)) {
-            $err = $e ? $e->getMessage() : '';
-
-            return ['error' => 'Booking not changed. '.$err, 'booking_item' => $filters['booking_item']];
+            return [
+                'error' => 'Booking not changed.',
+                'booking_item' => $filters['booking_item'],
+            ];
         }
 
         $giata_id = Arr::get($booking_item_data, 'hotel_id');
@@ -433,8 +434,11 @@ class ExpediaBookApiController extends BaseBookApiController
     {
         $token_id = ChannelRepository::getTokenId(request()->bearerToken());
 
+        $filters['api_client']['id'] = data_get(request()->all(), 'api_client.id') ?? request()->input('api_client_id');
+        $filters['api_client']['email'] = data_get(request()->all(), 'api_client.email');
+
         // step 1 Read Booking Inspector, Get link  GET method from 'add_item | post_book'
-        $list = BookingRepository::getAffiliateReferenceIdByChannel($token_id);
+        $list = BookingRepository::getAffiliateReferenceIdByChannel($token_id, $filters);
         $path = '/v3/itineraries';
 
         $promises = [];

@@ -34,6 +34,7 @@ use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use SimpleXMLElement;
+use Throwable;
 
 class HbsiBookApiController extends BaseBookApiController
 {
@@ -356,21 +357,30 @@ class HbsiBookApiController extends BaseBookApiController
         return $res;
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function listBookings(): ?array
     {
-        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
+        $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->value('id');
+
+        $apiClientId = data_get(request()->all(), 'api_client.id') ?? request()->query('client_id');
+        $apiClientEmail = data_get(request()->all(), 'api_client.email') ?? request()->query('client_email');
+
+        $itemsBooked = ApiBookingInspector::query()
+            ->where('token_id', $tokenId)
             ->where('supplier_id', $supplierId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
-            ->distinct()
+            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
+            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
+            ->with('metadata')
             ->get();
 
-        $filters['booking_id'] = request()->get('booking_id');
-        $filters['supplier_data'] = request()->get('supplier_data') ?? false;
         $data = [];
         foreach ($itemsBooked as $item) {
+            $filters['booking_id'] = $item->metadata?->booking_id;
             $data[] = $this->retrieveBooking($filters, $item);
         }
 
