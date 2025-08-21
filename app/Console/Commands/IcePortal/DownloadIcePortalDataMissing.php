@@ -3,6 +3,7 @@
 namespace App\Console\Commands\IcePortal;
 
 use App\Models\IcePortalProperty;
+use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use App\Models\Supplier;
 use App\Traits\ExceptionReportTrait;
@@ -57,12 +58,19 @@ class DownloadIcePortalDataMissing extends Command
         });
 
         // Find supplier_ids already present in IcePortalProperty
-        $existingSupplierIds = IcePortalProperty::pluck('supplier_id')->toArray();
+        $existingSupplierIds = IcePortalPropertyAsset::pluck('listingID')->toArray();
 
         // Filter mapperItems to only those missing in IcePortalProperty
         $missingItems = $mapperItems->filter(function ($item) use ($existingSupplierIds) {
             return ! in_array($item->supplier_id, $existingSupplierIds);
         });
+
+        $this->info('Missing items count: '.$missingItems->count());
+        $this->info('$existingSupplierIds count: '.count($existingSupplierIds));
+        $this->info('$mapperItems count: '.$mapperItems->count());
+        $this->info('---------------------------------');
+        $this->info('***** start *****');
+        $this->info('---------------------------------');
 
         $this->saveSuccessReport('DownloadIcePortalDataMissing', 'Missing mapper items loaded', json_encode([
             'items_count' => $missingItems->count(),
