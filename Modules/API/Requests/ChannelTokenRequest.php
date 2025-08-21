@@ -77,4 +77,9 @@ class ChannelTokenRequest extends ApiRequest
             'password' => ['required', 'string', 'min:6'],
         ];
     }
+
+    public function authorize(): bool
+    {
+        return true;
+    }
 }
