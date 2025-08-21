@@ -2169,27 +2169,6 @@
                         }
                     },
                     {
-                        "name": "client_id",
-                        "in": "query",
-                        "description": "Alias for api_client.id",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 123
-                        }
-                    },
-                    {
-                        "name": "client_email",
-                        "in": "query",
-                        "description": "Alias for api_client.email",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "email",
-                            "example": "user@example.com"
-                        }
-                    },
-                    {
                         "name": "api_client[id]",
                         "in": "query",
                         "description": "API client user ID",

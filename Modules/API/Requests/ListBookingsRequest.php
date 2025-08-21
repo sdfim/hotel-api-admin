@@ -36,24 +36,6 @@ class ListBookingsRequest extends ApiRequest
      *   ),
      *
      *   @OA\Parameter(
-     *      name="client_id",
-     *      in="query",
-     *      required=false,
-     *      description="Alias for api_client.id",
-     *
-     *      @OA\Schema(type="integer", example=123)
-     *   ),
-     *
-     *   @OA\Parameter(
-     *      name="client_email",
-     *      in="query",
-     *      required=false,
-     *      description="Alias for api_client.email",
-     *
-     *      @OA\Schema(type="string", format="email", example="user@example.com")
-     *   ),
-     *
-     *   @OA\Parameter(
      *      name="api_client[id]",
      *      in="query",
      *      required=false,
