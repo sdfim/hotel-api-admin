@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\HbsiPropertyController;
 use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
@@ -118,6 +119,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('properties', PropertiesController::class)->only('index');
         Route::resource('ice-portal', IcePortalController::class)->only('index');
+        Route::resource('hbsi-property', HbsiPropertyController::class)->only('index');
         Route::resource('hotel-trader', HotelTraderController::class)->only('index');
         Route::resource('expedia', ExpediaController::class)->only('index');
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');

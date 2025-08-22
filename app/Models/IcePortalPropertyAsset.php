@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class IcePortalPropertyAsset extends Model
@@ -12,7 +13,9 @@ class IcePortalPropertyAsset extends Model
 
     protected $connection;
 
+    protected $primaryKey = 'listingID';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'listingID',
@@ -74,5 +77,15 @@ class IcePortalPropertyAsset extends Model
     public function mapperGiata(): HasOne
     {
         return $this->hasOne(Mapping::class, 'supplier_id', 'listingID')->icePortal();
+    }
+
+    public function getHasRoomTypesAttribute(): bool
+    {
+        return ! empty($this->roomTypes);
+    }
+
+    public function mapperHbsiGiata(): HasMany
+    {
+        return $this->hasMany(Mapping::class, 'supplier_id', 'listingID')->icePortal();
     }
 }

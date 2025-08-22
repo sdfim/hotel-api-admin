@@ -46,6 +46,13 @@ class PropertiesTable extends Component implements HasForms, HasTable
     {
         $query = Property::query();
 
+        if (request()->has('giata_id')) {
+            $giataId = request('giata_id');
+            $query->whereHas('mappings', function ($q) use ($giataId) {
+                $q->where('giata_id', $giataId);
+            });
+        }
+
         if (request()->has('polygon')) {
             $coordinates = explode(';', request('polygon'));
             $polygon = array_chunk($coordinates, 2);

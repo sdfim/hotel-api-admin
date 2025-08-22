@@ -303,12 +303,12 @@ class HbsiClient
                     'response' => new SimpleXMLElement(strval($body), LIBXML_NOCDATA),
                 ];
 
-                //TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+                // TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
                 Log::info('-------------------------------------------- REQUEST --------------------------------------------');
                 Log::info($res['request']);
                 Log::info('-------------------------------------------- RESPONSE --------------------------------------------');
                 Log::info($res['response']->asXML());
-                //TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+                // TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
 
                 if ($addGuest) {
                     $res['main_guest'] = json_encode($this->mainGuest);
@@ -624,14 +624,14 @@ class HbsiClient
                         $key = rtrim($parentName, 's');
                     }
 
-                    //If the value is an array of Scalars, we must create nodes with the key name.
+                    // If the value is an array of Scalars, we must create nodes with the key name.
                     if (is_scalar(Arr::get($value, '0'))) {
                         foreach ($value as $value2) {
                             $xml->addChild($key, $value2);
                         }
                     }
 
-                    //If not a sacalar value, it's a probably a nested array.
+                    // If not a sacalar value, it's a probably a nested array.
                     else {
                         $subnode = $xml->addChild($key);
                         $this->arrayToXml($value, $subnode, $key);
@@ -884,5 +884,44 @@ class HbsiClient
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['CardHolderName'] = $creditCard['credit_card']['name_card'];
 
         return $depositPaymentArr;
+    }
+
+    /**
+     * Fetch hotel descriptive content from HBSI API
+     *
+     * @throws Exception
+     */
+    public function fetchContent(string $hotelCode, string $hotelName = ''): ?array
+    {
+        $bodyQuery = $this->makeRequest(
+            $this->hotelDescriptiveInfoRQ($hotelCode, $hotelName),
+            'HotelDescriptiveInfoRQ'
+        );
+
+        $response = $this->sendRequest($bodyQuery);
+        $body = $response->getBody()->getContents();
+
+        return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    /**
+     * Build HotelDescriptiveInfoRQ SOAP body
+     */
+    private function hotelDescriptiveInfoRQ(string $hotelCode, string $hotelName = ''): string
+    {
+        $timeStamp = date('Y-m-d\TH:i:s');
+
+        return <<<XML
+<OTA_HotelDescriptiveInfoRQ Version="1.01" TimeStamp="$timeStamp">
+    <HotelDescriptiveInfos>
+        <HotelDescriptiveInfo HotelCode="$hotelCode" HotelName="$hotelName">
+            <HotelInfo SendData="true"/>
+            <AreaInfo SendRefPoints="true"/>
+            <AffiliationInfo SendDistribSystems="true"/>
+            <ContactInfo SendData="true"/>
+        </HotelDescriptiveInfo>
+    </HotelDescriptiveInfos>
+</OTA_HotelDescriptiveInfoRQ>
+XML;
     }
 }

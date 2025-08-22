@@ -98,7 +98,7 @@ class ProcessHotelRoomsJob implements ShouldQueue
             $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
             $maxRoomOccupancy = Arr::get($this->dataSupplier['roomsOccupancy'], $roomId.'.occupancy.max_allowed.total', 0);
 
-            $roomSupplierCodes = Arr::get($room, 'supplier_codes') ?? json_encode([['code' => Arr::get($room, 'id'), 'supplier' => $room['supplier']]]);
+            $roomSupplierCodes = Arr::get($room, 'supplier_codes') ?? json_encode([['code' => Arr::get($room, 'id'), 'supplier' => Arr::get($room, 'supplier', '')]], JSON_UNESCAPED_UNICODE);
             $roomSupplierCodes = ! empty($aiSupplierCodes) && isset($aiSupplierCodes[$roomId])
                 ? $aiSupplierCodes[$roomId]['supplier_codes']
                 : $roomSupplierCodes;

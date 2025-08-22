@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\HotelTraderProperty;
+use App\Models\HbsiProperty;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\IconColumn;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class HotelTraderContentHotelTable extends Component implements HasForms, HasTable
+class HbsiPropertyTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -23,7 +23,7 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(HotelTraderProperty::query())
+            ->query(HbsiProperty::query())
             ->columns([
                 TextColumn::make('first_mapperHbsiGiata_code')
                     ->label('Giata Code')
@@ -32,45 +32,58 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
                         ? route('properties.index', ['giata_id' => optional($record->mapperHbsiGiata->first())->giata_id])
                         : null)
                     ->toggleable(),
-                TextColumn::make('propertyId')
+                TextColumn::make('hotel_code')
+                    ->label('Code')
                     ->sortable()
                     ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('propertyName')
-                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('hotel_code', $search);
+                    }, isIndividual: true),
+                TextColumn::make('hotel_name')
+                    ->label('Hotel Name')
                     ->wrap()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('city')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('countryCode')
-                    ->label('Country')
+                TextColumn::make('city_code')
+                    ->label('City Code')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('starRating')
-                    ->label('Rating')
-                    ->sortable()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('address1')
+                TextColumn::make('address_line')
                     ->label('Address')
                     ->wrap()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('phone1')
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('latitude')
+                TextColumn::make('city_name')
+                    ->label('City')
+                    ->wrap()
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('longitude')
+                TextColumn::make('state')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
+                TextColumn::make('postal_code')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('country_name')
+                    ->label('Country')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('phone')
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('emails')
+                    ->wrap()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                IconColumn::make('has_rate_plans')
+                    ->label('Rate Plans')
+                    ->boolean(),
                 IconColumn::make('has_room_types')
                     ->label('Room Types')
                     ->boolean(),
@@ -79,6 +92,6 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
 
     public function render(): View
     {
-        return view('livewire.hotel-trader-content-table');
+        return view('livewire.hbsi-property-table');
     }
 }

@@ -50,7 +50,6 @@
         $canView(ConfigInsuranceDocumentationType::class);
         $canView(ConfigContactInformationDepartment::class);
         $canView(KeyMappingOwner::class);
-        $canView(Commission::class);
         $canView(ConfigRoomBedType::class);
 @endphp
 
@@ -65,7 +64,6 @@
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
         ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
-        ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
         ['route' => 'configurations.contact-information-departments.index', 'text' => 'TerraMare Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
@@ -289,6 +287,12 @@
                                 <a href="{{ Route('hotel-trader.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Hotel Trader
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ Route('hbsi-property.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    HBSI
                                 </a>
                             </li>
                         </ul>

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class HotelTraderProperty extends Model
 {
@@ -77,5 +79,15 @@ class HotelTraderProperty extends Model
             'longDescription',
             'rooms',
         ];
+    }
+
+    public function getHasRoomTypesAttribute(): bool
+    {
+        return ! empty($this->rooms);
+    }
+
+    public function mapperHbsiGiata(): HasMany
+    {
+        return $this->hasMany(Mapping::class, 'supplier_id', 'propertyId')->hotelTrader();
     }
 }
