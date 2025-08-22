@@ -196,7 +196,7 @@ class BaseHotelPricingTransformer
 //                continue;
 //            }
 
-            $hbsiHotelData = $expediaHotelData = [
+            $hbsiHotelData = $expediaHotelData = $hotelTraderHotelData =[
                 'hotel_code' => $hotel->giata_code,
                 'rooms' => [],
             ];
@@ -207,15 +207,22 @@ class BaseHotelPricingTransformer
                 $expediaCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
                     return $code['supplier'] === ContentSourceEnum::EXPEDIA->value;
                 })->first()['code'] ?? null;
+                $hotelTraderCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
+                    return $code['supplier'] === ContentSourceEnum::HOTEL_TRADER->value;
+                })->first()['code'] ?? null;
                 if ($hbsiCode) {
                     $hbsiHotelData['rooms'][$hbsiCode] = $room->external_code;
                 }
                 if ($expediaCode) {
                     $expediaHotelData['rooms'][$expediaCode] = $room->external_code;
                 }
+                if ($hotelTraderCode) {
+                    $hotelTraderHotelData['rooms'][$hotelTraderCode] = $room->external_code;
+                }
             }
             $this->unifiedRoomCodes[ContentSourceEnum::HBSI->value][$hotel->giata_code] = $hbsiHotelData['rooms'];
             $this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value][$hotel->giata_code] = $expediaHotelData['rooms'];
+            $this->unifiedRoomCodes[ContentSourceEnum::HOTEL_TRADER->value][$hotel->giata_code] = $hotelTraderHotelData['rooms'];
         }
 
         $this->roomIdByUnifiedCode = [];

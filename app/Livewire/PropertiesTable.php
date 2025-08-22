@@ -360,14 +360,14 @@ class PropertiesTable extends Component implements HasForms, HasTable
                             ->label('Supplier')
                             ->options(array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
                             ->searchable(),
-                        \Filament\Forms\Components\TextInput::make('supplier_id')
-                            ->label('Supplier Code'),
+                        \Filament\Forms\Components\TagsInput::make('supplier_ids')
+                            ->label('Supplier Codes'),
                     ])
                     ->query(function (Builder $query, array $data) {
-                        if (! empty($data['supplier']) && ! empty($data['supplier_id'])) {
+                        if (! empty($data['supplier']) && ! empty($data['supplier_ids'])) {
                             $query->whereHas('mappings', function ($q) use ($data) {
                                 $q->where('supplier', $data['supplier'])
-                                    ->where('supplier_id', $data['supplier_id']);
+                                    ->whereIn('supplier_id', $data['supplier_ids']);
                             });
                         }
                     }),

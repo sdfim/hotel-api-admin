@@ -91,7 +91,7 @@ class HotelTraderController implements SupplierControllerInterface
             if ($initiator === 'price') {
                 return Mapping::hotelTrader()->whereIn('supplier_id', $filters['ids'])
                     ->get()
-                    ->pluck('supplier_id', 'giata_id')
+                    ->pluck('giata_id', 'supplier_id')
                     ->toArray();
             } else {
                 $selectFields = [
@@ -163,7 +163,7 @@ class HotelTraderController implements SupplierControllerInterface
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {
-            $hotelIds = array_values($hotelData);
+            $hotelIds = array_keys($hotelData);
 
             if (empty($hotelIds)) {
                 return [
@@ -202,7 +202,7 @@ class HotelTraderController implements SupplierControllerInterface
             }
 
             $output = [];
-            foreach ($hotelData as $giata_id => $supplier_id) {
+            foreach ($hotelData as $supplier_id => $giata_id) {
                 if (isset($priceData[$supplier_id])) {
                     $prices_property = $priceData[$supplier_id];
                     $output[$giata_id] = [

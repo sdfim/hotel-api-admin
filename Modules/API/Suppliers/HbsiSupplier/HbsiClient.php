@@ -904,6 +904,34 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery);
     }
 
+    public function fetchContentAsync(array $hotelCodes): array
+    {
+        $promises = [];
+        foreach ($hotelCodes as $hotelCode) {
+            $bodyQuery = $this->makeRequest(
+                $this->hotelDescriptiveInfoRQ($hotelCode),
+                'HotelDescriptiveInfoRQ'
+            );
+            $promises[$hotelCode] = $this->client->requestAsync('POST', $this->credentials->searchBookUrl, [
+                'headers' => $this->headers,
+                'body' => $bodyQuery,
+                'timeout' => \App\Repositories\ConfigRepository::getTimeout(),
+            ]);
+        }
+
+        $results = [];
+        foreach (\GuzzleHttp\Promise\Utils::settle($promises)->wait() as $hotelCode => $result) {
+            if ($result['state'] === 'fulfilled') {
+                $body = $result['value']->getBody()->getContents();
+                $results[$hotelCode] = $this->processXmlBody($body, '');
+            } else {
+                $results[$hotelCode] = ['error' => $result['reason']->getMessage()];
+            }
+        }
+
+        return $results;
+    }
+
     /**
      * Build HotelDescriptiveInfoRQ SOAP body
      */
