@@ -17,7 +17,6 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -225,17 +224,17 @@ class HotelForm extends Component implements HasForms
                                         })
                                         ->label('Product Name')
                                         ->maxLength(191),
-//                                    Select::make('sale_type')
-//                                        ->label('Type')
-//                                        ->options([
-//                                            HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
-//                                            HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
-//                                            HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
-//                                            HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value => HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value,
-//                                        ])->required()
-//                                        ->rule('required', function (Get $get, $state) {
-//                                            return self::validateRequiredField($get, $state, 'Type');
-//                                        }),
+                                    //                                    Select::make('sale_type')
+                                    //                                        ->label('Type')
+                                    //                                        ->options([
+                                    //                                            HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
+                                    //                                            HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
+                                    //                                            HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
+                                    //                                            HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value => HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value,
+                                    //                                        ])->required()
+                                    //                                        ->rule('required', function (Get $get, $state) {
+                                    //                                            return self::validateRequiredField($get, $state, 'Type');
+                                    //                                        }),
                                     TextInput::make('star_rating')
                                         ->required()
                                         ->rule('required', function (Get $get, $state) {
@@ -277,12 +276,16 @@ class HotelForm extends Component implements HasForms
                                                 if (Storage::exists($originalPath)) {
                                                     $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
                                                         ? Http::get($publicPath)->body()
-                                                        : Image::read(Storage::get($originalPath));
+                                                        : Storage::get($originalPath);
 
-                                                    $image = Image::read($imageData);
-                                                    $image->resize(150, 150);
-                                                    Storage::put($thumbnailPath, (string) $image->encode());
-                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    try {
+                                                        $image = Image::read($imageData);
+                                                        $image->resize(150, 150);
+                                                        Storage::put($thumbnailPath, (string) $image->encode());
+                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
+                                                    } catch (\Exception $e) {
+                                                        \Log::error('Image decode error: '.$e->getMessage());
+                                                    }
                                                 }
                                             }
                                         }),
