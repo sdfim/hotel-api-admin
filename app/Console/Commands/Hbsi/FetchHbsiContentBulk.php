@@ -7,6 +7,7 @@ use App\Models\Supplier;
 use App\Traits\ExceptionReportTrait;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Inspector\ExceptionReportController;
@@ -73,13 +74,37 @@ class FetchHbsiContentBulk extends Command
         }
         $this->info("Found $total HBSI hotel codes. Starting fetch...");
         foreach ($hotelCodes as $idx => $hotelCode) {
+            if (Cache::has('hbsi_processed_'.$hotelCode)) {
+                continue;
+            }
+
             $st = microtime(true);
             $this->line("[$idx/$total] Fetching content for hotelCode: $hotelCode");
-            $exitCode = Artisan::call('hbsi:fetch-content', [
-                'hotelCode' => $hotelCode,
-            ]);
-            $output = Artisan::output();
-            $this->line($output);
+
+            $maxAttempts = 3;
+            $attempt = 0;
+            $success = false;
+            while ($attempt < $maxAttempts && ! $success) {
+                try {
+                    $exitCode = Artisan::call('hbsi:fetch-content', [
+                        'hotelCode' => $hotelCode,
+                    ]);
+                    $output = Artisan::output();
+                    $this->line($output);
+                    $success = true;
+                } catch (\Throwable $e) {
+                    $attempt++;
+                    if ($attempt < $maxAttempts) {
+                        $this->warn("Error for hotelCode $hotelCode: {$e->getMessage()}. Retrying in 10 seconds (attempt $attempt/$maxAttempts)...");
+                        sleep(10);
+                    } else {
+                        $this->error("All attempts failed for hotelCode $hotelCode: {$e->getMessage()}");
+                        $output = $e->getMessage();
+                        $exitCode = 1;
+                    }
+                }
+            }
+
             $processedHotelCodes[] = $hotelCode;
             if ($exitCode === 0) {
                 $successfulItems++;
@@ -96,6 +121,8 @@ class FetchHbsiContentBulk extends Command
                     'execution_time' => (microtime(true) - $st).' sec',
                 ]));
             }
+
+            Cache::put('hbsi_processed_'.$hotelCode, true, now()->addHours(2));
         }
         $totalTime = microtime(true) - $this->current_time['main'];
         $this->info('Bulk fetch complete.');
