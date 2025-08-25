@@ -230,7 +230,7 @@ class HotelContentApiService
             return [];
         }
 
-        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::EXPEDIA->value);
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::HOTEL_TRADER->value);
 
         $existingInMainSupplierGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
         $detailResults = $resultsSuppliers[$mainSupplier];
