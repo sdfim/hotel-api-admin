@@ -89,27 +89,7 @@ class HotelContentApiTransformerService
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
 
-        $internalRooms = $this->getHotelRooms($hotel);
-        $existingRoomCodes = [];
-
-        foreach ($internalRooms as $room) {
-            foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-                $existingRoomCodes[$supplier][] = $room['supplier_codes'][$supplier] ?? null;
-            }
-        }
-
-        $result['rooms'] = array_merge($internalRooms, $result['rooms']);
-
-        foreach ($result['rooms'] as $key => $resultRoom) {
-            $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
-            $unifiedRoomCode = Arr::get($resultRoom, 'unified_room_code', '');
-            if (! isset($existingRoomCodes[$contentSupplier])) {
-                continue;
-            }
-            if (in_array($unifiedRoomCode, $existingRoomCodes[$contentSupplier])) {
-                unset($result['rooms'][$key]);
-            }
-        }
+        $result['rooms'] = $this->getHotelRooms($hotel);
 
         $transformedResults = [];
         foreach ($resultsSuppliers as $supplier => $items) {

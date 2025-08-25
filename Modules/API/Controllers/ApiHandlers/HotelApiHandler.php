@@ -4,9 +4,11 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspectorByCacheKey;
+use App\Models\Channel;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository;
+use App\Repositories\ChannelRepository;
 use App\Traits\Timer;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +41,7 @@ use Modules\API\Tools\MemoryLogger;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
@@ -306,11 +309,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     MemoryLogger::log('preSearchData_'.$supplier);
 
-                    $filteredGiataIds = $rawGiataIds;
+                    $this->applyBlueprintFiltering($rawGiataIds, $filters);
+                    $this->applyDriverFiltering($rawGiataIds, $supplier);
 
                     $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] = array_merge(
                         $suppliersGiataIds[SupplierNameEnum::from($supplier)->value] ?? [],
-                        $filteredGiataIds
+                        $rawGiataIds
                     );
 
                     foreach ($optionsQueries as $optionsQuery) {
@@ -321,12 +325,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $supplier,
                             $currentFilters,
                             $searchInspector,
-                            $preSearchData
+                            $rawGiataIds
                         ) {
                             $result = match (SupplierNameEnum::from($supplier)) {
-                                SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $preSearchData),
-                                SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $preSearchData),
-                                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->price($currentFilters, $searchInspector, $preSearchData),
+                                SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $rawGiataIds),
+                                SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $rawGiataIds),
+                                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->price($currentFilters, $searchInspector, $rawGiataIds),
                                 default => throw new Exception("Unknown supplier: $supplier")
                             };
 
@@ -336,6 +340,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $supplierRequestGiataIds = array_merge(...array_values($suppliersGiataIds));
+
                 $fiberManager->add('transformer', function () use ($search_id, $supplierRequestGiataIds) {
                     $this->baseHotelPricingTransformer->fetchSupplierRepositoryData($search_id, $supplierRequestGiataIds);
                 }, false);
@@ -775,5 +780,98 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         unset($_filters['session']);
 
         return $_filters;
+    }
+
+    /******** Utility function to resolve force parameters based on channel settings ******/
+
+    private function resolveForceParams(): array
+    {
+        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
+        $channel = Channel::where('token_id', $token_id)->first();
+
+        $forceVerified = false;
+        $forceOnSale = false;
+        $blueprintExists = request('blueprint_exists', true);
+
+        if ($channel && $channel->accept_special_params) {
+            $forceVerified = request('force_verified_on', false);
+            $forceOnSale = request('force_on_sale_on', false);
+        }
+
+        return [
+            'force_verified' => $forceVerified,
+            'force_on_sale' => $forceOnSale,
+            'blueprint_exists' => $blueprintExists,
+        ];
+    }
+
+    private function applyBlueprintFiltering(array &$rawGiataIds, array &$filters): void
+    {
+        $forceParams = $this->resolveForceParams();
+        $blueprintExists = Arr::get($forceParams, 'blueprint_exists', true);
+        $forceVerified = Arr::get($forceParams, 'force_verified', false);
+        $forceOnSale = Arr::get($forceParams, 'force_on_sale', false);
+
+        $exclude = [];
+        if ($blueprintExists) {
+            $filteredGiataIds = Hotel::whereIn('giata_code', $rawGiataIds)
+                ->whereHas('product')
+                ->pluck('giata_code')
+                ->toArray();
+
+            $rawGiataIds = array_intersect($rawGiataIds, $filteredGiataIds);
+
+            $this->extracted($forceVerified, $forceOnSale, $exclude, $rawGiataIds);
+        } else {
+            $this->extracted($forceVerified, $forceOnSale, $exclude, $rawGiataIds);
+        }
+
+        $rawGiataIds = array_diff($rawGiataIds, array_unique($exclude));
+
+        $filters['force_on_sale'] = $forceOnSale;
+        $filters['force_verified'] = $forceVerified;
+        $filters['filtered_giata_ids'] = array_values($rawGiataIds);
+    }
+
+    private function applyDriverFiltering(array &$giataIds, string $supplier): void
+    {
+        if (empty($giataIds)) {
+            return;
+        }
+
+        $driverName = $supplier;
+
+        $hotelsWithDisabledDriver = Hotel::whereIn('giata_code', $giataIds)
+            ->whereHas('product', function ($q) use ($driverName) {
+                $q->where(function ($subQ) use ($driverName) {
+                    $subQ->where('off_sale_by_sources', '[]')
+                        ->orWhereRaw("JSON_SEARCH(off_sale_by_sources, 'one', ?) IS NULL", [$driverName]);
+                });
+            })
+            ->pluck('giata_code')
+            ->toArray();
+
+        $giataIds = array_diff($giataIds, $hotelsWithDisabledDriver);
+    }
+
+    private function extracted(mixed $forceVerified, mixed $forceOnSale, array &$exclude, array $rawGiataIds): void
+    {
+        if (! $forceVerified) {
+            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', $rawGiataIds)
+                ->whereHas('product', function ($q) {
+                    $q->where('verified', 0);
+                })
+                ->pluck('giata_code')
+                ->toArray());
+        }
+
+        if (! $forceOnSale) {
+            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', $rawGiataIds)
+                ->whereHas('product', function ($q) {
+                    $q->where('onSale', 0);
+                })
+                ->pluck('giata_code')
+                ->toArray());
+        }
     }
 }

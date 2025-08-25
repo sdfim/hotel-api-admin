@@ -31,7 +31,7 @@ use Illuminate\View\View;
 use Intervention\Image\Laravel\Facades\Image;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
-use Modules\Enums\HotelSaleTypeEnum;
+use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\MealPlansEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
@@ -317,7 +317,7 @@ class HotelForm extends Component implements HasForms
                                         ->schema([
                                             Select::make('product.content_source_id')
                                                 ->label('Content Source')
-                                                ->options(['Internal' => 'Internal'] + ContentSource::whereIn('name', SupplierNameEnum::getValues())->pluck('name', 'id')->toArray())
+                                                ->options(ContentSource::whereIn('name', array_merge([ContentSourceEnum::INTERNAL->value], SupplierNameEnum::getValues()))->pluck('name', 'id')->toArray())
                                                 ->required()
                                                 ->rule('required', function (Get $get, $state) {
                                                     return self::validateRequiredField($get, $state, 'Content Source');
@@ -345,7 +345,7 @@ class HotelForm extends Component implements HasForms
                                     Select::make('room_images_source_id')
                                         ->label('Room Images Source')
                                         ->placeholder('Select an option')
-                                        ->options(['Internal' => 'Internal'] + ContentSource::whereIn('name', SupplierNameEnum::getValues())->pluck('name', 'id')->toArray())
+                                        ->options(ContentSource::whereIn('name', array_merge([ContentSourceEnum::INTERNAL->value], SupplierNameEnum::getValues()))->pluck('name', 'id')->toArray())
                                         ->required()
                                         ->rule('required', function (Get $get, $state) {
                                             return self::validateRequiredField($get, $state, 'Room Images Source');
@@ -355,7 +355,7 @@ class HotelForm extends Component implements HasForms
                                         ->schema([
                                             Select::make('product.property_images_source_id')
                                                 ->label('Property Images Source')
-                                                ->options(['Internal' => 'Internal'] + ContentSource::whereIn('name', SupplierNameEnum::getValues())->pluck('name', 'id')->toArray())
+                                                ->options(ContentSource::whereIn('name', array_merge([ContentSourceEnum::INTERNAL->value], SupplierNameEnum::getValues()))->pluck('name', 'id')->toArray())
                                                 ->required()
                                                 ->rule('required', function (Get $get, $state) {
                                                     return self::validateRequiredField($get, $state, 'Property Images Source');
