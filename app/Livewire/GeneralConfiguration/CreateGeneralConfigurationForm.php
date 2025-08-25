@@ -70,14 +70,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                 Select::make('currently_suppliers')
                     ->label('Include these suppliers in the search (PricingApi)')
                     ->multiple()
-                    ->options(
-                        Supplier::whereIn('name', [
-                            SupplierNameEnum::HBSI->value,
-                            SupplierNameEnum::EXPEDIA->value,
-                            SupplierNameEnum::HOTEL_TRADER->value,
-                        ])
-                            ->pluck('name', 'id')
-                    )
+                    ->options(Supplier::whereIn('name', SupplierNameEnum::pricingList())->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('time_reservations_kept')
                     ->label('Length of Time Reservations are kept offloading, days')

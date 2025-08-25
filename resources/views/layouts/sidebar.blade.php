@@ -80,8 +80,8 @@
 @endphp
     <!-- ========== Left Sidebar Start ========== -->
 <div
-        class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
-        style="top: 65px;">
+    class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
+    style="top: 65px;">
 
     <div data-simplebar class="h-full">
         <!--- Sidemenu -->
@@ -264,36 +264,45 @@
                     </li>
                 @endif
 
-                    <li>
-                        <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-contract-2"></i>
-                            <span data-key="t-property-mapping">Content Suppliers</span>
-                        </a>
-                        <ul>
+                <li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-contract-2"></i>
+                        <span data-key="t-property-mapping">Content Suppliers</span>
+                    </a>
+                    <ul>
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::EXPEDIA->value))
                             <li>
                                 <a href="{{ Route('expedia.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Expedia
                                 </a>
                             </li>
+                        @endif
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::ICE_PORTAL->value))
                             <li>
                                 <a href="{{ Route('ice-portal.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Ice Portal
                                 </a>
                             </li>
+                        @endif
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HOTEL_TRADER->value))
                             <li>
                                 <a href="{{ Route('hotel-trader.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Hotel Trader
                                 </a>
                             </li>
+                        @endif
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HBSI->value))
                             <li>
                                 <a href="{{ Route('hbsi-property.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     HBSI
                                 </a>
+                        @endif
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HILTON->value))
                             </li>
                             <li>
                                 <a href="{{ Route('hilton.index') }}"
@@ -301,8 +310,9 @@
                                     Hilton
                                 </a>
                             </li>
-                        </ul>
-                    </li>
+                        @endif
+                    </ul>
+                </li>
 
                 @if($canView(Property::class))
                     <li>
@@ -341,15 +351,15 @@
                                     </a>
                                 </li>
                             @endif
-{{--                            @if($canView(Product::class))--}}
-{{--                                <li>--}}
-{{--                                    <a href="{{ Route('pd-grid.index') }}"--}}
-{{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
-{{--                                        <i class="dripicons-to-do"></i>--}}
-{{--                                        <span>PD Grid</span>--}}
-{{--                                    </a>--}}
-{{--                                </li>--}}
-{{--                            @endif--}}
+                            {{--                            @if($canView(Product::class))--}}
+                            {{--                                <li>--}}
+                            {{--                                    <a href="{{ Route('pd-grid.index') }}"--}}
+                            {{--                                       class="{{ ClassHelper::sidebarCildrenClass() }}">--}}
+                            {{--                                        <i class="dripicons-to-do"></i>--}}
+                            {{--                                        <span>PD Grid</span>--}}
+                            {{--                                    </a>--}}
+                            {{--                                </li>--}}
+                            {{--                            @endif--}}
                         </ul>
                     </li>
                 @endif

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'connected_suppliers' => env('CONNECTED_SUPPLIERS', 'HBSI,IcePortal,HotelTrader'),
+
     'HBSI' => [
         'credentials' => [
             'username' => env('BOOKING_SUPPLIER_HBSI_USERNAME', ''),
