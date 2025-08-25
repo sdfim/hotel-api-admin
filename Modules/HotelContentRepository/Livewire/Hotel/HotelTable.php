@@ -222,43 +222,43 @@ class HotelTable extends Component implements HasForms, HasTable
                                         ->required()
                                         ->default(SupplierNameEnum::HOTEL_TRADER->value)
                                         ->options(SupplierNameEnum::contentOptions())
-                                        ->columnSpan(1),
-                                    Select::make('suppliers')
-                                        ->multiple()
-                                        ->required()
-                                        ->default(function (callable $get) {
-                                            $giataCode = $get('giata_code');
-                                            if ($giataCode) {
-                                                $mapping = Mapping::where('giata_id', $giataCode)
-                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
-                                                    ->get();
-                                                if (! empty($mapping)) {
-                                                    return $mapping->pluck('supplier', 'supplier')->unique()->keys()->toArray();
-                                                }
-                                            }
-
-                                            return array_keys(SupplierNameEnum::contentOptions());
-                                        })
-                                        ->label('Room Level is taken from the Suppliers')
-                                        ->options(function (callable $get) {
-                                            $giataCode = $get('giata_code');
-                                            if ($giataCode) {
-                                                $mapping = Mapping::where('giata_id', $giataCode)
-                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
-                                                    ->get();
-                                                if (! empty($mapping)) {
-                                                    return $mapping->pluck('supplier', 'supplier')->unique()->toArray();
-                                                }
-                                            }
-
-                                            return SupplierNameEnum::contentOptions();
-                                        })
-                                        ->columnSpan(2),
-                                    Checkbox::make('auto_marge')
-                                        ->label('AI Assistant. Auto Merge Different Suppliers')
-                                        ->default(true)
-                                        ->helperText('Automatically combine numbers from different providers into one unified number code.')
                                         ->columnSpan(3),
+//                                    Select::make('suppliers')
+//                                        ->multiple()
+//                                        ->required()
+//                                        ->default(function (callable $get) {
+//                                            $giataCode = $get('giata_code');
+//                                            if ($giataCode) {
+//                                                $mapping = Mapping::where('giata_id', $giataCode)
+//                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+//                                                    ->get();
+//                                                if (! empty($mapping)) {
+//                                                    return $mapping->pluck('supplier', 'supplier')->unique()->keys()->toArray();
+//                                                }
+//                                            }
+//
+//                                            return array_keys(SupplierNameEnum::contentOptions());
+//                                        })
+//                                        ->label('Room Level is taken from the Suppliers')
+//                                        ->options(function (callable $get) {
+//                                            $giataCode = $get('giata_code');
+//                                            if ($giataCode) {
+//                                                $mapping = Mapping::where('giata_id', $giataCode)
+//                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+//                                                    ->get();
+//                                                if (! empty($mapping)) {
+//                                                    return $mapping->pluck('supplier', 'supplier')->unique()->toArray();
+//                                                }
+//                                            }
+//
+//                                            return SupplierNameEnum::contentOptions();
+//                                        })
+//                                        ->columnSpan(2),
+//                                    Checkbox::make('auto_marge')
+//                                        ->label('AI Assistant. Auto Merge Different Suppliers')
+//                                        ->default(true)
+//                                        ->helperText('Automatically combine numbers from different providers into one unified number code.')
+//                                        ->columnSpan(3),
                                 ]),
                             ]),
                     ])

@@ -72,7 +72,8 @@ class AddHotel
         }
 
         $dataRoomSupplier = [];
-        foreach ($data['suppliers'] as $supplier) {
+        $arrSuppliers = Arr::get($data, 'suppliers') ?? [SupplierNameEnum::HOTEL_TRADER->value];
+        foreach ($arrSuppliers as $supplier) {
             if ($supplier === SupplierNameEnum::HOTEL_TRADER->value) {
                 $dataRoomSupplier[$supplier] = $this->getHotelTraderHotelData($property)['roomsData'] ?? [];
             } elseif ($supplier === SupplierNameEnum::EXPEDIA->value) {
@@ -89,7 +90,7 @@ class AddHotel
 
         $recipient = auth()->user();
 
-        if ($data['auto_marge']) {
+        if (Arr::get($dataSupplier, 'auto_marge')) {
             $giataId = $property->code;
             $supplierDataForMerge = [];
             foreach ($dataRoomSupplier as $supplierName => $rooms) {
@@ -114,6 +115,8 @@ class AddHotel
                 $room['external_code'] = $room['id'] ? 'external_'.$room['id'] : '';
             }
         }
+
+//        dd($arrSuppliers, $dataRoomSupplier, $dataSupplier['roomsData']);
 
         /** @var HotelForm $hotelForm */
         $hotelForm = app(HotelForm::class);

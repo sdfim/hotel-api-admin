@@ -25,7 +25,7 @@ class ProcessHotelRoomsJob implements ShouldQueue
 
     public function handle()
     {
-        if ($this->dataForm['auto_marge']) {
+        if (Arr::get($this->dataForm, 'auto_marge')) {
             $startTime = microtime(true);
             $maxWaitTime = 60;
 
