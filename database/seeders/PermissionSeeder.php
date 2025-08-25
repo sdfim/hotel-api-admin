@@ -24,6 +24,7 @@ class PermissionSeeder extends Seeder
         'reservation',
         'property_weighting',
         'ice_portal_property_asset',
+        'hilton_property',
         'ice_portal_property',
         'hbsi_property',
         'hotel_trader_property',

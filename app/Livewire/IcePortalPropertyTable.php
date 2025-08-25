@@ -60,7 +60,11 @@ class IcePortalPropertyTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('city')->sortable()->toggleable()->searchable(isIndividual: true),
-                TextColumn::make('country')->sortable()->toggleable()->searchable(isIndividual: true),
+                TextColumn::make('country')
+                    ->wrap()
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('postalCode')->toggleable()->sortable()->searchable(isIndividual: true),
                 TextColumn::make('latitude')->sortable()->toggleable()->searchable(isIndividual: true),
                 TextColumn::make('longitude')->sortable()->toggleable()->searchable(isIndividual: true),
@@ -85,7 +89,11 @@ class IcePortalPropertyTable extends Component implements HasForms, HasTable
                 //                TextColumn::make('iceListingScore')->toggleable()->sortable()->searchable(isIndividual: true),
                 //                TextColumn::make('bookingListingScore')->toggleable()->sortable()->searchable(isIndividual: true),
 
-                TextColumn::make('listingURL')->toggleable()->sortable()->searchable(isIndividual: true),
+//                TextColumn::make('listingURL')
+//                    ->label('URL')
+//                    ->toggleable()
+//                    ->sortable()
+//                    ->searchable(isIndividual: true),
             ]);
     }
 

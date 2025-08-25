@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HiltonProperty extends Model
 {
@@ -87,13 +88,13 @@ class HiltonProperty extends Model
         ];
     }
 
-    public function setCheckinTimeAttribute($value): void
+    public function getHasPropsAttribute(): bool
     {
-        $this->attributes['checkin_time'] = $value ? $value.':00' : null;
+        return ! empty($this->props);
     }
 
-    public function setCheckoutTimeAttribute($value): void
+    public function mapperHiltonGiata(): HasMany
     {
-        $this->attributes['checkout_time'] = $value ? $value.':00' : null;
+        return $this->hasMany(Mapping::class, 'supplier_id', 'prop_code')->hilton();
     }
 }

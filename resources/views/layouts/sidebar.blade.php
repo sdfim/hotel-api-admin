@@ -271,12 +271,12 @@
                             <span data-key="t-property-mapping">Content Suppliers</span>
                         </a>
                         <ul>
-{{--                            <li>--}}
-{{--                                <a href="{{ Route('expedia.index') }}"--}}
-{{--                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">--}}
-{{--                                    Expedia--}}
-{{--                                </a>--}}
-{{--                            </li>--}}
+                            <li>
+                                <a href="{{ Route('expedia.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Expedia
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ Route('ice-portal.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -293,6 +293,12 @@
                                 <a href="{{ Route('hbsi-property.index') }}"
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     HBSI
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ Route('hilton.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Hilton
                                 </a>
                             </li>
                         </ul>

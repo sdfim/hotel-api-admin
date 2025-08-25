@@ -28,6 +28,7 @@ use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
 use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
+use Modules\AdministrationSuite\Http\Controllers\HiltonPropertyController;
 use Modules\AdministrationSuite\Http\Controllers\HotelTraderController;
 use Modules\AdministrationSuite\Http\Controllers\IcePortalController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
@@ -118,10 +119,13 @@ Route::prefix('admin')->group(function () {
         Route::resource('reservations', ReservationsController::class)->only(['index', 'show']);
         Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('properties', PropertiesController::class)->only('index');
+
         Route::resource('ice-portal', IcePortalController::class)->only('index');
         Route::resource('hbsi-property', HbsiPropertyController::class)->only('index');
         Route::resource('hotel-trader', HotelTraderController::class)->only('index');
         Route::resource('expedia', ExpediaController::class)->only('index');
+        Route::resource('hilton', HiltonPropertyController::class)->only('index');
+
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
