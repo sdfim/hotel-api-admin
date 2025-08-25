@@ -216,7 +216,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
 
         $unifiedRoomCode = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::HOTEL_TRADER->value, []);
-        $unifiedRoomCode = Arr::get($unifiedRoomCode, "$giataCode.$roomCode", '');
+        $unifiedRoomCode = Arr::get($unifiedRoomCode, "$giataCode.$roomCode", '') ?? '';
         $srRoomId = Arr::get($this->roomIdByUnifiedCode, "$giataCode.$unifiedRoomCode", '');
 
         $basicHotelData = Arr::get($this->basicHotelData, $giataId);
