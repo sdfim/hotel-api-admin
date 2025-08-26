@@ -4,10 +4,10 @@ use App\Livewire\PricingRules\CreatePricingRule;
 use App\Livewire\PricingRules\UpdatePricingRule;
 use App\Models\PricingRule;
 use App\Models\PricingRuleCondition;
-use Livewire\Livewire;
-use Modules\API\Tools\PricingRulesDataGenerationTools;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 uses(RefreshDatabase::class);
 uses(WithFaker::class);
@@ -99,8 +99,8 @@ test('possibility of updating an existing pricing rule', function () {
         ->assertHasNoFormErrors();
 
     $assertionData = $pricingRuleData;
-    $assertionData['rule_start_date'] = $pricingRuleData['rule_start_date'] . ' 00:00:00';
-    $assertionData['rule_expiration_date'] = $pricingRuleData['rule_expiration_date'] . ' 00:00:00';
+    $assertionData['rule_start_date'] = $pricingRuleData['rule_start_date'].' 00:00:00';
+    $assertionData['rule_expiration_date'] = $pricingRuleData['rule_expiration_date'].' 00:00:00';
 
     $this->assertDatabaseHas('pricing_rules', $assertionData);
 });

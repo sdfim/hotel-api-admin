@@ -420,7 +420,7 @@ test('rules handles travel date conditions', function () {
     $result = $this->pricingRulesTools->rules($this->baseQuery, $this->supplierRequestGiataIds);
 
     // Should return 3 matching rules, ordered by weight desc
-    expect($result)->toHaveCount(4);
+    expect($result)->toHaveCount(3);
     expect($result[0]['id'])->toEqual($matchingRule->id);
     expect($result[1]['id'])->toEqual($gteRule->id);
     expect($result[2]['id'])->toEqual($ltRule->id);

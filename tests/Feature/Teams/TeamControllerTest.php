@@ -4,9 +4,9 @@ namespace Tests\Feature\Teams;
 
 use App\Models\Permission;
 use App\Models\Team;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Tests\Feature\AuthenticatesUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class, AuthenticatesUser::class);
 

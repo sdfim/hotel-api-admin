@@ -143,6 +143,34 @@ class PricingRulesTools
                 }
 
                 if ($checkIn && $checkOut) {
+
+                    $q->orWhere(function (Builder $q) use ($checkIn) {
+                        $q->where('field', 'travel_date')
+                            ->where(function (Builder $q) use ($checkIn) {
+                                $q->where('compare', '=')
+                                    ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") != ?', [$checkIn]);
+                            })
+                            ->orWhere(function (Builder $q) use ($checkIn) {
+                                $q->where('compare', '!=')
+                                    ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") = ?', [$checkIn]);
+                            })
+                            ->orWhere(function (Builder $q) use ($checkIn) {
+                                $q->where('compare', 'between')
+                                    ->where(function (Builder $q) use ($checkIn) {
+                                        $q->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") > ?', [$checkIn])
+                                            ->orWhereRaw('STR_TO_DATE(value_to, "%Y-%m-%d") < ?', [$checkIn]);
+                                    });
+                            })
+                            ->orWhere(function (Builder $q) use ($checkIn) {
+                                $q->where('compare', '<')
+                                    ->whereRaw('STR_TO_DATE(value_to, "%Y-%m-%d") < ?', [$checkIn]);
+                            })
+                            ->orWhere(function (Builder $q) use ($checkIn) {
+                                $q->where('compare', '>')
+                                    ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") > ?', [$checkIn]);
+                            });
+                    });
+
                     $q->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
                         $q->where('field', 'date_of_stay')
                             ->where(function (Builder $q) use ($checkIn, $checkOut) {
@@ -192,37 +220,6 @@ class PricingRulesTools
                                 });
                             });
                     });
-
-                    $q->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
-                        $q->where('field', 'travel_date')
-                            ->where(function (Builder $q) use ($checkIn, $checkOut) {
-                                $q->where(function (Builder $q) use ($checkIn, $checkOut) {
-                                    $q->where('compare', '=')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") NOT BETWEEN ? AND ?', [$checkIn, $checkOut]);
-                                })->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
-                                    $q->where('compare', '!=')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") BETWEEN ? AND ?', [$checkIn, $checkOut]);
-                                })->orWhere(function (Builder $q) use ($checkIn) {
-                                    $q->where('compare', '<')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") >= ?', [$checkIn]);
-                                })->orWhere(function (Builder $q) use ($checkOut) {
-                                    $q->where('compare', '>')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") <= ?', [$checkOut]);
-                                })->orWhere(function (Builder $q) use ($checkIn) {
-                                    $q->where('compare', '<=')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") < ?', [$checkIn]);
-                                })->orWhere(function (Builder $q) use ($checkOut) {
-                                    $q->where('compare', '>=')
-                                        ->whereRaw('STR_TO_DATE(value_from, "%Y-%m-%d") > ?', [$checkOut]);
-                                })->orWhere(function (Builder $q) use ($checkIn, $checkOut) {
-                                    $q->where('compare', 'between')
-                                        ->where(function (Builder $q) use ($checkIn, $checkOut) {
-                                            $q->whereRaw('? > value_to OR ? < value_from', [$checkIn, $checkOut]);
-                                        });
-                                });
-                            });
-                    });
-
                 }
 
                 foreach ([
