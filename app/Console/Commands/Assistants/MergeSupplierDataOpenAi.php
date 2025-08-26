@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use OpenAI\Laravel\Facades\OpenAI;
 
-class MergeSupplierData extends Command
+class MergeSupplierDataOpenAi extends Command
 {
     protected $signature = 'merge:suppliers:openai-provider {supplierData} {giata_id?}';
 

@@ -231,7 +231,7 @@ class DownloadGiataData extends Command
             ];
 
             foreach ($property->CrossReferences->CrossReference as $crossReference) {
-                if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
+                if ((string) $crossReference['Code'] == 'FORA_IBS' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int) $property['Code'],
