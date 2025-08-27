@@ -275,22 +275,19 @@ class HotelForm extends Component implements HasForms
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
+                                                $filamentPath = config('filament.default_filesystem_disk') === 's3' ? '' : 'public/';
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 $publicPath = Storage::url($originalPath);
 
                                                 if (Storage::exists($originalPath)) {
-                                                    $imageData = env('FILAMENT_FILESYSTEM_DISK', '') === 's3'
+                                                    $imageData = config('filament.default_filesystem_disk') === 's3'
                                                         ? Http::get($publicPath)->body()
-                                                        : Storage::get($originalPath);
+                                                        : Image::read(Storage::get($originalPath));
 
-                                                    try {
-                                                        $image = Image::read($imageData);
-                                                        $image->resize(150, 150);
-                                                        Storage::put($thumbnailPath, (string) $image->encode());
-                                                        $set('product.hero_image_thumbnails', $thumbnailPath);
-                                                    } catch (\Exception $e) {
-                                                        \Log::error('Image decode error: '.$e->getMessage());
-                                                    }
+                                                    $image = Image::read($imageData);
+                                                    $image->resize(150, 150);
+                                                    Storage::put($filamentPath.$thumbnailPath, (string) $image->encode());
+                                                    $set('product.hero_image_thumbnails', $thumbnailPath);
                                                 }
                                             }
                                         }),
