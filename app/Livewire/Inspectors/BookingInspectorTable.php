@@ -71,20 +71,25 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 ViewColumn::make('request')
                     ->toggleable()
                     ->view('dashboard.booking-inspector.column.request'),
+
                 TextColumn::make('metadata.supplier_booking_item_id')
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->label('Confirmation Number'),
+//                    ->toggleable()
+                    ->label('Confirmation'),
                 TextColumn::make('metadata.hotel_supplier_id')
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
-                    ->toggleable()
+//                    ->toggleable()
                     ->label('Hotel Id'),
-                ViewColumn::make('metadata')
+                TextColumn::make('metadata')
                     ->label('Hotel/Vendor')
                     ->toggleable()
-                    ->view('dashboard.booking-inspector.column.hotel-name'),
+                    ->toggledHiddenByDefault(true)
+                    ->formatStateUsing(function ($state, $record) {
+                        return $record->metadata?->hotel?->name ?? '';
+                    }),
+
                 TextColumn::make('token.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
@@ -134,7 +139,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             ->options([
                                 'booked' => 'Booked',
                                 'not_booked' => 'Not Booked',
-                            ])
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         switch ($data['is_book']) {
