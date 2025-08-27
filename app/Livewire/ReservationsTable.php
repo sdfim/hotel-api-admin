@@ -18,6 +18,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
+use Modules\API\Requests\BookingCancelBooking;
 
 class ReservationsTable extends Component implements HasForms, HasTable
 {
@@ -118,7 +120,28 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     Action::make('Cancel')
                         ->requiresConfirmation()
                         ->action(function (Reservation $record) {
-                            $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
+                            $booking_id = $record->booking_id;
+                            $booking_item = $record->booking_item;
+
+                            // Create BookingCancelBooking request
+                            $request = new BookingCancelBooking([
+                                'booking_id' => $booking_id,
+                                'booking_item' => $booking_item,
+                                ''
+                            ]);
+
+                            $handler = app(BookApiHandler::class);
+
+                            // Call cancelBooking
+                            $response = $handler->cancelBooking($request);
+                            $result = $response->getData(true);
+
+                            // Only update canceled_at if cancellation is successful
+                            if (isset($result['success']) || (isset($result['result']) && empty($result['error']))) {
+                                $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
+                            } else {
+                                // Optionally, handle error (e.g., flash message)
+                            }
                         })
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')

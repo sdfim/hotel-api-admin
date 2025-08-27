@@ -3,6 +3,7 @@
 namespace Modules\Inspector;
 
 use App\Models\ApiBookingInspector;
+use App\Models\Channel;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +54,11 @@ class BookingInspectorController extends BaseInspectorController
             $inspector['status_describe'] = json_encode($inspector['status_describe']);
 
             Log::debug('BookingInspectorController save data: ', $inspector);
+
+            // UI token_id
+            if (! isset($inspector['token_id'])) {
+                $inspector['token_id'] = Channel::where('name', 'UI Channel')->first()?->token_id;
+            }
 
             $booking = ApiBookingInspector::create($inspector);
 

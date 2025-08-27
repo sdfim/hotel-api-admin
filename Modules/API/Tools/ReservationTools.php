@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\ExpediaSupplier;
+namespace Modules\API\Tools;
 
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
-class ExpediaTools
+class ReservationTools
 {
     public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
     {
@@ -42,7 +42,8 @@ class ExpediaTools
             $checkin = null;
             $totalCost = null;
             if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
-                || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
+                || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA
+                || SupplierNameEnum::from($supplier) === SupplierNameEnum::HOTEL_TRADER) {
                 $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
                 $hotelName = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']) : '';
                 $hotelImages = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']) : '';
@@ -57,6 +58,8 @@ class ExpediaTools
                 $reservation->date_offload = null;
                 $reservation->date_travel = date('Y-m-d', strtotime($checkin));
                 $reservation->passenger_surname = $passenger_surname;
+                $reservation->booking_item = $filters['booking_item'];
+                $reservation->booking_id = $booking_id;
                 $reservation->reservation_contains = json_encode([
                     'type' => $search_type,
                     'supplier' => $supplier,

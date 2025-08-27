@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
+use Modules\API\Tools\ReservationTools;
 
 class SaveReservations implements ShouldQueue
 {
@@ -30,8 +30,8 @@ class SaveReservations implements ShouldQueue
      */
     public function handle(): void
     {
-        /* @var ExpediaTools $expediaTools */
-        $expediaTools = app(ExpediaTools::class);
-        $expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
+        /* @var ReservationTools $reservationTools */
+        $reservationTools = app(ReservationTools::class);
+        $reservationTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
     }
 }

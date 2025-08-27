@@ -14,6 +14,8 @@ class Reservation extends Model
      * @var string[]
      */
     protected $fillable = [
+        'booking_id',
+        'booking_item',
         'date_offload',
         'date_travel',
         'passenger_surname',

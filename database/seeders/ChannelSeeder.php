@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Channel;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Auth;
 
 class ChannelSeeder extends Seeder
 {
@@ -13,15 +12,25 @@ class ChannelSeeder extends Seeder
      */
     public function run(): void
     {
-        if (! Channel::first()) {
+        // Test Channel
+        if (! Channel::where('name', 'Test Channel')->first()) {
             $data = [];
             $data['name'] = 'Test Channel';
-            $data['description'] = 'Test Channel Description';
-
-            // Create the channel
+            $data['description'] = 'For API test requests';
             $channel = Channel::create($data);
+            $token = $channel->createToken($data['name']);
+            $channel->update([
+                'token_id' => $token->accessToken->id,
+                'access_token' => $token->plainTextToken,
+            ]);
+        }
 
-            // Generate a token for the channel
+        // UI Channel
+        if (! Channel::where('name', 'UI Channel')->first()) {
+            $data = [];
+            $data['name'] = 'UI Channel';
+            $data['description'] = 'For UI requests, e.g. cancel reservations';
+            $channel = Channel::create($data);
             $token = $channel->createToken($data['name']);
             $channel->update([
                 'token_id' => $token->accessToken->id,

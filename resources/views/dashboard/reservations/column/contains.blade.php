@@ -5,10 +5,10 @@
     $booking_id = $record['booking_id'];
     $id_booking = \App\Models\ApiBookingInspector::where('booking_id', $booking_id)->where('sub_type', 'create')?->first()?->id;
 
-	$content = '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_item: <a href=' . route('booking-items.show', $record['booking_item'] ) .' target="_blank" style="color: #007bff;">' . $record['booking_item']. "</a></span><br>";
-	if ($id_booking) $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_id: <a href=' . route('booking-inspector.show', $id_booking ) .' target="_blank" style="color: #007bff;">' . $booking_id . '</a></span><br>';
-    else $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_id: ' . $booking_id . '</span><br>';
-	$content .=  '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a></span>';
+	$content = '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" style="font-size: 14px;">booking_item: <a href=' . route('booking-items.show', $record['booking_item'] ) .' target="_blank" style="color: #007bff;">' . $record['booking_item']. "</a></span><br>";
+	if ($id_booking) $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" style="font-size: 14px;">booking_id: <a href=' . route('booking-inspector.show', $id_booking ) .' target="_blank" style="color: #007bff;">' . $booking_id . '</a></span><br>';
+    else $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" style="font-size: 14px;">booking_id: ' . $booking_id . '</span><br>';
+	$content .=  '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" style="font-size: 14px;">search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a></span>';
 
 	unset($record['search_id']);
 	unset($record['booking_item']);
@@ -40,9 +40,9 @@
             }
         }
 		if (in_array($key, $orderTooltip)) {
-			$tooltipCol1 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
+			$tooltipCol1 .= '<span style="word-wrap: break-word; font-size: 12px;">' . $key . ': <b>' . $value . '</b></span><br>';
 		} else {
-			$tooltipCol2 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
+			$tooltipCol2 .= '<span style="word-wrap: break-word; font-size: 12px;">' . $key . ': <b>' . $value . '</b></span><br>';
 		}
 	}
 	$tooltip = $tooltipCol1 . $tooltipCol2 . '</div></div>';
@@ -54,11 +54,10 @@
         <span class="hover:bg-gray-80/80">{!! $content !!}</span>
     </p>
 
-    <div x-show="tooltip" x-cloak
-         class="absolute z-50 p-2 bg-gray-800 text-white rounded shadow"
-         style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; font-size: 120%; padding: 2rem;"
-    >
-        {!! $tooltip !!}
-    </div>
+{{--    <div x-show="tooltip" x-cloak--}}
+{{--         class="absolute z-50 p-2 bg-gray-800 text-white rounded shadow"--}}
+{{--         style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; font-size: 120%; padding: 2rem;"--}}
+{{--    >--}}
+{{--        {!! $tooltip !!}--}}
+{{--    </div>--}}
 </div>
-

@@ -10,6 +10,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
+use App\Models\Reservation;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
@@ -616,13 +617,21 @@ class BookApiHandler extends BaseController
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $data[] = match (SupplierNameEnum::from($supplier)) {
+                $response = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->cancelBooking($filters, $item),
                     SupplierNameEnum::HBSI => $this->hbsi->cancelBooking($filters, $item),
                     SupplierNameEnum::HOTEL_TRADER => $this->hTrader->cancelBooking($filters, $item),
                     default => [],
                 };
+                $data[] = $response;
 
+                // If cancellation is successful, update Reservation
+                if (! isset($response['error']) && ! isset($response['Error'])) {
+                    Reservation::where('booking_id', $item->booking_id)
+                        ->where('booking_item', $item->booking_item)
+                        ->whereNull('canceled_at')
+                        ->update(['canceled_at' => now()]);
+                }
             } catch (Exception $e) {
                 Log::error('BookApiHandler | cancelBooking '.$e->getMessage());
                 Log::error($e->getTraceAsString());

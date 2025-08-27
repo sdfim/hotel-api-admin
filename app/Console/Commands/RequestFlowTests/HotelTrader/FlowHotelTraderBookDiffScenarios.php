@@ -63,72 +63,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
             ];
 
         $this->runScenarios($scenariosToRun);
-
-        /**
-         * #########################
-         * Scenario #1
-         *
-         * Book Room Only with 2 Adults for 5 days for Initial test
-         * Modify Reservation from Scenario #1 and Change the Arrival Date
-         * Verify the ReadRQ return the booking Details
-         * Cancel Reservation from Scenario #1
-         * 2262291
-         * HTPKG3/STD0002D
-         *
-         * #########################
-         * Scenario #2
-         *
-         * Book Room Only with 2 Adult for 5 nights
-         * Cancel Reservation from above scenario #2
-         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K
-         *
-         * #########################
-         * Scenario #3
-         *
-         * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
-         * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
-         * Cancel Reservation from above scenario #3
-         * giata 58615462	| HotelTrader 2256661; HTRETN/STD0002D; HTPKG3/STDAS01K
-         *
-         * #########################
-         * Scenario #4
-         *
-         * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
-         * Cancel Reservation from the above Scenario #4
-         * giata 58615462	| HotelTrader 2256661; HTPKG3/STD0002D; HTRETN/STD0002D
-         *
-         * #########################
-         * Scenario #5
-         *
-         * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
-         * Cancel Reservation from the above Scenario #5
-         * giata 69002077	| HotelTrader 2262291; HTRET/STD0002D; HTRETN/STDAS01K
-         *
-         * #########################
-         * Scenario #6
-         *
-         * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
-         * Cancel Reservation from the above Scenario #6
-         * giata 69002077	| HotelTrader 2262291; HTRETN/STD0002D; HTPKG3/STDAS01K
-         *
-         * #########################
-         * Scenario #7
-         *
-         * Partial Cancellation in multi room booking
-         * Cancel Reservation from above scenario #7 only one room
-         *
-         *  #########################
-         *  Scenario #8
-         *
-         * Book Room for 2 Adults with included mealplan as All inclusive
-         * giata 69002077	| HotelTrader 2262291;  HTREN3/DLX0001K/Free Continental Breakfast
-         *
-         * #########################
-         *   Scenario #9
-         *
-         * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
-         * 2262291; HTRET/SUP0002D/Free Breakfastt
-         */
     }
 
     private function runScenarios(array $scenarios): void
@@ -222,10 +156,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-
-        $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
+//
+//        $this->cancel($bookingId, $bookingItem);
+//
+//        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_3(): void
