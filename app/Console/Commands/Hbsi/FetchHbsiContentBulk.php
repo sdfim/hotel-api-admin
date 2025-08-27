@@ -35,7 +35,11 @@ class FetchHbsiContentBulk extends Command
         $this->report_id = Str::uuid()->toString();
         $this->current_time['main'] = microtime(true);
         $this->current_time['step'] = microtime(true);
-        $this->hbsi_supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()?->id ?? 0;
+    }
+
+    private function resolveHbsiSupplierId(): int
+    {
+        return Supplier::where('name', SupplierNameEnum::HBSI->value)->first()?->id ?? 0;
     }
 
     private function executionTime(string $key): float
@@ -48,7 +52,7 @@ class FetchHbsiContentBulk extends Command
 
     private function getSupplierIdForReport(): int
     {
-        return $this->hbsi_supplier_id;
+        return $this->resolveHbsiSupplierId();
     }
 
     public function handle()

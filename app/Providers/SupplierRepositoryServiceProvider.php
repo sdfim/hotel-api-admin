@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Livewire\Configurations\Commission\CommissionForm;
-use App\Livewire\Configurations\Commission\CommissionTable;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerForm;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerTable;
 use Illuminate\Support\ServiceProvider;
@@ -12,8 +10,6 @@ use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
-use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateForm;
-use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
@@ -25,7 +21,6 @@ use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesT
 use Modules\HotelContentRepository\Livewire\ProductConsortiaAmenities\ProductConsortiaAmenitiesTable;
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
-use Modules\HotelContentRepository\Livewire\ProductInformativeServices\ProductInformativeServicesTable;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 
@@ -46,8 +41,6 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('vendors.vendor-table', VendorTable::class);
         Livewire::component('vendors.vendor-form', VendorForm::class);
 
-        Livewire::component('products.pd-grid-table', PdGridTable::class);
-
         Livewire::component('products.product-table', ProductTable::class);
         Livewire::component('products.key-mapping-table', KeyMappingTable::class);
         Livewire::component('products.product-affiliations-table', ProductAffiliationsTable::class);
@@ -56,13 +49,10 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
-        Livewire::component('products.product-informative-services-table', ProductInformativeServicesTable::class);
 
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
-        Livewire::component('hotels.hotel-rate-table', HotelRateTable::class);
-        Livewire::component('hotels.hotel-rate-form', HotelRateForm::class);
 
         Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
         Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
@@ -71,7 +61,5 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
 
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-table', KeyMappingOwnerTable::class);
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-form', KeyMappingOwnerForm::class);
-        Livewire::component('configurations.commissions.commission-table', CommissionTable::class);
-        Livewire::component('configurations.commissions.commission-form', CommissionForm::class);
     }
 }
