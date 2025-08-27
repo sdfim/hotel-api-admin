@@ -472,8 +472,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $searchResponse = $this->search($occupancy, $checkin, $checkout);
 
-        //        dd($searchResponse);
-
         $bookingItem = null;
         if (! empty($roomParamsArray)) {
             $bookingItem = $this->findBookingItemByRoomParams($searchResponse, $roomParamsArray);
@@ -536,6 +534,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
             'occupancy' => $occupancy,
             'results_per_page' => 100,
             'destination_name' => 'Test Scenario: '.($this->argument('scenarios') ?? 'main'),
+            'blueprint_exists' => false,
         ];
 
         if ($this->giata_id) {

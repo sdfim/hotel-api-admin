@@ -10,15 +10,15 @@ use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
+use App\Models\Mapping;
+use App\Models\Property;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
-use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -474,7 +474,7 @@ class HbsiBookApiController extends BaseBookApiController
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $searchId = (string) Str::uuid();
-        $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
+        $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_supplier_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
 
@@ -576,10 +576,7 @@ class HbsiBookApiController extends BaseBookApiController
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
     {
         try {
-            $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = isset($hbsiHotel['supplier_id']) ? [$hbsiHotel['supplier_id']] : [];
-
-            if (empty($hotelIds)) {
+            if (! $hotelId) {
                 return [
                     'original' => [
                         'request' => [],
@@ -591,7 +588,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
             /** get PriceData from HBSI */
-            $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds([$hotelId], $filters, $searchInspector);
 
             if (isset($xmlPriceData['error'])) {
                 return [
@@ -630,16 +627,19 @@ class HbsiBookApiController extends BaseBookApiController
                 ? [$arrayResponse['RoomStays']['RoomStay']]
                 : $arrayResponse['RoomStays']['RoomStay'];
 
+            $giataId = Mapping::hbsi()->where('supplier_id', $hotelId)->first()->giata_id ?? 0;
+            $giataName = Property::where('code', $giataId)->value('name') ?? '';
+
             $i = 1;
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hbsiHotel, &$i) {
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($giataId, $giataName, &$i) {
                 $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
                 $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
                 $item['rate_ordinal'] = $i;
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
                     'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
-                    'hotel_name_giata' => $hbsiHotel['name'] ?? '',
-                    'giata_id' => $hbsiHotel['giata_id'] ?? 0,
+                    'hotel_name_giata' => $giataName,
+                    'giata_id' => $giataId,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
                 if (! isset($result[$hotelCode]['rooms'][$roomCode])) {

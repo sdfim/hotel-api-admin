@@ -50,79 +50,11 @@ class FlowHbsiBookDiffScenariosProd extends Command
                 'scenario_5',
                 'scenario_6',
                 'scenario_33',
+                'scenario_7',
+                'scenario_61',
             ];
 
         $this->runScenarios($scenariosToRun);
-
-        /**
-         * #########################
-         * Scenario #1
-         *
-         * Book Room Only with 2 Adults for 5 days for Initial test
-         * Modify Reservation from Scenario #1 and Change the Arrival Date
-         * Verify the ReadRQ return the booking Details
-         * Cancel Reservation from Scenario #1
-         * 51721;Aug 5 - 10
-         * BAR/Double
-         *
-         * #########################
-         * Scenario #2
-         *
-         * Book Room Only with 2 Adult for 5 nights
-         * Cancel Reservation from above scenario #2
-         * 51721;Aug 5 - 10
-         * Promo/Double
-         *
-         * #########################
-         * Scenario #3
-         *
-         * Book Room Only with 2 Adults, 1 Child, 1 Teen, and 1 Infant for two rooms for 2 days
-         * Verify rates by person if policy is applied  (This Scenario of Child, Teen and/or Infant only apply if Partner supports these age categories)
-         * Cancel Reservation from above scenario #3
-         * 51721;Aug 15 - 17
-         * BAR/Suite
-         *
-         * #########################
-         * Scenario #4
-         *
-         * Book Room Only with 2 Adults with Comments and/or Special Requests (if Partner Supports)
-         * Cancel Reservation from the above Scenario #4
-         * Use 51721
-         *
-         * #########################
-         * Scenario #5
-         *
-         * Book 2 rooms with 2 different room types 1 adult and 1 child in each room
-         * Cancel Reservation from the above Scenario #5
-         * 51721;Book Double and Suite
-         *
-         * #########################
-         * Scenario #6
-         *
-         * Book 2 rooms with 2 different rate plans 1 adult and 1 child in each room
-         * Cancel Reservation from the above Scenario #6
-         * 51721;Book BAR and Promo
-         *
-         * #########################
-         * Scenario #7
-         *
-         * Partial Cancellation in multi room booking
-         * Cancel Reservation from above scenario #7 only one room
-         *
-         *  #########################
-         *  Scenario #8
-         *
-         * Book Room for 2 Adults with included mealplan as All inclusive
-         * 51721; Best /Suite
-         * Aug 25-28
-         *
-         * #########################
-         *   Scenario #9
-         *
-         * Book Room with 1 Adults and one Child to tested with additional mealplan "Breakfast" with additional rate
-         * 51721;BAR /Suite
-         * Aug 25-28
-         */
     }
 
     private function runScenarios(array $scenarios): void
@@ -263,6 +195,34 @@ class FlowHbsiBookDiffScenariosProd extends Command
         $this->cancel($bookingId);
     }
 
+    // Scenario 61: Zen Pool, 2 adults, Jan 8-12, 2026, change check-in date to Jan 9
+    private function scenario_61(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #61');
+
+        $occupancy = [['adults' => 2]];
+        $checkin = $this->checkin;
+        $nights = 4;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $options = [
+            [
+                'rate_plan_code' => 'RO2',
+                'room_type' => 'ZENPOOL',
+            ],
+        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
+
+        //        $bookingId = '';
+        //        $bookingItem = '';
+        $roomType = 'ZEN';
+        $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout, $roomType);
+
+        $this->cancel($bookingId);
+    }
+
     private function scenario_33(): void
     {
         $this->info('------------------------------------');
@@ -277,6 +237,33 @@ class FlowHbsiBookDiffScenariosProd extends Command
                 'rate_plan_code' => 'RO2',
                 'room_type' => 'AMB',
                 'comment' => 'occupancy restriction test',
+            ],
+        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $this->cancel($bookingId);
+    }
+
+    private function scenario_7(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #7');
+
+        $occupancy = [
+            ['adults' => 4, 'children_ages' => [16, 1]],
+            ['adults' => 1],
+        ];
+        $checkin = $this->checkin;
+        $nights = 4;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $options = [
+            [
+                'rate_plan_code' => 'RO2',
+                'room_type' => 'ZENFAMILY',
+            ],
+            [
+                'rate_plan_code' => 'RO2',
+                'room_type' => 'ZENPOOL',
             ],
         ];
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
