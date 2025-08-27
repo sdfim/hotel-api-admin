@@ -177,7 +177,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ])
             ->filters([
                 SelectFilter::make('cancellation')
-                    ->label('Cancellation Status')
+                    ->label('Booking Status')
                     ->options([
                         'active' => 'Active',
                         'canceled' => 'Canceled',
