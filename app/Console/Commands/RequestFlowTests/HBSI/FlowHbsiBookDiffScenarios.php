@@ -151,8 +151,8 @@ class FlowHbsiBookDiffScenarios extends Command
 
         $options = [
             [
-                'rate_name' => 'BAR',
-                'room_type' => 'Double',
+                'rate_name' => 'Loyalty',
+                'room_type' => 'Luxury',
             ],
         ];
 
@@ -161,11 +161,11 @@ class FlowHbsiBookDiffScenarios extends Command
         $checkin = Carbon::parse($checkin)->addDays(1)->toDateString();
         $this->flowHardChange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
 
-        // $this->cancel($bookingId);
+        $this->cancel($bookingId);
 
-        // sleep(2);
+        sleep(2);
 
-        // $this->retrieveBooking($bookingId);
+        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_2(): void

@@ -119,6 +119,7 @@ trait FlowHbsiScenariosTrait
             'checkout' => $checkout,
             'occupancy' => $occupancy,
             'results_per_page' => 100,
+            'blueprint_exists' => false,
         ];
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
