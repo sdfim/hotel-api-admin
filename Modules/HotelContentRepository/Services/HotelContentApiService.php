@@ -365,7 +365,7 @@ class HotelContentApiService
 
     private function combineContentResults(array $resultsSuppliers, array $structureSource, $repoData, array $giataCodes): array
     {
-        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::EXPEDIA->value);
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::HOTEL_TRADER->value);
 
         $existingGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
         $contentResults = $resultsSuppliers[$mainSupplier];
