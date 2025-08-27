@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Reservation;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
@@ -14,7 +15,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -30,7 +33,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Reservation::query()->whereNull('canceled_at'))
+            ->query(Reservation::query()->with('apiBookingsMetadata'))
             ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('reservation_contains')
@@ -40,6 +43,33 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable(),
+
+                TextColumn::make('apiBookingsMetadata.supplier_booking_item_id')
+                    ->fontFamily(FontFamily::Mono)
+                    ->searchable(isIndividual: true)
+                    ->label('Confirmation')
+                    ->formatStateUsing(function ($state) {
+                        if (is_array($state)) {
+                            return implode('<br>', array_map('trim', $state));
+                        }
+                        if (is_string($state)) {
+                            return implode('<br>', array_map('trim', explode(',', $state)));
+                        }
+                        return '';
+                    })
+                    ->html(),
+                TextColumn::make('apiBookingsMetadata.hotel_supplier_id')
+                    ->label('Hotel Id')
+                    ->fontFamily(FontFamily::Mono)
+                    ->searchable(isIndividual: true),
+                TextColumn::make('apiBookingsMetadata')
+                    ->label('Hotel/Vendor')
+                    ->toggleable()
+                    ->toggledHiddenByDefault(true)
+                    ->formatStateUsing(function ($state, $record) {
+                        return $record->metadata?->hotel?->name ?? '';
+                    }),
+
                 ImageColumn::make('images')
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
@@ -60,7 +90,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->limitedRemainingText(isSeparate: true)
                     ->url(fn (Reservation $record): string => route('reservations.show', $record))
                     ->openUrlInNewTab(),
-                TextColumn::make('date_offload')
+                TextColumn::make('created_at')
+                    ->label('Offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
                     ->badge()
@@ -74,6 +105,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('passenger_surname')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(isIndividual: true),
                 TextColumn::make('total_cost')
                     ->numeric()
@@ -97,21 +129,17 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         };
                     })
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->searchable(isIndividual: true)
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('canceled_at')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->getStateUsing(fn (Reservation $record) => $record->canceled_at ? 'Canceled' : 'Active')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'Canceled' ? 'danger' : 'success'),
             ])
             ->actions([
                 ActionGroup::make([
@@ -127,7 +155,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             $request = new BookingCancelBooking([
                                 'booking_id' => $booking_id,
                                 'booking_item' => $booking_item,
-                                ''
                             ]);
 
                             $handler = app(BookApiHandler::class);
@@ -145,8 +172,23 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         })
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')
-                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record)),
+                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && $record->canceled_at === null),
                 ])->color('gray'),
+            ])
+            ->filters([
+                SelectFilter::make('cancellation')
+                    ->label('Cancellation Status')
+                    ->options([
+                        'active' => 'Active',
+                        'canceled' => 'Canceled',
+                    ])
+                    ->default('active')
+                    ->query(function (Builder $query, array $data) {
+                        $value = $data['value'] ?? null;
+                        $query
+                            ->when($value === 'active', fn (Builder $q) => $q->whereNull('canceled_at'))
+                            ->when($value === 'canceled', fn (Builder $q) => $q->whereNotNull('canceled_at'));
+                    }),
             ]);
     }
 

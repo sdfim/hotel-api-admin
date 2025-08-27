@@ -31,4 +31,9 @@ class Reservation extends Model
     {
         return $this->belongsTo(Channel::class);
     }
+
+    public function apiBookingsMetadata()
+    {
+        return $this->hasOne(ApiBookingsMetadata::class, 'booking_item', 'booking_item');
+    }
 }
