@@ -271,7 +271,11 @@ class HotelForm extends Component implements HasForms
                                         ->imageEditor()
                                         ->preserveFilenames()
                                         ->directory('products')
+                                        ->disk(config('filament.default_filesystem_disk', 'public'))
+                                        ->downloadable()
                                         ->columnSpan(1)
+                                        ->visible()
+                                        ->visibility('public')
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
