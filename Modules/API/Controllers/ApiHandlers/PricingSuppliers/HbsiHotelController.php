@@ -61,6 +61,8 @@ class HbsiHotelController
         $endTime = microtime(true) - $timeStart;
         Log::info('HbsiHotelController | preSearchData | mysql query '.$endTime.' seconds');
 
+        $ids['rawGiataIds'] = array_column($ids['data'], 'giata', 'hbsi');
+
         return $ids;
     }
 
@@ -70,7 +72,7 @@ class HbsiHotelController
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {
-            $hotelIds = array_keys($hotelData['data']);
+            $hotelIds = array_keys($hotelData);
 
             if (empty($hotelIds)) {
                 return [
@@ -124,15 +126,16 @@ class HbsiHotelController
                 : $arrayResponse['RoomStays']['RoomStay'];
 
             $i = 1;
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
+            $flipped = array_flip($hotelData);
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($flipped, &$i) {
                 $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
                 $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
                 $item['rate_ordinal'] = $i;
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
                     'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
-                    'hotel_name_giata' => $hotelData['data'][$hotelCode]['name'] ?? '',
-                    'giata_id' => $hotelData['data'][$hotelCode]['giata'] ?? 0,
+                    'hotel_name_giata' => $flipped[$hotelCode] ?? '',
+                    'giata_id' => $flipped[$hotelCode] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
                 if (! isset($result[$hotelCode]['rooms'][$roomCode])) {
@@ -153,7 +156,7 @@ class HbsiHotelController
                     'response' => $xmlPriceData['response']->asXML(),
                 ],
                 'array' => $groupedPriceData,
-                'total_pages' => $hotelData['total_pages'],
+                'total_pages' => $hotelData['total_pages'] ?? 1,
             ];
 
         } catch (Exception $e) {

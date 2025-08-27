@@ -300,8 +300,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $preSearchData = $this->getPreSearchData($supplier, $filters);
 
+                    /** @var array<int, string> $rawGiataIds key - giata_id, value - supplier_id */
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
-                        SupplierNameEnum::HBSI => array_column(Arr::get($preSearchData, 'data', []), 'giata'),
+                        SupplierNameEnum::HBSI => Arr::get($preSearchData, 'rawGiataIds', []),
                         SupplierNameEnum::EXPEDIA => $preSearchData,
                         SupplierNameEnum::HOTEL_TRADER => $preSearchData,
                         default => [],
@@ -814,7 +815,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
         $exclude = [];
         if ($blueprintExists) {
-            $filteredGiataIds = Hotel::whereIn('giata_code', $rawGiataIds)
+            $filteredGiataIds = Hotel::whereIn('giata_code', array_values($rawGiataIds))
                 ->whereHas('product')
                 ->pluck('giata_code')
                 ->toArray();
@@ -857,7 +858,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private function extracted(mixed $forceVerified, mixed $forceOnSale, array &$exclude, array $rawGiataIds): void
     {
         if (! $forceVerified) {
-            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', $rawGiataIds)
+            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', array_values($rawGiataIds))
                 ->whereHas('product', function ($q) {
                     $q->where('verified', 0);
                 })
@@ -866,7 +867,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
 
         if (! $forceOnSale) {
-            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', $rawGiataIds)
+            $exclude = array_merge($exclude, Hotel::whereIn('giata_code', array_values($rawGiataIds))
                 ->whereHas('product', function ($q) {
                     $q->where('onSale', 0);
                 })
