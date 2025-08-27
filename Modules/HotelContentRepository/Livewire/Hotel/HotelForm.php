@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 use App\Helpers\Strings;
 use App\Models\Channel;
 use App\Models\Enums\RoleSlug;
+use App\Models\Mapping;
 use App\Models\Property;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Components\Actions;
@@ -201,7 +202,11 @@ class HotelForm extends Component implements HasForms
         }
 
         $toggles = [];
-        foreach (SupplierNameEnum::getValuesDriver() as $supplier) {
+        $mapperSupplier = Mapping::where('giata_id', $this->record->giata_code)
+            ->whereIn('supplier', SupplierNameEnum::getValuesDriver())
+            ->pluck('supplier')
+            ->toArray();
+        foreach ($mapperSupplier as $supplier) {
             $toggles[] = CustomToggle::make('off_save.'.$supplier)->label($supplier);
         }
 
