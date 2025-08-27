@@ -17,10 +17,9 @@ use Modules\Enums\TypeRequestEnum;
 
 class ReservationTools
 {
-    public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
+    public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger, ?string $token = null): void
     {
         try {
-            $token = request()->bearerToken() ?? config('booking-suppliers.Expedia.credentials.test_token');
             $token_id = ChannelRepository::getTokenId($token);
             $channel_id = Channel::where('token_id', $token_id)->first()?->id;
 
@@ -53,7 +52,7 @@ class ReservationTools
             }
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
-                $reservation = new Reservation();
+                $reservation = new Reservation;
 
                 $reservation->date_offload = null;
                 $reservation->date_travel = date('Y-m-d', strtotime($checkin));

@@ -181,7 +181,7 @@ class HbsiBookApiController extends BaseBookApiController
         if (! $error) {
             SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
             // Save Book data to Reservation
-            SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
+            SaveReservations::dispatch($booking_id, $filters, $dataPassengers, request()->bearerToken());
         }
 
         if (! $dataResponse) {

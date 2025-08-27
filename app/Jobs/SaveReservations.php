@@ -23,6 +23,7 @@ class SaveReservations implements ShouldQueue
         private readonly string $booking_id,
         private readonly array $filters,
         private readonly array $dataPassengers,
+        private readonly string $token,
     ) {}
 
     /**
@@ -32,6 +33,6 @@ class SaveReservations implements ShouldQueue
     {
         /* @var ReservationTools $reservationTools */
         $reservationTools = app(ReservationTools::class);
-        $reservationTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
+        $reservationTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers, $this->token);
     }
 }

@@ -404,7 +404,7 @@ class ExpediaBookApiController extends BaseBookApiController
         }
 
         // Save Book data to Reservation
-        SaveReservations::dispatchSync($booking_id, $filters, $dataPassengers);
+        SaveReservations::dispatchSync($booking_id, $filters, $dataPassengers, request()->bearerToken());
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
