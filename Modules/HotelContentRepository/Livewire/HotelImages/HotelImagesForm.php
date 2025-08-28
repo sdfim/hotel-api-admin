@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -114,7 +115,7 @@ class HotelImagesForm extends Component implements HasForms
                 ->imageEditor()
                 ->preserveFilenames()
                 ->directory($filePath ? 'images/'.$filePath : 'images')
-                ->disk(config('filament.default_filesystem_disk', 'public'))
+                ->disk(self::getDisk())
                 ->visibility('private')
                 ->downloadable()
                 ->nullable()
@@ -137,6 +138,14 @@ class HotelImagesForm extends Component implements HasForms
                 ])
                 ->visible(fn ($get) => $get('source') !== 'own'),
         ];
+    }
+
+    private static function getDisk(): string
+    {
+        $disk = config('filament.default_filesystem_disk', 'public');
+        Log::debug('HotelImagesForm FileUpload disk:', ['disk' => $disk]);
+
+        return $disk;
     }
 
     public function edit(): Redirector|RedirectResponse
