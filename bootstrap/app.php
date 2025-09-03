@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // $middleware->redirectUsersTo(config('app.url').AppServiceProvider::HOME);
 
         $middleware->append([
+            \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\SetLocationHeader::class,
             \App\Http\Middleware\RewriteUrls::class,
             \App\Http\Middleware\CheckChannelNotDeleted::class,
