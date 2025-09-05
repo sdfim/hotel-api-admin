@@ -50,6 +50,15 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $scenariosToRun = $this->argument('scenarios')
             ? array_map('trim', explode(',', $this->argument('scenarios')))
             : [
+                'scenario_s1',
+                'scenario_s2',
+                'scenario_s3',
+                'scenario_s4',
+                'scenario_s5',
+                'scenario_s6',
+                'scenario_s7',
+                'scenario_s8',
+
                 'scenario_1',
                 'scenario_2',
                 'scenario_3',
@@ -156,10 +165,10 @@ class FlowHotelTraderBookDiffScenarios extends Command
         ];
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
-//
-//        $this->cancel($bookingId, $bookingItem);
-//
-//        $this->retrieveBooking($bookingId);
+        //
+        //        $this->cancel($bookingId, $bookingItem);
+        //
+        //        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_3(): void
@@ -342,6 +351,188 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $this->cancel($bookingId, $bookingItem);
 
         $this->retrieveBooking($bookingId);
+    }
+
+    // SERTIFICATION SCENARIOS
+
+    private function scenario_s1(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s1');
+        $occupancy = [['adults' => 2]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => false,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s2(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s2');
+        $occupancy = [['adults' => 2]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => true,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s3(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s3');
+        $occupancy = [['adults' => 2, 'children_ages' => [5]]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => false,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s4(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s4');
+        $occupancy = [['adults' => 2, 'children_ages' => [5]]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => true,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s5(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s5');
+        $occupancy = [['adults' => 2],['adults' => 2]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s6(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s6');
+        $occupancy = [['adults' => 2],['adults' => 2]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => true,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => true,
+                'supplier_room_id' => 2,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s7(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s7');
+        $occupancy = [['adults' => 2, 'children_ages' => [5]],['adults' => 2, 'children_ages' => [5]]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => false,
+                'supplier_room_id' => 2,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+//                $this->cancel($bookingId, $bookingItem);
+    }
+
+    private function scenario_s8(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s8');
+        $occupancy = [['adults' => 2, 'children_ages' => [5]],['adults' => 2, 'children_ages' => [5]]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => true,
+                'supplier_room_id' => 1,
+            ],
+            [
+                'non_refundable' => true,
+                'supplier_room_id' => 2,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        //        $this->cancel($bookingId, $bookingItem);
     }
 
     // ######### additional methods ##########
@@ -800,6 +991,8 @@ class FlowHotelTraderBookDiffScenarios extends Command
             ];
         }
         $requestData['credit_cards'] = $cards;
+
+        //        dd($requestData, json_encode($requestData));
 
         $response = $this->client->post($this->url.'/api/booking/book', $requestData);
         $this->info('------------------------------------');

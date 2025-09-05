@@ -23,10 +23,14 @@ trait FlowHbsiScenariosTrait
             return null;
         }
 
+        $minPrice = null;
+        $minBookingItem = null;
+
         foreach ($results as $hotel) {
             $roomCombinations = Arr::get($hotel, 'room_combinations');
             $roomGroups = Arr::get($hotel, 'room_groups');
-            if (! $roomCombinations || ! $roomGroups) {
+            $roomCombinationsPrices = Arr::get($hotel, 'room_combinations_prices');
+            if (! $roomCombinations || ! $roomGroups || ! $roomCombinationsPrices) {
                 continue;
             }
 
@@ -61,14 +65,20 @@ trait FlowHbsiScenariosTrait
                     }
                 }
                 if ($matched) {
-                    $this->info('Booking ITEM: '.$parentId);
-
-                    return $parentId;
+                    $totalPrice = $roomCombinationsPrices[$parentId]['total_price'] ?? null;
+                    if ($totalPrice !== null && ($minPrice === null || $totalPrice < $minPrice)) {
+                        $minPrice = $totalPrice;
+                        $minBookingItem = $parentId;
+                    }
                 }
             }
         }
 
-        return null;
+        if ($minBookingItem) {
+            $this->info('Booking ITEM with min price: '.$minBookingItem.' ('.$minPrice.')');
+        }
+
+        return $minBookingItem;
     }
 
     public function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
