@@ -5,6 +5,7 @@ namespace Modules\API\Controllers\ApiHandlers;
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataPoi;
+use App\Models\Property;
 use Google\Client;
 use Google\Service\Exception;
 use Google\Service\MapsPlaces;
@@ -33,23 +34,45 @@ class DestinationsController
             ]);
         }
 
-        if ($request->giata !== null) {
+        if ($request->hotel !== null) {
+            $connectedSuppliers = explode(',', config('booking-suppliers.connected_suppliers', ''));
+            $page = max((int) $request->get('page', 1), 1);
+            $perPage = max((int) $request->get('per_page', 10), 1);
+
+            $query = Property::with('mappings')->where(function ($query) use ($request) {
+                $query->where('name', 'like', '%'.$request->hotel.'%');
+            })->whereHas('mappings', function ($query) use ($connectedSuppliers) {
+                $query->whereIn('supplier', $connectedSuppliers);
+            });
+
+            $total = $query->count();
+            $hotels = $query->skip(($page - 1) * $perPage)->take($perPage)->get(['name', 'code']);
+            $hotelData = $hotels->map(function ($hotel) {
+                return ['name' => $hotel->name, 'giata_code' => $hotel->code];
+            })->toArray();
+
             $response = [
                 'success' => true,
-                'data' => $this->getGiataPlacesData($request),
+                'data' => [
+                    'hotels' => $hotelData,
+                    'total' => $total,
+                    'page' => $page,
+                    'per_page' => $perPage,
+                ],
             ];
+
+            return response()->json($response);
+        }
+
+        if ($request->giata !== null) {
+            $response = ['success' => true, 'data' => $this->getGiataPlacesData($request)];
         }
 
         if ($request->q !== null) {
             $giataPlaces = $this->getGiataPlacesData($request);
             $giataPois = $this->getGiataPoisData($request);
-
-            $response = [
-                'success' => true,
-                'data' => array_merge($giataPlaces, $giataPois),
-            ];
+            $response = ['success' => true, 'data' => array_merge($giataPlaces, $giataPois)];
         }
-
         if ($request->city !== null || $request->country !== null) {
             $response = $this->getGiataGeographyData($request);
         }
