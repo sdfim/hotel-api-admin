@@ -126,16 +126,15 @@ class HbsiHotelController
                 : $arrayResponse['RoomStays']['RoomStay'];
 
             $i = 1;
-            $flipped = array_flip($hotelData);
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($flipped, &$i) {
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
                 $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
                 $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
                 $item['rate_ordinal'] = $i;
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
                     'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
-                    'hotel_name_giata' => $flipped[$hotelCode] ?? '',
-                    'giata_id' => $flipped[$hotelCode] ?? 0,
+                    'hotel_name_giata' => $hotelData[$hotelCode] ?? '',
+                    'giata_id' => $hotelData[$hotelCode] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
                 if (! isset($result[$hotelCode]['rooms'][$roomCode])) {
