@@ -42,10 +42,13 @@ class ChannelTokenRequest extends ApiRequest
      *
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"user_id","token"},
+     *       required={"user_id","name","token"},
      *
-     *       @OA\Property(property="user_id", type="integer", example=42),
-     *       @OA\Property(property="token", type="string", example="p1a2r3t4OfPlainAccessToken")
+     *       @OA\Property(property="user_id", type="integer", example=18),
+     *       @OA\Property(property="name", type="string", example="test-api-user"),
+     *       @OA\Property(property="token", type="string", example="Rx1rkXk0S9MomMpssi5D9T4kfUI5MwHxRZDSwYoHecbb4ace"),
+     *
+     *       example={"user_id":18,"name":"test-api-user","token":"Rx1rkXk0S9MomMpssi5D9T4kfUI5MwHxRZDSwYoHecbb4ace"}
      *     )
      *   ),
      *

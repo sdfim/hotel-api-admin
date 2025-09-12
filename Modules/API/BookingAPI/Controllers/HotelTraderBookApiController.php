@@ -245,8 +245,8 @@ class HotelTraderBookApiController extends BaseBookApiController
         $token_id = ChannelRepository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
 
-        $apiClientId = request()->query('api_client_id');
-        $apiClientEmail = request()->query('api_client_email');
+        $apiClientId = data_get(request()->all(), 'api_client.id');
+        $apiClientEmail = data_get(request()->all(), 'api_client.email');
 
         $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
             ->where('supplier_id', $supplierId)

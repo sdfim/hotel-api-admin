@@ -365,8 +365,8 @@ class HbsiBookApiController extends BaseBookApiController
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->value('id');
 
-        $apiClientId = data_get(request()->all(), 'api_client.id') ?? request()->query('client_id');
-        $apiClientEmail = data_get(request()->all(), 'api_client.email') ?? request()->query('client_email');
+        $apiClientId = data_get(request()->all(), 'api_client.id');
+        $apiClientEmail = data_get(request()->all(), 'api_client.email');
 
         $itemsBooked = ApiBookingInspector::query()
             ->where('token_id', $tokenId)
