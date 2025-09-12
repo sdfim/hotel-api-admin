@@ -10,4 +10,5 @@ return [
     App\Providers\SupplierRepositoryServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
     App\Providers\SupplierServiceProvider::class,
+    BladeUIKit\BladeUIKitServiceProvider::class,
 ];

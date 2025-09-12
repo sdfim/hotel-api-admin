@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\HotelTraderProperty;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -74,6 +76,17 @@ class HotelTraderContentHotelTable extends Component implements HasForms, HasTab
                 IconColumn::make('has_room_types')
                     ->label('Room Types')
                     ->boolean(),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    Action::make('view')
+                        ->label('View')
+                        ->modalWidth('7xl')
+                        ->icon('heroicon-o-eye')
+                        ->modalHeading('Property Details')
+                        ->modalDescription(fn ($record) => $record->name)
+                        ->modalContent(fn ($record) => view('livewire.modal.property-view', ['record' => $record])),
+                ]),
             ]);
     }
 

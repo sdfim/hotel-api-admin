@@ -12,6 +12,7 @@
         "ext-libxml": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.347",
+        "blade-ui-kit/blade-ui-kit": "^0.7.0",
         "cheesegrits/filament-google-maps": "^3.0",
         "darkaonline/l5-swagger": "^8.5",
         "fakerphp/faker": "^1.23",

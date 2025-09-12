@@ -75,6 +75,13 @@ class ExpediaContent extends Model
         ];
     }
 
+    public $labelFields = [
+        'address' => 'Address',
+        'ratings' => 'Ratings',
+        'location' => 'Location',
+        'expedia_slave' => 'Expedia Secondary Data',
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

@@ -33,6 +33,17 @@ class HbsiProperty extends Model
         'emails' => 'array',
     ];
 
+    public $ignoredFields = [
+        'raw_xml',
+    ];
+
+    public $labelFields = [
+        'emals' => 'Emails',
+        'rateplans' => 'Rate Plans',
+        'roomtypes' => 'Room Types',
+        'tpa_extensions' => 'TPA Extensions',
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

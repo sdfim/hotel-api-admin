@@ -74,6 +74,12 @@ class IcePortalPropertyAsset extends Model
         'assets' => 'json',
     ];
 
+    public $labelFields = [
+        'roomTypes' => 'Room Types',
+        'meetingRooms' => 'Meeting Rooms',
+        'assets' => 'Assets',
+    ];
+
     public function mapperGiata(): HasOne
     {
         return $this->hasOne(Mapping::class, 'supplier_id', 'listingID')->icePortal();

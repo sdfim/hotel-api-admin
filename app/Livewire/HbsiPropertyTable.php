@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\HbsiProperty;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -49,7 +51,7 @@ class HbsiPropertyTable extends Component implements HasForms, HasTable
                     ->label('City Code')
                     ->sortable()
                     ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('address_line')
                     ->label('Address')
                     ->wrap()
@@ -64,29 +66,32 @@ class HbsiPropertyTable extends Component implements HasForms, HasTable
                 TextColumn::make('state')
                     ->sortable()
                     ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('postal_code')
-                    ->sortable()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('country_name')
                     ->label('Country')
                     ->sortable()
                     ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('phone')
                     ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('emails')
-                    ->wrap()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 IconColumn::make('has_rate_plans')
                     ->label('Rate Plans')
                     ->boolean(),
                 IconColumn::make('has_room_types')
                     ->label('Room Types')
                     ->boolean(),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    Action::make('view')
+                        ->label('View')
+                        ->modalWidth('7xl')
+                        ->icon('heroicon-o-eye')
+                        ->modalHeading('Property Details')
+                        ->modalDescription(fn ($record) => $record->name)
+                        ->modalContent(fn ($record) => view('livewire.modal.property-view', ['record' => $record])),
+                ]),
             ]);
     }
 

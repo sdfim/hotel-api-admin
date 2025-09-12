@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\IcePortalPropertyAsset;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -26,74 +28,67 @@ class IcePortalPropertyTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('first_mapperHbsiGiata_code')
                     ->label('Giata Code')
-                    ->getStateUsing(fn ($record) => optional($record->mapperHbsiGiata->first())->giata_id)
+                    ->getStateUsing(fn ($record) => optional($record->mapperHbsiGiata->first())
+                        ->giata_id)
                     ->url(fn ($record) => $record->mapperHbsiGiata->first()
                         ? route('properties.index', ['giata_id' => optional($record->mapperHbsiGiata->first())->giata_id])
                         : null)
                     ->toggleable(),
                 TextColumn::make('listingID')
+                    ->label('Listing ID')
                     ->sortable()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->wrap()
                     ->html()
                     ->toggleable()
-                    ->sortable()
-                    ->searchable(isIndividual: true),
-
-                //                TextColumn::make('supplierId')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('supplierChainCode')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('supplierMappedID')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('createdOn')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('propertyLastModified')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('contentLastModified')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('makeLiveDate')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('makeLiveBy')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('editDate')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('editBy')->toggleable()->sortable()->searchable(isIndividual: true),
-
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('addressLine1')
                     ->wrap()
                     ->label('Address')
                     ->toggleable()
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('city')
                     ->sortable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('city')->sortable()->toggleable()->searchable(isIndividual: true),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('country')
                     ->wrap()
                     ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('postalCode')
                     ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('postalCode')->toggleable()->sortable()->searchable(isIndividual: true),
-                TextColumn::make('latitude')->sortable()->toggleable()->searchable(isIndividual: true),
-                TextColumn::make('longitude')->sortable()->toggleable()->searchable(isIndividual: true),
-                //                TextColumn::make('listingClassName')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('regionCode')->toggleable()->sortable()->searchable(isIndividual: true),
-                TextColumn::make('phone')->toggleable()->searchable(isIndividual: true),
-
-                //                TextColumn::make('publicationStatus')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('publishedDate')->toggleable()->sortable()->searchable(isIndividual: true),
-
-                //                TextColumn::make('roomTypes')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('meetingRooms')->toggleable()->sortable()->searchable(isIndividual: true),
-
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('latitude')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('longitude')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('phone')
+                    ->toggleable()
+                    ->searchable(),
                 IconColumn::make('has_room_types')
                     ->label('Room Types')
                     ->boolean(),
-
-                //                TextColumn::make('iceListingQuantityScore')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('iceListingSizeScore')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('iceListingCategoryScore')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('iceListingRoomScore')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('iceListingScore')->toggleable()->sortable()->searchable(isIndividual: true),
-                //                TextColumn::make('bookingListingScore')->toggleable()->sortable()->searchable(isIndividual: true),
-
-//                TextColumn::make('listingURL')
-//                    ->label('URL')
-//                    ->toggleable()
-//                    ->sortable()
-//                    ->searchable(isIndividual: true),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    Action::make('view')
+                        ->label('View')
+                        ->modalWidth('7xl')
+                        ->icon('heroicon-o-eye')
+                        ->modalHeading('Property Details')
+                        ->modalDescription(fn ($record) => $record->name)
+                        ->modalContent(fn ($record) => view('livewire.modal.property-view', ['record' => $record])),
+                ]),
             ]);
     }
 

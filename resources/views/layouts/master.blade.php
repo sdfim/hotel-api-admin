@@ -20,6 +20,11 @@
     @vite(['resources/css/app.css'])
     @vite(['resources/css/supplier-repository.css'])
     @include('layouts.head-css')
+
+    <!-- JSONEditor styles -->
+    <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.2/dist/jsoneditor.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.2/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+
     @stack('head')
 </head>
 

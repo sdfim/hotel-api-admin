@@ -6,6 +6,8 @@ use App\Models\ExpediaContent;
 use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -29,58 +31,62 @@ class ExpediaTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10])
-            ->query(ExpediaContent::query())
+            ->query(ExpediaContent::query()->with('expediaSlave'))
             ->defaultSort('rating', 'desc')
             ->columns([
+                TextColumn::make('first_mapperGiataExpedia_code')
+                    ->label('Giata Code')
+                    ->getStateUsing(fn ($record) => optional($record->mapperGiataExpedia->first())->giata_id)->url(fn ($record) => $record->mapperGiataExpedia->first()
+                        ? route('properties.index', ['giata_id' => optional($record->mapperGiataExpedia->first())->giata_id])
+                        : null)
+                    ->toggleable(),
                 TextColumn::make('property_id')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query
                             ->where('property_id', $search);
-                    }, isIndividual: true)
+                    })
                     ->toggleable(),
                 ViewColumn::make('name')
                     ->toggleable()
                     ->sortable()
-                    ->searchable(isIndividual: true)
                     ->view('dashboard.expedia.column.name-field'),
                 TextColumn::make('rating')
                     ->numeric()
-                    ->searchable(isIndividual: true)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('rating', $search);
+                    })
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('city')
                     ->sortable()
-                    ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('latitude')
                     ->numeric()
-                    ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('longitude')
                     ->numeric()
-                    ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('phone')
                     ->numeric()
-                    ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 ViewColumn::make('address')
                     ->view('dashboard.expedia.column.address-field')
-                    ->searchable(isIndividual: true)
                     ->toggleable(),
-                TextColumn::make('is_active')
-                    ->searchable(isIndividual: true)
-                    ->label('Active')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '1' => 'success',
-                        default => 'gray',
-                    })
-                    ->toggleable(),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    Action::make('view')
+                        ->label('View')
+                        ->modalWidth('7xl')
+                        ->icon('heroicon-o-eye')
+                        ->modalHeading('Property Details')
+                        ->modalDescription(fn ($record) => $record->name)
+                        ->modalContent(fn ($record) => view('livewire.modal.property-view', ['record' => $record])),
+                ]),
             ])
             ->headerActions([
                 ExportAction::make()->exports([
