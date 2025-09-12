@@ -102,6 +102,7 @@ class AirwallexClient
         float $amount,
         string $currency,
         string $merchantOrderId,
+        array $order,
         ?string $descriptor,
         ?string $returnUrl,
         array $metadata = [],
@@ -121,6 +122,7 @@ class AirwallexClient
             'amount' => $amount,
             'currency' => $currency,
             'merchant_order_id' => $merchantOrderId,
+            'order' => $order,
             'request_id' => $requestId,
             'direction' => $direction,
         ];

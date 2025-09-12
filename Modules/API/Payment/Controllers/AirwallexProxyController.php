@@ -32,6 +32,7 @@ class AirwallexProxyController extends BaseController
             $validated['amount'],
             $validated['currency'],
             $validated['merchant_order_id'],
+            $validated['order'],
             $validated['descriptor'] ?? null,
             $validated['return_url'] ?? null,
             $validated['metadata'] ?? [],

@@ -2873,7 +2873,8 @@
                     "merchant_order_id",
                     "request_id",
                     "descriptor",
-                    "return_url"
+                    "return_url",
+                    "order"
                 ],
                 "properties": {
                     "amount": {
@@ -2902,6 +2903,34 @@
                         "example": {
                             "foo": "bar"
                         }
+                    },
+                    "order": {
+                        "required": [
+                            "products"
+                        ],
+                        "properties": {
+                            "products": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "name",
+                                        "quantity"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Product Name"
+                                        },
+                                        "quantity": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
