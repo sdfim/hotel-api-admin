@@ -85,6 +85,120 @@
                 ]
             }
         },
+        "/api/payment/payment-intent/{id}": {
+            "get": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Retrieve Airwallex Payment Intent",
+                "operationId": "9cfbd711c8123ff5a5b3c0b309939421",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Payment Intent ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment intent retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": {
+                                        "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
+                                        "request_id": "123",
+                                        "amount": 100,
+                                        "currency": "USD",
+                                        "merchant_order_id": "D202503210001",
+                                        "available_payment_method_types": [
+                                            "card",
+                                            "airwallex_pay",
+                                            "googlepay",
+                                            "applepay"
+                                        ]
+                                    },
+                                    "message": "success"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error retrieving payment intent",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": [],
+                                    "success": false,
+                                    "error": "not_found",
+                                    "message": "Airwallex API error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/create": {
+            "post": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Proxy for Airwallex createPaymentIntent",
+                "operationId": "6ff801a6067d1759ec5a60e0f8c69354",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePaymentIntentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Airwallex API response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "id": "int_xxx",
+                                    "status": "REQUIRES_PAYMENT_METHOD"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "message": "The given data was invalid.",
+                                    "errors": {
+                                        "amount": [
+                                            "The amount field is required."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/booking/add-passengers": {
             "post": {
                 "tags": [
@@ -2610,6 +2724,46 @@
     },
     "components": {
         "schemas": {
+            "CreatePaymentIntentRequest": {
+                "required": [
+                    "amount",
+                    "currency",
+                    "merchant_order_id",
+                    "request_id",
+                    "descriptor",
+                    "return_url"
+                ],
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "USD"
+                    },
+                    "merchant_order_id": {
+                        "type": "string",
+                        "example": "D202503210001"
+                    },
+                    "descriptor": {
+                        "type": "string",
+                        "example": "Airwallex - Test Descriptor"
+                    },
+                    "return_url": {
+                        "type": "string",
+                        "example": "https://www.airwallex.com"
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "example": {
+                            "foo": "bar"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "BadRequestResponse": {
                 "title": "BadRequest 400 error",
                 "description": "Schema of BadRequest 400 error",
@@ -10682,6 +10836,10 @@
         {
             "name": "Auth API | Channel Clients",
             "description": "Issue channel tokens for API clients. Authenticates user by email/password, requires 'api-user' role and an active bound channel, returns channel token for subsequent requests."
+        },
+        {
+            "name": "Payment",
+            "description": "Payment"
         }
     ]
 }

@@ -4,6 +4,7 @@ use Modules\API\Auth\routes\AuthApiRoutes;
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\Channels\routes\ChannelsApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
+use Modules\API\Payment\routes\PaymentApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\PushContent\routes\HotelTraderPushContent;
 use Modules\API\Report\routes\ReportApiRoutes;
@@ -33,3 +34,7 @@ ReportApiRoutes::routes();
 ChannelsApiRoutes::routes();
 
 AuthApiRoutes::routes();
+
+PaymentApiRoutes::routes();
+
+

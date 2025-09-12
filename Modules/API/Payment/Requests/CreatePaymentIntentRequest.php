@@ -1,0 +1,62 @@
+<?php
+
+namespace Modules\API\Payment\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * @OA\Post(
+ *     path="/api/payment/create",
+ *     summary="Proxy for Airwallex createPaymentIntent",
+ *     tags={"Payment"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(ref="#/components/schemas/CreatePaymentIntentRequest")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Airwallex API response",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             example={"id":"int_xxx","status":"REQUIRES_PAYMENT_METHOD"}
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Validation error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             example={"message":"The given data was invalid.","errors":{"amount":{"The amount field is required."}}}
+ *         )
+ *     )
+ * )
+ * @OA\Schema(
+ *     schema="CreatePaymentIntentRequest",
+ *     required={"amount","currency","merchant_order_id","request_id","descriptor","return_url"},
+ *     @OA\Property(property="amount", type="number", format="float", example=100),
+ *     @OA\Property(property="currency", type="string", example="USD"),
+ *     @OA\Property(property="merchant_order_id", type="string", example="D202503210001"),
+ *     @OA\Property(property="descriptor", type="string", example="Airwallex - Test Descriptor"),
+ *     @OA\Property(property="return_url", type="string", example="https://www.airwallex.com"),
+ *     @OA\Property(property="metadata", type="object", example={"foo":"bar"})
+ * )
+ */
+class CreatePaymentIntentRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function rules()
+    {
+        return [
+            'amount' => 'required|numeric',
+            'currency' => 'required|string',
+            'merchant_order_id' => 'required|string',
+            'descriptor' => 'string',
+            'return_url' => 'string',
+            'metadata' => 'array',
+        ];
+    }
+}
