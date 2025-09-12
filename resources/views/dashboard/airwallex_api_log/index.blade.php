@@ -1,10 +1,10 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('ICE Portal') }}
+    {{ __('Airwallex Log') }}
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="ICE Portal" pagetitle="index"/>
+    <x-page-title title="Airwallex Log" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">

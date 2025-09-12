@@ -157,6 +157,9 @@ Route::prefix('admin')->group(function () {
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);
         Route::resource('images', ImageController::class)->only(['index', 'create', 'edit']);
 
+        // AirwallexApiLog table route
+        Route::get('airwallex-api-logs', [\App\Http\Controllers\AirwallexApiLogController::class, 'index'])->name('airwallex-api-logs.index');
+
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
     });

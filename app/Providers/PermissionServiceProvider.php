@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\AirwallexApiLog;
 use App\Models\Configurations\ConfigAmenity;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigAttributeCategory;
@@ -13,6 +14,7 @@ use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigRoomBedType;
 use App\Models\Enums\RoleSlug;
+use App\Policies\AirwallexApiLogPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
 use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
@@ -68,6 +70,7 @@ class PermissionServiceProvider extends ServiceProvider
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
         ImageGallery::class => ImageGalleryPolicy::class,
         Image::class => ImagePolicy::class,
+        AirwallexApiLog::class => AirwallexApiLogPolicy::class,
     ];
 
     /**

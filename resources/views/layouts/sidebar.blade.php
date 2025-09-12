@@ -401,6 +401,15 @@
                             @endcan
                             @can('log-viewer')
                                 <li>
+                                    <a href="{{ url('admin/airwallex-api-logs') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-document-remove"></i>
+                                        <span data-key="t-log-viewer">Payment Logs</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('log-viewer')
+                                <li>
                                     <a href="{{ url('admin/activities') }}"
                                        class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-document"></i>

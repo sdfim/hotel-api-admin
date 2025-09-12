@@ -51,6 +51,7 @@ class PermissionSeeder extends Seeder
         'hotel_image',
         'hotel_room',
         'hotel_rate',
+        'airwallex_api_log',
     ];
 
     private static array $permissions = [
