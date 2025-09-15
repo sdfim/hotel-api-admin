@@ -38,7 +38,6 @@ use Modules\HotelContentRepository\Actions\HotelRoom\EditHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\MergeHotelRoom;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HotelRoomTable extends Component implements HasForms, HasTable
 {
@@ -247,14 +246,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         'success' => fn (string $state): bool => $state > 0,
                     ])
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->galleries->flatMap(fn ($gallery) => $gallery->images)->count() : 0),
-                TextColumn::make('consortiaAmenities_count')
-                    ->label('Amenities')
-                    ->badge()
-                    ->colors([
-                        'gray' => 0,
-                        'success' => fn (string $state): bool => $state > 0,
-                    ])
-                    ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->affiliations()->count() : 0),
 
                 TextColumn::make('created_at')->label('Created At')->date(),
 
