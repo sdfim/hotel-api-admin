@@ -3,10 +3,12 @@
 namespace Modules\HotelContentRepository\Livewire\ImageGalleries;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -19,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -33,7 +36,6 @@ use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\ImageSection;
-use Illuminate\Database\Eloquent\Builder;
 
 class ImageGalleriesForm extends Component implements HasForms, HasTable
 {
@@ -123,17 +125,53 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->action(fn () => $this->toggleViewMode()),
-                Action::make('Create Image')
-                    ->tooltip('Create Image')
+                Action::make('Add Image')
+                    ->tooltip('Add Image to Gallery')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->modalWidth('6xl')
                     ->iconButton()
-                    ->form(HotelImagesForm::getFormComponents())
+                    ->form(array_filter(
+                        HotelImagesForm::getFormComponents(),
+                        fn ($component) => ! ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'galleries')
+                    ))
                     ->action(function ($data) {
                         /** @var AddGallery $addGallery */
                         $addGallery = app(AddGallery::class);
                         $addGallery->execute($data, $this->record, $this->imageIds);
+                    }),
+                Action::make('Multiple Add Images To Gallery')
+                    ->tooltip('Add Multiple Images To Gallery')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-squares-plus')
+                    ->modalWidth('6xl')
+                    ->iconButton()
+                    ->form([
+                        ...array_filter(
+                            HotelImagesForm::getFormComponents(),
+                            fn ($component) =>
+                            !(
+                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'galleries') ||
+                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'source') ||
+                                ($component instanceof \Filament\Forms\Components\FileUpload && $component->getName() === 'image_url')
+                            )
+                        ),
+                        FileUpload::make('image_url')
+                            ->label('Images')
+                            ->image()
+                            ->imageEditor()
+                            ->preserveFilenames()
+                            ->directory('images')
+                            ->disk(config('filament.default_filesystem_disk', 'public'))
+                            ->visibility('private')
+                            ->downloadable()
+                            ->nullable()
+                            ->multiple()
+                    ])
+                    ->action(function ($data) {
+                        /** @var AddGallery $addGallery */
+                        $addGallery = app(AddGallery::class);
+                        $addGallery->executeMultiple($data, $this->record, $this->imageIds);
                     }),
             ])
             ->actions([

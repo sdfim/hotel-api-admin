@@ -9,15 +9,35 @@ use Modules\HotelContentRepository\Models\Product;
 
 class AddGallery
 {
+    public function executeMultiple(array $data, ImageGallery $gallery, array &$imageIds): void
+    {
+        foreach ($data['image_url'] as $url) {
+            $imageData = [
+                'image_url' => $url,
+                'tag' => $data['tag'],
+                'alt' => $data['alt'],
+                'section_id' => $data['section_id'],
+                'weight' => $data['weight'] ?? '500px',
+            ];
+            $this->addImage($imageData, $gallery, $imageIds);
+        }
+    }
+
     public function execute(array $data, ImageGallery $gallery, array &$imageIds): void
     {
-        $image = Image::create([
+        $imageData = [
             'image_url' => $data['image_url'],
             'tag' => $data['tag'],
             'alt' => $data['alt'],
             'section_id' => $data['section_id'],
             'weight' => $data['weight'] ?? '500px',
-        ]);
+        ];
+        $this->addImage($imageData, $gallery, $imageIds);
+    }
+
+    private function addImage(array $imageData, ImageGallery $gallery, array &$imageIds): void
+    {
+        $image = Image::create($imageData);
 
         if ($gallery->exists) {
             $gallery->images()->attach($image->id);

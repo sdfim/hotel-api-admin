@@ -161,10 +161,12 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                         HotelImagesForm::getFormComponents($filePath, $this->roomId ? 'room' : ''),
                         fn ($component) => ! (($this->roomId || $this->productId) && $component instanceof Select && $component->getName() === 'galleries')
                     ))
-                    ->action(function ($data) use ($product, $room, $galleryName, $description) {
+                    ->action(function ($data, \Filament\Forms\Form $form) use ($product, $room, $galleryName, $description) {
+                        $galleries = $form->getRawState()['galleries'] ?? [];
                         /** @var AddImage $addImage */
                         $addImage = app(AddImage::class);
-                        $addImage->addImageToGallery($data, $product, $room, $galleryName, $description);
+                        $addImage->addImageToGallery($data, $product, $room, $galleryName, $description, $galleries);
+
                     })
                     ->visible(fn () => Gate::allows('create', Image::class)),
 
@@ -217,7 +219,9 @@ class HotelImagesTable extends Component implements HasForms, HasTable
             TextColumn::make('galleries.gallery_name')
                 ->searchable()
                 ->badge()
-                ->color('gray'),
+                ->color('gray')
+                ->url(fn ($record) => route('image-galleries.edit', ['image_gallery' => $record->galleries->first()?->id]))
+                ->openUrlInNewTab(),
         ];
     }
 

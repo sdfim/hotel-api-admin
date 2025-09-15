@@ -76,19 +76,7 @@ class HotelImagesForm extends Component implements HasForms
                 ->multiple()
                 ->searchable()
                 ->native(false)
-                ->relationship('galleries', 'gallery_name')
-                ->createOptionForm(Gate::allows('create', ImageGallery::class) ? ImageGalleriesForm::getGalleryFormComponents() : [])
-                ->createOptionUsing(function (array $data) {
-                    /** @var AddImage $addImage */
-                    $addImage = app(AddImage::class);
-                    $image = $addImage->createImage($data);
-                    Notification::make()
-                        ->title('Gallery created successfully')
-                        ->success()
-                        ->send();
-
-                    return $image->id;
-                }),
+                ->relationship('galleries', 'gallery_name'),
 
             Grid::make()
                 ->schema([
@@ -114,7 +102,6 @@ class HotelImagesForm extends Component implements HasForms
                 ->imageEditor()
                 ->preserveFilenames()
                 ->directory($filePath ? 'images/'.$filePath : 'images')
-                ->disk(config('filament.default_filesystem_disk', 'public'))
                 ->visibility('private')
                 ->downloadable()
                 ->nullable()
