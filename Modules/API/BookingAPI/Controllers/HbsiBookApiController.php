@@ -227,10 +227,14 @@ class HbsiBookApiController extends BaseBookApiController
                 'surname' => $rooms[0][0]['family_name'],
             ];
         } else {
+            $bookingItemData = $apiBookingsMetadata->booking_item_data;
+            $name = Arr::get($bookingItemData, 'main_guest.GivenName') ?? Arr::get($bookingItemData, 'main_guest.0.GivenName');
+            $surname = Arr::get($bookingItemData, 'main_guest.Surname') ?? Arr::get($bookingItemData, 'main_guest.0.Surname');
+
             $reservation = [
                 'booking_id' => $apiBookingsMetadata->supplier_booking_item_id,
-                'name' => $apiBookingsMetadata->booking_item_data['main_guest']['GivenName'],
-                'surname' => $apiBookingsMetadata->booking_item_data['main_guest']['Surname'],
+                'name' => $name,
+                'surname' => $surname,
             ];
         }
 
@@ -383,7 +387,7 @@ class HbsiBookApiController extends BaseBookApiController
         $data = [];
         foreach ($itemsBooked as $item) {
             $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item);
+            $data[] = $this->retrieveBooking($filters, $item->metadata);
         }
 
         return $data;
