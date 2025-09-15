@@ -78,28 +78,6 @@ class AttributesForm extends Component implements HasForms
 
                     return $category->id;
                 }),
-
-            Select::make('products')
-                ->label('Hotels')
-                ->multiple()
-                ->disabled()
-                ->dehydrated(false)
-                ->relationship('products', 'name', fn ($query) => $query->whereNotNull('name'))
-                ->getOptionLabelFromRecordUsing(fn ($record) => $record->name ?? 'Unnamed Product')
-                ->searchable()
-                ->loadingMessage('Loading hotels...')
-                ->optionsLimit(25),
-
-            Select::make('hotelRooms')
-                ->label('Rooms')
-                ->multiple()
-                ->disabled()
-                ->dehydrated(false)
-                ->relationship('hotelRooms', 'name', fn ($query) => $query->whereNotNull('name'))
-                ->getOptionLabelFromRecordUsing(fn ($record) => $record->name ?? 'Unnamed Room')
-                ->searchable()
-                ->loadingMessage('Loading rooms...')
-                ->optionsLimit(25),
         ];
     }
 
