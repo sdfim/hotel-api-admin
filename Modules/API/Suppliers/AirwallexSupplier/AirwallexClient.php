@@ -107,6 +107,7 @@ class AirwallexClient
         ?string $returnUrl,
         array $metadata = [],
         array $direction = [],
+        ?string $bookingId = null
     ): ?array {
         $token = $this->getToken();
         if (! $token) {
@@ -147,10 +148,11 @@ class AirwallexClient
             AirwallexApiLog::create([
                 'method' => 'createPaymentIntent',
                 'direction' => $direction,
-                'payload' => json_encode($body),
-                'response' => json_encode($data),
+                'payload' => $body,
+                'response' => $data,
                 'status_code' => $response->getStatusCode(),
                 'payment_intent_id' => Arr::get($data, 'id', ''),
+                'booking_id' => $bookingId,
             ]);
 
             return $data;
@@ -158,8 +160,8 @@ class AirwallexClient
             AirwallexApiLog::create([
                 'method' => 'createPaymentIntent',
                 'direction' => $direction,
-                'payload' => json_encode($body),
-                'response' => json_encode(['error' => $e->getMessage()]),
+                'payload' => $body,
+                'response' => ['error' => $e->getMessage()],
                 'status_code' => $e->getCode(),
                 'payment_intent_id' => '',
             ]);

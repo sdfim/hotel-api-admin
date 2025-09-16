@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -19,6 +20,7 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public ?AirwallexApiLog $selectedLog = null;
+
     public bool $showModal = false;
 
     public function viewLog(AirwallexApiLog $log): void
@@ -31,21 +33,33 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(AirwallexApiLog::query())
+            ->query(AirwallexApiLog::query()->latest())
             ->columns([
                 TextColumn::make('id')->sortable()->toggleable(),
-                TextColumn::make('method')->sortable()->toggleable()->searchable(isIndividual: true),
+                TextColumn::make('booking_id')->sortable()->searchable(isIndividual: true)->toggleable(),
+                TextColumn::make('response')
+                    ->label('Amount')
+                    ->sortable()
+                    ->toggleable()
+                    ->getStateUsing(function ($record) {
+                        $response = is_array($record->response)
+                            ? $record->response
+                            : json_decode($record->response, true);
+                        return Arr::get($response, 'amount')
+                            ? (Arr::get($response, 'amount') . ' (' . Arr::get($response, 'currency', '') . ')')
+                            : 'N/A';
+                    }),
+                TextColumn::make('method')->sortable()->toggleable()->searchable(),
                 TextColumn::make('payment_intent_id')->sortable()->toggleable()->searchable(isIndividual: true),
-                TextColumn::make('status_code')->sortable()->toggleable()->searchable(isIndividual: true),
+                TextColumn::make('status_code')->sortable()->toggleable()->searchable(),
                 TextColumn::make('created_at')->sortable()->toggleable(),
-                TextColumn::make('updated_at')->sortable()->toggleable(),
             ])
             ->actions([
                 Action::make('view')
                     ->label('View')
                     ->icon('heroicon-o-eye')
-                    ->modalHeading(fn (AirwallexApiLog $record) => 'Airwallex API Log #' . $record->id)
-                    ->modalContent(fn (AirwallexApiLog $record) => view('filament.modals.airwallex-api-log-view', ['log' => $record]))
+                    ->modalHeading(fn (AirwallexApiLog $record) => 'Airwallex API Log #'.$record->id)
+                    ->modalContent(fn (AirwallexApiLog $record) => view('filament.modals.airwallex-api-log-view', ['log' => $record])),
             ]);
     }
 

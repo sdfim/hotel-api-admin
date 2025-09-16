@@ -36,7 +36,8 @@ class AirwallexProxyController extends BaseController
             $validated['descriptor'] ?? null,
             $validated['return_url'] ?? null,
             $validated['metadata'] ?? [],
-            $direction
+            $direction,
+            $validated['booking_id']
         );
 
         if ($data['error'] = $result['error'] ?? null) {
@@ -47,6 +48,110 @@ class AirwallexProxyController extends BaseController
         $data['request_id'] = $result['request_id'] ?? null;
 
         return $this->sendResponse($data, 'success');
+    }
+
+    /**
+     * @OA
+     * @OA\Get(
+     *     path="/api/payment/transaction/{booking_id}",
+     *     tags={"Payment"},
+     *     summary="Retrieve Airwallex transactions by booking_id",
+     *     @OA\Parameter(
+     *         name="booking_id",
+     *         in="path",
+     *         required=true,
+     *         description="Booking ID (UUID)",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Transactions found",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="booking_id", type="string", example="13c2cf26-77b2-411f-a0a6-082da1d61b41"),
+     *                 @OA\Property(property="transaction_id", type="string", example="int_hkdmgdff7hb5zyo7snp"),
+     *                 @OA\Property(property="amount", type="integer", example=100),
+     *                 @OA\Property(property="currency", type="string", example="USD"),
+     *                 @OA\Property(property="merchant_order_id", type="string", example="D202503210001"),
+     *                 @OA\Property(property="date", type="string", example="2025-09-16 11:19:37"),
+     *                 @OA\Property(property="request_id", type="string", example="1494cbc3-28c0-47de-992e-5c72b6f6f031")
+     *             ),
+     *             example={
+     *                 {
+     *                     "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41",
+     *                     "transaction_id": "int_hkdmgdff7hb5zyo7snp",
+     *                     "amount": 100,
+     *                     "currency": "USD",
+     *                     "merchant_order_id": "D202503210001",
+     *                     "date": "2025-09-16 11:19:37",
+     *                     "request_id": "1494cbc3-28c0-47de-992e-5c72b6f6f031"
+     *                 },
+     *                 {
+     *                     "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41",
+     *                     "transaction_id": "int_hkdmgdff7hb60b9co5j",
+     *                     "amount": 150,
+     *                     "currency": "USD",
+     *                     "merchant_order_id": "D202503210002",
+     *                     "date": "2025-09-16 11:32:18",
+     *                     "request_id": "20c2233a-bdb7-4c2d-9935-b6e748b4f72d"
+     *                 },
+     *                 {
+     *                     "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41",
+     *                     "transaction_id": "int_hkdmgdff7hb60nfl3yb",
+     *                     "amount": 150,
+     *                     "currency": "USD",
+     *                     "merchant_order_id": "D202503210003",
+     *                     "date": "2025-09-16 11:44:34",
+     *                     "request_id": "8f1a785b-f09f-4ff7-9fec-354739df02cd"
+     *                 },
+     *                 {
+     *                     "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41",
+     *                     "transaction_id": "int_hkdmvbt8lhb60nj54nc",
+     *                     "amount": 200,
+     *                     "currency": "USD",
+     *                     "merchant_order_id": "D202503210004",
+     *                     "date": "2025-09-16 11:44:40",
+     *                     "request_id": "ba336715-ef04-4ac1-b756-31ea3e5ec870"
+     *                 }
+     *             }
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Transaction not found",
+     *         @OA\JsonContent(
+     *             example={"error": "Transaction not found"}
+     *         )
+     *     )
+     * )
+     */
+    public function getTransactionByBookingId($booking_id)
+    {
+        $logs = \App\Models\AirwallexApiLog::where('booking_id', $booking_id)
+            ->where('method', 'createPaymentIntent')
+            ->where('status_code', 201)
+            ->get();
+
+        if ($logs->isEmpty()) {
+            return response()->json(['error' => 'Transaction not found'], 404);
+        }
+
+        $transactions = [];
+        foreach ($logs as $log) {
+            $response = is_array($log->response) ? $log->response : json_decode($log->response, true);
+            $transactions[] = [
+                'booking_id' => $log->booking_id,
+                'transaction_id' => $response['id'] ?? null,
+                'amount' => $response['amount'] ?? null,
+                'currency' => $response['currency'] ?? null,
+                'merchant_order_id' => $response['merchant_order_id'] ?? null,
+                'date' => $log->created_at->toDateTimeString(),
+                'request_id' => $response['request_id'] ?? null,
+            ];
+        }
+
+        return response()->json($transactions);
     }
 
     /**

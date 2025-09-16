@@ -13,6 +13,7 @@ class AirwallexApiLog extends Model
         'payload',
         'response',
         'status_code',
+        'booking_id',
     ];
 
     protected $casts = [
