@@ -33,6 +33,13 @@ export default {
         'bg-lime-400',
         'bg-lime-500',
         'bg-lime-600',
+        // Badge colors for ImageGalleriesTable
+        'bg-blue-500',
+        'bg-yellow-500',
+        'bg-yellow-700',
+        'bg-green-500',
+        'bg-pink-500',
+        'bg-purple-500',
     ],
     theme: {
         screens: {

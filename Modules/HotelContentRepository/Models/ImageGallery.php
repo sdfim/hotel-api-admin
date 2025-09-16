@@ -39,7 +39,7 @@ class ImageGallery extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Hotel::class, 'pd_product_gallery', 'gallery_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'pd_product_gallery', 'gallery_id', 'product_id');
     }
 
     protected function scopeHasProduct($query, $hotelId)
@@ -58,18 +58,6 @@ class ImageGallery extends Model
     {
         return $query->whereHas('hotelRooms', function ($q) use ($hotelRoomId) {
             $q->where('hotel_room_id', $hotelRoomId);
-        });
-    }
-
-    public function productPromotions(): BelongsToMany
-    {
-        return $this->belongsToMany(ProductPromotion::class, 'pd_product_promotion_gallery', 'gallery_id', 'product_promotion_id');
-    }
-
-    protected function scopeHasProductPromotion($query, $productPromotionId)
-    {
-        return $query->whereHas('productPromotions', function ($q) use ($productPromotionId) {
-            $q->where('product_promotion_id', $productPromotionId);
         });
     }
 
