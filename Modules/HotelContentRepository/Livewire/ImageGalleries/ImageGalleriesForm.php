@@ -8,7 +8,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -149,8 +148,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->form([
                         ...array_filter(
                             HotelImagesForm::getFormComponents(),
-                            fn ($component) =>
-                            !(
+                            fn ($component) => ! (
                                 ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'galleries') ||
                                 ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'source') ||
                                 ($component instanceof \Filament\Forms\Components\FileUpload && $component->getName() === 'image_url')
@@ -166,7 +164,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                             ->visibility('private')
                             ->downloadable()
                             ->nullable()
-                            ->multiple()
+                            ->multiple(),
                     ])
                     ->action(function ($data) {
                         /** @var AddGallery $addGallery */

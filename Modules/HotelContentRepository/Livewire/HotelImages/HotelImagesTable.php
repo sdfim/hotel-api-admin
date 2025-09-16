@@ -3,7 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use App\Helpers\ClassHelper;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -157,10 +157,27 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->modalWidth('6xl')
                     ->createAnother(false)
                     ->modalHeading('Create Image')
-                    ->form(array_filter(
-                        HotelImagesForm::getFormComponents($filePath, $this->roomId ? 'room' : ''),
-                        fn ($component) => ! (($this->roomId || $this->productId) && $component instanceof Select && $component->getName() === 'galleries')
-                    ))
+                    ->form([
+                        ...array_filter(
+                            HotelImagesForm::getFormComponents(),
+                            fn ($component) => ! (
+                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'galleries') ||
+                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'source') ||
+                                ($component instanceof \Filament\Forms\Components\FileUpload && $component->getName() === 'image_url')
+                            )
+                        ),
+                        FileUpload::make('image_url')
+                            ->label('Images')
+                            ->image()
+                            ->imageEditor()
+                            ->preserveFilenames()
+                            ->directory('images')
+                            ->disk(config('filament.default_filesystem_disk', 'public'))
+                            ->visibility('private')
+                            ->downloadable()
+                            ->nullable()
+                            ->multiple(),
+                    ])
                     ->action(function ($data, \Filament\Forms\Form $form) use ($product, $room, $galleryName, $description) {
                         $galleries = $form->getRawState()['galleries'] ?? [];
                         /** @var AddImage $addImage */
