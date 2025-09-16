@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\Resolvers\DescriptiveContent\DescriptiveContentResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
@@ -111,23 +112,24 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     public function setHotelResponse(array $propertyGroup, int|string $key, array $query): array
     {
         $this->roomCombinations = [];
+        $giataId = $propertyGroup['giata_id'] ?? 0;
         $hotelResponse = HotelResponseFactory::create();
-        $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
-        $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
-        $hotelResponse->setRating($this->getAttributeFromHotelOrProduct($propertyGroup['giata_id'], 'rating'));
-        $hotelResponse->setHotelName($this->giata[$propertyGroup['giata_id']]['hotel_name'] ?? '');
+        $hotelResponse->setGiataHotelId($giataId);
+        $hotelResponse->setDistanceFromSearchLocation($this->giata[$giataId]['distance'] ?? 0);
+        $hotelResponse->setRating($this->getAttributeFromHotelOrProduct($giataId, 'rating'));
+        $hotelResponse->setHotelName($this->giata[$giataId]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
 
-        $descriptiveContent = DescriptiveContentResolver::getHotelLevel(Arr::get($this->descriptiveContent, $propertyGroup['giata_id'], []), $query, $propertyGroup['giata_id']);
+        $descriptiveContent = DescriptiveContentResolver::getHotelLevel(Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId);
         $hotelResponse->setDescriptiveContent($descriptiveContent);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
 
-        $hotelResponse->setHoldable($this->features[$propertyGroup['giata_id']]['holdable'] ?? true);
+        $hotelResponse->setHoldable($this->features[$giataId]['holdable'] ?? true);
 
         $roomGroups = [];
         $lowestPrice = 100000;
@@ -178,7 +180,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
-        $basicHotelData = Arr::get($this->basicHotelData, $propertyGroup['giata_id']);
+        $basicHotelData = Arr::get($this->basicHotelData, $giataId);
 
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
@@ -245,6 +247,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomGroupsResponse->setDeposits(DepositResolver::getRateLevel($roomResponseLowestPrice, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, $totalPrice));
 
         $roomGroupsResponse->setMealPlan($rooms[$keyLowestPricedRoom]['meal_plan'] ?? '');
 
@@ -387,6 +390,11 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                     $data['nights'] = $cancelPenalty['AmountPercent']['@attributes']['NmbrOfNights'];
                 }
 
+                if (! isset($data['currency'])) {
+                    $data['currency'] = $this->currency ?? 'USD';
+                }
+
+                $data['level'] = 'rate';
                 $cancellationPolicies[] = $data;
             }
         }
@@ -400,6 +408,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                 'penalty_start_date' => $penaltyDate,
                 'percentage' => '100',
                 'level' => 'rate',
+                'currency' => $this->currency ?? 'USD',
             ];
 
             $nonRefundable = true;
@@ -468,11 +477,11 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'], 2));
         $roomResponse->setTotalNet(round($pricingRulesApplier['total_net'], 2));
 
-        $roomResponse->setMarkup($pricingRulesApplier['markup']);
+        $roomResponse->setMarkup(Arr::get($pricingRulesApplier, 'markup', 0.0));
         if ($isCommissionTracking) {
             $roomResponse->setMarkup(0);
-            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
-            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+            $roomResponse->setTotalPrice(Arr::get($pricingRulesApplier, 'total_price', 0.0));
+            $roomResponse->setCommissionAmount(Arr::get($pricingRulesApplier, 'markup', 0.0));
         }
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
         $roomResponse->setCurrency($this->currency ?? 'USD');
@@ -509,7 +518,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'supplier_id' => $this->supplier_id,
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
-                'hotel_id' => $propertyGroup['giata_id'] ?? 0,
+                'hotel_id' => $giataId ?? 0,
                 'hotel_supplier_id' => $supplierHotelId,
                 'rate_occupancy' => $rateOccupancy,
                 'rate_type' => $this->rate_type,
@@ -523,6 +532,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, Arr::get($pricingRulesApplier, 'total_price', 0)));
 
         $roomResponse->setDescriptiveContent(DescriptiveContentResolver::getRateLevel($roomResponse, Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId));
 
@@ -546,6 +556,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             $nightsRate = $rate['@attributes']['UnitMultiplier'];
             $baseFareRate = [
                 'amount' => $rate['Base']['@attributes']['AmountBeforeTax'],
+                'rack_amount' => $rate['Base']['@attributes']['AmountBeforeTax'],
                 'title' => 'Base Rate',
                 'type' => 'base_rate',
             ];
