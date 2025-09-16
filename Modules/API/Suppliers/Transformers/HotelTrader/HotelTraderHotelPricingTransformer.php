@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\Transformers\HotelTrader;
 
 use App\Models\Supplier;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -290,7 +291,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
         $roomResponse->setCurrency($this->currency ?? 'USD');
 
-        $roomResponse->setCancellationPolicies(Arr::get($rate, 'cancellationPolicies', []));
+        $roomResponse->setCancellationPolicies($this->transformCancellationPolicies(Arr::get($rate, 'cancellationPolicies', [])));
         $roomResponse->setNonRefundable(! Arr::get($rate, 'refundable', false));
         $roomResponse->setMealPlans(Arr::get($rate, 'mealplanOptions.mealplanName', ''));
         $roomResponse->setAmenities([]);
@@ -442,5 +443,28 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             'stay' => $stay,
             'fees' => $fees,
         ];
+    }
+
+    private function transformCancellationPolicies(array $policies): array
+    {
+        if (empty($policies)) {
+            return [];
+        }
+        // If single policy, wrap in array for uniform processing
+        if (Arr::isAssoc($policies)) {
+            $policies = [$policies];
+        }
+        return array_map(function ($policy) {
+            return [
+                'description' => 'General Cancellation Policy',
+                'type' => 'General',
+                'penalty_start_date' => isset($policy['startWindowTime']) ? substr($policy['startWindowTime'], 0, 10) : '',
+                'percentage' => '100',
+                'amount' => isset($policy['cancellationCharge']) ? (float) $policy['cancellationCharge'] : 0.0,
+                'nights' => '1',
+                'currency' => $policy['currency'] ?? '',
+                'level' => 'rate',
+            ];
+        }, $policies);
     }
 }
