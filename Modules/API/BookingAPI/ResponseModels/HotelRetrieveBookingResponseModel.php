@@ -24,6 +24,12 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
 
     private array $billing_phone;
 
+    private array $deposit_information = [];
+
+    private string $hotel_image;
+
+    private array $hotel_address;
+
     public function getBillingContact(): array
     {
         return $this->billing_contact;
@@ -124,6 +130,36 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         $this->cancellation_number = $cancellation_number;
     }
 
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
+    }
+
+    public function setDepositInformation(array $deposit_information): void
+    {
+        $this->deposit_information = $deposit_information;
+    }
+
+    public function getHotelImage(): string
+    {
+        return $this->hotel_image;
+    }
+
+    public function setHotelImage(string $hotel_image): void
+    {
+        $this->hotel_image = $hotel_image;
+    }
+
+    public function getHotelAddress(): array
+    {
+        return $this->hotel_address;
+    }
+
+    public function setHotelAddress(array $hotel_address): void
+    {
+        $this->hotel_address = $hotel_address;
+    }
+
     public function toRetrieveArray(): array
     {
         return array_merge(
@@ -141,6 +177,9 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
                 'billing_email' => $this->getBillingEmail(),
                 'billing_phone' => $this->getBillingPhone(),
                 'query' => $this->getQuery(),
+                'deposit_information' => $this->getDepositInformation(),
+                'hotel_image' => $this->getHotelImage(),
+                'hotel_address' => $this->getHotelAddress(),
             ]
         );
     }

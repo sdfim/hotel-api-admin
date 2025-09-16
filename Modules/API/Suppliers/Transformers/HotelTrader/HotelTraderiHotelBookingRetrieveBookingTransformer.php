@@ -3,10 +3,10 @@
 namespace Modules\API\Suppliers\Transformers\HotelTrader;
 
 use App\Repositories\ApiBookingInspectorRepository;
-use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelTraderiHotelBookingRetrieveBookingTransformer
 {
@@ -34,6 +34,24 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
             ];
         }
 
+        preg_match('/^(.*?)\s*\((\d+)\)$/', $saveResponse['hotel_name'], $matches);
+        $name = $matches[1] ?? '';
+        $giata_code = $matches[2] ?? '';
+
+        $hotel = Hotel::where('giata_code', $giata_code)->first();
+
+        if ($hotel?->product?->hero_image) {
+            $pathParts = explode('/', $hotel?->product?->hero_image);
+            $filename = array_pop($pathParts);
+            $directory = implode('/', $pathParts);
+            $hotelImage = url('storage/'.($directory ? $directory.'/' : '').rawurlencode($filename));
+        } else {
+            $hotelImage = '';
+        }
+
+        $hotelAddress = $hotel?->address;
+        $depositInformation = Arr::get($saveResponse, 'deposits', []);
+
         /** @var ResponseModel $responseModel */
         $responseModel = app(ResponseModel::class);
         $responseModel->setStatus($status);
@@ -41,12 +59,15 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setBookringItem(Arr::get($saveResponse, 'booking_item', ''));
         $responseModel->setSupplier(Arr::get($saveResponse, 'supplier', ''));
         $responseModel->setHotelName(Arr::get($saveResponse, 'hotel_name', ''));
+        $responseModel->setHotelImage($hotelImage);
+        $responseModel->setHotelAddress($hotelAddress);
 
         $responseModel->setRooms($rooms);
 
         $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
             ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
         $responseModel->setCancellationTerms($cancellationTerms);
+        $responseModel->setDepositInformation($depositInformation);
         $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
         $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
         $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
