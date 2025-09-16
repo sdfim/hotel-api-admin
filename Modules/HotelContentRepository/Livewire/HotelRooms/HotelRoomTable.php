@@ -198,23 +198,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->label('Room ID')
                     ->getStateUsing(fn ($record) => $record->id),
 
-                TextColumn::make('newMerge.parent_room_id')
-                    ->label('Parent ID')
-                    ->toggleable()
-                    ->toggledHiddenByDefault(true)
-                    ->searchable(),
-
-                TextColumn::make('newMerge.child_room_id')
-                    ->label('Child ID')
-                    ->toggleable()
-                    ->toggledHiddenByDefault(true)
-                    ->searchable()
-                    ->formatStateUsing(function ($state, $record) {
-                        $crmRoomId = $record->newMerge->childRoomCrm->crm_room_id ?? '';
-
-                        return $crmRoomId ? "{$state} (crm: {$crmRoomId})" : $state;
-                    }),
-
                 TextColumn::make('external_code')
                     ->label('External Code')
                     ->searchable()
@@ -248,14 +231,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->galleries->flatMap(fn ($gallery) => $gallery->images)->count() : 0),
 
                 TextColumn::make('created_at')->label('Created At')->date(),
-
-                TextColumn::make('crm.crm_room_id')
-                    ->icon('heroicon-o-exclamation-triangle')
-                    ->label('CRM ID')
-                    ->toggleable()
-                    ->toggledHiddenByDefault(true)
-                    ->searchable()
-                    ->sortable(),
             ])
             ->actions([
                 ActionGroup::make([
