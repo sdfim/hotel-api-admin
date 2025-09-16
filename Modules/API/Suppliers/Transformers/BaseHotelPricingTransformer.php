@@ -135,18 +135,18 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-//        $this->cancellationPolicies = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-//            return [
-//                $hotel->giata_code => $hotel->product?->cancellationPolicies->map(function ($policy) {
-//                    $content = $policy->toArray();
-//                    if (isset($content['rate_id']) && $policy->rate) {
-//                        $content['rate_id'] = $policy->rate->code;
-//                    }
-//
-//                    return $content;
-//                })->toArray(),
-//            ];
-//        })->toArray();
+        //        $this->cancellationPolicies = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        //            return [
+        //                $hotel->giata_code => $hotel->product?->cancellationPolicies->map(function ($policy) {
+        //                    $content = $policy->toArray();
+        //                    if (isset($content['rate_id']) && $policy->rate) {
+        //                        $content['rate_id'] = $policy->rate->code;
+        //                    }
+        //
+        //                    return $content;
+        //                })->toArray(),
+        //            ];
+        //        })->toArray();
 
         $this->rates = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
@@ -171,32 +171,32 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-//        $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-//            return [
-//                $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
-//                    $feeTaxData = $service->toArray();
-//                    $feeTaxData['rate_code'] = null;
-//                    if ($service->rate_id !== null) {
-//                        $feeTaxData['rate_code'] = $service->rate->code;
-//                    }
-//                    $feeTaxData['unified_room_code'] = null;
-//                    if ($service->room_id !== null) {
-//                        $feeTaxData['unified_room_code'] = $service->room->external_code;
-//                    }
-//
-//                    return $feeTaxData;
-//                })->toArray(),
-//            ];
-//        })->toArray();
+        //        $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        //            return [
+        //                $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
+        //                    $feeTaxData = $service->toArray();
+        //                    $feeTaxData['rate_code'] = null;
+        //                    if ($service->rate_id !== null) {
+        //                        $feeTaxData['rate_code'] = $service->rate->code;
+        //                    }
+        //                    $feeTaxData['unified_room_code'] = null;
+        //                    if ($service->room_id !== null) {
+        //                        $feeTaxData['unified_room_code'] = $service->room->external_code;
+        //                    }
+        //
+        //                    return $feeTaxData;
+        //                })->toArray(),
+        //            ];
+        //        })->toArray();
 
         $this->unifiedRoomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
             // Skip hotels that are not on sale if force_on_sale is false
-//            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
-//                continue;
-//            }
+            //            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
+            //                continue;
+            //            }
 
-            $hbsiHotelData = $expediaHotelData = $hotelTraderHotelData =[
+            $hbsiHotelData = $expediaHotelData = $hotelTraderHotelData = [
                 'hotel_code' => $hotel->giata_code,
                 'rooms' => [],
             ];
@@ -243,7 +243,7 @@ class BaseHotelPricingTransformer
             $this->features[$hotel->giata_code] = [
                 'holdable' => $hotel->holdable,
             ];
-        };
+        }
         // Map the rating for each hotel by giata
         $this->priorityContentFromSupplierRepo = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
