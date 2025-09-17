@@ -20,7 +20,18 @@ class UpdateConfigAttributes extends Command
 
         if ($path) {
             $disk = config('filament.default_filesystem_disk', 'public');
-            $csv = Storage::disk($disk)->get($path);
+            if (! Storage::disk($disk)->exists($path)) {
+                $this->error("[ERROR] File does not exist on disk '$disk' at path '$path'.");
+
+                return 1;
+            }
+            try {
+                $csv = Storage::disk($disk)->get($path);
+            } catch (\Exception $e) {
+                $this->error('[ERROR] Exception: '.$e->getMessage());
+
+                return 1;
+            }
         } else {
             $csv = file_get_contents(__DIR__.'/config_attributes.csv');
         }
@@ -36,9 +47,9 @@ class UpdateConfigAttributes extends Command
             [$name, $categoryName] = $row;
 
             $attribute = ConfigAttribute::firstOrCreate([
-                'name' => $name
+                'name' => $name,
             ], [
-                'default_value' => ''
+                'default_value' => '',
             ]);
             if (! empty($categoryName)) {
                 $category = ConfigAttributeCategory::firstOrCreate(['name' => $categoryName]);
