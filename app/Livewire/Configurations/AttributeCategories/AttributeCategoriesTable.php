@@ -62,10 +62,12 @@ class AttributeCategoriesTable extends Component implements HasForms, HasTable
                         if (count($categoriesInUse) > 0) {
                             $message = 'The following categories are in use and cannot be deleted:';
                             foreach ($attributesByCategory as $cat => $attrs) {
-                                $message .= "\n- $cat: " . implode(', ', $attrs);
+                                $message .= "\n- $cat: ".implode(', ', $attrs);
                             }
+
                             return $message;
                         }
+
                         return 'This action will permanently delete the selected categories if they are not in use.';
                     })
                     ->modalSubmitActionLabel('Delete')

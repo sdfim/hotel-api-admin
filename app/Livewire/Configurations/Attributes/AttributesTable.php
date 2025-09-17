@@ -4,11 +4,11 @@ namespace App\Livewire\Configurations\Attributes;
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
-use App\Models\Configurations\ConfigAttributeCategory;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
@@ -17,9 +17,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -150,6 +150,37 @@ class AttributesTable extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->url(fn (): string => route('configurations.attributes.create'))
                     ->visible(fn () => Gate::allows('create', ConfigAttribute::class)),
+                Action::make('importCsv')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->tooltip('Import attribute categories from CSV file.')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->modalHeading('Import Attribute Categories from CSV')->form([
+                        FileUpload::make('csv_file')
+                            ->label('CSV File')
+                            ->acceptedFileTypes(['text/csv', 'application/csv'])
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $filePath = $data['csv_file'];
+                        try {
+                            $exitCode = Artisan::call('config-attributes:update', [
+                                '--path' => $filePath,
+                            ]);
+                            $output = Artisan::output();
+                            Notification::make()
+                                ->title($exitCode === 0 ? 'CSV import successful' : 'CSV import finished with errors')
+                                ->body($output)
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('CSV import failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ]);
     }
 
