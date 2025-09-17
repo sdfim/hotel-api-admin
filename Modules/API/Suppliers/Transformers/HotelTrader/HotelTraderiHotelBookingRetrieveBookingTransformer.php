@@ -60,7 +60,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setBookingId(Arr::get($saveResponse, 'booking_id', ''));
         $responseModel->setBookringItem(Arr::get($saveResponse, 'booking_item', ''));
         $responseModel->setSupplier(Arr::get($saveResponse, 'supplier', ''));
-        $responseModel->setHotelName(Arr::get($saveResponse, 'hotel_name', ''));
+        $responseModel->setHotelName($name);
         $responseModel->setHotelImage($hotelImage);
         $responseModel->setHotelAddress($hotelAddress);
 
