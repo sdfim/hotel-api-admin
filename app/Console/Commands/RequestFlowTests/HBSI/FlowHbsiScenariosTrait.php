@@ -23,14 +23,10 @@ trait FlowHbsiScenariosTrait
             return null;
         }
 
-        $minPrice = null;
-        $minBookingItem = null;
-
         foreach ($results as $hotel) {
             $roomCombinations = Arr::get($hotel, 'room_combinations');
             $roomGroups = Arr::get($hotel, 'room_groups');
-            $roomCombinationsPrices = Arr::get($hotel, 'room_combinations_prices');
-            if (! $roomCombinations || ! $roomGroups || ! $roomCombinationsPrices) {
+            if (! $roomCombinations || ! $roomGroups) {
                 continue;
             }
 
@@ -65,20 +61,14 @@ trait FlowHbsiScenariosTrait
                     }
                 }
                 if ($matched) {
-                    $totalPrice = $roomCombinationsPrices[$parentId]['total_price'] ?? null;
-                    if ($totalPrice !== null && ($minPrice === null || $totalPrice < $minPrice)) {
-                        $minPrice = $totalPrice;
-                        $minBookingItem = $parentId;
-                    }
+                    $this->info('Booking ITEM: '.$parentId);
+
+                    return $parentId;
                 }
             }
         }
 
-        if ($minBookingItem) {
-            $this->info('Booking ITEM with min price: '.$minBookingItem.' ('.$minPrice.')');
-        }
-
-        return $minBookingItem;
+        return null;
     }
 
     public function processBooking(array $occupancy, string $checkin, string $checkout, array $roomParamsArray = [], ?string $inputBookingId = null): array|bool
@@ -383,11 +373,11 @@ trait FlowHbsiScenariosTrait
             $this->error('Availability failed');
         }
         $this->info('softChange result : '.json_encode([
-            'success' => Arr::get($responseAvailability, 'success'),
-            'message' => Arr::get($responseAvailability, 'message'),
-            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
-        ]
-        ));
+                    'success' => Arr::get($responseAvailability, 'success'),
+                    'message' => Arr::get($responseAvailability, 'message'),
+                    'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+                ]
+            ));
 
         $this->info('------------------------------------');
         $this->handleSleep();
