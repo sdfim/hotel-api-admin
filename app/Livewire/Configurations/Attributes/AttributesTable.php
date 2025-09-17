@@ -157,6 +157,7 @@ class AttributesTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-arrow-down-tray')
                     ->modalHeading('Import Attribute Categories from CSV')->form([
                         FileUpload::make('csv_file')
+                            ->disk(config('filament.default_filesystem_disk', 'public'))
                             ->label('CSV File')
                             ->acceptedFileTypes(['text/csv', 'application/csv'])
                             ->required(),
