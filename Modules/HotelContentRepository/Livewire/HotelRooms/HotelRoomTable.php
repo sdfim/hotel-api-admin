@@ -230,6 +230,16 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ])
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->galleries->flatMap(fn ($gallery) => $gallery->images)->count() : 0),
 
+                TextColumn::make('attributes_count')
+                    ->label('Attributes')
+                    ->badge()
+                    ->colors([
+                        'gray' => 0,
+                        'success' => fn (string $state): bool => $state > 0,
+                    ])
+                    ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->attributes->count() : 0),
+
+
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
