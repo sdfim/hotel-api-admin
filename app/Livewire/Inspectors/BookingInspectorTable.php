@@ -116,6 +116,25 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 //                ])
             ])
             ->filters([
+                Filter::make('sub_type')
+                    ->form([
+                        Select::make('category')
+                            ->label('Category')
+                            ->options(
+                                ApiBookingInspector::query()
+                                    ->distinct()
+                                    ->pluck('sub_type', 'sub_type')
+                                    ->toArray()
+                            ),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['category'])) {
+                            return $query->where('sub_type', $data['category']);
+                        }
+
+                        return $query;
+                    })
+                    ->indicateUsing(fn (array $data) => $data['category'] ? "Category: {$data['category']}" : null),
                 Filter::make('created_at')
                     ->form([
                         DateTimePicker::make('created_from'),
