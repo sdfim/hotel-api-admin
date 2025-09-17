@@ -85,10 +85,12 @@ class HbsiHotelBookingRetrieveBookingTransformer
         $hotel = Hotel::where('giata_code', $giata_code)->first();
 
         if ($hotel?->product?->hero_image) {
-            $pathParts = explode('/', $hotel?->product?->hero_image);
-            $filename = array_pop($pathParts);
-            $directory = implode('/', $pathParts);
-            $hotelImage = url('storage/'.($directory ? $directory.'/' : '').rawurlencode($filename));
+            $imagePath = $hotel->product->hero_image;
+            if (config('filesystems.default') === 's3') {
+                $hotelImage = rtrim(config('image_sources.sources.s3'), '/').'/'.ltrim($imagePath, '/');
+            } else {
+                $hotelImage = rtrim(config('image_sources.sources.local'), '/').'/storage/'.ltrim($imagePath, '/');
+            }
         } else {
             $hotelImage = '';
         }
