@@ -36,12 +36,14 @@ class UpdateConfigAttributes extends Command
             [$name, $categoryName] = $row;
 
             $attribute = ConfigAttribute::firstOrCreate([
-                'name' => $name,
-                'default_value' => '',
+                'name' => $name
+            ], [
+                'default_value' => ''
             ]);
-            $category = ConfigAttributeCategory::firstOrCreate(['name' => $categoryName]);
-
-            $attribute->categories()->syncWithoutDetaching([$category->id]);
+            if (! empty($categoryName)) {
+                $category = ConfigAttributeCategory::firstOrCreate(['name' => $categoryName]);
+                $attribute->categories()->syncWithoutDetaching([$category->id]);
+            }
         }
 
         $this->info('Config attributes updated.');
