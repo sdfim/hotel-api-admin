@@ -199,7 +199,7 @@ class ListBookingsRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'supplier' => 'required|string',
+//            'supplier' => 'required|string',
             'type' => 'required|string|in:hotel,flight,combo',
             'api_client.id' => 'nullable|integer',
             'api_client.email' => 'nullable|email',

@@ -256,7 +256,7 @@ class HotelTraderBookApiController extends BaseBookApiController
             ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', $apiClientEmail))
             ->has('metadata')
             ->orderBy('created_at', 'desc')
-            ->limit(10)
+            ->limit(5)
             ->get();
 
         $data = [];

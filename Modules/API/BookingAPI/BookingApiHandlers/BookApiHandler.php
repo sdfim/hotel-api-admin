@@ -521,18 +521,28 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        try {
-            $data = match (SupplierNameEnum::from($request->supplier)) {
-                SupplierNameEnum::EXPEDIA => $this->expedia->listBookings(),
-                SupplierNameEnum::HBSI => $this->hbsi->listBookings(),
-                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->listBookings(),
-                default => [],
-            };
-        } catch (Exception $e) {
-            Log::error('HotelBookingApiHanlder | listBookings '.$e->getMessage());
-            Log::error($e->getTraceAsString());
+        $suppliers = SupplierNameEnum::pricingList();
 
-            return $this->sendError($e->getMessage(), 'failed');
+        $data = [];
+        foreach ($suppliers as $supplier) {
+            try {
+                $bookings = match ($supplier) {
+                    SupplierNameEnum::EXPEDIA->value => $this->expedia->listBookings(),
+                    SupplierNameEnum::HBSI->value => $this->hbsi->listBookings(),
+                    SupplierNameEnum::HOTEL_TRADER->value => $this->hTrader->listBookings(),
+                };
+                if (is_array($bookings)) {
+                    $data = array_merge($data, $bookings);
+                }
+            } catch (Exception $e) {
+                Log::error('HotelBookingApiHandler | listBookings for '.$supplier->value.' '.$e->getMessage());
+                Log::error($e->getTraceAsString());
+                // Optionally, add error info to the result for this supplier
+                $data[] = [
+                    'supplier' => $supplier->value,
+                    'error' => $e->getMessage(),
+                ];
+            }
         }
 
         return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
