@@ -851,6 +851,15 @@ class BookApiHandler extends BaseController
             foreach ($passenger['booking_items'] as $booking) {
                 $bookingItem = $booking['booking_item'];
 
+                $age = null;
+                if (! empty($passenger['date_of_birth'])) {
+                    try {
+                        $age = Carbon::parse($passenger['date_of_birth'])->age;
+                    } catch (\Exception $e) {
+                        $age = null;
+                    }
+                }
+
                 // type hotel
                 if (isset($booking['room'])) {
                     $room = $booking['room'];
@@ -860,7 +869,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
-                            'age' => Arr::get($passenger, 'age'),
+                            'age' => $age,
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -873,7 +882,7 @@ class BookApiHandler extends BaseController
                                             'given_name' => $passenger['given_name'],
                                             'family_name' => $passenger['family_name'],
                                             'date_of_birth' => $passenger['date_of_birth'],
-                                            'age' => Arr::get($passenger, 'age'),
+                                            'age' => $age,
                                         ],
                                     ],
                                 ],
@@ -889,7 +898,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
-                            'age' => Arr::get($passenger, 'age'),
+                            'age' => $age,
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -900,7 +909,7 @@ class BookApiHandler extends BaseController
                                     'given_name' => $passenger['given_name'],
                                     'family_name' => $passenger['family_name'],
                                     'date_of_birth' => $passenger['date_of_birth'],
-                                    'age' => Arr::get($passenger, 'age'),
+                                    'age' => $age,
                                 ],
                             ],
                         ];
