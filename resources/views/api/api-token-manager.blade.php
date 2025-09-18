@@ -13,7 +13,7 @@
             <!-- Token Name -->
             <div class="col-span-6 sm:col-span-4">
                 <x-label for="name" class="dark:text-gray-100" value="{{ __('Token Name') }}"/>
-                <x-input id="name" type="text"
+                <x-input id="name" name="name" type="text"
                          class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                          wire:model="createApiTokenForm.name" autofocus/>
                 <x-input-error for="name" class="mt-2"/>
@@ -28,6 +28,7 @@
                         @foreach (Laravel\Jetstream\Jetstream::$permissions as $permission)
                             <label class="flex items-center">
                                 <x-checkbox wire:model="createApiTokenForm.permissions" :value="$permission"
+                                            name="createApiTokenForm_permissions[]"
                                             class="dark:bg-zinc-600/50"/>
                                 <span class="ml-2 text-sm text-gray-600 dark:text-gray-100">{{ $permission }}</span>
                             </label>
@@ -109,7 +110,7 @@
                 {{ __('Please copy your new API token. For your security, it won\'t be shown again.') }}
             </div>
 
-            <x-input x-ref="plaintextToken" type="text" readonly :value="$plainTextToken"
+            <x-input x-ref="plaintextToken" name="plaintextToken" type="text" readonly :value="$plainTextToken"
                      class="mt-4 bg-gray-100 px-4 py-2 rounded font-mono text-sm text-gray-500 w-full break-all dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                      autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                      @showing-token-modal.window="setTimeout(() => $refs.plaintextToken.select(), 250)"
@@ -135,7 +136,7 @@
                 @foreach (Laravel\Jetstream\Jetstream::$permissions as $permission)
                     <label class="flex items-center">
                         <x-checkbox wire:model="updateApiTokenForm.permissions" class="dark:bg-zinc-600/50"
-                                    :value="$permission"/>
+                                    :value="$permission" name="updateApiTokenForm_permissions[]"/>
                         <span class="ml-2 text-sm text-gray-600 dark:text-gray-100">{{ $permission }}</span>
                     </label>
                 @endforeach

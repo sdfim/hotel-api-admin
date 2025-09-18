@@ -59,7 +59,7 @@
         <!-- Name -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}"/>
-            <x-input id="name" type="text"
+            <x-input id="name" name="name" type="text"
                      class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                      wire:model="state.name" required autocomplete="name"/>
             <x-input-error for="name" class="mt-2"/>
@@ -68,7 +68,7 @@
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="email" class="dark:text-gray-100" value="{{ __('Email') }}"/>
-            <x-input id="email" type="email"
+            <x-input id="email" name="email" type="email"
                      class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                      wire:model="state.email" required autocomplete="username"/>
             <x-input-error for="email" class="mt-2"/>

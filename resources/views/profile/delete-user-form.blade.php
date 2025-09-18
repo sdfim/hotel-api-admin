@@ -29,13 +29,11 @@
 
                 <div class="mt-4" x-data="{}"
                      x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
-                    <x-input type="password"
-                             class="mt-1 block w-3/4 dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                    <x-input type="password" name="password"
+                             class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                              autocomplete="current-password"
-                             placeholder="{{ __('Password') }}"
-                             x-ref="password"
-                             wire:model="password"
-                             wire:keydown.enter="deleteUser"/>
+                             wire:model.defer="state.password"
+                             autofocus/>
 
                     <x-input-error for="password" class="mt-2"/>
                 </div>
