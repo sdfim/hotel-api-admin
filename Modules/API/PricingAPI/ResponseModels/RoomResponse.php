@@ -5,79 +5,42 @@ namespace Modules\API\PricingAPI\ResponseModels;
 class RoomResponse extends BaseResponse
 {
     private array $amenities = [];
-
     private array $capacity = [];
-
-    private string $unified_room_code;
-
+    private string $unified_room_code = '';
     private bool $distribution = false;
-
-    private string $giata_room_code;
-
-    private string $giata_room_name;
-
-    private string $supplier_room_name;
-
-    private int|string $supplier_room_id;
-
-    private string $per_day_rate_breakdown;
-
-    private int $supplier_bed_groups;
-
-    private array $links;
-
-    private float $total_price;
-
-    private float $total_tax;
-
-    private float $total_fees;
-
-    private float $total_net;
-
-    private float $commissionable_amount = 0;
-
-    private float $commission_amount = 0;
-
-    private float $markup;
-
-    private string $booking_item;
-
-    private string $currency;
-
-    private string $room_type;
-
-    private string $rate_id;
-
-    private string $rate_plan_code;
-
-    private string $rate_name;
-
-    private string $rate_description;
-
-    private array $cancellation_policies;
-
-    private bool $non_refundable;
-
-    private string $meal_plan;
-
-    private array $bed_configurations;
-
-    private array $breakdown;
-
-    private string $room_description;
-
+    private string $giata_room_code = '';
+    private string $giata_room_name = '';
+    private string $supplier_room_name = '';
+    private int|string $supplier_room_id = '';
+    private string $per_day_rate_breakdown = '';
+    private int $supplier_bed_groups = 0;
+    private array $links = [];
+    private float $total_price = 0.0;
+    private float $total_tax = 0.0;
+    private float $total_fees = 0.0;
+    private float $total_net = 0.0;
+    private float $commissionable_amount = 0.0;
+    private float $commission_amount = 0.0;
+    private float $markup = 0.0;
+    private string $booking_item = '';
+    private string $currency = '';
+    private string $room_type = '';
+    private string $rate_id = '';
+    private string $rate_plan_code = '';
+    private string $rate_name = '';
+    private string $rate_description = '';
+    private array $cancellation_policies = [];
+    private bool $non_refundable = false;
+    private string $meal_plan = '';
+    private array $bed_configurations = [];
+    private array $breakdown = [];
+    private string $room_description = '';
     private bool $package_deal = false;
-
     private array $promotions = [];
-
     private ?string $penalty_date = null;
-
-    private string $query_package;
-
+    private string $query_package = '';
     private ?array $deposits = [];
-
     private array $descriptive_content = [];
-
     private ?array $pricingRulesApplier = [];
 
     public function setPricingRulesAppliers(array $pricingRulesApplier): void
