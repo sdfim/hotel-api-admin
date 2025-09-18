@@ -44,31 +44,42 @@ class AirwallexProxyController extends BaseController
             return $this->sendError($data['error'], 'Airwallex API error', 400);
         }
 
-        $data['payment_intent_id'] = $result['id'] ?? null;
-        $data['request_id'] = $result['request_id'] ?? null;
+        if (isset($result['id'])) {
+            $result['payment_intent_id'] = $result['id'];
+            unset($result['id']);
+        }
+
+        $data = $result;
 
         return $this->sendResponse($data, 'success');
     }
 
     /**
      * @OA
+     *
      * @OA\Get(
      *     path="/api/payment/transaction/{booking_id}",
      *     tags={"Payment"},
      *     summary="Retrieve Airwallex transactions by booking_id",
+     *
      *     @OA\Parameter(
      *         name="booking_id",
      *         in="path",
      *         required=true,
      *         description="Booking ID (UUID)",
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Transactions found",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="booking_id", type="string", example="13c2cf26-77b2-411f-a0a6-082da1d61b41"),
      *                 @OA\Property(property="transaction_id", type="string", example="int_hkdmgdff7hb5zyo7snp"),
      *                 @OA\Property(property="amount", type="integer", example=100),
@@ -117,9 +128,11 @@ class AirwallexProxyController extends BaseController
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Transaction not found",
+     *
      *         @OA\JsonContent(
      *             example={"error": "Transaction not found"}
      *         )
