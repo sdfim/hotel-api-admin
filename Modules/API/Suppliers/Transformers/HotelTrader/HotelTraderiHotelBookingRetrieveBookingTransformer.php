@@ -18,9 +18,13 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $saveResponse = $bookData ? json_decode(Storage::get($bookData->client_response_path), true) : [];
         $bookRequest = json_decode($bookData?->request ?? '', true) ?? [];
 
+        $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
         $property = Arr::get($data, 'propertyDetails', []);
         $roomsData = Arr::get($data, 'rooms', []);
         $rooms = [];
+        $k = 0;
         foreach ($roomsData as $room) {
             $rooms[] = [
                 'checkin' => Arr::get($room, 'checkInDate'),
@@ -30,8 +34,9 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
                 'family_name' => Arr::get($room, 'guests.0.lastName'),
                 'room_name' => Arr::get($room, 'roomName'),
                 'room_type' => Arr::get($room, 'rateplanTag', ''),
-                'passengers' => Arr::get($room, 'guests', []),
+                'passengers' => $guests[$k] ?? [],
             ];
+            $k++;
         }
 
         preg_match('/^(.*?)\s*\((\d+)\)$/', $saveResponse['hotel_name'], $matches);
