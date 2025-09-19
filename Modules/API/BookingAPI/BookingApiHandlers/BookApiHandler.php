@@ -571,7 +571,7 @@ class BookApiHandler extends BaseController
         $data = [];
         foreach ($retrieved as $item) {
             $disk = config('filesystems.default', 's3');
-            if (! Storage::disk($disk)->exists($item->client_response_path)) {
+            if (! Storage::disk($disk)->get($item->client_response_path)) {
                 continue;
             }
             $json = json_decode(Storage::disk($disk)->get($item->client_response_path), true);
