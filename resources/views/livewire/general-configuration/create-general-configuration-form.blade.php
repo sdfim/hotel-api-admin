@@ -6,6 +6,9 @@
             <x-button class="py-1 px-3 text-sm" wire:click="clearCache" style="background-color: var(--theme-color); height: 33px;">
                 {{ __('Clear Search Cache') }}
             </x-button>
+            <x-button class="py-1 px-3 text-sm" wire:click="clearAllCache" style="background-color: var(--theme-color); height: 33px;">
+                {{ __('Clear All Cache') }}
+            </x-button>
             <x-button class="py-1 px-3 text-sm" wire:click="clearMappingCache" style="background-color: var(--theme-color); height: 33px;">
                 {{ __('Clear Mapping Cache') }}
             </x-button>

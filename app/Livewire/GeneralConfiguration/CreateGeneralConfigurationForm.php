@@ -173,4 +173,13 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             ->success()
             ->send();
     }
+
+    public function clearAllCache(): void
+    {
+        Cache::flush();
+        Notification::make()
+            ->title('All cache cleared successfully')
+            ->success()
+            ->send();
+    }
 }
