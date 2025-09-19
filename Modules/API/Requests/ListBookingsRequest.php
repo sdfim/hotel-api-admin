@@ -22,39 +22,52 @@ class ListBookingsRequest extends ApiRequest
      *      in="query",
      *      required=true,
      *      description="Type of booking",
-     *
      *      @OA\Schema(type="string", enum={"hotel","flight","combo"}, example="hotel")
      *   ),
-     *
-     *   @OA\Parameter(
-     *      name="supplier",
-     *      in="query",
-     *      required=true,
-     *      description="Supplier",
-     *
-     *      @OA\Schema(type="string", example="HBSI")
-     *   ),
-     *
      *   @OA\Parameter(
      *      name="api_client_id",
      *      in="query",
      *      required=false,
-     *      description="API client user ID",
-     *
+     *      description="API client user ID. Either api_client_id or api_client_email must be provided.",
      *      @OA\Schema(type="integer", example=123)
      *   ),
-     *
      *   @OA\Parameter(
      *      name="api_client_email",
      *      in="query",
      *      required=false,
-     *      description="API client email",
-     *
+     *      description="API client email. Either api_client_id or api_client_email must be provided.",
      *      @OA\Schema(type="string", format="email", example="user@example.com")
      *   ),
-     *
-     * @OA\Response(response=200, description="OK",
-     * @OA\JsonContent(
+     *   @OA\Parameter(
+     *      name="page",
+     *      in="query",
+     *      required=false,
+     *      description="Page number for pagination (default: 1)",
+     *      @OA\Schema(type="integer", minimum=1, example=1, default=1)
+     *   ),
+     *   @OA\Parameter(
+     *      name="results_per_page",
+     *      in="query",
+     *      required=false,
+     *      description="Number of results per page (default: 10)",
+     *      @OA\Schema(type="integer", minimum=1, example=10, default=10)
+     *   ),
+     *   @OA\Parameter(
+     *      name="booking_date_from",
+     *      in="query",
+     *      required=false,
+     *      description="Filter bookings from this date (YYYY-MM-DD)",
+     *      @OA\Schema(type="string", format="date", example="2025-09-01")
+     *   ),
+     *   @OA\Parameter(
+     *      name="booking_date_to",
+     *      in="query",
+     *      required=false,
+     *      description="Filter bookings up to this date (YYYY-MM-DD)",
+     *      @OA\Schema(type="string", format="date", example="2025-09-30")
+     *   ),
+     *   @OA\Response(response=200, description="OK",
+     *   @OA\JsonContent(
      * example={
      * "success": true,
      * "data": {
@@ -64,7 +77,6 @@ class ListBookingsRequest extends ApiRequest
      * "status": "booked",
      * "booking_id": "c8c3d2b5-4233-4b2a-bdf3-fd233d80a38b",
      * "booking_item": "786430a0-9e2e-4617-ae98-d3aec8505660",
-     * "supplier": "HotelTrader",
      * "hotel_name": "The Bostonian Boston (69002077)",
      * "rooms": {
      * {
@@ -183,14 +195,11 @@ class ListBookingsRequest extends ApiRequest
      * "message": "success"
      * }
      * )
-     * ),
+     *   ),
      *   @OA\Response(response=401, description="Unauthenticated",
-     *
      *     @OA\JsonContent(ref="#/components/schemas/UnAuthenticatedResponse")
      *   ),
-     *
      *   @OA\Response(response=400, description="Bad Request",
-     *
      *     @OA\JsonContent(ref="#/components/schemas/BadRequestResponse")
      *   ),
      *   security={{ "apiAuth": {} }}
@@ -199,10 +208,14 @@ class ListBookingsRequest extends ApiRequest
     public function rules(): array
     {
         return [
-//            'supplier' => 'required|string',
+            'supplier' => 'nullable|string',
             'type' => 'required|string|in:hotel,flight,combo',
             'api_client.id' => 'nullable|integer',
             'api_client.email' => 'nullable|email',
+            'page' => 'nullable|integer|min:1',
+            'results_per_page' => 'nullable|integer|min:1',
+            'booking_date_from' => 'nullable|date',
+            'booking_date_to' => 'nullable|date',
         ];
     }
 
@@ -232,8 +245,21 @@ class ListBookingsRequest extends ApiRequest
         $validator->after(function (Validator $v) {
             $id = data_get($this->all(), 'api_client.id');
             $email = data_get($this->all(), 'api_client.email');
-
             $this->validateApiClient($v, $id, $email);
+
+            $dateFrom = $this->input('booking_date_from');
+            $dateTo = $this->input('booking_date_to');
+            if ($dateFrom && $dateTo) {
+                try {
+                    $from = \Carbon\Carbon::parse($dateFrom);
+                    $to = \Carbon\Carbon::parse($dateTo);
+                    if ($to->lt($from)) {
+                        $v->errors()->add('booking_date_to', 'The booking_date_to must be after or equal to booking_date_from.');
+                    }
+                } catch (\Exception $e) {
+                    $v->errors()->add('booking_date_from', 'Invalid date format.');
+                }
+            }
         });
     }
 }

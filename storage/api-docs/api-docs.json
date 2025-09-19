@@ -2481,19 +2481,9 @@
                         }
                     },
                     {
-                        "name": "supplier",
-                        "in": "query",
-                        "description": "Supplier",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "HBSI"
-                        }
-                    },
-                    {
                         "name": "api_client_id",
                         "in": "query",
-                        "description": "API client user ID",
+                        "description": "API client user ID. Either api_client_id or api_client_email must be provided.",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -2503,12 +2493,58 @@
                     {
                         "name": "api_client_email",
                         "in": "query",
-                        "description": "API client email",
+                        "description": "API client email. Either api_client_id or api_client_email must be provided.",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "format": "email",
                             "example": "user@example.com"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination (default: 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "results_per_page",
+                        "in": "query",
+                        "description": "Number of results per page (default: 10)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "booking_date_from",
+                        "in": "query",
+                        "description": "Filter bookings from this date (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-01"
+                        }
+                    },
+                    {
+                        "name": "booking_date_to",
+                        "in": "query",
+                        "description": "Filter bookings up to this date (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-30"
                         }
                     }
                 ],
@@ -2527,7 +2563,6 @@
                                                 "status": "booked",
                                                 "booking_id": "c8c3d2b5-4233-4b2a-bdf3-fd233d80a38b",
                                                 "booking_item": "786430a0-9e2e-4617-ae98-d3aec8505660",
-                                                "supplier": "HotelTrader",
                                                 "hotel_name": "The Bostonian Boston (69002077)",
                                                 "rooms": [
                                                     {

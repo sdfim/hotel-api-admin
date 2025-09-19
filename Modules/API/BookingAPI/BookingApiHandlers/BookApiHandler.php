@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Jobs\ClearSearchCacheByBookingItemsJob;
+use App\Jobs\RetrieveBookingJob;
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
@@ -17,6 +18,7 @@ use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
+use App\Repositories\ChannelRepository;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -25,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
@@ -147,6 +150,9 @@ class BookApiHandler extends BaseController
          */
         $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
+
+        // Retrieve booking to get the full details after booking
+        RetrieveBookingJob::dispatch($request->booking_id);
 
         $totalTime = (microtime(true) - $sts).' seconds';
 
@@ -521,6 +527,83 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
+        $latestIds = ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'retrieve')
+            ->where('status', 'success')
+            ->groupBy('booking_id', 'booking_item')
+            ->selectRaw('MAX(id) as id')
+            ->orderByDesc('id')
+            ->pluck('id');
+
+        $retrieved = ApiBookingInspector::whereIn('id', $latestIds)->get();
+
+        $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
+        $apiClientId = data_get($request->all(), 'api_client_id');
+        $apiClientEmail = data_get($request->all(), 'api_client_email');
+
+        $bookingDateFrom = $request->input('booking_date_from');
+        $bookingDateTo = $request->input('booking_date_to');
+
+        $itemsBookedByApiClient = ApiBookingInspector::query()
+            ->where('token_id', $tokenId)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
+                $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
+                    if (filled($apiClientId)) {
+                        $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
+                    }
+                    if (filled($apiClientEmail)) {
+                        $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
+                    }
+                });
+            })
+            ->when(filled($bookingDateFrom), function ($q) use ($bookingDateFrom) {
+                $q->whereDate('created_at', '>=', $bookingDateFrom);
+            })
+            ->when(filled($bookingDateTo), function ($q) use ($bookingDateTo) {
+                $q->whereDate('created_at', '<=', $bookingDateTo);
+            })
+            ->has('metadata')
+            ->orderBy('created_at', 'desc')
+            ->pluck('booking_item');
+
+        $data = [];
+        foreach ($retrieved as $item) {
+            if (! Storage::exists($item->client_response_path)) {
+                continue;
+            }
+            if (! json_decode(Storage::get($item->client_response_path), true)) {
+                continue;
+            }
+            if (! in_array($item->booking_item, $itemsBookedByApiClient->toArray())) {
+                continue;
+            }
+
+            $data[] = json_decode(Storage::get($item->client_response_path), true);
+        }
+
+        $totalCount = count($data);
+        $page = (int) $request->input('page', 1);
+        $resultsPerPage = (int) $request->input('results_per_page', 10);
+        $offset = ($page - 1) * $resultsPerPage;
+        $paginatedData = array_slice($data, $offset, $resultsPerPage);
+
+        return $this->sendResponse([
+            'count' => $totalCount,
+            'page' => $page,
+            'results_per_page' => $resultsPerPage,
+            'result' => $paginatedData,
+        ], 'success');
+    }
+
+    public function listBookingsOld(ListBookingsRequest $request): JsonResponse
+    {
+        $determinant = $this->determinant($request);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
+
         $suppliers = SupplierNameEnum::pricingList();
 
         $data = [];
@@ -671,6 +754,9 @@ class BookApiHandler extends BaseController
             // we need the 3-4 parameters to match force cancellation critirea in the admin crm
             return $this->sendError($errors, '', 400, $data);
         }
+
+        // Retrieve booking to get the full details after booking
+        RetrieveBookingJob::dispatch($request->booking_id);
 
         return $this->sendResponse(['result' => $data], 'success');
     }

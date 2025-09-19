@@ -432,14 +432,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        //        $this->cancel($bookingId, $bookingItem);
+//        $this->cancel($bookingId, $bookingItem);
     }
 
     private function scenario_s5(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #s5');
-        $occupancy = [['adults' => 2],['adults' => 2]];
+        $occupancy = [['adults' => 2], ['adults' => 2]];
         $nights = 2;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
@@ -464,7 +464,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #s6');
-        $occupancy = [['adults' => 2],['adults' => 2]];
+        $occupancy = [['adults' => 2], ['adults' => 2]];
         $nights = 2;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
@@ -489,7 +489,7 @@ class FlowHotelTraderBookDiffScenarios extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #s7');
-        $occupancy = [['adults' => 2, 'children_ages' => [5]],['adults' => 2, 'children_ages' => [5]]];
+        $occupancy = [['adults' => 2, 'children_ages' => [5]], ['adults' => 2, 'children_ages' => [5]]];
         $nights = 2;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
@@ -507,14 +507,14 @@ class FlowHotelTraderBookDiffScenarios extends Command
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-//                $this->cancel($bookingId, $bookingItem);
+        //                $this->cancel($bookingId, $bookingItem);
     }
 
     private function scenario_s8(): void
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #s8');
-        $occupancy = [['adults' => 2, 'children_ages' => [5]],['adults' => 2, 'children_ages' => [5]]];
+        $occupancy = [['adults' => 2, 'children_ages' => [5]], ['adults' => 2, 'children_ages' => [5]]];
         $nights = 2;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
@@ -939,6 +939,9 @@ class FlowHotelTraderBookDiffScenarios extends Command
         $faker = Faker::create();
 
         $requestData = [
+            'api_client' => [
+                'id' => env('TEST_API_USER_ID', 19),
+            ],
             'booking_id' => $bookingId,
             'amount_pay' => 'Deposit',
             'booking_contact' => [
