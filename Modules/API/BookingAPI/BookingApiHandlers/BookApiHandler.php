@@ -570,17 +570,19 @@ class BookApiHandler extends BaseController
 
         $data = [];
         foreach ($retrieved as $item) {
-            if (! Storage::exists($item->client_response_path)) {
+            $disk = config('filament.default_filesystem_disk', 'public');
+            if (! Storage::disk($disk)->exists($item->client_response_path)) {
                 continue;
             }
-            if (! json_decode(Storage::get($item->client_response_path), true)) {
+            $json = json_decode(Storage::disk($disk)->get($item->client_response_path), true);
+            if (! $json) {
                 continue;
             }
             if (! in_array($item->booking_item, $itemsBookedByApiClient->toArray())) {
                 continue;
             }
 
-            $data[] = json_decode(Storage::get($item->client_response_path), true);
+            $data[] = $json;
         }
 
         $totalCount = count($data);
