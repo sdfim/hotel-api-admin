@@ -296,7 +296,7 @@ class HotelTable extends Component implements HasForms, HasTable
                                 ->required(),
                         ])
                         ->action(function (array $data) {
-                            $filePath = Storage::disk('public')->path($data['dumpFile']);
+                            $filePath = Storage::disk(config('filesystems.default', 's3'))->path($data['dumpFile']);
                             if (Storage::disk('public')->exists($data['dumpFile'])) {
                                 Artisan::call('db:import', [
                                     'file' => $filePath,
