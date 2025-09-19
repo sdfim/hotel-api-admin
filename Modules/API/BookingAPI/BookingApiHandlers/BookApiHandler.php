@@ -13,6 +13,7 @@ use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Reservation;
 use App\Models\Supplier;
+use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
@@ -540,6 +541,20 @@ class BookApiHandler extends BaseController
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
         $apiClientId = data_get($request->all(), 'api_client_id');
         $apiClientEmail = data_get($request->all(), 'api_client_email');
+
+        // Determine missing api client info from User model
+        if (filled($apiClientId) && empty($apiClientEmail)) {
+            $user = User::find($apiClientId);
+            if ($user) {
+                $apiClientEmail = $user->email;
+            }
+        }
+        if (filled($apiClientEmail) && empty($apiClientId)) {
+            $user = User::where('email', $apiClientEmail)->first();
+            if ($user) {
+                $apiClientId = $user->id;
+            }
+        }
 
         $bookingDateFrom = $request->input('booking_date_from');
         $bookingDateTo = $request->input('booking_date_to');
