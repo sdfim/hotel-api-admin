@@ -88,14 +88,6 @@ class HbsiBookApiController extends BaseBookApiController
             $passengersArr = $passengers->toArray();
             $dataPassengers = json_decode($passengersArr['request'], true);
         }
-        if (! isset($filters['credit_cards'])) {
-            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Credit card not found', 'filters' => $filters]); // $booking_id
-
-            return [
-                'error' => 'Credit card not found.',
-                'booking_item' => $filters['booking_item'],
-            ];
-        }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $inspectorBook = BookingRepository::newBookingInspector([

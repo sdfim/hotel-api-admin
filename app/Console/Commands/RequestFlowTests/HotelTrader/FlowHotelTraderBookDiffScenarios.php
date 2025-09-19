@@ -980,23 +980,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
             ];
         }
 
-        foreach ($bookingItems as $item) {
-            $cards[] = [
-                'credit_card' => [
-                    'cvv' => '123',
-                    'number' => 4001919257537193,
-                    'card_type' => 'VISA',
-                    'name_card' => 'Visa',
-                    'expiry_date' => '09/2026',
-                    'billing_address' => null,
-                ],
-                'booking_item' => $item,
-            ];
-        }
-        $requestData['credit_cards'] = $cards;
-
-        //        dd($requestData, json_encode($requestData));
-
         $response = $this->client->post($this->url.'/api/booking/book', $requestData);
         $this->info('------------------------------------');
         $this->info('book: '.json_encode($response->json()));
