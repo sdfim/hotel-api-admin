@@ -241,9 +241,10 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                 )
                 ->searchable()
                 ->toggleable()
-                ->extraAttributes(['style' => 'max-width: 150px;']),
-            TextColumn::make('tag')
-                ->searchable(),
+                ->width(200),
+            TextInputColumn::make('tag')
+                ->searchable()
+                ->width(300),
             TextColumn::make('section.name')
                 ->searchable(),
             TextColumn::make('source')
