@@ -246,10 +246,6 @@ class HotelContentApiService
             }
         }
 
-        if (empty($detailResults)) {
-            return [];
-        }
-
         $romsImagesData = $this->mergeRooms($detailResults, $resultsSuppliers, $roomMappers);
 
         return $this->updateDetailResults($detailResults, $structureSource, $repoData, $resultsSuppliers, $romsImagesData);
@@ -364,6 +360,21 @@ class HotelContentApiService
         }
         unset($result);
 
+        // Fallback: add missing hotels from repoData
+        $existingCodes = array_map(fn($r) => Arr::get($r, 'giata_hotel_code'), $detailResults);
+        foreach ($repoData as $hotel) {
+            $giata_code = $hotel['giata_code'] ?? null;
+            if (! $giata_code || in_array($giata_code, $existingCodes) || ! $hotel->product) {
+                continue;
+            }
+            $result = [
+                'giata_hotel_code' => $giata_code,
+                // Add other fields from $hotel as needed
+            ];
+            $this->dataTransformer->updateResultWithHotelData($result, $hotel, $structureSource[$giata_code] ?? [], $resultsSuppliers, $romsImagesData);
+            $detailResults[] = $result;
+        }
+
         return $detailResults;
     }
 
@@ -404,7 +415,24 @@ class HotelContentApiService
             $hotel = $repoData->where('giata_code', $giata_code)->first();
             $this->dataTransformer->updateContentResultWithHotelData($result, $hotel, $structureSource[$giata_code], $transformedResults);
         }
+
         unset($result);
+
+        // Fallback: if contentResults is empty, populate from repoData
+        if (empty($contentResults)) {
+            foreach ($repoData as $hotel) {
+                $giata_code = $hotel['giata_code'] ?? null;
+                if (! $giata_code || ! in_array($giata_code, $giataCodes)) {
+                    continue;
+                }
+                $result = [
+                    'giata_hotel_code' => $giata_code,
+                    // Add other fields from $hotel as needed
+                ];
+                $this->dataTransformer->updateContentResultWithHotelData($result, $hotel, $structureSource[$giata_code] ?? null, $transformedResults);
+                $contentResults[] = $result;
+            }
+        }
 
         return $contentResults;
     }
