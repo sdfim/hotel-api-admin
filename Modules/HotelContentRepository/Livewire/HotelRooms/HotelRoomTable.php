@@ -34,8 +34,8 @@ use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Actions\HotelRoom\AddHotelRoom;
+use Modules\HotelContentRepository\Actions\HotelRoom\CloneHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\EditHotelRoom;
-use Modules\HotelContentRepository\Actions\HotelRoom\MergeHotelRoom;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 
@@ -239,7 +239,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ])
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->attributes->count() : 0),
 
-
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
@@ -287,6 +286,26 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
                         })
                         ->visible(fn () => Gate::allows('update', Hotel::class)),
+
+                    Action::make('clone')
+                        ->label('Clone')
+                        ->icon('heroicon-o-clipboard-document')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn ($record) => 'Clone Room: '.$record->name)
+                        ->action(function (HotelRoom $record) {
+                            /** @var CloneHotelRoom $cloner */
+                            $cloner = app(CloneHotelRoom::class);
+                            $new = $cloner->execute($record);
+
+                            Notification::make()
+                                ->title('Room cloned')
+                                ->body("New Room ID: $new->id")
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(function (HotelRoom $record) {
+                            return Gate::allows('update', Hotel::class);
+                        }),
 
                     Action::make('rollback')
                         ->label('Rollback Merge')
