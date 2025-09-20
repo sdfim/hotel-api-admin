@@ -186,6 +186,39 @@ class AttributesTable extends Component implements HasForms, HasTable
                                 ->send();
                         }
                     }),
+                Action::make('exportCsv')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->tooltip('Export attribute categories to CSV file.')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->action(function () {
+                        $attributes = \App\Models\Configurations\ConfigAttribute::with('categories')->get();
+                        $rows = [];
+                        foreach ($attributes as $attribute) {
+                            if ($attribute->categories && $attribute->categories->count() > 0) {
+                                foreach ($attribute->categories as $category) {
+                                    $rows[] = [
+                                        'attribute_name' => $attribute->name,
+                                        'category_name' => $category->name,
+                                    ];
+                                }
+                            } else {
+                                $rows[] = [
+                                    'attribute_name' => $attribute->name,
+                                    'category_name' => 'general',
+                                ];
+                            }
+                        }
+                        $csv = implode(",", ['attribute_name', 'category_name']) . "\n";
+                        foreach ($rows as $row) {
+                            $csv .= implode(",", [$row['attribute_name'], $row['category_name']]) . "\n";
+                        }
+                        $filename = 'attributes_export_' . date('Ymd_His') . '.csv';
+                        $disk = config('filament.default_filesystem_disk', 'public');
+                        $path = 'tmp/' . $filename;
+                        \Storage::disk($disk)->put($path, $csv);
+                        return \Storage::disk($disk)->download($path);
+                    }),
             ]);
     }
 
