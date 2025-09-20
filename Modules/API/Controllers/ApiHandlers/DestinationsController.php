@@ -66,6 +66,7 @@ class DestinationsController
             return Hotel::pluck('giata_code')->toArray();
         });
 
+        // I
         $plasePath = [];
         $giataPlaces = GiataPlace::where('name_primary', 'like', '%'.$request->hotel.'%')
             ->whereNotNull('tticodes')
@@ -78,10 +79,44 @@ class DestinationsController
                     'name' => $place->name_primary,
                     'giata_code' => implode(',', array_values($codes)),
                     'type' => $place->type,
+                    'source' => 'place',
                 ];
             }
         }
 
+        // II
+        $poisPath = [];
+        $giataPois = GiataPoi::where('name_primary', 'like', '%'.$request->hotel.'%')->get();
+
+        $allPlaceKeys = [];
+        foreach ($giataPois as $poi) {
+            $allPlaceKeys = array_merge($allPlaceKeys, $poi->places ?? []);
+        }
+        $allPlaceKeys = array_unique($allPlaceKeys);
+
+        $places = GiataPlace::whereIn('key', $allPlaceKeys)
+            ->whereNotNull('tticodes')
+            ->get()
+            ->keyBy('key');
+
+        foreach ($giataPois as $poi) {
+            foreach ($poi->places ?? [] as $placeKey) {
+                if (isset($places[$placeKey])) {
+                    $place = $places[$placeKey];
+                    $codes = array_intersect($place->tticodes, $listGiata);
+                    if (! empty($codes)) {
+                        $poisPath[] = [
+                            'name' => $poi->name_primary.' ('.$place->name_primary.')',
+                            'giata_code' => implode(',', array_values($codes)),
+                            'type' => $poi->type,
+                            'source' => 'poi',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // III
         $query = Hotel::query()
             ->with('product')
             ->whereHas('product', function ($q) use ($request) {
@@ -95,10 +130,11 @@ class DestinationsController
                 'name' => $hotel->product?->name,
                 'giata_code' => $hotel->giata_code,
                 'type' => 'hotel',
+                'source' => 'hotel',
             ];
         })->toArray();
 
-        $hotelData = array_merge($plasePath, $hotelData);
+        $hotelData = array_merge($plasePath, $poisPath, $hotelData);
 
         return [
             'hotels' => $hotelData,
