@@ -16,6 +16,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
@@ -232,14 +233,15 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             TextColumn::make('image_url')
                 ->searchable()
                 ->toggleable(isToggledHiddenByDefault: true),
-            TextColumn::make('weight')
-                ->searchable()
+            TextInputColumn::make('weight')
                 ->sortable(
                     query: function (Builder $query, string $direction): Builder {
                         return $query->orderByRaw("CAST(weight AS UNSIGNED) {$direction}");
                     }
                 )
-                ->toggleable(isToggledHiddenByDefault: true),
+                ->searchable()
+                ->toggleable()
+                ->extraAttributes(['style' => 'max-width: 150px;']),
             TextColumn::make('tag')
                 ->searchable(),
             TextColumn::make('section.name')
