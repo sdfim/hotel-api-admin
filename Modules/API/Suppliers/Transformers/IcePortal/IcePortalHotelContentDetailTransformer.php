@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\API\Suppliers\Transformers\IcePortal;
 
+use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
@@ -102,10 +104,22 @@ class IcePortalHotelContentDetailTransformer
         $roomImages = $result['roomImages'];
         $roomAmenities = $result['roomAmenities'];
         $roomAmenitiesGeneral = $result['roomAmenitiesGeneral'];
+
         $hotelAmenities = array_map(function ($amenity) {
+            $cacheKey = 'config_attribute_'.$amenity;
+            $configAttribute = Cache::get($cacheKey);
+            if (! $configAttribute) {
+                $configAttribute = ConfigAttribute::where('name', $amenity)->with('categories')->first();
+                Cache::put($cacheKey, $configAttribute, now()->addHours(12));
+            }
+
+            $category = ($configAttribute && $configAttribute->categories && $configAttribute->categories->count())
+                ? $configAttribute->categories->first()->name
+                : 'general';
+
             return [
                 'name' => $amenity,
-                'category' => 'general',
+                'category' => $category,
             ];
         }, array_unique($result['hotelAmenities']));
 

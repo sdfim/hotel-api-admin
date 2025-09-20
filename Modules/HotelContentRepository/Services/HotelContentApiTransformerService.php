@@ -342,13 +342,25 @@ class HotelContentApiTransformerService
 
     private function getHotelAttributes($hotel): array
     {
-        return $hotel->product->attributes->map(function ($attribute) {
-            return [
-                'name' => $attribute->attribute?->name,
-                'category' => $attribute->category?->name ?? 'general',
-            ];
-        })->all();
+        return $hotel->product->attributes->flatMap(function ($attribute) {
+            $categories = $attribute->attribute->categories;
+
+            if ($categories->isEmpty()) {
+                return [[
+                    'name' => $attribute->attribute?->name,
+                    'category' => 'general',
+                ]];
+            }
+
+            return $categories->map(function ($category) use ($attribute) {
+                return [
+                    'name' => $attribute->attribute?->name,
+                    'category' => $category->name,
+                ];
+            });
+        })->values()->all();
     }
+
 
     private function getHotelDrivers($hotel): array
     {

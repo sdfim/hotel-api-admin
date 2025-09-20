@@ -2,13 +2,22 @@
 
 namespace Modules\API\Suppliers\Transformers\IcePortal;
 
+use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 
 class IcePortalHotelContentTransformer implements SupplierContentTransformerInterface
 {
+    private IcePortalAssetTransformer $icePortalAssetTransformer;
+
+    public function __construct(IcePortalAssetTransformer $icePortalAssetTransformer)
+    {
+        $this->icePortalAssetTransformer = $icePortalAssetTransformer;
+    }
+
     /**
      * @return ContentSearchResponse[]
      */
@@ -19,27 +28,33 @@ class IcePortalHotelContentTransformer implements SupplierContentTransformerInte
         foreach ($supplierResponse as $hotel) {
             $hotelResponse = ContentSearchResponseFactory::create();
 
-            // Images from assets
-            $images = [];
-            if (isset($hotel['assets']['results']) && is_array($hotel['assets']['results'])) {
-                foreach ($hotel['assets']['results'] as $asset) {
-                    $images[] = $asset['links']['mediaLinkURL'] ?? null;
+            $assetsResponse = isset($hotel['assets']['results']) ? $hotel['assets']['results'] : [];
+            $roomTypeCodes = isset($hotel['roomTypeCodes']) ? $hotel['roomTypeCodes'] : [];
+            $result = $this->icePortalAssetTransformer->IcePortalToAssets($assetsResponse, $roomTypeCodes);
+
+            $images = $result['hotelImages'] ?? [];
+            $hotelAmenities = array_map(function ($amenity) {
+                $cacheKey = 'config_attribute_'.$amenity;
+                $configAttribute = Cache::get($cacheKey);
+                if (! $configAttribute) {
+                    $configAttribute = ConfigAttribute::where('name', $amenity)->with('categories')->first();
+                    Cache::put($cacheKey, $configAttribute, now()->addHours(12));
                 }
-            }
+                $category = ($configAttribute && $configAttribute->categories && $configAttribute->categories->count())
+                    ? $configAttribute->categories->first()->name
+                    : 'general';
 
-            // Amenities
-            $amenities = $hotel['amenities'] ?? [];
-            if (! is_array($amenities)) {
-                $amenities = json_decode($amenities, true) ?? [];
-            }
+                return [
+                    'name' => $amenity,
+                    'category' => $category,
+                ];
+            }, array_unique($result['hotelAmenities'] ?? []));
 
-            // Descriptions
             $fees = Arr::get($hotel, 'fees', []);
             $policies = Arr::get($hotel, 'policies', []);
             $descriptions = Arr::get($hotel, 'descriptions', []);
             $descriptions = array_merge($fees, $policies, $descriptions);
 
-            // Address
             $address = [
                 'addressLine1' => $hotel['addressLine1'] ?? '',
                 'city' => $hotel['city'] ?? '',
@@ -56,7 +71,7 @@ class IcePortalHotelContentTransformer implements SupplierContentTransformerInte
             $hotelResponse->setLatitude($address['latitude']);
             $hotelResponse->setLongitude($address['longitude']);
             $hotelResponse->setRating($hotel['rating'] ?? '');
-            $hotelResponse->setAmenities($amenities);
+            $hotelResponse->setAmenities($hotelAmenities);
             $hotelResponse->setGiataDestination($address['city']);
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
 
