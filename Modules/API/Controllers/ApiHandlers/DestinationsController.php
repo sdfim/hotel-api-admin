@@ -5,7 +5,6 @@ namespace Modules\API\Controllers\ApiHandlers;
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataPoi;
-use App\Models\Property;
 use Google\Client;
 use Google\Service\Exception;
 use Google\Service\MapsPlaces;
@@ -19,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\API\Requests\DestinationRequest;
 use Modules\Enums\SearchSuggestionStrategy;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class DestinationsController
 {
@@ -35,31 +35,7 @@ class DestinationsController
         }
 
         if ($request->hotel !== null) {
-            $connectedSuppliers = explode(',', config('booking-suppliers.connected_suppliers', ''));
-            $page = max((int) $request->get('page', 1), 1);
-            $perPage = max((int) $request->get('per_page', 10), 1);
-
-            $query = Property::with('mappings')->where(function ($query) use ($request) {
-                $query->where('name', 'like', '%'.$request->hotel.'%');
-            })->whereHas('mappings', function ($query) use ($connectedSuppliers) {
-                $query->whereIn('supplier', $connectedSuppliers);
-            });
-
-            $total = $query->count();
-            $hotels = $query->skip(($page - 1) * $perPage)->take($perPage)->get(['name', 'code']);
-            $hotelData = $hotels->map(function ($hotel) {
-                return ['name' => $hotel->name, 'giata_code' => $hotel->code];
-            })->toArray();
-
-            $response = [
-                'success' => true,
-                'data' => [
-                    'hotels' => $hotelData,
-                    'total' => $total,
-                    'page' => $page,
-                    'per_page' => $perPage,
-                ],
-            ];
+            $response = $this->getPaginatedHotels($request);
 
             return response()->json($response);
         }
@@ -78,6 +54,35 @@ class DestinationsController
         }
 
         return response()->json($response);
+    }
+
+    private function getPaginatedHotels($request): array
+    {
+        $page = max((int) $request->get('page', 1), 1);
+        $perPage = max((int) $request->get('per_page', 10), 1);
+
+        $query = Hotel::query()
+            ->with('product')
+            ->whereHas('product', function ($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->hotel.'%');
+            });
+
+        $total = $query->count();
+        $hotels = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+        $hotelData = $hotels->map(function ($hotel) {
+            return [
+                'name' => $hotel->product?->name,
+                'giata_code' => $hotel->giata_code,
+                'type' => 'hotel',
+            ];
+        })->toArray();
+
+        return [
+            'hotels' => $hotelData,
+            'total' => $total,
+            'page' => $page,
+            'per_page' => $perPage,
+        ];
     }
 
     private function getGiataPoisData(DestinationRequest $request)
@@ -280,7 +285,7 @@ class DestinationsController
         return collect($results->getPlaces())->map(fn (GoogleMapsPlacesV1Place $place) => [
             'full_name' => $place->getDisplayName()->text,
             'place' => $place->getId(),
-            'country_code' => collect($place->getAddressComponents())->filter(fn (GoogleMapsPlacesV1PlaceAddressComponent $component) => in_array('country', $component->types))->first()?->longText,
+            'country_code' => collect($place->getAddressComponents())->filter(fn (GoogleMapsPlacesV1PlaceAddressComponent $component) => in_array('country', $component->types))->first()?->text,
             'type' => match ($place->getPrimaryType()) {
                 'airport' => 'Airport',
                 'country' => 'Country',
