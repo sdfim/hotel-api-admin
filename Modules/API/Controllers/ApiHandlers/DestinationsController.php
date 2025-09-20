@@ -14,6 +14,7 @@ use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1PlaceAddressComponent;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1SearchTextRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\API\Requests\DestinationRequest;
@@ -61,6 +62,26 @@ class DestinationsController
         $page = max((int) $request->get('page', 1), 1);
         $perPage = max((int) $request->get('per_page', 10), 1);
 
+        $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
+            return Hotel::pluck('giata_code')->toArray();
+        });
+
+        $plasePath = [];
+        $giataPlaces = GiataPlace::where('name_primary', 'like', '%'.$request->hotel.'%')
+            ->whereNotNull('tticodes')
+            ->get();
+        foreach ($giataPlaces as $place) {
+            $codes = $place->tticodes;
+            $codes = array_intersect($codes, $listGiata);
+            if (! empty($codes)) {
+                $plasePath[] = [
+                    'name' => $place->name_primary,
+                    'giata_code' => implode(',', array_values($codes)),
+                    'type' => $place->type,
+                ];
+            }
+        }
+
         $query = Hotel::query()
             ->with('product')
             ->whereHas('product', function ($q) use ($request) {
@@ -76,6 +97,8 @@ class DestinationsController
                 'type' => 'hotel',
             ];
         })->toArray();
+
+        $hotelData = array_merge($plasePath, $hotelData);
 
         return [
             'hotels' => $hotelData,
