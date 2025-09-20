@@ -141,6 +141,29 @@ class SearchHotelRequest extends ApiRequest
      *    security={{ "apiAuth": {} }}
      *  )
      */
+
+    public function prepareForValidation()
+    {
+        $giata = $this->giata_ids ?? null;
+        $ids = [];
+        if (is_string($giata)) {
+            $ids = array_filter(array_map('trim', explode(',', $giata)), 'strlen');
+        } elseif (is_array($giata)) {
+            foreach ($giata as $item) {
+                if (is_string($item) && strpos($item, ',') !== false) {
+                    $ids = array_merge($ids, array_filter(array_map('trim', explode(',', $item)), 'strlen'));
+                } else {
+                    $ids[] = $item;
+                }
+            }
+        }
+        if ($ids) {
+            $this->merge([
+                'giata_ids' => $ids,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

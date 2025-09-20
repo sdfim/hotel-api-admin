@@ -148,6 +148,31 @@ class PriceHotelRequest extends ApiRequest
         ];
     }
 
+    public function prepareForValidation()
+    {
+        $giata = $this->giata_ids ?? null;
+        $ids = [];
+        if (is_string($giata)) {
+            $ids = array_filter(array_map('trim', explode(',', $giata)), 'strlen');
+        } elseif (is_array($giata)) {
+            foreach ($giata as $item) {
+                if (is_string($item)) {
+                    $split = array_filter(array_map('trim', explode(',', $item)), 'strlen');
+                    $ids = array_merge($ids, $split);
+                } else {
+                    $ids[] = $item;
+                }
+            }
+        }
+        // Привести все элементы к целым числам
+        $ids = array_map('intval', $ids);
+        if ($ids) {
+            $this->merge([
+                'giata_ids' => $ids,
+            ]);
+        }
+    }
+
     public function validatedDate(): array
     {
         return parent::validated();
