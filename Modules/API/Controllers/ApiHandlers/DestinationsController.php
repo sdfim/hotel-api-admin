@@ -60,90 +60,79 @@ class DestinationsController
     private function getPaginatedHotels($request): array
     {
         $page = max((int) $request->get('page', 1), 1);
-        $perPage = max((int) $request->get('per_page', 10), 1);
+        $perPage = max((int) $request->get('per_page', 50), 1);
 
-        $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
-            return Hotel::pluck('giata_code')->toArray();
-        });
+        // Calculate proportions
+        $numHotels = (int) round($perPage * 0.5);
+        $numPlaces = (int) round($perPage * 0.25);
+        $numPois = $perPage - $numHotels - $numPlaces; // Ensures total = perPage
 
-        // I
-        $plasePath = [];
-        $giataPlaces = GiataPlace::where('name_primary', 'like', '%'.$request->hotel.'%')
-            ->whereNotNull('tticodes')
-            ->get();
-        foreach ($giataPlaces as $place) {
-            $codes = $place->tticodes;
-            $codes = array_intersect($codes, $listGiata);
-            if (! empty($codes)) {
-                $plasePath[] = [
-                    'name' => $place->name_primary,
-                    'giata_code' => implode(',', array_values($codes)),
-                    'type' => $place->type,
-                    'source' => 'place',
-                ];
-            }
-        }
-
-        // II
-        $poisPath = [];
-        $giataPois = GiataPoi::where('name_primary', 'like', '%'.$request->hotel.'%')->get();
-
-        $allPlaceKeys = [];
-        foreach ($giataPois as $poi) {
-            $allPlaceKeys = array_merge($allPlaceKeys, $poi->places ?? []);
-        }
-        $allPlaceKeys = array_unique($allPlaceKeys);
-
-        $places = GiataPlace::whereIn('key', $allPlaceKeys)
-            ->whereNotNull('tticodes')
-            ->get()
-            ->keyBy('key');
-
-        foreach ($giataPois as $poi) {
-            foreach ($poi->places ?? [] as $placeKey) {
-                if (isset($places[$placeKey])) {
-                    $place = $places[$placeKey];
-                    $codes = array_intersect($place->tticodes, $listGiata);
-                    if (! empty($codes)) {
-                        $poisPath[] = [
-                            'name' => $poi->name_primary.' ('.$place->name_primary.')',
-                            'giata_code' => implode(',', array_values($codes)),
-                            'type' => $poi->type,
-                            'source' => 'poi',
-                        ];
-                    }
-                }
-            }
-        }
-
-        // III
-        $query = Hotel::query()
+        $hotelQuery = Hotel::query()
             ->with('product')
             ->whereHas('product', function ($q) use ($request) {
                 $q->where('name', 'like', '%'.$request->hotel.'%');
             });
-
-        $total = $query->count();
-        $hotels = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+        $totalHotels = $hotelQuery->count();
+        $hotels = $hotelQuery->skip(($page - 1) * $numHotels)->take($numHotels)->get();
         $hotelData = $hotels->map(function ($hotel) {
             return [
                 'name' => $hotel->product?->name,
                 'giata_code' => $hotel->giata_code,
                 'type' => 'hotel',
-                'source' => 'hotel',
             ];
         })->toArray();
 
-        $hotelData = array_merge($plasePath, $poisPath, $hotelData);
+        $placeQuery = GiataPlace::query()
+            ->where('name_primary', 'like', '%'.$request->hotel.'%')
+            ->whereNotNull('tticodes');
+        $totalPlaces = $placeQuery->count();
+        $places = $placeQuery->skip(($page - 1) * $numPlaces)->take($numPlaces)->get();
+        $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
+            return Hotel::pluck('giata_code')->toArray();
+        });
+        $placeData = [];
+        foreach ($places as $place) {
+            $codes = array_intersect($place->tticodes, $listGiata);
+            if (! empty($codes)) {
+                $placeData[] = [
+                    'name' => $place->name_primary,
+                    'giata_code' => implode(',', array_values($codes)),
+                    'type' => $place->type,
+                ];
+            }
+        }
+
+        $poiQuery = GiataPoi::query()
+            ->where('name_primary', 'like', '%'.$request->hotel.'%');
+        $totalPois = $poiQuery->count();
+        $pois = $poiQuery->skip(($page - 1) * $numPois)->take($numPois)->get();
+        $poisData = [];
+        foreach ($pois as $poi) {
+            $relatedPlaces = GiataPlace::whereIn('key', $poi->places ?? [])->whereNotNull('tticodes')->get();
+            foreach ($relatedPlaces as $place) {
+                $codes = array_intersect($place->tticodes, $listGiata);
+                if (! empty($codes)) {
+                    $poisData[] = [
+                        'name' => $poi->name_primary.' ('.$place->name_primary.')',
+                        'giata_code' => implode(',', array_values($codes)),
+                        'type' => $poi->type,
+                    ];
+                }
+            }
+        }
+
+        // Merge results in requested proportions
+        $merged = array_merge($poisData, $placeData, $hotelData);
 
         return [
-            'success' => true,
-            'data' => [
-                'hotels' => $hotelData,
-                'total' => $total,
-                'page' => $page,
-                'per_page' => $perPage,
+            'results' => $merged,
+            'counts' => [
+                'hotels' => $totalHotels,
+                'places' => $totalPlaces,
+                'pois' => $totalPois,
             ],
+            'page' => $page,
+            'per_page' => $perPage,
         ];
     }
 
