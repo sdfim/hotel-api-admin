@@ -55,7 +55,7 @@ class HotelContentApiService
             $transformedResults[$supplier] = $transformer->SupplierToContentSearchResponse($supplierResults);
         }
 
-        $giataCodes = $this->getGiataCodesByContent($results);
+        $giataCodes = $request->input('giata_ids') ?? $this->getGiataCodesByContent($results);
 
         //        ['channel' => $channel, 'force_verified' => $forceVerified, 'force_on_sale' => $forceOnSale, 'blueprint_exists' => $blueprintExists] = $this->resolveChannelAndForceParams();
         //        $this->applyVisibilityFiltersToGiataCodes($giataCodes, $channel, $forceVerified, $forceOnSale, $blueprintExists);
