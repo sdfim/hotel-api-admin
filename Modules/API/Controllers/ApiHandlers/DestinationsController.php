@@ -57,6 +57,25 @@ class DestinationsController
         return response()->json($response);
     }
 
+    /**
+     * Helper to add chunked OR LIKE conditions to a query builder.
+     * Splits input by spaces, trims, and skips chunks shorter than 3 characters.
+     */
+    private function buildChunkedLikeQuery($query, $field, $input): void
+    {
+        $chunks = array_filter(array_map('trim', explode(' ', $input)), function ($chunk) {
+            return strlen($chunk) >= 3;
+        });
+        if (empty($chunks)) {
+            return;
+        }
+        $query->where(function ($q) use ($field, $chunks) {
+            foreach ($chunks as $chunk) {
+                $q->orWhere($field, 'like', "%{$chunk}%");
+            }
+        });
+    }
+
     private function getPaginatedHotels($request): array
     {
         $page = max((int) $request->get('page', 1), 1);
@@ -64,10 +83,10 @@ class DestinationsController
 
         // Build full hotelData
         $hotelQuery = Hotel::query()
-            ->with('product')
-            ->whereHas('product', function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->hotel.'%');
-            });
+            ->with('product');
+        $hotelQuery->whereHas('product', function ($q) use ($request) {
+            $this->buildChunkedLikeQuery($q, 'name', $request->hotel);
+        });
         $hotels = $hotelQuery->get();
         $hotelData = $hotels->map(function ($hotel) {
             return [
@@ -79,9 +98,9 @@ class DestinationsController
         })->toArray();
 
         // Build full placeData
-        $placeQuery = GiataPlace::query()
-            ->where('name_primary', 'like', '%'.$request->hotel.'%')
-            ->whereNotNull('tticodes');
+        $placeQuery = GiataPlace::query();
+        $this->buildChunkedLikeQuery($placeQuery, 'name_primary', $request->hotel);
+        $placeQuery->whereNotNull('tticodes');
         $places = $placeQuery->get();
         $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
             return Hotel::pluck('giata_code')->toArray();
@@ -100,8 +119,8 @@ class DestinationsController
         }
 
         // Build full poisData
-        $poiQuery = GiataPoi::query()
-            ->where('name_primary', 'like', '%'.$request->hotel.'%');
+        $poiQuery = GiataPoi::query();
+        $this->buildChunkedLikeQuery($poiQuery, 'name_primary', $request->hotel);
         $pois = $poiQuery->get();
         $poisData = [];
         foreach ($pois as $poi) {
