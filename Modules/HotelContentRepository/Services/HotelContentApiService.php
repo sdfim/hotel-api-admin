@@ -49,6 +49,8 @@ class HotelContentApiService
             $transformer = app(SupplierContentTransformerInterface::class, ['supplier' => $supplier]);
             $supplierResults = Arr::get($service->search($request->all()), 'results', []);
 
+            logger()->debug('content search 0', [$supplier, $supplierResults]);
+
             $supplierResults = $this->applyFilters($supplierResults, $request->all());
 
             $results = array_merge($results, $supplierResults);
@@ -63,6 +65,8 @@ class HotelContentApiService
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
+
+        logger()->debug('content search 1', [$transformedResults, $structureSource, $repoData, $giataCodes]);
 
         return $this->combineContentResults($transformedResults, $structureSource, $repoData, $giataCodes);
     }
@@ -380,6 +384,8 @@ class HotelContentApiService
         $contentResults = array_filter($contentResults, function ($item) use ($giataCodes) {
             return in_array($item['giata_hotel_code'], $giataCodes);
         });
+
+        logger()->debug('content search 2', [$contentResults]);
 
         $transformedResults = [];
         foreach ($resultsSuppliers as $supplier => $items) {
