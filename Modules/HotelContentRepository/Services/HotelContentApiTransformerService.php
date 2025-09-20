@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\Enums\SupplierNameEnum;
@@ -13,9 +14,11 @@ class HotelContentApiTransformerService
 {
     public function initializeContentSource(array $giataCodes): array
     {
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::HOTEL_TRADER->value);
+
         $contentSource = [];
         foreach ($giataCodes as $giata_code) {
-            $contentSource[$giata_code] = SupplierNameEnum::EXPEDIA->value;
+            $contentSource[$giata_code] = $mainSupplier;
         }
 
         return $contentSource;
