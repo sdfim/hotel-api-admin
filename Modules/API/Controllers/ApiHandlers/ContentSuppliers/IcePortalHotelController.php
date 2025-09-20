@@ -8,7 +8,7 @@ use App\Models\IcePortalProperty;
 use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use App\Models\Property;
-use App\Repositories\IcePortalRepository;
+use App\Repositories\IcePortalAccetRepository;
 use App\Repositories\PropertyRepository;
 use Exception;
 use Illuminate\Http\Client\Pool;
@@ -37,7 +37,7 @@ class IcePortalHotelController implements SupplierControllerInterface
     {
         if (isset($filters['giata_ids'])) {
             $giataIdsd = Arr::get($filters, 'giata_ids', [1]);
-            return IcePortalRepository::dataByGiataIds($giataIdsd);
+            return IcePortalAccetRepository::dataByGiataIds($giataIdsd);
         } elseif (isset($filters['session']) || isset($filters['latitude'])) {
             return [];
         } elseif (isset($filters['place'])) {
@@ -56,13 +56,14 @@ class IcePortalHotelController implements SupplierControllerInterface
         } else {
             $geography = new Geography;
             $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-            $city_id = IcePortalRepository::getIdByCoordinate($minMaxCoordinate);
+            $city_id = IcePortalAccetRepository::getIdByCoordinate($minMaxCoordinate);
             $geographyData = GiataGeography::where('city_id', $city_id)->first();
         }
 
         $propertyRepository = new PropertyRepository;
 
-        $results = IcePortalRepository::dataByCity($geographyData?->city_name);
+        $results = IcePortalAccetRepository::dataByCity($geographyData?->city_name);
+
         if (count($results) > 0 && ! request()->supplier_data) {
             return $results;
         }
