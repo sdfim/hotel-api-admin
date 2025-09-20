@@ -68,7 +68,6 @@ class DestinationsController
 
         // I
         $plasePath = [];
-        /*
         $giataPlaces = GiataPlace::where('name_primary', 'like', '%'.$request->hotel.'%')
             ->whereNotNull('tticodes')
             ->get();
@@ -84,11 +83,9 @@ class DestinationsController
                 ];
             }
         }
-        */
 
         // II
         $poisPath = [];
-        /*
         $giataPois = GiataPoi::where('name_primary', 'like', '%'.$request->hotel.'%')->get();
 
         $allPlaceKeys = [];
@@ -118,7 +115,6 @@ class DestinationsController
                 }
             }
         }
-        */
 
         // III
         $query = Hotel::query()
@@ -141,10 +137,13 @@ class DestinationsController
         $hotelData = array_merge($plasePath, $poisPath, $hotelData);
 
         return [
-            'hotels' => $hotelData,
-            'total' => $total,
-            'page' => $page,
-            'per_page' => $perPage,
+            'success' => true,
+            'data' => [
+                'hotels' => $hotelData,
+                'total' => $total,
+                'page' => $page,
+                'per_page' => $perPage,
+            ],
         ];
     }
 
