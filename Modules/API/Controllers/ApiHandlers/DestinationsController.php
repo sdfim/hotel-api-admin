@@ -60,20 +60,15 @@ class DestinationsController
     private function getPaginatedHotels($request): array
     {
         $page = max((int) $request->get('page', 1), 1);
-        $perPage = max((int) $request->get('per_page', 50), 1);
+        $perPage = max((int) $request->get('per_page', 10), 1);
 
-        // Calculate proportions
-        $numHotels = (int) round($perPage * 0.5);
-        $numPlaces = (int) round($perPage * 0.25);
-        $numPois = $perPage - $numHotels - $numPlaces; // Ensures total = perPage
-
+        // Build full hotelData
         $hotelQuery = Hotel::query()
             ->with('product')
             ->whereHas('product', function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->hotel.'%');
+                $q->where('name', 'like', '%' . $request->hotel . '%');
             });
-        $totalHotels = $hotelQuery->count();
-        $hotels = $hotelQuery->skip(($page - 1) * $numHotels)->take($numHotels)->get();
+        $hotels = $hotelQuery->get();
         $hotelData = $hotels->map(function ($hotel) {
             return [
                 'name' => $hotel->product?->name,
@@ -82,18 +77,18 @@ class DestinationsController
             ];
         })->toArray();
 
+        // Build full placeData
         $placeQuery = GiataPlace::query()
-            ->where('name_primary', 'like', '%'.$request->hotel.'%')
+            ->where('name_primary', 'like', '%' . $request->hotel . '%')
             ->whereNotNull('tticodes');
-        $totalPlaces = $placeQuery->count();
-        $places = $placeQuery->skip(($page - 1) * $numPlaces)->take($numPlaces)->get();
+        $places = $placeQuery->get();
         $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
             return Hotel::pluck('giata_code')->toArray();
         });
         $placeData = [];
         foreach ($places as $place) {
             $codes = array_intersect($place->tticodes, $listGiata);
-            if (! empty($codes)) {
+            if (!empty($codes)) {
                 $placeData[] = [
                     'name' => $place->name_primary,
                     'giata_code' => implode(',', array_values($codes)),
@@ -102,18 +97,18 @@ class DestinationsController
             }
         }
 
+        // Build full poisData
         $poiQuery = GiataPoi::query()
-            ->where('name_primary', 'like', '%'.$request->hotel.'%');
-        $totalPois = $poiQuery->count();
-        $pois = $poiQuery->skip(($page - 1) * $numPois)->take($numPois)->get();
+            ->where('name_primary', 'like', '%' . $request->hotel . '%');
+        $pois = $poiQuery->get();
         $poisData = [];
         foreach ($pois as $poi) {
             $relatedPlaces = GiataPlace::whereIn('key', $poi->places ?? [])->whereNotNull('tticodes')->get();
             foreach ($relatedPlaces as $place) {
                 $codes = array_intersect($place->tticodes, $listGiata);
-                if (! empty($codes)) {
+                if (!empty($codes)) {
                     $poisData[] = [
-                        'name' => $poi->name_primary.' ('.$place->name_primary.')',
+                        'name' => $poi->name_primary . ' (' . $place->name_primary . ')',
                         'giata_code' => implode(',', array_values($codes)),
                         'type' => $poi->type,
                     ];
@@ -121,18 +116,46 @@ class DestinationsController
             }
         }
 
-        // Merge results in requested proportions
-        $merged = array_merge($poisData, $placeData, $hotelData);
+        // Calculate quotas for current page
+        $numHotels = (int) round($perPage * 0.5);
+        $numPlaces = (int) round($perPage * 0.25);
+        $numPois = $perPage - $numHotels - $numPlaces;
+
+        // Calculate start index for current page
+        $hotelStart = ($page - 1) * $numHotels;
+        $placeStart = ($page - 1) * $numPlaces;
+        $poiStart = ($page - 1) * $numPois;
+
+        // Select items for current page
+        $selectedHotels = array_slice($hotelData, $hotelStart, $numHotels);
+        $selectedPlaces = array_slice($placeData, $placeStart, $numPlaces);
+        $selectedPois = array_slice($poisData, $poiStart, $numPois);
+
+        // If any type has fewer items than its quota, fill from others
+        $result = array_merge($selectedHotels, $selectedPlaces, $selectedPois);
+        $missing = $perPage - count($result);
+        if ($missing > 0) {
+            // Fill from hotels, then places, then pois
+            $fill = array_merge(
+                array_slice($hotelData, $hotelStart + $numHotels, $missing),
+                array_slice($placeData, $placeStart + $numPlaces, $missing),
+                array_slice($poisData, $poiStart + $numPois, $missing)
+            );
+            $result = array_merge($result, array_slice($fill, 0, $missing));
+        }
 
         return [
-            'results' => $merged,
-            'counts' => [
-                'hotels' => $totalHotels,
-                'places' => $totalPlaces,
-                'pois' => $totalPois,
+            'success' => true,
+            'data' => [
+                'hotels' => $result,
+                'counts' => [
+                    'hotels' => count($hotelData),
+                    'places' => count($placeData),
+                    'pois' => count($poisData),
+                ],
+                'page' => $page,
+                'per_page' => $perPage,
             ],
-            'page' => $page,
-            'per_page' => $perPage,
         ];
     }
 
