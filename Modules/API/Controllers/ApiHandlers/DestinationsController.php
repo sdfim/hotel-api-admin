@@ -66,7 +66,7 @@ class DestinationsController
         $hotelQuery = Hotel::query()
             ->with('product')
             ->whereHas('product', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->hotel . '%');
+                $q->where('name', 'like', '%'.$request->hotel.'%');
             });
         $hotels = $hotelQuery->get();
         $hotelData = $hotels->map(function ($hotel) {
@@ -74,12 +74,13 @@ class DestinationsController
                 'name' => $hotel->product?->name,
                 'giata_code' => $hotel->giata_code,
                 'type' => 'hotel',
+                'source' => 'hotel',
             ];
         })->toArray();
 
         // Build full placeData
         $placeQuery = GiataPlace::query()
-            ->where('name_primary', 'like', '%' . $request->hotel . '%')
+            ->where('name_primary', 'like', '%'.$request->hotel.'%')
             ->whereNotNull('tticodes');
         $places = $placeQuery->get();
         $listGiata = Cache::remember('hotel_giata_codes', 3600, function () {
@@ -88,29 +89,31 @@ class DestinationsController
         $placeData = [];
         foreach ($places as $place) {
             $codes = array_intersect($place->tticodes, $listGiata);
-            if (!empty($codes)) {
+            if (! empty($codes)) {
                 $placeData[] = [
                     'name' => $place->name_primary,
                     'giata_code' => implode(',', array_values($codes)),
                     'type' => $place->type,
+                    'source' => 'place',
                 ];
             }
         }
 
         // Build full poisData
         $poiQuery = GiataPoi::query()
-            ->where('name_primary', 'like', '%' . $request->hotel . '%');
+            ->where('name_primary', 'like', '%'.$request->hotel.'%');
         $pois = $poiQuery->get();
         $poisData = [];
         foreach ($pois as $poi) {
             $relatedPlaces = GiataPlace::whereIn('key', $poi->places ?? [])->whereNotNull('tticodes')->get();
             foreach ($relatedPlaces as $place) {
                 $codes = array_intersect($place->tticodes, $listGiata);
-                if (!empty($codes)) {
+                if (! empty($codes)) {
                     $poisData[] = [
-                        'name' => $poi->name_primary . ' (' . $place->name_primary . ')',
+                        'name' => $poi->name_primary.' ('.$place->name_primary.')',
                         'giata_code' => implode(',', array_values($codes)),
                         'type' => $poi->type,
+                        'source' => 'poi',
                     ];
                 }
             }
