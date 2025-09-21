@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\ClassHelper;
+use App\Jobs\ExportDatabaseJob;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
 use App\Models\Mapping;
@@ -223,42 +224,42 @@ class HotelTable extends Component implements HasForms, HasTable
                                         ->default(SupplierNameEnum::HOTEL_TRADER->value)
                                         ->options(SupplierNameEnum::contentOptions())
                                         ->columnSpan(3),
-//                                    Select::make('suppliers')
-//                                        ->multiple()
-//                                        ->required()
-//                                        ->default(function (callable $get) {
-//                                            $giataCode = $get('giata_code');
-//                                            if ($giataCode) {
-//                                                $mapping = Mapping::where('giata_id', $giataCode)
-//                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
-//                                                    ->get();
-//                                                if (! empty($mapping)) {
-//                                                    return $mapping->pluck('supplier', 'supplier')->unique()->keys()->toArray();
-//                                                }
-//                                            }
-//
-//                                            return array_keys(SupplierNameEnum::contentOptions());
-//                                        })
-//                                        ->label('Room Level is taken from the Suppliers')
-//                                        ->options(function (callable $get) {
-//                                            $giataCode = $get('giata_code');
-//                                            if ($giataCode) {
-//                                                $mapping = Mapping::where('giata_id', $giataCode)
-//                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
-//                                                    ->get();
-//                                                if (! empty($mapping)) {
-//                                                    return $mapping->pluck('supplier', 'supplier')->unique()->toArray();
-//                                                }
-//                                            }
-//
-//                                            return SupplierNameEnum::contentOptions();
-//                                        })
-//                                        ->columnSpan(2),
-//                                    Checkbox::make('auto_marge')
-//                                        ->label('AI Assistant. Auto Merge Different Suppliers')
-//                                        ->default(true)
-//                                        ->helperText('Automatically combine numbers from different providers into one unified number code.')
-//                                        ->columnSpan(3),
+                                    //                                    Select::make('suppliers')
+                                    //                                        ->multiple()
+                                    //                                        ->required()
+                                    //                                        ->default(function (callable $get) {
+                                    //                                            $giataCode = $get('giata_code');
+                                    //                                            if ($giataCode) {
+                                    //                                                $mapping = Mapping::where('giata_id', $giataCode)
+                                    //                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+                                    //                                                    ->get();
+                                    //                                                if (! empty($mapping)) {
+                                    //                                                    return $mapping->pluck('supplier', 'supplier')->unique()->keys()->toArray();
+                                    //                                                }
+                                    //                                            }
+                                    //
+                                    //                                            return array_keys(SupplierNameEnum::contentOptions());
+                                    //                                        })
+                                    //                                        ->label('Room Level is taken from the Suppliers')
+                                    //                                        ->options(function (callable $get) {
+                                    //                                            $giataCode = $get('giata_code');
+                                    //                                            if ($giataCode) {
+                                    //                                                $mapping = Mapping::where('giata_id', $giataCode)
+                                    //                                                    ->where('supplier', '!=', SupplierNameEnum::HBSI->value)
+                                    //                                                    ->get();
+                                    //                                                if (! empty($mapping)) {
+                                    //                                                    return $mapping->pluck('supplier', 'supplier')->unique()->toArray();
+                                    //                                                }
+                                    //                                            }
+                                    //
+                                    //                                            return SupplierNameEnum::contentOptions();
+                                    //                                        })
+                                    //                                        ->columnSpan(2),
+                                    //                                    Checkbox::make('auto_marge')
+                                    //                                        ->label('AI Assistant. Auto Merge Different Suppliers')
+                                    //                                        ->default(true)
+                                    //                                        ->helperText('Automatically combine numbers from different providers into one unified number code.')
+                                    //                                        ->columnSpan(3),
                                 ]),
                             ]),
                     ])
@@ -272,9 +273,9 @@ class HotelTable extends Component implements HasForms, HasTable
                                 return false;
                             }
                             $filePath = 'dump.sql';
-                            if (Storage::disk('public')->exists($filePath)) {
+                            if (Storage::disk(config('filament.default_filesystem_disk', 'public'))->exists($filePath)) {
                                 return response()->download(
-                                    Storage::disk('public')->path($filePath),
+                                    Storage::disk(config('filament.default_filesystem_disk', 'public'))->path($filePath),
                                     basename($filePath)
                                 );
                             }
@@ -291,13 +292,13 @@ class HotelTable extends Component implements HasForms, HasTable
                         ->form([
                             FileUpload::make('dumpFile')
                                 ->label('Select Dump File')
-                                ->disk('public')
+                                ->disk(config('filament.default_filesystem_disk', 'public'))
                                 ->directory('database-dumps')
                                 ->required(),
                         ])
                         ->action(function (array $data) {
-                            $filePath = Storage::disk(config('filesystems.default', 's3'))->path($data['dumpFile']);
-                            if (Storage::disk('public')->exists($data['dumpFile'])) {
+                            $filePath = Storage::disk(config('filament.default_filesystem_disk', 'public'))->path($data['dumpFile']);
+                            if (Storage::disk(config('filament.default_filesystem_disk', 'public'))->exists($data['dumpFile'])) {
                                 Artisan::call('db:import', [
                                     'file' => $filePath,
                                 ]);
@@ -599,20 +600,17 @@ class HotelTable extends Component implements HasForms, HasTable
 
     public function exportDatabase(): bool
     {
-        $dumpFile = storage_path('app/public/dump.sql');
-
-        Artisan::call('db:export', [
-            'prefixes' => 'config_,pd_',
-            'tables' => 'activity_log,informational_services',
-        ]);
+        $uuid = (string) \Str::uuid();
+        ExportDatabaseJob::dispatch('config_,pd_', 'activity_log,informational_services', $uuid);
 
         $timeout = 5;
         $startTime = time();
-        while (! file_exists($dumpFile) && (time() - $startTime) < $timeout) {
+        while (\Cache::get('db_export_status_'.$uuid) !== 'done' && (time() - $startTime) < $timeout) {
             usleep(500000);
         }
 
-        if (! file_exists($dumpFile)) {
+
+        if (! Storage::disk(config('filament.default_filesystem_disk', 'public'))->exists('dump.sql')) {
             Log::error('Error: Dump file not found.');
             Notification::make()
                 ->title('Export Error')

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ExportDatabase extends Command
 {
-    protected $signature = 'db:export {prefixes} {tables}';
+    protected $signature = 'db:export {prefixes} {tables} {uuid}';
 
     protected $description = 'Export specified tables from the database with custom settings';
 
@@ -15,10 +15,13 @@ class ExportDatabase extends Command
     {
         $prefixes = explode(',', $this->argument('prefixes'));
         $tables = explode(',', $this->argument('tables'));
-        $allTables = $this->getTables($prefixes, $tables);
-        $dumpFile = storage_path('app/public/dump.sql');
+        $uuid = $this->argument('uuid');
 
-        $this->exportTables($allTables, $dumpFile);
+        $allTables = $this->getTables($prefixes, $tables);
+
+        $this->exportTables($allTables);
+
+        \Cache::put('db_export_status_'.$uuid, 'done', 600);
 
         $this->info('Database export completed successfully.');
     }
@@ -41,12 +44,14 @@ class ExportDatabase extends Command
         return $filteredTables;
     }
 
-    private function exportTables(array $tables, string $dumpFile): void
+    private function exportTables(array $tables): void
     {
         $tablesList = implode(' ', $tables);
         $dumpCommand = $this->getDumpCommand();
         $sslOption = $dumpCommand === 'mysqldump' ? '--ssl-mode=DISABLED' : '--ssl-verify-server-cert=OFF';
         $authOption = '--default-auth=mysql_native_password';
+
+        $tmpFile = storage_path('app/tmp_db_dump.sql');
 
         $command = sprintf(
             '%s --user=%s --password=%s --host=%s --port=%s --protocol=TCP --add-drop-table --skip-add-locks --disable-keys --extended-insert --quick %s %s %s %s > %s',
@@ -59,12 +64,15 @@ class ExportDatabase extends Command
             $tablesList,
             $sslOption,
             $authOption,
-            $dumpFile
+            $tmpFile
         );
 
         $this->info('Executing command: '.$command);
 
         exec($command);
+
+        \Storage::disk(config('filament.default_filesystem_disk', 'public'))->put('dump.sql', file_get_contents($tmpFile));
+        unlink($tmpFile);
     }
 
     private function getDumpCommand(): string
