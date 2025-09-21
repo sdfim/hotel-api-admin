@@ -273,11 +273,19 @@ class HotelTable extends Component implements HasForms, HasTable
                                 return false;
                             }
                             $filePath = 'dump.sql';
-                            if (Storage::disk(config('filament.default_filesystem_disk', 'public'))->exists($filePath)) {
+                            $disk = config('filament.default_filesystem_disk', 'public');
+                            if (Storage::disk($disk)->exists($filePath) && $disk !== 's3') {
                                 return response()->download(
-                                    Storage::disk(config('filament.default_filesystem_disk', 'public'))->path($filePath),
+                                    Storage::disk($disk)->path($filePath),
                                     basename($filePath)
                                 );
+                            } elseif (Storage::disk($disk)->exists($filePath) && $disk === 's3') {
+                                Notification::make()
+                                    ->title('Export Successful')
+                                    ->body('DUMP File is stored on S3.')
+                                    ->success()
+                                    ->duration(10000)
+                                    ->send();
                             }
                             Notification::make()
                                 ->title('File not found')

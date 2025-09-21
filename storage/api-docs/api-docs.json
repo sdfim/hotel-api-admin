@@ -2068,97 +2068,25 @@
                 "tags": [
                     "Content API"
                 ],
-                "summary": "Get list of destinations, hotels, or autocomplete suggestions",
-                "description": "Returns a list of destinations, hotels, or autocomplete suggestions based on the provided query parameters. At least one of: hotel, city, country, giata, or q must be provided (min 3 characters).<br>Supports Google autocomplete if strategy=Google and giata is not set.<br>Hotel search supports pagination.",
+                "summary": "Search for hotels, points of interest, attractions, airports, cities and countries by name",
+                "description": "Search is performed by hotel names, points of interest, attractions, airport names, city names, and country names. The 'hotel' parameter is required and must contain at least 3 characters. Pagination is supported via 'page' and 'per_page' parameters. The response returns an array of giata_ids, which can be used in the endpoints POST /api/v1/content/search and POST /api/pricing/search.",
                 "operationId": "b380644e3fdd809171c352854531ada5",
                 "parameters": [
                     {
                         "name": "hotel",
                         "in": "query",
-                        "description": "Hotel name to search (min 3 characters).",
-                        "required": false,
+                        "description": "Search string for hotel names, points of interest, attractions, airports, city names, and country names. Minimum 3 characters.",
+                        "required": true,
                         "schema": {
                             "type": "string",
                             "minLength": 3,
-                            "example": "Hilton"
-                        }
-                    },
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "description": "City name to search (min 3 characters).",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "minLength": 3,
-                            "example": "Paris"
-                        }
-                    },
-                    {
-                        "name": "country",
-                        "in": "query",
-                        "description": "Country name to search (min 3 characters).",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "minLength": 3,
-                            "example": "France"
-                        }
-                    },
-                    {
-                        "name": "giata",
-                        "in": "query",
-                        "description": "Giata code to search (min 3 characters).",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "minLength": 3,
-                            "example": "12345"
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "General query for places/destinations (min 3 characters).",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "minLength": 3,
-                            "example": "Eiffel"
-                        }
-                    },
-                    {
-                        "name": "strategy",
-                        "in": "query",
-                        "description": "Define strategy for the search suggestions (Default or Google).",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "Default",
-                            "enum": [
-                                "Default",
-                                "Google"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "showtticodes",
-                        "in": "query",
-                        "description": "Set to 1 to display additional tticodes.",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 0,
-                            "enum": [
-                                0,
-                                1
-                            ]
+                            "example": "Velas"
                         }
                     },
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Page number for hotel search pagination.",
+                        "description": "Page number for pagination.",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -2168,7 +2096,7 @@
                     {
                         "name": "per_page",
                         "in": "query",
-                        "description": "Number of results per page for hotel search pagination.",
+                        "description": "Number of results per page.",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -2181,64 +2109,95 @@
                         "description": "OK",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "oneOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ContentDestinationslResponse"
-                                        },
-                                        {
-                                            "type": "object",
-                                            "example": {
-                                                "success": true,
-                                                "data": {
-                                                    "hotels": [
-                                                        {
-                                                            "name": "Hilton",
-                                                            "giata_code": "12345"
-                                                        }
-                                                    ],
-                                                    "total": 1,
-                                                    "page": 1,
-                                                    "per_page": 10
-                                                }
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": {
+                                        "hotels": [
+                                            {
+                                                "name": "Grand Velas Riviera Maya",
+                                                "giata_ids": [
+                                                    21569211
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "Grand Velas Los Cabos",
+                                                "giata_ids": [
+                                                    75193953
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "Casa Velas",
+                                                "giata_ids": [
+                                                    79837037
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "Grand Velas Riviera Nayarit",
+                                                "giata_ids": [
+                                                    91606022
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "Mar del Cabo by Velas Resorts",
+                                                "giata_ids": [
+                                                    19941851
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "San Jose Del Cabo",
+                                                "giata_ids": [
+                                                    13350571,
+                                                    19941851,
+                                                    75193953
+                                                ],
+                                                "type": "Resort",
+                                                "source": "place"
+                                            },
+                                            {
+                                                "name": "Velas Vallarta",
+                                                "giata_ids": [
+                                                    81286080
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
+                                            },
+                                            {
+                                                "name": "Grand Velas Boutique Hotel Los Cabos",
+                                                "giata_ids": [
+                                                    13350571
+                                                ],
+                                                "type": "hotel",
+                                                "source": "hotel"
                                             }
+                                        ],
+                                        "counts": {
+                                            "hotels": 7,
+                                            "places": 1,
+                                            "pois": 0
                                         },
-                                        {
-                                            "type": "object",
-                                            "example": {
-                                                "success": true,
-                                                "data": [
-                                                    {
-                                                        "name": "Eiffel Tower",
-                                                        "type": "poi"
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ]
+                                        "page": 1,
+                                        "per_page": 10
+                                    }
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
+                        "description": "Bad Request"
                     },
                     "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -2820,7 +2779,7 @@
                 ],
                 "summary": "Search Hotels",
                 "description": "Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
-                "operationId": "976eb65d47ac061f60170c56ed81eeca",
+                "operationId": "9546f00b912cfc8028557b4c2598adb5",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -2926,7 +2885,7 @@
                 ],
                 "summary": "(Deprecated) Search Hotels",
                 "description": "Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
-                "operationId": "6c198c76b706b834eb3a0182cc8b0af5",
+                "operationId": "2a135ab0727cc52a42c60bd104749023",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,

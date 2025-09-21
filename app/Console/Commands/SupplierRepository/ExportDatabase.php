@@ -95,7 +95,9 @@ class ExportDatabase extends Command
         \Storage::disk(config('filament.default_filesystem_disk', 'public'))->put('dump.sql', file_get_contents($tmpFile));
         // for ec2 instance with local storage
         if ($disk === 'local') {
-            \Storage::disk('s3')->put('dump.sql', file_get_contents($tmpFile));
+            $timestamp = date('Ymd_His');
+            $filename = "dump_{$timestamp}.sql";
+            \Storage::disk('s3')->put($filename, file_get_contents($tmpFile));
         }
         unlink($tmpFile);
     }
