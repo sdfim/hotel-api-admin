@@ -63,9 +63,12 @@ class DestinationsController
      */
     private function buildChunkedLikeQuery($query, $field, $input): void
     {
-        $chunks = array_filter(array_map('trim', explode(' ', $input)), function ($chunk) {
-            return strlen($chunk) >= 3;
-        });
+        $chunks = array_filter(
+            array_map('trim', explode(' ', urldecode($input))),
+            function ($chunk) {
+                return strlen($chunk) >= 3;
+            }
+        );
         if (empty($chunks)) {
             return;
         }
@@ -92,6 +95,7 @@ class DestinationsController
             return [
                 'name' => $hotel->product?->name,
                 'giata_code' => $hotel->giata_code,
+                'giata_ids' => [$hotel->giata_code],
                 'type' => 'hotel',
                 'source' => 'hotel',
             ];
@@ -112,6 +116,7 @@ class DestinationsController
                 $placeData[] = [
                     'name' => $place->name_primary,
                     'giata_code' => implode(',', array_values($codes)),
+                    'giata_ids' => array_values($codes),
                     'type' => $place->type,
                     'source' => 'place',
                 ];
@@ -131,6 +136,7 @@ class DestinationsController
                     $poisData[] = [
                         'name' => $poi->name_primary.' ('.$place->name_primary.')',
                         'giata_code' => implode(',', array_values($codes)),
+                        'giata_ids' => array_values($codes),
                         'type' => $poi->type,
                         'source' => 'poi',
                     ];
