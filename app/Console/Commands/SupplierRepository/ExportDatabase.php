@@ -53,21 +53,41 @@ class ExportDatabase extends Command
 
         $tmpFile = storage_path('app/tmp_db_dump.sql');
 
-        $command = sprintf(
-            '%s --user=%s --password=%s --host=%s --port=%s --protocol=TCP --add-drop-table --skip-add-locks --disable-keys --extended-insert --quick %s %s %s %s > %s',
-            $dumpCommand,
-            env('DB_USERNAME'),
-            env('DB_PASSWORD'),
-            env('DB_HOST'),
-            env('DB_PORT'),
-            env('DB_DATABASE'),
-            $tablesList,
-            $sslOption,
-            $authOption,
-            $tmpFile
-        );
+        // Stage 1: Log before dump
+        \Log::info('Starting DB dump', [
+            'command' => $dumpCommand,
+            'tables' => $tablesList,
+            'tmpFile' => $tmpFile,
+        ]);
 
-        $this->info('Executing command: '.$command);
+        try {
+            $command = sprintf(
+                '%s --user=%s --password=%s --host=%s --port=%s --protocol=TCP --add-drop-table --skip-add-locks --disable-keys --extended-insert --quick %s %s %s %s > %s',
+                $dumpCommand,
+                env('DB_USERNAME'),
+                env('DB_PASSWORD'),
+                env('DB_HOST'),
+                env('DB_PORT'),
+                env('DB_DATABASE'),
+                $tablesList,
+                $sslOption,
+                $authOption,
+                $tmpFile
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Error building DB dump command', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
+
+
+        // Stage 2: Log after saving to storage
+        \Log::info('Saving DB dump to storage', [
+            'disk' => config('filament.default_filesystem_disk', 'public'),
+            'path' => 'dump.sql',
+        ]);
 
         exec($command);
 
