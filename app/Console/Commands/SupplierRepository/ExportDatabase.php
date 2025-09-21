@@ -82,16 +82,21 @@ class ExportDatabase extends Command
             throw $e;
         }
 
+        $disk = config('filament.default_filesystem_disk', 'public');
 
         // Stage 2: Log after saving to storage
         \Log::info('Saving DB dump to storage', [
-            'disk' => config('filament.default_filesystem_disk', 'public'),
+            'disk' => $disk,
             'path' => 'dump.sql',
         ]);
 
         exec($command);
 
         \Storage::disk(config('filament.default_filesystem_disk', 'public'))->put('dump.sql', file_get_contents($tmpFile));
+        // for ec2 instance with local storage
+        if ($disk === 'local') {
+            \Storage::disk('s3')->put('dump.sql', file_get_contents($tmpFile));
+        }
         unlink($tmpFile);
     }
 
