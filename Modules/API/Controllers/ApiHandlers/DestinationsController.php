@@ -116,7 +116,7 @@ class DestinationsController
                 $placeData[] = [
                     'name' => $place->name_primary,
                     'giata_code' => implode(',', array_values($codes)),
-                    'giata_ids' => array_values($codes),
+                    'giata_ids' => array_map('intval', array_values($codes)),
                     'type' => $place->type,
                     'source' => 'place',
                 ];
@@ -136,7 +136,7 @@ class DestinationsController
                     $poisData[] = [
                         'name' => $poi->name_primary.' ('.$place->name_primary.')',
                         'giata_code' => implode(',', array_values($codes)),
-                        'giata_ids' => array_values($codes),
+                        'giata_ids' => array_map('intval', array_values($codes)),
                         'type' => $poi->type,
                         'source' => 'poi',
                     ];
