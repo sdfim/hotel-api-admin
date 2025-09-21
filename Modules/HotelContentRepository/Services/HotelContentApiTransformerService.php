@@ -413,6 +413,7 @@ class HotelContentApiTransformerService
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
                 'connecting_room_types' => $relatedRooms,
+                'max_occupancy' => $room->max_occupancy,
                 'attributes' => $attributes,
                 'images' => $newImages,
                 'descriptions' => $this->getRoomDescriptions($room),
