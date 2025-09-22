@@ -559,7 +559,8 @@ class BookApiHandler extends BaseController
         $bookingDateFrom = $request->input('booking_date_from');
         $bookingDateTo = $request->input('booking_date_to');
 
-        $itemsBookedByApiClient = ApiBookingInspector::query()
+        // Get all relevant ApiBookingInspector models
+        $bookedItems = ApiBookingInspector::query()
             ->where('token_id', $tokenId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
@@ -581,22 +582,27 @@ class BookApiHandler extends BaseController
             })
             ->has('metadata')
             ->orderBy('created_at', 'desc')
-            ->pluck('booking_item');
+            ->get(['booking_item', 'created_at']);
+
+        // Map booking_item to created_at
+        $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
 
         $data = [];
         foreach ($retrieved as $item) {
             $disk = config('filesystems.default', 's3');
-            if (! Storage::disk($disk)->get($item->client_response_path)) {
+            $jsonRaw = Storage::disk($disk)->get($item->client_response_path);
+            if (! $jsonRaw) {
                 continue;
             }
-            $json = json_decode(Storage::disk($disk)->get($item->client_response_path), true);
+            $json = json_decode($jsonRaw, true);
             if (! $json) {
                 continue;
             }
-            if (! in_array($item->booking_item, $itemsBookedByApiClient->toArray())) {
+            if (! $bookedDates->has($item->booking_item)) {
                 continue;
             }
-
+            // Format booked_date as MySQL datetime
+            $json['booked_date'] = \Carbon\Carbon::parse($bookedDates[$item->booking_item])->format('Y-m-d H:i:s');
             $data[] = $json;
         }
 
