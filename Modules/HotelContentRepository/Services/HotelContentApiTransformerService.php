@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Services;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\Enums\SupplierNameEnum;
@@ -173,17 +174,15 @@ class HotelContentApiTransformerService
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
         $result['drivers'] = $this->getHotelDrivers($hotel);
 
+        $disk = config('filament.default_filesystem_disk', 'public');
         if (! empty($hotel->product->hero_image)) {
-            $pathParts = explode('/', $hotel->product->hero_image);
-            $filename = array_pop($pathParts);
-            $directory = implode('/', $pathParts);
-            $result['hero_image'] = url('storage/'.($directory ? $directory.'/' : '').rawurlencode($filename));
+            $result['hero_image'] = Storage::disk($disk)->url($hotel->product->hero_image);
         }
         if (! empty($hotel->product->hero_image_thumbnails)) {
-            $pathParts = explode('/', $hotel->product->hero_image_thumbnails);
-            $filename = array_pop($pathParts);
-            $directory = implode('/', $pathParts);
-            $result['hero_image_thumbnail'] = url('storage/'.($directory ? $directory.'/' : '').rawurlencode($filename));
+            $result['hero_image_thumbnail'] = Storage::disk($disk)->url($hotel->product->hero_image_thumbnails);
+        }
+        if (! empty($hotel->hotel_board_basis)) {
+            $result['meal_plans'] = $hotel->hotel_board_basis;
         }
 
         if (! empty($hotel->hotel_board_basis)) {
