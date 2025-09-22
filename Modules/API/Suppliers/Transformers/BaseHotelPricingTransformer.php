@@ -6,7 +6,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
-use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 
 class BaseHotelPricingTransformer
@@ -14,6 +13,8 @@ class BaseHotelPricingTransformer
     private const CACHE_TTL_MINUTES = 1;
 
     protected array $priorityContentFromSupplierRepo = [];
+
+    //    protected array $ultimateAmenities = [];
 
     protected array $depositInformation = [];
 
@@ -30,6 +31,8 @@ class BaseHotelPricingTransformer
     protected array $features = [];
 
     protected array $unifiedRoomCodes = [];
+
+    protected array $roomCodes = [];
 
     protected array $roomIdByUnifiedCode = [];
 
@@ -95,7 +98,40 @@ class BaseHotelPricingTransformer
     private function processSupplierData(array $giataIds): array
     {
         // Fetch and process data
-        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
+        $supplierRepositoryData = Hotel::with('rooms')->whereIn('giata_code', $giataIds)->get();
+
+//        $this->ultimateAmenities = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+//            return [
+//                $hotel->giata_code => $hotel->product?->affiliations->map(function ($affiliation) {
+//                    return [
+//                        'rate_code' => $affiliation->rate?->code,
+//                        'unified_room_code' => $affiliation->room?->external_code,
+//                        'start_date' => $affiliation->start_date,
+//                        'end_date' => $affiliation->end_date,
+//                        'amenities' => $affiliation->amenities->map(function ($amenity) {
+//                            $amenityData = [
+//                                'name' => $amenity->amenity->name,
+//                                'consortia' => $amenity->consortia,
+//                                'description' => $amenity->description,
+//                                'is_paid' => $amenity->is_paid,
+//                                'currency' => $amenity->currency,
+//                                'min_night_stay' => $amenity->min_night_stay,
+//                                'max_night_stay' => $amenity->max_night_stay,
+//                                'priority_rooms' => (! empty($amenity->priority_rooms))
+//                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
+//                                    : [],
+//                            ];
+//                            if ($amenity->is_paid) {
+//                                $amenityData['price'] = $amenity->price;
+//                                $amenityData['apply_type'] = $amenity->apply_type;
+//                            }
+//
+//                            return $amenityData;
+//                        })->toArray(),
+//                    ];
+//                })->toArray(),
+//            ];
+//        })->toArray();
 
         $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
@@ -162,6 +198,7 @@ class BaseHotelPricingTransformer
                             $room->external_code => [
                                 'description' => $room->description,
                                 'name' => $room->name,
+                                'bed_groups' => $room->bed_groups,
                             ],
                         ];
                     }
@@ -171,6 +208,14 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
+        //        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        //            return [
+        //                $hotel->giata_code => [
+        //                    'sale_type' => $hotel->sale_type,
+        //                ],
+        //            ];
+        //        })->toArray();
+        //
         //        $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
         //            return [
         //                $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
@@ -190,39 +235,27 @@ class BaseHotelPricingTransformer
         //        })->toArray();
 
         $this->unifiedRoomCodes = [];
+        $this->roomCodes = [];
         foreach ($supplierRepositoryData as $hotel) {
             // Skip hotels that are not on sale if force_on_sale is false
-            //            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
-            //                continue;
-            //            }
+            if (! $this->query['force_on_sale'] && ! $hotel->product->onSale) {
+                continue;
+            }
 
-            $hbsiHotelData = $expediaHotelData = $hotelTraderHotelData = [
-                'hotel_code' => $hotel->giata_code,
-                'rooms' => [],
-            ];
             foreach ($hotel->rooms as $room) {
-                $hbsiCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::HBSI->value;
-                })->first()['code'] ?? null;
-                $expediaCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::EXPEDIA->value;
-                })->first()['code'] ?? null;
-                $hotelTraderCode = collect(json_decode($room->supplier_codes, true))->filter(function ($code) {
-                    return $code['supplier'] === ContentSourceEnum::HOTEL_TRADER->value;
-                })->first()['code'] ?? null;
-                if ($hbsiCode) {
-                    $hbsiHotelData['rooms'][$hbsiCode] = $room->external_code;
+                $supplierCodes = json_decode($room->supplier_codes, true);
+                if (! is_array($supplierCodes)) {
+                    $supplierCodes = [];
                 }
-                if ($expediaCode) {
-                    $expediaHotelData['rooms'][$expediaCode] = $room->external_code;
-                }
-                if ($hotelTraderCode) {
-                    $hotelTraderHotelData['rooms'][$hotelTraderCode] = $room->external_code;
+                foreach ($supplierCodes as $codeData) {
+                    $supplier = $codeData['supplier'] ?? null;
+                    $code = $codeData['code'] ?? null;
+                    if ($supplier && $code) {
+                        $this->roomCodes[$supplier][$hotel->giata_code][$room->id] = $room->external_code;
+                        $this->unifiedRoomCodes[$supplier][$hotel->giata_code][$code] = $room->external_code;
+                    }
                 }
             }
-            $this->unifiedRoomCodes[ContentSourceEnum::HBSI->value][$hotel->giata_code] = $hbsiHotelData['rooms'];
-            $this->unifiedRoomCodes[ContentSourceEnum::EXPEDIA->value][$hotel->giata_code] = $expediaHotelData['rooms'];
-            $this->unifiedRoomCodes[ContentSourceEnum::HOTEL_TRADER->value][$hotel->giata_code] = $hotelTraderHotelData['rooms'];
         }
 
         $this->roomIdByUnifiedCode = [];
@@ -255,6 +288,7 @@ class BaseHotelPricingTransformer
 
         return [
             'priorityContentFromSupplierRepo' => $this->priorityContentFromSupplierRepo,
+            //            'ultimateAmenities' => $this->ultimateAmenities,
             'depositInformation' => $this->depositInformation,
             'descriptiveContent' => $this->descriptiveContent,
             'cancellationPolicies' => $this->cancellationPolicies,
@@ -262,6 +296,7 @@ class BaseHotelPricingTransformer
             'repoServices' => $this->repoServices,
             'basicHotelData' => $this->basicHotelData,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
+            'roomCodes' => $this->roomCodes,
             'roomIdByUnifiedCode' => $this->roomIdByUnifiedCode,
             'features' => $this->features,
             'rates' => $this->rates,
@@ -278,6 +313,7 @@ class BaseHotelPricingTransformer
     private function setPropertiesFromCache(array $cachedData): void
     {
         $this->priorityContentFromSupplierRepo = $cachedData['priorityContentFromSupplierRepo'];
+        //        $this->ultimateAmenities = $cachedData['ultimateAmenities'];
         $this->depositInformation = $cachedData['depositInformation'];
         $this->descriptiveContent = $cachedData['descriptiveContent'] ?? [];
         $this->cancellationPolicies = $cachedData['cancellationPolicies'] ?? [];
@@ -285,6 +321,7 @@ class BaseHotelPricingTransformer
         $this->repoServices = $cachedData['repoServices'];
         $this->basicHotelData = $cachedData['basicHotelData'];
         $this->unifiedRoomCodes = $cachedData['unifiedRoomCodes'];
+        $this->roomCodes = $cachedData['roomCodes'];
         $this->roomIdByUnifiedCode = $cachedData['roomIdByUnifiedCode'];
         $this->features = $cachedData['features'];
         $this->rates = $cachedData['rates'];
