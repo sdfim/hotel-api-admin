@@ -58,21 +58,54 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->native(false)
                         ->nullable(),
                 ]),
+
             Select::make('descriptive_type_id')
                 ->label('Content')
                 ->searchable()
-                ->options(ConfigDescriptiveType::orderBy('name')->get()->mapWithKeys(function ($item) {
-                    return [$item->id => "{$item->name} ({$item->type} | location: {$item->location->name})"];
-                }))
+                ->getSearchResultsUsing(function (string $search): array {
+                    return ConfigDescriptiveType::query()
+                        ->when(! empty($search), function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('type', 'like', "%{$search}%")
+                                ->orWhere('location', 'like', "%{$search}%");
+                        })
+                        ->orderBy('name')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(function ($item) {
+                            $locationName = $item->location?->name ?? 'ALL';
+
+                            return [
+                                $item->id => "{$item->name} ({$item->type} | location: {$locationName})",
+                            ];
+                        })
+                        ->all();
+                })
+                ->getOptionLabelUsing(function ($value): ?string {
+                    if (! $value) {
+                        return null;
+                    }
+                    $item = ConfigDescriptiveType::find($value);
+                    if (! $item) {
+                        return null;
+                    }
+                    $locationName = $item->location?->name ?? 'ALL';
+
+                    return "{$item->name} ({$item->type} | location: {$locationName})";
+                })
                 ->required()
                 ->createOptionForm(Gate::allows('create', ConfigDescriptiveType::class) ? DescriptiveTypesForm::getSchema() : [])
                 ->createOptionUsing(function (array $data) {
-                    ConfigDescriptiveType::create($data);
+                    $record = ConfigDescriptiveType::create($data);
+
                     Notification::make()
                         ->title('DescriptiveType created successfully')
                         ->success()
                         ->send();
+
+                    return $record->id;
                 }),
+
             Textarea::make('value')
                 ->label('Value')
                 ->rows(3)
