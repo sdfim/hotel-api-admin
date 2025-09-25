@@ -27,6 +27,9 @@ class BookingApiRoutes
             Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
             Route::get('/change/price-check', [BookApiHandler::class, 'priceCheck'])->name('priceCheck');
             Route::put('/change/hard-change', [BookApiHandler::class, 'changeHardBooking'])->name('changeHardBooking');
+            // Section Quote Management
+            Route::get('/list-quote', [BookApiHandler::class, 'listQuote'])->name('listQuote');
+            Route::get('/retrieve-quote', [BookApiHandler::class, 'retrieveQuote'])->name('retrieveQuote');
         });
     }
 }

@@ -7,84 +7,6 @@
     "paths": {
         "/api/booking": {},
         "/api/content": {},
-        "/api/booking/remove-item": {
-            "delete": {
-                "tags": [
-                    "Booking API | Basket"
-                ],
-                "summary": "Remove a specific item from your shopping cart",
-                "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
-                "operationId": "02aae9b1f61cd585e15426e28fec10d9",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "**booking_id**",
-                        "required": true,
-                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingRemoveItemResponse"
-                                },
-                                "examples": {
-                                    "BookingRemoveItemResponse": {
-                                        "$ref": "#/components/examples/BookingRemoveItemResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
         "/api/payment/transaction/{booking_id}": {
             "get": {
                 "tags": [
@@ -324,6 +246,134 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/booking/add-item": {
+            "post": {
+                "tags": [
+                    "Booking API | Basket"
+                ],
+                "summary": "Add an item to your shopping cart.",
+                "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
+                "operationId": "6629f5969449157591265e51fe5119d2",
+                "requestBody": {
+                    "description": "Request payload. At least one of api_client.id or api_client.email is required. Field email_verification is mandatory.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_item",
+                                    "email_verification"
+                                ],
+                                "properties": {
+                                    "booking_item": {
+                                        "description": "Booking item UUID from pricing search response",
+                                        "type": "string",
+                                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                                    },
+                                    "booking_id": {
+                                        "description": "Optional booking_id if adding item to an existing booking",
+                                        "type": "string",
+                                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
+                                    },
+                                    "email_verification": {
+                                        "description": "Email where verification link will be sent",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "verify@example.com"
+                                    },
+                                    "api_client": {
+                                        "description": "API client identification (either id or email is required)",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 12345
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "client@example.com"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "withEmail": {
+                                    "summary": "Booking item with client email",
+                                    "value": {
+                                        "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+                                        "email_verification": "verify@example.com",
+                                        "api_client": {
+                                            "email": "client@example.com"
+                                        }
+                                    }
+                                },
+                                "withId": {
+                                    "summary": "Booking item with client ID",
+                                    "value": {
+                                        "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+                                        "email_verification": "verify@example.com",
+                                        "api_client": {
+                                            "id": 12345
+                                        }
+                                    }
+                                },
+                                "withBookingId": {
+                                    "summary": "Booking item with existing booking_id and client email",
+                                    "value": {
+                                        "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+                                        "booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
+                                        "email_verification": "verify@example.com",
+                                        "api_client": {
+                                            "email": "client@example.com"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
             }
         },
         "/api/booking/add-passengers": {
@@ -1702,27 +1752,28 @@
                 ]
             }
         },
-        "/api/booking/add-item": {
-            "post": {
+        "/api/booking/remove-item": {
+            "delete": {
                 "tags": [
                     "Booking API | Basket"
                 ],
-                "summary": "Add an item to your shopping cart.",
-                "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
-                "operationId": "d60b8ea3c1d2e6b278cf30c73a0c5721",
+                "summary": "Remove a specific item from your shopping cart",
+                "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
+                "operationId": "9dbabb6742716e6e5296705d0098e96e",
                 "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "**booking_id**",
+                        "required": true,
+                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
+                    },
                     {
                         "name": "booking_item",
                         "in": "query",
                         "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    },
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "**booking_id**, if it exists",
-                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
                     }
                 ],
                 "responses": {
@@ -1731,11 +1782,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingAddItemResponse"
+                                    "$ref": "#/components/schemas/BookingRemoveItemResponse"
                                 },
                                 "examples": {
-                                    "BookingAddItemResponse": {
-                                        "$ref": "#/components/examples/BookingAddItemResponse"
+                                    "BookingRemoveItemResponse": {
+                                        "$ref": "#/components/examples/BookingRemoveItemResponse"
                                     }
                                 }
                             }
@@ -2670,6 +2721,308 @@
                 ]
             }
         },
+        "/api/booking/list-quote": {
+            "get": {
+                "tags": [
+                    "Booking API | Quote"
+                ],
+                "summary": "List booking quotes (unbooked cart items) for the agent.",
+                "description": "Returns a list of booking_ids (booking_items) that are not yet booked for the agent but are in the cart.",
+                "operationId": "bd6ef274d000ed2444eca789fcfc0f71",
+                "parameters": [
+                    {
+                        "name": "api_client_email",
+                        "in": "query",
+                        "description": "API client email.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "agent@example.com"
+                        }
+                    },
+                    {
+                        "name": "booking_date_from",
+                        "in": "query",
+                        "description": "Filter quotes created from this date (YYYY-MM-DD).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-01"
+                        }
+                    },
+                    {
+                        "name": "booking_date_to",
+                        "in": "query",
+                        "description": "Filter quotes created up to this date (YYYY-MM-DD).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-30"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "results_per_page",
+                        "in": "query",
+                        "description": "Number of results per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": {
+                                        "count": 6,
+                                        "page": 2,
+                                        "results_per_page": 2,
+                                        "quotes": [
+                                            {
+                                                "booking_item": "77cbee37-a3b4-47e3-b6ed-3c60b597b008",
+                                                "email_verified": false,
+                                                "rooms": [
+                                                    {
+                                                        "room": "room 1",
+                                                        "unified_room_code": "External-ZENPOOL",
+                                                        "room_type": "ZENPOOL",
+                                                        "rate_plan_code": "RO2",
+                                                        "rate_name": "Room Only",
+                                                        "supplier_room_name": "Nature View Suite with Pool - Zen Experience",
+                                                        "booking_item": "77cbee37-a3b4-47e3-b6ed-3c60b597b008",
+                                                        "non_refundable": false,
+                                                        "currency": "USD",
+                                                        "total_net": 6081,
+                                                        "total_tax": 0,
+                                                        "total_price": 6081,
+                                                        "total_fees": 0,
+                                                        "commissionable_amount": 6081,
+                                                        "markup": 0,
+                                                        "breakdown": {
+                                                            "fees": [],
+                                                            "stay": [],
+                                                            "nightly": [
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "2192.00",
+                                                                        "rack_amount": "2192.00"
+                                                                    }
+                                                                ],
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "2051.00",
+                                                                        "rack_amount": "2051.00"
+                                                                    }
+                                                                ],
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "1838.00",
+                                                                        "rack_amount": "1838.00"
+                                                                    }
+                                                                ]
+                                                            ]
+                                                        },
+                                                        "cancellation_policies": [
+                                                            {
+                                                                "type": "General",
+                                                                "level": "rate",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "General Cancellation Policy",
+                                                                "penalty_start_date": "2025-11-02"
+                                                            },
+                                                            {
+                                                                "type": "NoShow",
+                                                                "level": "rate",
+                                                                "amount": "6081.00",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "Penalty for no show."
+                                                            }
+                                                        ],
+                                                        "capacity": {
+                                                            "adults": 2,
+                                                            "unknown": 0,
+                                                            "children": []
+                                                        },
+                                                        "rate_description": "24 hours Buttler Concierge service \\nPool & Beach Concierge \\nBreakfast, lunch and dinner a la carte or buffet at Bistro, Azul and ChakÃ¡ Restaurants \\nDinner a la carte at Frida Mexican Gourmet Cuisine ",
+                                                        "room_description": "Deluxe Suite with 1 king bed or 2 queen beds, living area, jacuzzi and terrace",
+                                                        "penalty_date": "2025-11-02",
+                                                        "meal_plan": "",
+                                                        "amenities": [],
+                                                        "promotions": [],
+                                                        "rate_id": "1",
+                                                        "distribution": false,
+                                                        "package_deal": false,
+                                                        "query_package": "",
+                                                        "giata_room_code": "263",
+                                                        "giata_room_name": "",
+                                                        "supplier_room_id": "2-0-0",
+                                                        "bed_configurations": [],
+                                                        "descriptive_content": [],
+                                                        "pricing_rules_applier": {
+                                                            "list": [],
+                                                            "count": 0
+                                                        },
+                                                        "per_day_rate_breakdown": "",
+                                                        "deposits": [],
+                                                        "commission_amount": 0
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "booking_item": "adea0667-3ccb-4706-a2dc-2fe4c7b1f36e",
+                                                "email_verified": false,
+                                                "rooms": [
+                                                    {
+                                                        "room": "room 1",
+                                                        "unified_room_code": "External-AMB",
+                                                        "room_type": "AMB",
+                                                        "rate_plan_code": "RO2",
+                                                        "rate_name": "Room Only",
+                                                        "supplier_room_name": "Ambassador Suite Ocean View",
+                                                        "booking_item": "adea0667-3ccb-4706-a2dc-2fe4c7b1f36e",
+                                                        "non_refundable": false,
+                                                        "currency": "USD",
+                                                        "total_net": 8463,
+                                                        "total_tax": 0,
+                                                        "total_price": 8463,
+                                                        "total_fees": 0,
+                                                        "commissionable_amount": 8463,
+                                                        "markup": 0,
+                                                        "breakdown": {
+                                                            "fees": [],
+                                                            "stay": [],
+                                                            "nightly": [
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "3061.00",
+                                                                        "rack_amount": "3061.00"
+                                                                    }
+                                                                ],
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "3061.00",
+                                                                        "rack_amount": "3061.00"
+                                                                    }
+                                                                ],
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "2341.00",
+                                                                        "rack_amount": "2341.00"
+                                                                    }
+                                                                ]
+                                                            ]
+                                                        },
+                                                        "cancellation_policies": [
+                                                            {
+                                                                "type": "General",
+                                                                "level": "rate",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "General Cancellation Policy",
+                                                                "penalty_start_date": "2025-11-02"
+                                                            },
+                                                            {
+                                                                "type": "NoShow",
+                                                                "level": "rate",
+                                                                "amount": "8463.00",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "Penalty for no show."
+                                                            }
+                                                        ],
+                                                        "capacity": {
+                                                            "adults": 2,
+                                                            "unknown": 0,
+                                                            "children": []
+                                                        },
+                                                        "rate_description": "24 hours Buttler Concierge service \\nPool & Beach Concierge \\nBreakfast, lunch and dinner a la carte or buffet at Bistro, Azul and ChakÃ¡ Restaurants \\nDinner a la carte at Frida Mexican Gourmet Cuisine ",
+                                                        "room_description": "Deluxe Suite with 1 king bed or 2 queen beds, living area and terrace",
+                                                        "penalty_date": "2025-11-02",
+                                                        "meal_plan": "",
+                                                        "amenities": [],
+                                                        "promotions": [],
+                                                        "rate_id": "7",
+                                                        "distribution": false,
+                                                        "package_deal": false,
+                                                        "query_package": "",
+                                                        "giata_room_code": "264",
+                                                        "giata_room_name": "",
+                                                        "supplier_room_id": "2-0-0",
+                                                        "bed_configurations": [],
+                                                        "descriptive_content": [],
+                                                        "pricing_rules_applier": {
+                                                            "list": [],
+                                                            "count": 0
+                                                        },
+                                                        "per_day_rate_breakdown": "",
+                                                        "deposits": [],
+                                                        "commission_amount": 0
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "message": "success"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/pricing/search": {
             "post": {
                 "tags": [
@@ -2770,6 +3123,144 @@
                         "apiAuth": []
                     }
                 ]
+            }
+        },
+        "/api/booking/retrieve-quote": {
+            "get": {
+                "tags": [
+                    "Booking API | Quote"
+                ],
+                "summary": "Retrieve a specific booking quote by booking_item.",
+                "description": "Returns details for a specific booking quote (unbooked cart item) for the agent.",
+                "operationId": "36432bdffbaebae565ec5d2eb3876b49",
+                "parameters": [
+                    {
+                        "name": "api_client_email",
+                        "in": "query",
+                        "description": "API client email.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "agent@example.com"
+                        }
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "Booking item UUID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "57e7013d-12aa-4b9e-8c7a-b269aa6b8114"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": {
+                                        "quotes": [
+                                            {
+                                                "booking_item": "57e7013d-12aa-4b9e-8c7a-b269aa6b8114",
+                                                "email_verified": true,
+                                                "rooms": [
+                                                    {
+                                                        "room": "room 1",
+                                                        "room_type": "GCL",
+                                                        "rate_plan_code": "RO2",
+                                                        "supplier_room_name": "Grand Class Pool Suite Ocean Front",
+                                                        "unified_room_code": "External-GCL",
+                                                        "non_refundable": false,
+                                                        "currency": "USD",
+                                                        "total_net": 15194,
+                                                        "total_tax": 0,
+                                                        "total_price": 15194,
+                                                        "total_fees": 0,
+                                                        "markup": 0,
+                                                        "breakdown": {
+                                                            "fees": [],
+                                                            "stay": [],
+                                                            "nightly": [
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "2512.00",
+                                                                        "rack_amount": "2512.00"
+                                                                    }
+                                                                ],
+                                                                [
+                                                                    {
+                                                                        "type": "base_rate",
+                                                                        "title": "Base Rate",
+                                                                        "amount": "1829.00",
+                                                                        "rack_amount": "1829.00"
+                                                                    }
+                                                                ]
+                                                            ]
+                                                        },
+                                                        "cancellation_policies": [
+                                                            {
+                                                                "type": "General",
+                                                                "level": "rate",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "General Cancellation Policy",
+                                                                "penalty_start_date": "2025-11-04"
+                                                            },
+                                                            {
+                                                                "type": "NoShow",
+                                                                "level": "rate",
+                                                                "amount": "8682.00",
+                                                                "currency": "USD",
+                                                                "percentage": "100",
+                                                                "description": "Penalty for no show."
+                                                            }
+                                                        ],
+                                                        "rate_description": "24 hours Butler Concierge service...",
+                                                        "meal_plan": ";",
+                                                        "rate_id": "4;8",
+                                                        "giata_room_code": "265",
+                                                        "giata_room_name": ";",
+                                                        "supplier_room_id": "2-0-0"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "message": "success"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/content/search": {
@@ -11140,6 +11631,10 @@
         {
             "name": "Booking API | Basket",
             "description": "API Endpoints of Cart (pre-reservation)"
+        },
+        {
+            "name": "Booking API | Quote",
+            "description": "API Endpoints of Quote (unbooked cart items)"
         },
         {
             "name": "Booking API | Booking",

@@ -20,7 +20,6 @@ use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Enums\RouteBookingEnum;
-use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
 class RouteBookingApiController extends Controller
@@ -103,7 +102,14 @@ class RouteBookingApiController extends Controller
                 $maxWaitTime = 10;
                 while ($waitTime < $maxWaitTime) {
                     if ($request->route()->getName() === RouteBookingEnum::ROUTE_ADD_ITEM->value) {
-                        $apiBookingItem = ApiBookingItemCache::where('booking_item', $request->booking_item)->with('search')->first();
+                        $apiBookingIteCache = ApiBookingItemCache::where('booking_item', $request->booking_item)->with('search')->first();
+                        if (! $apiBookingIteCache) {
+                            $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+                            if ($apiBookingItem) {
+                                return ['error' => 'booking_item already added to booking'];
+                            }
+                        }
+                        $apiBookingItem = $apiBookingIteCache;
                     } else {
                         $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
                     }

@@ -49,6 +49,7 @@ use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
+use App\Http\Controllers\BookingEmailVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -164,3 +165,5 @@ Route::prefix('admin')->group(function () {
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
     });
 });
+
+Route::get('/booking/verify/{booking_item}/{uuid}', [BookingEmailVerificationController::class, 'verify'])->name('booking.verify');

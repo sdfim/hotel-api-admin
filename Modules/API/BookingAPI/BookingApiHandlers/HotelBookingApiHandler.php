@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
+use App\Mail\BookingEmailVerificationMail;
 use App\Models\ApiBookingItemCache;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -10,6 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
@@ -76,7 +79,24 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters),
                 default => [],
             };
-
+            // Отправка письма с подтверждением, если требуется
+            $email_verification = $request->input('email_verification', false);
+            if ($email_verification) {
+                $uuid = Str::uuid()->toString();
+                $cacheKey = 'booking_email_verification:'.$request->booking_item.':'.$uuid;
+                // Store the uuid and booking_item in cache for 1 week
+                Cache::put($cacheKey, $request->booking_item, now()->addWeek());
+                $verificationUrl = route('booking.verify', ['booking_item' => $request->booking_item, 'uuid' => $uuid]);
+                try {
+                    Mail::to($email_verification)->queue(new BookingEmailVerificationMail($verificationUrl, $request->booking_item));
+                    $mailStatus = 'verification_email_queued';
+                } catch (\Throwable $mailException) {
+                    Log::error('Email verification queue error: '.$mailException->getMessage());
+                    $mailStatus = 'verification_email_queue_failed';
+                }
+            } else {
+                $mailStatus = null;
+            }
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -88,70 +108,13 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             return $this->sendError($data['errors'], $data['message']);
         }
 
-        return $this->sendResponse($data, 'success');
+        $data['mail_status'] = $mailStatus;
+
+        $response = $this->sendResponse($data, 'success');
+
+        return $response;
     }
 
-    /**
-     * @OA\Delete(
-     *   tags={"Booking API | Basket"},
-     *   path="/api/booking/remove-item",
-     *   summary="Remove a specific item from your shopping cart",
-     *   description="Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
-     *
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="**booking_id**",
-     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
-     *    ),
-     *    @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingRemoveItemResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
-     *         },
-     *      )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
     public function removeItem(Request $request, string $supplier): JsonResponse
     {
         $filters = $request->all();

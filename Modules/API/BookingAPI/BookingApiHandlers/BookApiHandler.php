@@ -46,6 +46,8 @@ use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
+use Modules\API\Requests\ListQuotesRequest;
+use Modules\API\Requests\RetrieveQuoteRequest;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -1144,5 +1146,34 @@ class BookApiHandler extends BaseController
         }
 
         return [];
+    }
+
+    /**
+     * List booking_items (quotes) in the agent's cart that are not yet booked
+     */
+    public function listQuote(ListQuotesRequest $request): JsonResponse
+    {
+        $dataInspector = ApiBookingInspectorRepository::getListQuoteFromInspector();
+
+        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems(Arr::get($dataInspector, 'booking_items', []));
+        $response = $dataInspector;
+        unset($response['booking_items']);
+        $response['quotes'] = $quotes;
+
+        return $this->sendResponse($response, 'success');
+    }
+
+    /**
+     * Retrieve details for a specific booking_id in the cart, not yet booked
+     */
+    public function retrieveQuote(RetrieveQuoteRequest $request): JsonResponse
+    {
+        $bookingItem = $request->get('booking_item');
+        $dataInspector = ApiBookingInspectorRepository::getQuoteFromInspectorByBookingId($bookingItem);
+
+        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems($dataInspector);
+        $response['quotes'] = $quotes;
+
+        return $this->sendResponse($response, 'success');
     }
 }

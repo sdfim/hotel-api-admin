@@ -9,12 +9,19 @@ use Modules\API\Validate\ApiRequest;
 class BookingRemoveItemHotelRequest extends ApiRequest
 {
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *   tags={"Booking API | Basket"},
-     *   path="/api/booking/add-item",
-     *   summary="Add an item to your shopping cart.",
-     *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
+     *   path="/api/booking/remove-item",
+     *   summary="Remove a specific item from your shopping cart",
+     *   description="Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
      *
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="**booking_id**",
+     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
+     *    ),
      *    @OA\Parameter(
      *      name="booking_item",
      *      in="query",
@@ -23,23 +30,17 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *      In the response object for each rate is a **booking_item** property.",
      *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
      *    ),
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      description="**booking_id**, if it exists",
-     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
-     *    ),
      *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
      *
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddItemResponse",
+     *       ref="#/components/schemas/BookingRemoveItemResponse",
      *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
+     *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
      *         },
-     *     )
+     *      )
      *   ),
      *
      *   @OA\Response(

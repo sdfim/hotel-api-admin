@@ -480,4 +480,75 @@ class ApiBookingInspectorRepository
             ->where('status', 'success')
             ->first();
     }
+
+    public static function getListQuoteFromInspector(): array
+    {
+        $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
+        $apiClientId = data_get(request()->all(), 'api_client_id');
+        $apiClientEmail = data_get(request()->all(), 'api_client_email');
+        $bookingDateFrom = request()->input('booking_date_from');
+        $bookingDateTo = request()->input('booking_date_to');
+        $page = (int) request()->input('page', 1);
+        $resultsPerPage = (int) request()->input('results_per_page', 20);
+
+        $query = ApiBookingInspector::query()
+            ->where('token_id', $tokenId)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'complete')
+            ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
+                $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
+                    if (filled($apiClientId)) {
+                        $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
+                    }
+                    if (filled($apiClientEmail)) {
+                        $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
+                    }
+                });
+            })
+            ->when(filled($bookingDateFrom), function ($q) use ($bookingDateFrom) {
+                $q->whereDate('created_at', '>=', $bookingDateFrom);
+            })
+            ->when(filled($bookingDateTo), function ($q) use ($bookingDateTo) {
+                $q->whereDate('created_at', '<=', $bookingDateTo);
+            })
+            ->orderBy('created_at', 'desc');
+
+        $total = $query->count();
+        $booking_items = $query->skip(($page - 1) * $resultsPerPage)
+            ->take($resultsPerPage)
+            ->pluck('booking_item')
+            ->toArray();
+
+        return [
+            'count' => $total,
+            'page' => $page,
+            'results_per_page' => $resultsPerPage,
+            'booking_items' => $booking_items,
+        ];
+    }
+
+    public static function getQuoteFromInspectorByBookingId(string $bookingItem): array
+    {
+        $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
+        $apiClientId = data_get(request()->all(), 'api_client_id');
+        $apiClientEmail = data_get(request()->all(), 'api_client_email');
+
+        return ApiBookingInspector::query()
+            ->where('token_id', $tokenId)
+            ->where('booking_item', $bookingItem)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'complete')
+            ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
+                $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
+                    if (filled($apiClientId)) {
+                        $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
+                    }
+                    if (filled($apiClientEmail)) {
+                        $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
+                    }
+                });
+            })
+            ->pluck('booking_item')
+            ->toArray();
+    }
 }

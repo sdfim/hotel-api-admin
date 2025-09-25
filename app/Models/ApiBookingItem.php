@@ -33,6 +33,7 @@ class ApiBookingItem extends Model
         'created_at',
         'complete_id',
         'cache_checkpoint',
+        'email_verified',
     ];
 
     /**

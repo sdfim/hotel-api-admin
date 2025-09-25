@@ -16,7 +16,6 @@ class ApiBookingItemRepository
         return $bookingItem->rate_type === ItemTypeEnum::COMPLETE->value;
     }
 
-
     public static function getItemDataCache(string $booking_item): ?array
     {
         $bookingItem = ApiBookingItemCache::where('booking_item', $booking_item)->first();
@@ -112,5 +111,89 @@ class ApiBookingItemRepository
     public static function getChildrenBookingItems(string $bookingItem): ?array
     {
         return ApiBookingItem::where('booking_item', $bookingItem)->first()?->child_items;
+    }
+
+    public static function getListQuoteByBookingItems(array $listBookingItems): ?array
+    {
+        $order = [
+            'unified_room_code',
+            'room_type', 'rate_plan_code', 'rate_name', 'supplier_room_name',
+            'booking_item', 'non_refundable',
+            'currency', 'total_net', 'total_tax', 'total_price', 'total_fees',  'commissionable_amount', 'markup',
+            'breakdown', 'cancellation_policies',
+            'capacity', 'rate_description', 'room_description',
+            'penalty_date',  'meal_plan', 'amenities', 'promotions', 'rate_id',
+            'distribution', 'package_deal',
+            'query_package', 'giata_room_code', 'giata_room_name', 'supplier_room_id',
+            'bed_configurations', 'descriptive_content', 'pricing_rules_applier', 'per_day_rate_breakdown', 'deposits',
+        ];
+        $reorder = function (array $data) use ($order) {
+            $result = [];
+            foreach ($order as $key) {
+                if (array_key_exists($key, $data)) {
+                    $result[$key] = $data[$key];
+                }
+            }
+            foreach ($data as $key => $value) {
+                if (! array_key_exists($key, $result)) {
+                    $result[$key] = $value;
+                }
+            }
+
+            return $result;
+        };
+
+        $items = ApiBookingItem::whereIn('booking_item', $listBookingItems)->get();
+
+        $detailItems = [];
+        foreach ($items as $i => $item) {
+            $detailItems[$i]['booking_item'] = $item->booking_item;
+            $detailItems[$i]['email_verified'] = (bool) $item->email_verified;
+            $childItems = $item->child_items;
+            if ($childItems && is_array($childItems)) {
+                foreach ($childItems as $r => $childItem) {
+                    $childPricingData = self::getItemPricingData($item->booking_item);
+                    $room = 'room '.($r + 1);
+                    $roomNumber = $r + 1; // current room number
+
+                    // Filter breakdown for this room and extract the breakdown object
+                    $breakdownObj = null;
+                    if (! empty($childPricingData['breakdown'])) {
+                        foreach ($childPricingData['breakdown'] as $break) {
+                            if (isset($break['room']) && $break['room'] == $roomNumber) {
+                                $breakdownObj = $break['breakdown'] ?? null;
+                                break;
+                            }
+                        }
+                    }
+                    if ($breakdownObj !== null) {
+                        $childPricingData['breakdown'] = $breakdownObj;
+                    }
+                    // Filter cancellation_policies for this room and extract the cancellation_policies array
+                    $cancellationPoliciesObj = null;
+                    if (! empty($childPricingData['cancellation_policies'])) {
+                        foreach ($childPricingData['cancellation_policies'] as $policy) {
+                            if (isset($policy['room']) && $policy['room'] == $roomNumber) {
+                                $cancellationPoliciesObj = $policy['cancellation_policies'] ?? null;
+                                break;
+                            }
+                        }
+                    }
+                    if ($cancellationPoliciesObj !== null) {
+                        $childPricingData['cancellation_policies'] = $cancellationPoliciesObj;
+                    }
+
+                    $childPricingData['booking_item'] = $childItem;
+
+                    // Remove room key from breakdown items
+                    $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder($childPricingData));
+                }
+            } else {
+                $room = 'room 1';
+                $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder(json_decode($item->booking_pricing_data, true)));
+            }
+        }
+
+        return $detailItems;
     }
 }
