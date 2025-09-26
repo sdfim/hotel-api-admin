@@ -2556,6 +2556,28 @@
                             "format": "date",
                             "example": "2025-09-30"
                         }
+                    },
+                    {
+                        "name": "checkin_date_from",
+                        "in": "query",
+                        "description": "Filter bookings with check-in from this date (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-01"
+                        }
+                    },
+                    {
+                        "name": "checkin_date_to",
+                        "in": "query",
+                        "description": "Filter bookings with check-in up to this date (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-30"
+                        }
                     }
                 ],
                 "responses": {

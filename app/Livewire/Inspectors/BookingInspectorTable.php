@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -33,7 +34,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiBookingInspector::query())
+            ->query(ApiBookingInspector::query()->with(['bookingItem', 'supplier', 'token'])->latest())
             ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('search_id')
@@ -65,6 +66,10 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                         'success' => 'success',
                         default => 'gray',
                     }),
+                IconColumn::make('bookingItem.email_verified')
+                    ->label('Verified')
+                    ->boolean()
+                    ->toggleable(),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.booking-inspector.column.error-data'),
