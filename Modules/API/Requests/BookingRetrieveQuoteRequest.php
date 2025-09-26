@@ -121,7 +121,7 @@ use Modules\API\Validate\ApiRequest;
  *   )
  * )
  */
-class RetrieveQuoteRequest extends ApiRequest
+class BookingRetrieveQuoteRequest extends ApiRequest
 {
     public function rules(): array
     {

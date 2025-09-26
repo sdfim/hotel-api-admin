@@ -526,13 +526,15 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                 'rate_occupancy' => $rateOccupancy,
                 'rate_type' => $this->rate_type,
                 'room_id' => $rate['id'] ?? $roomType ?? 0,
+                'room_code' => $ratePlanCode,
+                'supplier' => SupplierNameEnum::EXPEDIA->value,
                 'rate_ordinal' => $rate['id'] ?? $rateOrdinal ?? 0,
                 'bed_groups' => '',
             ]),
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType.':'.$ratePlanCode.':'.SupplierNameEnum::HBSI->value,
         ];
 
         $roomResponse->setDescriptiveContent(DescriptiveContentResolver::getRateLevel($roomResponse, Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId));

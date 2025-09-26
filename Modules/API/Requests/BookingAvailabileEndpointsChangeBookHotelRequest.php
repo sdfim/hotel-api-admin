@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-
 class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
 {
     /**
@@ -24,6 +23,7 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *     in="query",
      *     description="The booking item identifier",
      *     required=true,
+     *
      *     @OA\Schema(
      *       type="string",
      *       format="uuid",
@@ -34,7 +34,9 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *   @OA\Response(
      *     response=200,
      *     description="Successful response with available endpoints for modifying the booking.",
+     *
      *     @OA\JsonContent(
+     *
      *       @OA\Property(
      *         property="success",
      *         type="boolean",
@@ -61,8 +63,10 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *         @OA\Property(
      *           property="endpoints",
      *           type="array",
+     *
      *           @OA\Items(
      *             type="object",
+     *
      *             @OA\Property(
      *               property="name",
      *               type="string",
@@ -114,10 +118,11 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     */    public function authorize(): bool
-{
-    return Auth::check();
-}
+     */
+    public function authorize(): bool
+    {
+        return Auth::check();
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -131,9 +136,6 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

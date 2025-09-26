@@ -53,7 +53,7 @@ class ExpediaBookApiController extends BaseBookApiController
             ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
     }
 
-    public function availabilityChange(array $filters): ?array
+    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
@@ -75,7 +75,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $change_search_id = (string) Str::uuid();
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector(
-            [$change_search_id, $filters, [$supplierId], 'change', 'hotel']
+            [$change_search_id, $filters, [$supplierId], $type, 'hotel']
         );
 
         $params['checkin'] = $filters['checkin'];

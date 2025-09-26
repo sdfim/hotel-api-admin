@@ -6,7 +6,7 @@ use Illuminate\Validation\Validator;
 use Modules\API\Requests\Traits\ValidatesApiClient;
 use Modules\API\Validate\ApiRequest;
 
-class ListBookingsRequest extends ApiRequest
+class BookingListBookingsRequest extends ApiRequest
 {
     use ValidatesApiClient;
 

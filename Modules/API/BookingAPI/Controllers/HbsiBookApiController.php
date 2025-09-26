@@ -465,14 +465,14 @@ class HbsiBookApiController extends BaseBookApiController
         return ['status' => 'Booking changed.'];
     }
 
-    public function availabilityChange(array $filters): ?array
+    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $searchId = (string) Str::uuid();
         $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_supplier_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
+        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], $type, 'hotel']);
 
         $response = $this->priceByHotel($hotelId, $filters, $searchInspector);
 
@@ -509,7 +509,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         return [
             'result' => $clientResponse[SupplierNameEnum::HBSI->value],
-            'change_search_id' => $searchId,
+            $type.'_search_id' => $searchId,
         ];
     }
 

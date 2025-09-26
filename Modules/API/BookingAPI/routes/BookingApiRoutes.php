@@ -30,6 +30,7 @@ class BookingApiRoutes
             // Section Quote Management
             Route::get('/list-quote', [BookApiHandler::class, 'listQuote'])->name('listQuote');
             Route::get('/retrieve-quote', [BookApiHandler::class, 'retrieveQuote'])->name('retrieveQuote');
+            Route::post('/check-quote', [BookApiHandler::class, 'checkQuote'])->name('checkQuote');
         });
     }
 }

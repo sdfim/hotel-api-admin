@@ -396,14 +396,15 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'],
                 'room_id' => $roomGroup['id'],
-                'rate' => $rate['id'],
+                'rate' => $rateId,
+                'supplier' => SupplierNameEnum::EXPEDIA->value,
                 'bed_groups' => Arr::get($bedGroup, 'id'),
                 'hotel_supplier_id' => $propertyGroup['property_id'],
                 'query_package' => $this->query_package,
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.Arr::get($roomGroup, 'id', 0),
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.Arr::get($roomGroup, 'id', 0).':'.$rateId.':'.SupplierNameEnum::EXPEDIA->value,
         ];
 
         $roomResponse->setDescriptiveContent(DescriptiveContentResolver::getRateLevel($roomResponse, Arr::get($this->descriptiveContent, $giataId, []), $this->query, $giataId));

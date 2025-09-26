@@ -268,14 +268,14 @@ class HotelTraderBookApiController extends BaseBookApiController
         return $data;
     }
 
-    public function availabilityChange(array $filters): ?array
+    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
         $bookingItemCode = $filters['booking_item'] ?? null;
         $bookingItem = ApiBookingItem::where('booking_item', $bookingItemCode)->first();
         $searchId = (string) Str::uuid();
         $hotelGiataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
+        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], $type, 'hotel']);
 
         $response = $this->priceByHotel($hotelGiataId, $filters, $searchInspector);
 
@@ -316,7 +316,7 @@ class HotelTraderBookApiController extends BaseBookApiController
 
         return [
             'result' => $clientResponse[SupplierNameEnum::HOTEL_TRADER->value] ?? [],
-            'change_search_id' => $searchId,
+            $type.'_search_id' => $searchId,
         ];
     }
 

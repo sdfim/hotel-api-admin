@@ -30,12 +30,15 @@ class ClearSearchCacheByBookingItemsTools
                 $booking_item_data = json_decode($booking_item_data, true);
 
                 // Hotel type booking
-                $room_ids_str = Arr::get($booking_item_data, 'room_id');
+                $room_ids_str = Arr::get($booking_item_data, 'room_id') ?? Arr::get($booking_item_data, 'room_code');
+                $rate_code_str = Arr::get($booking_item_data, 'rate_code') ?? Arr::get($booking_item_data, 'rate');
                 $hotel_id = Arr::get($booking_item_data, 'hotel_id');
+                $supplier = Arr::get($booking_item_data, 'supplier');
                 if ($hotel_id !== null && $room_ids_str !== null) {
                     $room_ids = explode(';', $room_ids_str);
-                    foreach ($room_ids as $room_id) {
-                        $keyCache = 'searched:'.$hotel_id.':'.$room_id;
+                    $rate_codes = explode(';', $rate_code_str);
+                    foreach ($room_ids as $k => $room_id) {
+                        $keyCache = 'searched:'.$hotel_id.':'.$room_ids[$k].':'.$rate_codes[$k].':'.$supplier;
                         $search_id = Cache::get($keyCache);
                         if ($search_id) {
                             $taggedCache->forget($search_id);

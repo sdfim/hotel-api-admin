@@ -287,7 +287,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  */
 
-class ListQuotesRequest extends ApiRequest
+class BookingListQuotesRequest extends ApiRequest
 {
     public function rules(): array
     {

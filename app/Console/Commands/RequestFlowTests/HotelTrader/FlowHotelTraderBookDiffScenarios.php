@@ -211,8 +211,6 @@ class FlowHotelTraderBookDiffScenarios extends Command
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout);
 
         $this->cancel($bookingId, $bookingItem);
-
-        $this->retrieveBooking($bookingId);
     }
 
     private function scenario_5(): void

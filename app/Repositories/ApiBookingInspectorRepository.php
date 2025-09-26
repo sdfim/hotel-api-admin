@@ -243,6 +243,15 @@ class ApiBookingInspectorRepository
             ->exists();
     }
 
+    public static function isBookByItem(string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
     public static function exists(string $booking_id, string $booking_item): bool
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
@@ -350,6 +359,16 @@ class ApiBookingInspectorRepository
             ->where('sub_type', 'true')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->exists();
+    }
+
+    public static function getBookIdByBookingItem(string $booking_item): ?string
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'complete')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->first()
+            ?->booking_id;
     }
 
     public static function getBookItemsByBookingItem(string $booking_item): ?object

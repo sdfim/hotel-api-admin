@@ -3,6 +3,7 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
+use App\Models\Property;
 use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -32,7 +33,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.search-id'),
                 TextColumn::make('status')
-//                    ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'error' => 'danger',
@@ -40,23 +40,43 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         default => 'gray',
                     }),
                 TextColumn::make('search_type')
-                    ->label('Search Type'),
+                    ->label('Type'),
                 TextColumn::make('type')
+                    ->label('')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'price' => 'success',
+                        'check_quote' => 'warning',
                         'change' => 'gray',
                         default => 'gray',
                     }),
-                TextColumn::make('destination_name')
-                    ->label('Destination Name'),
+                TextColumn::make('request')
+                    ->label('Destination')
+                    ->wrap()
+                    ->width(300)
+                    ->formatStateUsing(function ($state, $record) {
+                        $giataIds = json_decode($record->request, true)['giata_ids'] ?? [];
+                        if (! is_array($giataIds) || empty($giataIds)) {
+                            return '';
+                        }
+                        $perPage = request('tableRecordsPerPage') ?? request('perPage') ?? 10;
+                        $codes = array_slice($giataIds, 0, 3);
+                        $properties = Property::whereIn('code', $codes)->pluck('name', 'code')->toArray();
+                        $result = [];
+                        foreach ($codes as $code) {
+                            $name = $properties[$code] ?? '';
+                            $result[] = $name ? ("$code | $name ") : $code;
+                        }
+                        return implode(', ', $result);
+                    }),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),
                 ViewColumn::make('request json')
                     ->label('')
                     ->view('dashboard.search-inspector.column.request'),
-                ViewColumn::make('request')
+                ViewColumn::make('request rooms')
+                    ->label('Occupancy')
                     ->toggleable()
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.request-data'),
@@ -66,6 +86,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('suppliers')
+                    ->wrap()
+                    ->width(200)
                     ->toggleable()
                     ->formatStateUsing(function (ApiSearchInspector $record): string {
                         return Supplier::whereIn('id', explode(',', $record->suppliers))->pluck('name')->implode(', ');

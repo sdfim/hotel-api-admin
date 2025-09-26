@@ -326,6 +326,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
                 'rate_code' => $rateCode,
                 'room_code' => $roomCode,
+                'supplier' => SupplierNameEnum::EXPEDIA->value,
 
                 'htIdentifier' => $htIdentifier,
                 'rate' => [
@@ -339,7 +340,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             ]),
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomCode.':'.$rateCode,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomCode.':'.$rateCode.':'.SupplierNameEnum::HOTEL_TRADER->value,
         ];
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
 

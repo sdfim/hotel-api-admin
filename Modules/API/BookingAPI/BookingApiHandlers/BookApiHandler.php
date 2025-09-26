@@ -9,18 +9,16 @@ use App\Jobs\RetrieveBookingJob;
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Reservation;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
-use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
-use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRepository;
-use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
@@ -42,12 +40,15 @@ use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeHardBookHotelRequest;
 use Modules\API\Requests\BookingChangeSoftBookHotelRequest;
+use Modules\API\Requests\BookingCheckQuoteRequest;
+use Modules\API\Requests\BookingListBookingsRequest;
+use Modules\API\Requests\BookingListQuotesRequest;
 use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
-use Modules\API\Requests\ListBookingsRequest;
-use Modules\API\Requests\ListQuotesRequest;
-use Modules\API\Requests\RetrieveQuoteRequest;
+use Modules\API\Requests\BookingRetrieveQuoteRequest;
+use Modules\API\Services\HotelBookingAddPassengersService;
+use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -58,8 +59,6 @@ use Modules\Enums\TypeRequestEnum;
  */
 class BookApiHandler extends BaseController
 {
-    private const AGE_ADULT = 18;
-
     public function __construct(
         private readonly ExpediaBookApiController $expedia,
         private readonly HbsiBookApiController $hbsi,
@@ -83,7 +82,7 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
 
-        $items = BookRepository::notBookedItems($request->booking_id);
+        $items = ApiBookingInspectorRepository::notBookedItems($request->booking_id);
 
         if (! $items->count()) {
             Log::info("BOOK ACTION - END - $request->booking_id", ['error' => 'No items to book OR the order cart (booking_id) is complete/booked']); // $request->booking_id
@@ -151,7 +150,7 @@ class BookApiHandler extends BaseController
          * Based on these booking_items, all cached pricing search responses will be determined and this cache will be cleared.
          * This prevents the possibility of booking an already booked booking_item.
          */
-        $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
+        $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
         // Retrieve booking to get the full details after booking
@@ -240,7 +239,7 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
         $filters = $request->all();
@@ -338,7 +337,7 @@ class BookApiHandler extends BaseController
 
         $filters['search_id'] = $searchId;
 
-        $bookingInspector = BookingRepository::newBookingInspector([
+        $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $bookingId, $filters, $supplierId, 'change_passengers', $subType, 'hotel',
         ]);
 
@@ -355,7 +354,7 @@ class BookApiHandler extends BaseController
         //            return $this->sendError('This booking_item is non-refundable', 'failed');
         //        }
 
-        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
@@ -364,7 +363,7 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
 
@@ -415,7 +414,7 @@ class BookApiHandler extends BaseController
         //            return $this->sendError('This booking_item is non-refundable', 'failed');
         //        }
 
-        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
@@ -424,7 +423,7 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
 
@@ -481,7 +480,7 @@ class BookApiHandler extends BaseController
         //            return $this->sendError('This booking_item is non-refundable', 'failed');
         //        }
 
-        if (! BookRepository::exists($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::exists($request->booking_id, $request->booking_item)) {
             return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
@@ -490,7 +489,7 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        if (! BookRepository::isBook($request->booking_id, $request->booking_item)) {
+        if (! ApiBookingInspectorRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
         $filters = $request->all();
@@ -523,7 +522,7 @@ class BookApiHandler extends BaseController
         return $this->sendResponse($result, 'success');
     }
 
-    public function listBookings(ListBookingsRequest $request): JsonResponse
+    public function listBookings(BookingListBookingsRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
@@ -643,40 +642,6 @@ class BookApiHandler extends BaseController
         ], 'success');
     }
 
-    public function listBookingsOld(ListBookingsRequest $request): JsonResponse
-    {
-        $determinant = $this->determinant($request);
-        if (! empty($determinant)) {
-            return response()->json(['error' => $determinant['error']], 400);
-        }
-
-        $suppliers = SupplierNameEnum::pricingList();
-
-        $data = [];
-        foreach ($suppliers as $supplier) {
-            try {
-                $bookings = match ($supplier) {
-                    SupplierNameEnum::EXPEDIA->value => $this->expedia->listBookings(),
-                    SupplierNameEnum::HBSI->value => $this->hbsi->listBookings(),
-                    SupplierNameEnum::HOTEL_TRADER->value => $this->hTrader->listBookings(),
-                };
-                if (is_array($bookings)) {
-                    $data = array_merge($data, $bookings);
-                }
-            } catch (Exception $e) {
-                Log::error('HotelBookingApiHandler | listBookings for '.$supplier->value.' '.$e->getMessage());
-                Log::error($e->getTraceAsString());
-                // Optionally, add error info to the result for this supplier
-                $data[] = [
-                    'supplier' => $supplier->value,
-                    'error' => $e->getMessage(),
-                ];
-            }
-        }
-
-        return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
-    }
-
     /**
      * @throws GuzzleException
      */
@@ -740,7 +705,7 @@ class BookApiHandler extends BaseController
         $data = [];
         $canceled = [];
         foreach ($itemsBooked as $item) {
-            if (! BookRepository::isBook($request->booking_id, $item->booking_item, false)) {
+            if (! ApiBookingInspectorRepository::isBook($request->booking_id, $item->booking_item, false)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
 
                 continue;
@@ -814,13 +779,13 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
+        $itemsInCart = ApiBookingInspectorRepository::getItemsInCart($request->booking_id);
 
         $res = [];
         try {
             foreach ($itemsInCart as $item) {
 
-                if (BookRepository::isBook($request->booking_id, $item->booking_item)) {
+                if (ApiBookingInspectorRepository::isBook($request->booking_id, $item->booking_item)) {
                     continue;
                 }
 
@@ -855,13 +820,14 @@ class BookApiHandler extends BaseController
         }
 
         $filters = $request->all();
-        $filtersOutput = $this->dtoAddPassengers($filters);
-        $checkData = $this->checkCountGuestsChildrenAges($filtersOutput);
+        $service = app(HotelBookingAddPassengersService::class);
+        $filtersOutput = $service->dtoAddPassengers($filters);
+        $checkData = $service->checkCountGuestsChildrenAges($filtersOutput);
         if (! empty($checkData)) {
             return $this->sendError($checkData, 'failed');
         }
 
-        $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
+        $itemsInCart = ApiBookingInspectorRepository::getItemsInCart($request->booking_id);
 
         $bookingRequestItems = array_keys($filtersOutput);
 
@@ -874,7 +840,7 @@ class BookApiHandler extends BaseController
         try {
             $response = [];
             foreach ($bookingRequestItems as $booking_item) {
-                if (BookRepository::isBook($request->booking_id, $booking_item)) {
+                if (ApiBookingInspectorRepository::isBook($request->booking_id, $booking_item)) {
                     return $this->sendError('Cart is empty or booked', 'failed');
                 }
                 $supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
@@ -899,6 +865,103 @@ class BookApiHandler extends BaseController
 
         return $this->sendResponse(['result' => $response], 'success');
     }
+
+    /**
+     * List booking_items (quotes) in the agent's cart that are not yet booked
+     */
+    public function listQuote(BookingListQuotesRequest $request): JsonResponse
+    {
+        $dataInspector = ApiBookingInspectorRepository::getListQuoteFromInspector();
+
+        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems(Arr::get($dataInspector, 'booking_items', []));
+        $response = $dataInspector;
+        unset($response['booking_items']);
+        $response['quotes'] = $quotes;
+
+        return $this->sendResponse($response, 'success');
+    }
+
+    /**
+     * Retrieve details for a specific booking_id in the cart, not yet booked
+     */
+    public function retrieveQuote(BookingRetrieveQuoteRequest $request): JsonResponse
+    {
+        $bookingItem = $request->get('booking_item');
+        $dataInspector = ApiBookingInspectorRepository::getQuoteFromInspectorByBookingId($bookingItem);
+
+        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems($dataInspector);
+        $response['quotes'] = $quotes;
+
+        return $this->sendResponse($response, 'success');
+    }
+
+    /**
+     * Check availability and price for a specific booking_item in the cart, not yet booked
+     */
+    public function checkQuote(BookingCheckQuoteRequest $request): JsonResponse
+    {
+        $determinant = $this->determinant($request);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
+
+        if (ApiBookingInspectorRepository::isBookByItem($request->booking_item)) {
+            return $this->sendError('booking_item booked', 'failed');
+        }
+
+        $filters = $request->all();
+
+        $service = app(HotelBookingCheckQuoteService::class);
+
+        $bookingItem = ApiBookingItem::with('supplier')->where('booking_item', $request->booking_item)->first();
+        $firstSearch = $bookingItem->search;
+        $searchType = $firstSearch->search_type;
+
+
+
+        if ($searchType !== 'hotel') {
+            return $this->sendError('checkQuote is only available for hotel booking_items', 'failed');
+        }
+
+        $dataFirstSearch = $service->getDataFirstSearch($request, $bookingItem);
+        $service->prepareFiltersForCheckQuote($filters, $request, $bookingItem, $firstSearch, $dataFirstSearch);
+
+        // 1 new search
+        try {
+            $data = match (SupplierNameEnum::from($bookingItem->supplier->name)) {
+                SupplierNameEnum::EXPEDIA => $this->expedia->availabilityChange($filters, 'check_quote'),
+                SupplierNameEnum::HBSI => $this->hbsi->availabilityChange($filters, 'check_quote'),
+                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->availabilityChange($filters, 'check_quote'),
+                default => [],
+            };
+        } catch (Exception $e) {
+            Log::error('BookApiHandler | checkQuote '.$e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return $this->sendError($e->getMessage(), 'failed');
+        }
+
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
+
+        $matchedRooms = $service->filterMatchingRooms($data, $dataFirstSearch);
+        $parent_booking_item = Arr::get($matchedRooms, '0.parent_booking_item');
+
+        // 2 compare results
+        $fieldsToCompare = ['total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
+        $result['comparison_of_amounts'] = $service->compareFieldSums($fieldsToCompare, $dataFirstSearch, $matchedRooms);
+        $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
+        $result['booking_item'] = $parent_booking_item;
+        $result['current_search'] = array_values($matchedRooms);
+        $result['first_search'] = $dataFirstSearch;
+
+        // 3 move booking_item from cache to new booking_item
+        $service->moveBookingItem($request, $bookingItem->supplier->name, $parent_booking_item);
+
+        return $this->sendResponse($result, 'success');
+    }
+
 
     private function determinant(Request $request, bool $validateWithApiBookings = true): array
     {
@@ -945,7 +1008,7 @@ class BookApiHandler extends BaseController
             $maxWaitTime = 5;
             $bi = null;
             while ($waitTime < $maxWaitTime) {
-                $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
+                $bi = ApiBookingInspectorRepository::geTypeSupplierByBookingId($request->booking_id);
                 if (! empty($bi)) {
                     break;
                 }
@@ -974,227 +1037,5 @@ class BookApiHandler extends BaseController
         }
 
         return true;
-    }
-
-    private function dtoAddPassengers(array $input): array
-    {
-        $output = [];
-        foreach ($input['passengers'] as $passenger) {
-            foreach ($passenger['booking_items'] as $booking) {
-                $bookingItem = $booking['booking_item'];
-
-                $age = null;
-                if (! empty($passenger['date_of_birth'])) {
-                    try {
-                        $age = Carbon::parse($passenger['date_of_birth'])->age;
-                    } catch (\Exception $e) {
-                        $age = null;
-                    }
-                }
-
-                // type hotel
-                if (isset($booking['room'])) {
-                    $room = $booking['room'];
-                    if (isset($output[$bookingItem])) {
-                        $output[$bookingItem]['rooms'][$room]['passengers'][] = [
-                            'title' => $passenger['title'],
-                            'given_name' => $passenger['given_name'],
-                            'family_name' => $passenger['family_name'],
-                            'date_of_birth' => $passenger['date_of_birth'],
-                            'age' => $age,
-                        ];
-                    } else {
-                        $output[$bookingItem] = [
-                            'booking_item' => $bookingItem,
-                            'rooms' => [
-                                $room => [
-                                    'passengers' => [
-                                        [
-                                            'title' => $passenger['title'],
-                                            'given_name' => $passenger['given_name'],
-                                            'family_name' => $passenger['family_name'],
-                                            'date_of_birth' => $passenger['date_of_birth'],
-                                            'age' => $age,
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ];
-                    }
-                }
-                // type flight
-                if (! isset($booking['room'])) {
-                    if (isset($output[$bookingItem])) {
-                        $output[$bookingItem]['passengers'][] = [
-                            'title' => $passenger['title'],
-                            'given_name' => $passenger['given_name'],
-                            'family_name' => $passenger['family_name'],
-                            'date_of_birth' => $passenger['date_of_birth'],
-                            'age' => $age,
-                        ];
-                    } else {
-                        $output[$bookingItem] = [
-                            'booking_item' => $bookingItem,
-                            'passengers' => [
-                                [
-                                    'title' => $passenger['title'],
-                                    'given_name' => $passenger['given_name'],
-                                    'family_name' => $passenger['family_name'],
-                                    'date_of_birth' => $passenger['date_of_birth'],
-                                    'age' => $age,
-                                ],
-                            ],
-                        ];
-                    }
-                }
-
-            }
-        }
-
-        return $output;
-    }
-
-    /**
-     * @return array|string[]
-     */
-    private function checkCountGuestsChildrenAges(array $filtersOutput): array
-    {
-        foreach ($filtersOutput as $bookingItem => $booking) {
-            $search = ApiBookingItem::where('booking_item', $bookingItem)->first();
-
-            if (! $search) {
-                return ['booking_item' => 'Invalid booking_item'];
-            }
-
-            $type = ApiSearchInspector::where('search_id', $search->search_id)->first()->search_type;
-
-            if (TypeRequestEnum::from($type) === TypeRequestEnum::FLIGHT) {
-                continue;
-            }
-            if (TypeRequestEnum::from($type) === TypeRequestEnum::COMBO) {
-                continue;
-            }
-            if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL) {
-                return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
-            }
-        }
-
-        return [];
-    }
-
-    private function checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $searchId): array
-    {
-        $searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
-
-        foreach ($booking['rooms'] as $room => $roomData) {
-
-            $ages = [];
-            foreach ($roomData['passengers'] as $passenger) {
-                $dob = Carbon::parse($passenger['date_of_birth']);
-                $now = Carbon::now();
-                $ages[] = floor($now->diffInYears($dob, true));
-            }
-
-            $childrenCount = 0;
-            $adultsCount = 0;
-            foreach ($ages as $age) {
-                if ($age < self::AGE_ADULT) {
-                    $childrenCount++;
-                } else {
-                    $adultsCount++;
-                }
-            }
-
-            if ($adultsCount != $searchData['occupancy'][$room - 1]['adults']) {
-                return [
-                    'type' => 'The number of adults not match.',
-                    'booking_item' => $bookingItem,
-                    'search_id' => $searchId,
-                    'room' => $room,
-                    'number_of_adults_in_search' => $searchData['occupancy'][$room - 1]['adults'],
-                    'number_of_adults_in_query' => $adultsCount,
-                ];
-            }
-            if (! isset($searchData['occupancy'][$room - 1]['children_ages']) && $childrenCount != 0) {
-                return [
-                    'type' => 'The number of children not match.',
-                    'booking_item' => $bookingItem,
-                    'search_id' => $searchId,
-                    'room' => $room,
-                    'number_of_children_in_search' => 0,
-                    'number_of_children_in_query' => $childrenCount,
-                ];
-            }
-
-            if (! isset($searchData['occupancy'][$room - 1]['children_ages'])) {
-                continue;
-            }
-
-            if ($childrenCount != count($searchData['occupancy'][$room - 1]['children_ages'])) {
-                return [
-                    'type' => 'The number of children not match.',
-                    'booking_item' => $bookingItem,
-                    'search_id' => $searchId,
-                    'room' => $room,
-                    'number_of_children_in_search' => count($searchData['occupancy'][$room - 1]['children_ages']),
-                    'number_of_children_in_query' => $childrenCount,
-                ];
-            }
-
-            $childrenAges = $searchData['occupancy'][$room - 1]['children_ages'];
-            sort($childrenAges);
-            $childrenAgesInQuery = [];
-            foreach ($roomData['passengers'] as $passenger) {
-                $givenDate = Carbon::create($passenger['date_of_birth']);
-                $currentDate = Carbon::now();
-                $years = floor($givenDate->diffInYears($currentDate, true));
-                if ($years >= self::AGE_ADULT) {
-                    continue;
-                }
-                $childrenAgesInQuery[] = $years;
-            }
-            sort($childrenAgesInQuery);
-            if ($childrenAges != $childrenAgesInQuery) {
-                return [
-                    'type' => 'Children ages not match.',
-                    'booking_item' => $bookingItem,
-                    'search_id' => $searchId,
-                    'room' => $room,
-                    'children_ages_in_search' => implode(',', $childrenAges),
-                    'children_ages_in_query' => implode(',', $childrenAgesInQuery),
-                ];
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * List booking_items (quotes) in the agent's cart that are not yet booked
-     */
-    public function listQuote(ListQuotesRequest $request): JsonResponse
-    {
-        $dataInspector = ApiBookingInspectorRepository::getListQuoteFromInspector();
-
-        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems(Arr::get($dataInspector, 'booking_items', []));
-        $response = $dataInspector;
-        unset($response['booking_items']);
-        $response['quotes'] = $quotes;
-
-        return $this->sendResponse($response, 'success');
-    }
-
-    /**
-     * Retrieve details for a specific booking_id in the cart, not yet booked
-     */
-    public function retrieveQuote(RetrieveQuoteRequest $request): JsonResponse
-    {
-        $bookingItem = $request->get('booking_item');
-        $dataInspector = ApiBookingInspectorRepository::getQuoteFromInspectorByBookingId($bookingItem);
-
-        $quotes = ApiBookingItemRepository::getListQuoteByBookingItems($dataInspector);
-        $response['quotes'] = $quotes;
-
-        return $this->sendResponse($response, 'success');
     }
 }
