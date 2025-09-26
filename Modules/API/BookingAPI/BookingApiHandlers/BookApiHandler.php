@@ -561,6 +561,9 @@ class BookApiHandler extends BaseController
         $bookingDateFrom = $request->input('booking_date_from');
         $bookingDateTo = $request->input('booking_date_to');
 
+        $checkinFrom = $request->input('checkin_date_from');
+        $checkinTo = $request->input('checkin_date_to');
+
         // Get all relevant ApiBookingInspector models
         $bookedItems = ApiBookingInspector::query()
             ->where('token_id', $tokenId)
@@ -605,7 +608,25 @@ class BookApiHandler extends BaseController
             }
             // Format booked_date as MySQL datetime
             $json['booked_date'] = \Carbon\Carbon::parse($bookedDates[$item->booking_item])->format('Y-m-d H:i:s');
-            $data[] = $json;
+
+            $add = true;
+            if ($checkinFrom && $checkinTo && isset($json['rooms'])) {
+                $add = false;
+                foreach ($json['rooms'] as $room) {
+                    if (
+                        isset($room['checkin'], $room['checkout']) &&
+                        $room['checkin'] >= $checkinFrom &&
+                        $room['checkout'] <= $checkinTo
+                    ) {
+                        $add = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($add) {
+                $data[] = $json;
+            }
         }
 
         $totalCount = count($data);

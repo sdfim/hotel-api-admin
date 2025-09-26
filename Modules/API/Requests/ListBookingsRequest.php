@@ -66,6 +66,20 @@ class ListBookingsRequest extends ApiRequest
      *      description="Filter bookings up to this date (YYYY-MM-DD)",
      *      @OA\Schema(type="string", format="date", example="2025-09-30")
      *   ),
+     *   @OA\Parameter(
+     *      name="checkin_date_from",
+     *      in="query",
+     *      required=false,
+     *      description="Filter bookings with check-in from this date (YYYY-MM-DD)",
+     *      @OA\Schema(type="string", format="date", example="2025-09-01")
+     *   ),
+     *   @OA\Parameter(
+     *      name="checkin_date_to",
+     *      in="query",
+     *      required=false,
+     *      description="Filter bookings with check-in up to this date (YYYY-MM-DD)",
+     *      @OA\Schema(type="string", format="date", example="2025-09-30")
+     *   ),
      *   @OA\Response(response=200, description="OK",
      *   @OA\JsonContent(
      * example={
@@ -216,6 +230,8 @@ class ListBookingsRequest extends ApiRequest
             'results_per_page' => 'nullable|integer|min:1',
             'booking_date_from' => 'nullable|date',
             'booking_date_to' => 'nullable|date',
+            'checkin_date_from' => 'nullable|date',
+            'checkin_date_to' => 'nullable|date',
         ];
     }
 
@@ -258,6 +274,20 @@ class ListBookingsRequest extends ApiRequest
                     }
                 } catch (\Exception $e) {
                     $v->errors()->add('booking_date_from', 'Invalid date format.');
+                }
+            }
+
+            $checkinFrom = $this->input('checkin_date_from');
+            $checkinTo = $this->input('checkin_date_to');
+            if ($checkinFrom && $checkinTo) {
+                try {
+                    $from = \Carbon\Carbon::parse($checkinFrom);
+                    $to = \Carbon\Carbon::parse($checkinTo);
+                    if ($to->lt($from)) {
+                        $v->errors()->add('checkin_date_to', 'The checkin_date_to must be after or equal to checkin_date_from.');
+                    }
+                } catch (\Exception $e) {
+                    $v->errors()->add('checkin_date_from', 'Invalid date format.');
                 }
             }
         });
