@@ -121,25 +121,71 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 //                ])
             ])
             ->filters([
-                Filter::make('sub_type')
+                Filter::make('category')
                     ->form([
                         Select::make('category')
                             ->label('Category')
-                            ->options(
-                                ApiBookingInspector::query()
-                                    ->distinct()
-                                    ->pluck('sub_type', 'sub_type')
-                                    ->toArray()
-                            ),
+                            ->multiple()
+                            ->options([
+                                'Book | Basket' => [
+                                    'complete|add_item' => 'add_item (quote)',
+                                    'add|add_passengers' => 'add_passengers',
+                                    'remove_item|remove_item' => 'remove_item',
+                                ],
+                                'Book | Booking' => [
+                                    'retrieve|book' => 'retrieve_book',
+                                    'create|book' => 'book',
+                                ],
+                                'Change' => [
+                                    'change|change_passengers' => 'change_passengers',
+                                    'change-hard|change_book' => 'change_book_hard',
+                                    'change-soft|change_book' => 'change_book_soft',
+                                    'update_change|change_passengers' => 'change_passengers_update',
+                                    'price-check|change' => 'change_price-check',
+                                ],
+                                'Cancel' => [
+                                    'true|cancel_booking' => 'cancel_booking',
+                                ],
+                            ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['category'])) {
-                            return $query->where('sub_type', $data['category']);
+                        if (! empty($data['category']) && is_array($data['category'])) {
+                            $query->where(function ($query) use ($data) {
+                                foreach ($data['category'] as $cat) {
+                                    [$subType, $type] = explode('|', $cat);
+                                    $query->orWhere(function ($q) use ($subType, $type) {
+                                        $q->where('sub_type', trim($subType))->where('type', trim($type));
+                                    });
+                                }
+                            });
+                        } elseif (!empty($data['category'])) {
+                            [$subType, $type] = explode('|', $data['category']);
+                            $query->where('sub_type', trim($subType))->where('type', trim($type));
                         }
-
                         return $query;
                     })
-                    ->indicateUsing(fn (array $data) => $data['category'] ? "Category: {$data['category']}" : null),
+                    ->indicateUsing(function (array $data) {
+                        $map = [
+                            'add|add_passengers' => 'add_passengers',
+                            'remove_item|remove_item' => 'remove_item',
+                            'complete|add_item' => 'add_item',
+                            'create|book' => 'book',
+                            'true|cancel_booking' => 'cancel_booking',
+                            'retrieve|book' => 'retrieve_book',
+                            'price-check|change' => 'change_price-check',
+                            'change|change_passengers' => 'change_passengers',
+                            'change-hard|change_book' => 'change_book_hard',
+                            'change-soft|change_book' => 'change_book_soft',
+                            'update_change|change_passengers' => 'change_passengers_update',
+                        ];
+                        if (!empty($data['category']) && is_array($data['category'])) {
+                            $labels = array_map(fn($cat) => $map[$cat] ?? $cat, $data['category']);
+                            return 'Category: ' . implode(', ', $labels);
+                        } elseif (!empty($data['category'])) {
+                            return 'Category: ' . ($map[$data['category']] ?? $data['category']);
+                        }
+                        return null;
+                    }),
                 Filter::make('created_at')
                     ->form([
                         DateTimePicker::make('created_from'),
