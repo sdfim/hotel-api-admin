@@ -12,6 +12,9 @@ class ApiBookingItemRepository
     public static function isComleteCache(string $booking_item): bool
     {
         $bookingItem = ApiBookingItemCache::where('booking_item', $booking_item)->first();
+        if (! $bookingItem) {
+            return false;
+        }
 
         return $bookingItem->rate_type === ItemTypeEnum::COMPLETE->value;
     }

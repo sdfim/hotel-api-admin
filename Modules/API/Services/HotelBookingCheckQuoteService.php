@@ -3,7 +3,6 @@
 namespace Modules\API\Services;
 
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingItemCache;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Support\Arr;
@@ -176,6 +175,11 @@ class HotelBookingCheckQuoteService
             $hotelService->updateBookingItemsData($booking_item);
         }
 
+        $attempts = 0;
+        while ($attempts < 5 && ! ApiBookingItemRepository::isComleteCache($booking_item)) {
+            sleep(1);
+            $attempts++;
+        }
         if (! ApiBookingItemRepository::isComleteCache($booking_item)) {
             return $this->sendError('booking_item - this item is single');
         }
