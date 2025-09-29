@@ -39,10 +39,10 @@ class HotelBookingCheckQuoteService
         $filters['supplier'] = [$bookingItem->supplier->name];
     }
 
-    public function getDataFirstSearch($request, $bookingItem)
+    public function getDataFirstSearch(ApiBookingItem $bookingItem)
     {
         $dataFirstSearch = [];
-        $ChildrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($request->booking_item) ?? [];
+        $ChildrenBookingItems = ApiBookingItemRepository::getChildrenBookingItems($bookingItem->booking_item) ?? [];
         if (count($ChildrenBookingItems) > 0) {
             foreach ($ChildrenBookingItems as $child) {
                 $parentBookingItem = $bookingItem;
@@ -67,6 +67,7 @@ class HotelBookingCheckQuoteService
         return [
             'giata_code' => Arr::get($bookingItemData, 0, 0),
             'room_code' => Arr::get($bookingItemData, 1, 0),
+            'room_name' => Arr::get($pricingData, 'supplier_room_name', ''),
             'rate_code' => Arr::get($bookingItemData, 2, 0),
             'booking_item' => $childrenBookingItem->booking_item,
             'parent_booking_item' => $parentBookingItem->booking_item,
@@ -76,14 +77,13 @@ class HotelBookingCheckQuoteService
             'total_price' => Arr::get($pricingData, 'total_price', 0),
             'markup' => Arr::get($pricingData, 'markup', 0),
             'currency' => Arr::get($pricingData, 'currency', 'USD'),
+            'supplier_room_id' => Arr::get($pricingData, 'supplier_room_id', 'USD'),
         ];
     }
 
     public function filterMatchingRooms(array $hotelData, array $dataFirstSearch): array
     {
         $matchedRooms = [];
-        $uniqueKeys = [];
-
         $allRooms = [];
         foreach ($hotelData['result'] as $groups) {
             foreach (Arr::get($groups, 'room_groups', []) as $roomGroup) {
@@ -103,8 +103,10 @@ class HotelBookingCheckQuoteService
                     (isset($room['room_type']) && $room['room_type'] == $search['room_code']));
                 $rateCodeMatch = (
                     (isset($room['rate_plan_code']) && $room['rate_plan_code'] == $search['rate_code']));
+                $roomNumMatch = (
+                    (isset($room['supplier_room_id']) && $room['supplier_room_id'] == $search['supplier_room_id']));
 
-                if ($roomCodeMatch && $rateCodeMatch) {
+                if ($roomCodeMatch && $rateCodeMatch && $roomNumMatch) {
                     $uniqueKey = $room['room_type'].'|'.$room['rate_plan_code'].'|'.($room['supplier_room_id'] ?? '').'|'.($room['booking_item'] ?? '');
                     if (! isset($uniqueKeys[$uniqueKey])) {
                         $matchedRooms[] = $room;

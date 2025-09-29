@@ -928,7 +928,7 @@ class BookApiHandler extends BaseController
             return $this->sendError('checkQuote is only available for hotel booking_items', 'failed');
         }
 
-        $dataFirstSearch = $service->getDataFirstSearch($request, $bookingItem);
+        $dataFirstSearch = $service->getDataFirstSearch($bookingItem);
         $service->prepareFiltersForCheckQuote($filters, $request, $bookingItem, $firstSearch, $dataFirstSearch);
 
         // 1 new search
@@ -957,6 +957,7 @@ class BookApiHandler extends BaseController
         $fieldsToCompare = ['total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
         $result['comparison_of_amounts'] = $service->compareFieldSums($fieldsToCompare, $dataFirstSearch, $matchedRooms);
         $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
+        $result['giata_id'] = Arr::get($filters, 'giata_ids.0');
         $result['booking_item'] = $parent_booking_item;
         $result['current_search'] = array_values($matchedRooms);
         $result['first_search'] = $dataFirstSearch;

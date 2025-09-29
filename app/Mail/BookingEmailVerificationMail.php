@@ -3,65 +3,49 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Modules\API\Services\HotelBookingCheckQuoteService;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class BookingEmailVerificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $verificationUrl;
+
     public $bookingItem;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct($verificationUrl, $bookingItem)
     {
         $this->verificationUrl = $verificationUrl;
         $this->bookingItem = $bookingItem;
     }
 
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Подтвердите бронирование',
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            markdown: 'emails.booking.email_verification',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
-    }
-
     public function build()
     {
-        return $this->subject('Подтвердите бронирование')
-            ->markdown('emails.booking.email_verification')
+        $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->first();
+        $service = app(HotelBookingCheckQuoteService::class);
+        $dataReservation = $service->getDataFirstSearch($bookingItem);
+        $searchRequest = $bookingItem->search->request;
+        $giata_code = $dataReservation[0]['giata_code'] ?? null;
+        $hotelData = Hotel::where('giata_code', $giata_code)->first();
+
+        logger('BookingEmailVerificationMail', [
+            'verificationUrl' => $this->verificationUrl,
+            'hotel' => $hotelData,
+            'rooms' => $dataReservation,
+            'searchRequest' => json_decode($searchRequest, true),
+        ]);
+
+        return $this->subject('Confirm your booking')
+            ->view('emails.booking.email_verification')
             ->with([
                 'verificationUrl' => $this->verificationUrl,
-                'bookingItem' => $this->bookingItem,
+                'hotel' => $hotelData,
+                'rooms' => $dataReservation,
+                'searchRequest' => json_decode($searchRequest, true),
             ]);
     }
 }
