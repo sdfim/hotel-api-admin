@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
@@ -505,6 +506,20 @@ class ApiBookingInspectorRepository
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
         $apiClientId = data_get(request()->all(), 'api_client_id');
         $apiClientEmail = data_get(request()->all(), 'api_client_email');
+        // Determine missing api client info from User model
+        if (filled($apiClientId) && empty($apiClientEmail)) {
+            $user = User::find($apiClientId);
+            if ($user) {
+                $apiClientEmail = $user->email;
+            }
+        }
+        if (filled($apiClientEmail) && empty($apiClientId)) {
+            $user = User::where('email', $apiClientEmail)->first();
+            if ($user) {
+                $apiClientId = $user->id;
+            }
+        }
+
         $bookingDateFrom = request()->input('booking_date_from');
         $bookingDateTo = request()->input('booking_date_to');
         $page = (int) request()->input('page', 1);
