@@ -166,7 +166,11 @@
                                 if ($file_client_response_pr == '') {
                                     $file_client_response_pr = json_encode([]);
                                 }
-                                $file_size_bytes = Storage::size($path);
+                                try {
+                                    $file_size_bytes = Storage::size($path);
+                                } catch (Exception $e) {
+                                    $file_size_bytes = 0;
+                                }
                                 echo "File name: " . basename($path) . "<br>";
                                 echo "File size: " . round($file_size_bytes / (1024 * 1024), 2) . " MB";
                             @endphp
