@@ -12,12 +12,19 @@ use Modules\API\Validate\ApiRequest;
  *   description="Returns a list of booking_ids (booking_items) that are not yet booked for the agent but are in the cart.",
  *
  *   @OA\Parameter(
+ *      name="api_client_id",
+ *      in="query",
+ *      required=true,
+ *      description="API client user ID. Either api_client_id or api_client_email must be provided.",
+ *      @OA\Schema(type="integer", example=123)
+ *   ),
+ *   @OA\Parameter(
  *      name="api_client_email",
  *      in="query",
  *      required=true,
- *      description="API client email.",
+ *      description="API client email. Either api_client_id or api_client_email must be provided.",
  *
- *      @OA\Schema(type="string", format="email", example="agent@example.com")
+ *      @OA\Schema(type="string", format="email", example="user@example.com")
  *   ),
  *
  *   @OA\Parameter(
@@ -286,17 +293,17 @@ use Modules\API\Validate\ApiRequest;
  *   )
  * )
  */
-
 class BookingListQuotesRequest extends ApiRequest
 {
     public function rules(): array
     {
-        return ['api_client_email' => [
-            'required', 'string', 'email'],
-            'booking_date_from' => ['nullable', 'date'],
-            'booking_date_to' => ['nullable', 'date'],
-            'page' => ['nullable', 'integer', 'min:1'],
-            'results_per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        return [
+            'api_client_id' => 'required_without:api_client_email|string',
+            'api_client_email' => 'required_without:api_client_id|string|email',
+            'booking_date_from' => 'nullable|date',
+            'booking_date_to' => 'nullable|date',
+            'page' => 'nullable|integer|min:1',
+            'results_per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 }

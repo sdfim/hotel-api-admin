@@ -1840,14 +1840,24 @@
                 "operationId": "2028b273f4d74e057400d6f23d11b4f6",
                 "parameters": [
                     {
+                        "name": "api_client_id",
+                        "in": "query",
+                        "description": "API client user ID. Either api_client_id or api_client_email must be provided.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 123
+                        }
+                    },
+                    {
                         "name": "api_client_email",
                         "in": "query",
-                        "description": "API client email.",
+                        "description": "API client email. Either api_client_id or api_client_email must be provided.",
                         "required": true,
                         "schema": {
                             "type": "string",
                             "format": "email",
-                            "example": "agent@example.com"
+                            "example": "user@example.com"
                         }
                     },
                     {
