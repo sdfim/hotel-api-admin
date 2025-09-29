@@ -952,11 +952,17 @@ class BookApiHandler extends BaseController
 
         $matchedRooms = $service->filterMatchingRooms($data, $dataFirstSearch);
         $parent_booking_item = Arr::get($matchedRooms, '0.parent_booking_item');
+        $searchId = $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
+        $search = ApiSearchInspector::where('search_id', $searchId)->first();
+        $query = json_decode($search->request, true);
+        unset($query['booking_item']);
+        unset($query['token_id']);
 
         // 2 compare results
         $fieldsToCompare = ['total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
         $result['comparison_of_amounts'] = $service->compareFieldSums($fieldsToCompare, $dataFirstSearch, $matchedRooms);
-        $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
+        $result['check_quote_search_id'] = $searchId;
+        $result['check_quote_search_query'] = json_decode($search->request, true);
         $result['giata_id'] = Arr::get($filters, 'giata_ids.0');
         $result['booking_item'] = $parent_booking_item;
         $result['current_search'] = array_values($matchedRooms);
