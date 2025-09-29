@@ -279,12 +279,18 @@ class BookingListBookingsRequest extends ApiRequest
 
             $checkinFrom = $this->input('checkin_date_from');
             $checkinTo = $this->input('checkin_date_to');
-            if ($checkinFrom && $checkinTo) {
+            if ($checkinFrom || $checkinTo) {
                 try {
-                    $from = \Carbon\Carbon::parse($checkinFrom);
-                    $to = \Carbon\Carbon::parse($checkinTo);
-                    if ($to->lt($from)) {
-                        $v->errors()->add('checkin_date_to', 'The checkin_date_to must be after or equal to checkin_date_from.');
+                    if ($checkinFrom && $checkinTo) {
+                        $from = \Carbon\Carbon::parse($checkinFrom);
+                        $to = \Carbon\Carbon::parse($checkinTo);
+                        if ($to->lt($from)) {
+                            $v->errors()->add('checkin_date_to', 'The checkin_date_to must be after or equal to checkin_date_from.');
+                        }
+                    } elseif ($checkinFrom) {
+                        $from = \Carbon\Carbon::parse($checkinFrom);
+                    } elseif ($checkinTo) {
+                        $to = \Carbon\Carbon::parse($checkinTo);
                     }
                 } catch (\Exception $e) {
                     $v->errors()->add('checkin_date_from', 'Invalid date format.');

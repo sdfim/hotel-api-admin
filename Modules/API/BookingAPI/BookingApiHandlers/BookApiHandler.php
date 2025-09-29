@@ -609,16 +609,21 @@ class BookApiHandler extends BaseController
             $json['booked_date'] = \Carbon\Carbon::parse($bookedDates[$item->booking_item])->format('Y-m-d H:i:s');
 
             $add = true;
-            if ($checkinFrom && $checkinTo && isset($json['rooms'])) {
-                $add = false;
+            if (($checkinFrom || $checkinTo) && isset($json['rooms'])) {
                 foreach ($json['rooms'] as $room) {
-                    if (
-                        isset($room['checkin'], $room['checkout']) &&
-                        $room['checkin'] >= $checkinFrom &&
-                        $room['checkout'] <= $checkinTo
-                    ) {
-                        $add = true;
-                        break;
+                    $add = false;
+                    $checkinValidFrom = $checkinValidTo = true;
+                    if (isset($room['checkin'], $room['checkout'])) {
+                        if ($checkinFrom && $room['checkin'] < $checkinFrom) {
+                            $checkinValidFrom = false;
+                        }
+                        if ($checkinTo && $room['checkout'] > $checkinTo) {
+                            $checkinValidTo = false;
+                        }
+                        if ($checkinValidFrom && $checkinValidTo) {
+                            $add = true;
+                            break;
+                        }
                     }
                 }
             }
