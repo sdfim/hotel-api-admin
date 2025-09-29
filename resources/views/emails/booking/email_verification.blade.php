@@ -19,11 +19,9 @@
 
     function generateStarRating(int $rating): string {
         $html = '';
-        // Полные желтые звезды
         for ($i = 0; $i < $rating; $i++) {
             $html .= '<span style="color: #FFC107; font-size: 20px;">★</span>';
         }
-        // Пустые (серые) звезды для заполнения до 5
         for ($i = $rating; $i < 5; $i++) {
             $html .= '<span style="color: #ccc; font-size: 20px;">★</span>';
         }
@@ -51,11 +49,11 @@
         .info-table { width:100%; text-align:center; }
         .room-block { border:1px solid #eee; border-radius:6px; padding:10px; margin-bottom:10px; }
         .info-block {
-            background-color: #f7f7f7; /* Светло-серый фон */
-            border-radius: 8px; /* Скругление углов */
-            padding: 15px 10px; /* Внутренние отступы */
-            flex: 1; /* Для равномерного распределения в Flexbox */
-            margin: 0 5px; /* Небольшой отступ между блоками */
+            background-color: #f7f7f7;
+            border-radius: 8px;
+            padding: 15px 10px;
+            flex: 1;
+            margin: 0 5px;
             text-align: center;
         }
         .info-block:first-child { margin-left: 0; }
@@ -70,7 +68,7 @@
 </head>
 <body>
 <div style="padding:20px 0; text-align:center;">
-    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="Logo" class="logo">
+    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="Logo" class="logo">
 </div>
 <div class="container">
     <h2 class="hotel-title">{{ $hotelName ?? 'Hotel' }}</h2>
@@ -90,7 +88,7 @@
             <p class="info-data">{{ $checkout }}</p>
         </div>
 
-        <div class="info-block" style="flex-grow: 1.5; /* Сделаем шире, как в примере */">
+        <div class="info-block" style="flex-grow: 1.5;">
             <p class="info-label">Rooms & Guests</p>
             <p class="info-data">
                 {{ $roomsCount }} Room(s), {{ $adultsCount }} Adults, {{ $childrenCount }} Children
@@ -132,9 +130,33 @@
         Total Booking Price: {{ number_format($grandTotal, 2) }} {{ $currency }}
     </p>
     <div style="text-align:center; padding:20px;">
-        <a href="{{ $verificationUrl }}" class="confirm-btn">
-            Confirm Booking
-        </a>
+        <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+            <tr>
+                <td align="center" bgcolor="#4f46e5" style="
+                border-radius: 6px;
+                background-color: #4f46e5;
+                padding: 0;
+            ">
+                    <a href="{{ $verificationUrl }}" target="_blank" style="
+                    background-color: #4f46e5;
+                    border: 1px solid #4f46e5;
+                    border-radius: 6px;
+                    color: #ffffff;
+                    display: inline-block;
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    font-weight: bold;
+                    line-height: 1.2;
+                    padding: 12px 24px;
+                    text-align: center;
+                    text-decoration: none;
+                    mso-padding-alt: 0;
+                ">
+                        Confirm Booking
+                    </a>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="footer">
