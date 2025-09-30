@@ -82,12 +82,6 @@
                                                 Payment Method: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $paymentMethod }}</strong>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td style="padding:4px 0;">
-                                                <img src="{{ Storage::url('images/email-book-confirmation/dollar-sign.png') }}" alt="Total Price" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
-                                                Total Price: <strong style="color:#4f46e5; font-size:15px; font-weight:bold;">{{ number_format($grandTotal, 2) }} {{ $currency }}</strong>
-                                            </td>
-                                        </tr>
                                     </table>
                                 </td>
                                 <td width="50%" valign="top" style="vertical-align:top; padding:0 0 10px 10px;">
@@ -144,6 +138,18 @@
                                 </tr>
                             </table>
                         @endforeach
+
+                        <!-- Total Price -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #e5e7eb; margin-top:12px; padding-top:18px;">
+                            <tr>
+                                <td width="50%" style="font-size:16px; color:#6b7280; text-align:left;">
+                                    <img src="{{ Storage::url('images/email-book-confirmation/dollar-sign.png') }}" alt="Total Price" style="width:20px; height:20px; margin-right:8px; vertical-align: middle;"> Total Price:
+                                </td>
+                                <td width="50%" style="text-align:right; font-size:18px; color:#4f46e5; font-weight:bold;">
+                                    {{ number_format($grandTotal, 2) }} {{ $currency }}
+                                </td>
+                            </tr>
+                        </table>
 
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:24px;">
                             <tr>
