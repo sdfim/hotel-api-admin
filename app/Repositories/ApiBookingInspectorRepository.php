@@ -312,6 +312,15 @@ class ApiBookingInspectorRepository
             ->toArray();
     }
 
+    public static function bookedBookingItemsAll(): array
+    {
+        return ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->pluck('booking_item')
+            ->toArray();
+    }
+
     public static function bookedItem(string $booking_id, string $booking_item): object
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
@@ -544,10 +553,13 @@ class ApiBookingInspectorRepository
         $page = (int) request()->input('page', 1);
         $resultsPerPage = (int) request()->input('results_per_page', 20);
 
+        $bookedItems = ApiBookingInspectorRepository::bookedBookingItemsAll();
+
         $query = ApiBookingInspector::query()
             ->where('token_id', $tokenId)
             ->where('type', 'add_item')
             ->where('sub_type', 'complete')
+            ->whereNotIn('booking_item', $bookedItems)
             ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
                 $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
                     if (filled($apiClientId)) {
