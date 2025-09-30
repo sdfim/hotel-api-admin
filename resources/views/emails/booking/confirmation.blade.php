@@ -69,19 +69,19 @@
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/id-badge.svg') }}" alt="Booking ID" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Booking ID:
+                    <img src="{{ Storage::url('images/email-book-confirmation/id-badge.png') }}" alt="Booking ID" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Booking ID:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; color:#111827; text-align:left; vertical-align:top;">{{ $bookingConfirmation }}</td>
             </tr>
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/calendar-check.svg') }}" alt="Date Booked" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Date Booked:
+                    <img src="{{ Storage::url('images/email-book-confirmation/calendar-check.png') }}" alt="Date Booked" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Date Booked:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $displayDate }}</td>
             </tr>
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/user.svg') }}" alt="Booked by" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Booked by:
+                    <img src="{{ Storage::url('images/email-book-confirmation/user.png') }}" alt="Booked by" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Booked by:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $bookedBy }}</td>
             </tr>
@@ -91,19 +91,19 @@
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/calendar.svg') }}" alt="Tour Date" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Tour Date:
+                    <img src="{{ Storage::url('images/email-book-confirmation/calendar.png') }}" alt="Tour Date" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Tour Date:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $checkin }} - {{ $checkout }}</td>
             </tr>
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/credit-card.svg') }}" alt="Payment Method" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Payment Method:
+                    <img src="{{ Storage::url('images/email-book-confirmation/credit-card.png') }}" alt="Payment Method" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Payment Method:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $paymentMethod }}</td>
             </tr>
             <tr>
                 <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/users.svg') }}" alt="Guests" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Guests:
+                    <img src="{{ Storage::url('images/email-book-confirmation/users.png') }}" alt="Guests" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Guests:
                 </td>
                 <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $guestsCount }}</td>
             </tr>
@@ -145,7 +145,8 @@
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #e5e7eb; margin-top:12px; padding-top:18px;">
                             <tr>
                                 <td width="50%" style="font-size:16px; color:#6b7280; text-align:left;">
-                                    <img src="{{ Storage::url('images/email-book-confirmation/dollar-sign.svg') }}" alt="Total Price" class="icon" style="width:20px; height:20px; margin-right:8px; vertical-align: middle;"> Total Price:
+                                    <!-- dollar-sign.png -->
+                                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUEAIAAABSe1YZAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfpCR4OKCO17VDl" alt="Total Price" style="width:20px; height:20px; margin-right:8px; vertical-align: middle;"> Total Price:
                                 </td>
                                 <td width="50%" style="text-align:right; font-size:18px; color:#4f46e5; font-weight:bold;">
                                     {{ number_format($grandTotal, 2) }} {{ $currency }}
@@ -158,12 +159,14 @@
                             <tr>
                                 <td align="center" style="padding:0 8px;">
                                     <a href="{{ $shareUrl }}" style="text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;transition:background-color 0.25s ease;font-size:14px;background:#f3f4f6;color:#4f46e5;">
-                                        <img src="{{ Storage::url('images/email-book-confirmation/user.svg') }}" alt="Share" class="icon" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Share
+                                        <!-- user.png (Share) -->
+                                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASEAIAAACJPMVDAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfpCR4OKCLC6mBz" alt="Share" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Share
                                     </a>
                                 </td>
                                 <td align="center" style="padding:0 8px;">
                                     <a href="{{ $downloadUrl }}" style="background:#4f46e5; color:#fff; text-decoration:none; padding:12px 20px; border-radius:6px; font-weight:600; font-size:14px; display:inline-block;">
-                                        <img src="{{ Storage::url('images/email-book-confirmation/calendar-check.svg') }}" alt="Download PDF" class="icon" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Download PDF
+                                        <!-- calendar-check.png (Download PDF) -->
+                                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASEAIAAACJPMVDAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfpCR4OKCAs5AFf" alt="Download PDF" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Download PDF
                                     </a>
                                 </td>
                             </tr>
