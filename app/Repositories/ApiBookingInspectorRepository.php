@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
@@ -370,6 +371,24 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first()
             ?->booking_id;
+    }
+
+    public static function getEmailVerificationBookingItem(string $booking_item): ?string
+    {
+        $request = ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'complete')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->first()
+            ?->request;
+
+        if (! $request) {
+            return null;
+        }
+
+        $request = json_decode($request, true);
+
+        return Arr::get($request, 'email_verification');
     }
 
     public static function getBookItemsByBookingItem(string $booking_item): ?object

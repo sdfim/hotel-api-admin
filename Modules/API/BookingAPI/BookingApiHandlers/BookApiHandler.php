@@ -7,9 +7,9 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Jobs\RetrieveBookingJob;
 use App\Jobs\SaveBookingInspector;
+use App\Mail\BookingConfirmationMail;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingItemCache;
 use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Reservation;
@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -152,6 +153,22 @@ class BookApiHandler extends BaseController
          */
         $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
+
+        foreach ($items as $item) {
+            // Send confirmation email for each item after booking
+            $email_verification = $request->input('email_verification', false);
+            if (! $email_verification) {
+                $email_verification = ApiBookingInspectorRepository::getEmailVerificationBookingItem($item->booking_item);
+            }
+
+            if ($email_verification) {
+                try {
+                    Mail::to($email_verification)->queue(new BookingConfirmationMail($item->booking_item));
+                } catch (\Throwable $mailException) {
+                    Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
+                }
+            }
+        }
 
         // Retrieve booking to get the full details after booking
         RetrieveBookingJob::dispatch($request->booking_id);
@@ -922,8 +939,6 @@ class BookApiHandler extends BaseController
         $firstSearch = $bookingItem->search;
         $searchType = $firstSearch->search_type;
 
-
-
         if ($searchType !== 'hotel') {
             return $this->sendError('checkQuote is only available for hotel booking_items', 'failed');
         }
@@ -973,7 +988,6 @@ class BookApiHandler extends BaseController
 
         return $this->sendResponse($result, 'success');
     }
-
 
     private function determinant(Request $request, bool $validateWithApiBookings = true): array
     {
