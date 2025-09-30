@@ -48,71 +48,75 @@
     <tr>
         <td align="center">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="750" style="max-width:750px; width:100%; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-                <!-- Hero Image -->
                 <tr>
                     <td>
                         <img src="{{ $heroImageUrl }}" alt="Trip Destination" width="750" style="width:100%; max-width:750px; display:block; border-top-left-radius:12px; border-top-right-radius:12px;">
                     </td>
                 </tr>
 
-                <!-- Content -->
                 <tr>
                     <td style="padding:32px 28px; text-align:center;">
                         <p style="margin:0; font-size:24px;">🎉 <span style="font-size:32px; font-weight:bold; color:#111827;">Congratulations!</span> 🎉</p>
                         <p style="margin:5px 0 10px; color:#555;">Your trip has been booked</p>
                         <h2 style="margin:18px 0 28px; font-size:20px; color:#4f46e5; font-weight:600;">{{ $tripName }}</h2>
 
-                        <!-- Details -->
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px;">
-<tr>
-    <td width="50%" valign="top" style="vertical-align:top;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-            <tr>
-                <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/id-badge.png') }}" alt="Booking ID" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Booking ID:
-                </td>
-                <td style="padding:8px; font-weight:600; font-size:15px; color:#111827; text-align:left; vertical-align:top;">{{ $bookingConfirmation }}</td>
-            </tr>
-            <tr>
-                </td>
-                <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $bookedBy }}</td>
-            </tr>
-        </table>
-    </td>
-    <td width="50%" valign="top" style="vertical-align:top;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-            <tr>
-                <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/calendar.png') }}" alt="Tour Date" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Tour Date:
-                </td>
-                <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $checkin }} - {{ $checkout }}</td>
-            </tr>
-            <tr>
-                <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/credit-card.png') }}" alt="Payment Method" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Payment Method:
-                </td>
-                <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $paymentMethod }}</td>
-            </tr>
-            <tr>
-            </tr>
-            <tr>
-                <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/credit-card.png') }}" alt="Payment Method" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Payment Method:
-                </td>
-                <td style="padding:4px 6px; font-weight:600; font-size:15px; text-align:left; vertical-align:top; width:1%; max-width:80px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    {{ $paymentMethod }}
-                </td>
-                <td style="padding:8px; text-align:left; vertical-align:top;">
-                    <img src="{{ Storage::url('images/email-book-confirmation/users.png') }}" alt="Guests" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;"> Guests:
-                </td>
-                <td style="padding:8px; font-weight:600; font-size:15px; text-align:left; vertical-align:top;">{{ $guestsCount }}</td>
-            </tr>
-        </table>
-    </td>
-</tr>
-</table>
-
-                        <!-- Rooms -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px; color:#6b7280; font-size:14px; line-height:1.5;">
+                            <tr>
+                                <td width="50%" valign="top" style="vertical-align:top; padding:0 10px 10px 0;">
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="text-align:left;">
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/id-badge.png') }}" alt="Booking ID" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Booking ID: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $bookingConfirmation }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/user.png') }}" alt="Booked by" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Booked by: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $bookedBy }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/credit-card.png') }}" alt="Payment Method" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Payment Method: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $paymentMethod }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/dollar-sign.png') }}" alt="Total Price" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Total Price: <strong style="color:#4f46e5; font-size:15px; font-weight:bold;">{{ number_format($grandTotal, 2) }} {{ $currency }}</strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="50%" valign="top" style="vertical-align:top; padding:0 0 10px 10px;">
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="text-align:left;">
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/calendar.png') }}" alt="Date" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Date: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $displayDate }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/calendar.png') }}" alt="Tour Date" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Tour Date: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $checkin }} - {{ $checkout }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">
+                                                <img src="{{ Storage::url('images/email-book-confirmation/users.png') }}" alt="Guests" class="icon" style="width:18px; height:18px; margin-right:8px; vertical-align: middle;">
+                                                Guests: <strong style="color:#111827; font-size:15px; font-weight:600;">{{ $guestsCount }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:4px 0;">&nbsp;</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
                         <p style="text-align:left; font-size:16px; font-weight:600; color:#111827; margin:24px 0 12px;">Rooms & Rates</p>
                         @foreach($rooms as $k => $room)
                             @php $occupancy = Arr::get($searchRequest, "occupancy.$k"); @endphp
@@ -141,19 +145,6 @@
                             </table>
                         @endforeach
 
-                        <!-- Total Price -->
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #e5e7eb; margin-top:12px; padding-top:18px;">
-                            <tr>
-                                <td width="50%" style="font-size:16px; color:#6b7280; text-align:left;">
-                                    <img src="{{ Storage::url('images/email-book-confirmation/dollar-sign.png') }}" alt="Total Price" style="width:20px; height:20px; margin-right:8px; vertical-align: middle;"> Total Price:
-                                </td>
-                                <td width="50%" style="text-align:right; font-size:18px; color:#4f46e5; font-weight:bold;">
-                                    {{ number_format($grandTotal, 2) }} {{ $currency }}
-                                </td>
-                            </tr>
-                        </table>
-
-                        <!-- Footer Buttons -->
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:24px;">
                             <tr>
                                 <td align="center" style="padding:0 8px;">
