@@ -339,7 +339,7 @@ class HotelContentApiTransformerService
         return $descriptiveContents;
     }
 
-    private function getHotelAttributes($hotel): array
+    public function getHotelAttributes($hotel): array
     {
         return $hotel->product->attributes->flatMap(function ($attribute) {
             $categories = $attribute->attribute->categories;

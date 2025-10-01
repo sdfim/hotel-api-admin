@@ -17,6 +17,7 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -51,6 +52,8 @@ use Modules\API\Services\HotelBookingAddPassengersService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
+use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Services\HotelContentApiTransformerService;
 
 /**
  * @OA\PathItem(
@@ -975,17 +978,25 @@ class BookApiHandler extends BaseController
         $matchedRooms = $service->filterMatchingRooms($data, $dataFirstSearch);
         $parent_booking_item = Arr::get($matchedRooms, '0.parent_booking_item');
         $searchId = $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
-        $search = ApiSearchInspector::where('search_id', $searchId)->first();
-        $query = json_decode($search->request, true);
+
+        $search = ApiSearchInspectorRepository::getSearchInLoop($searchId);
+
+        $query = json_decode($search?->request ?? '', true);
         unset($query['booking_item']);
         unset($query['token_id']);
+
+        $giata_id = Arr::get($filters, 'giata_ids.0');
+        $hotel = Hotel::where('giata_code', $giata_id)->first();
 
         // 2 compare results
         $fieldsToCompare = ['total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
         $result['comparison_of_amounts'] = $service->compareFieldSums($fieldsToCompare, $dataFirstSearch, $matchedRooms);
         $result['check_quote_search_id'] = $searchId;
+        $result['hotel_image'] = $hotel?->product?->hero_image ? Storage::url($hotel->product->hero_image) : null;
+        $result['attributes'] = $hotel?->product?->attributes ? app(HotelContentApiTransformerService::class)->getHotelAttributes($hotel) : [];
+        $result['email_verification'] = ApiBookingInspectorRepository::getEmailVerificationBookingItem($bookingItem->booking_item);
         $result['check_quote_search_query'] = json_decode($search->request, true);
-        $result['giata_id'] = Arr::get($filters, 'giata_ids.0');
+        $result['giata_id'] = $giata_id;
         $result['booking_item'] = $parent_booking_item;
         $result['current_search'] = array_values($matchedRooms);
         $result['first_search'] = $dataFirstSearch;

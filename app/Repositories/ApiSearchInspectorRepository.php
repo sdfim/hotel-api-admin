@@ -82,6 +82,23 @@ class ApiSearchInspectorRepository
         return $search?->request ? json_decode($search->request, true) : [];
     }
 
+    public static function getSearchInLoop(string $searchId): ApiSearchInspector
+    {
+        $search = null;
+        $maxAttempts = 10;
+        $attempt = 0;
+        while ($attempt < $maxAttempts) {
+            $search = ApiSearchInspector::where('search_id', $searchId)->first();
+            if ($search) {
+                break;
+            }
+            sleep(1);
+            $attempt++;
+        }
+
+        return $search;
+    }
+
     public static function getResponse(string $search_id): array
     {
         $search = ApiSearchInspector::where('search_id', $search_id)->first();
