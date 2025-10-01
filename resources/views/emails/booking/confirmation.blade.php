@@ -151,21 +151,6 @@
                             </tr>
                         </table>
 
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin-top:24px;">
-                            <tr>
-                                <td align="center" style="padding:0 8px;">
-                                    <a href="{{ $shareUrl }}" style="text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;transition:background-color 0.25s ease;font-size:14px;background:#f3f4f6;color:#4f46e5;">
-                                        <img src="{{ Storage::url('images/email-book-confirmation/user.png') }}" alt="Share" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Share
-                                    </a>
-                                </td>
-                                <td align="center" style="padding:0 8px;">
-                                    <a href="{{ $downloadUrl }}" style="background:#4f46e5; color:#fff; text-decoration:none; padding:12px 20px; border-radius:6px; font-weight:600; font-size:14px; display:inline-block;">
-                                        <img src="{{ Storage::url('images/email-book-confirmation/calendar-check.png') }}" alt="Download PDF" style="width:18px; height:18px; margin-right:5px; vertical-align: middle;"> Download PDF
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-
                     </td>
                 </tr>
             </table>
