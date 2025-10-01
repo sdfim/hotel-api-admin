@@ -1599,6 +1599,16 @@
                         }
                     },
                     {
+                        "name": "force",
+                        "in": "query",
+                        "description": "If set to true, ignores filtering by API user and token.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Page number for pagination (default: 1)",

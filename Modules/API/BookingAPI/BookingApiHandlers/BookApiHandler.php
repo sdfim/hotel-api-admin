@@ -14,7 +14,6 @@ use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Reservation;
 use App\Models\Supplier;
-use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
@@ -560,6 +559,8 @@ class BookApiHandler extends BaseController
         $apiClientId = data_get($request->all(), 'api_client_id');
         $apiClientEmail = data_get($request->all(), 'api_client_email');
 
+        $force = $request->input('force');
+
         // Determine missing api client info from User model
         if (filled($apiClientId) && empty($apiClientEmail)) {
             $user = User::find($apiClientId);
@@ -581,20 +582,25 @@ class BookApiHandler extends BaseController
         $checkinTo = $request->input('checkin_date_to');
 
         // Get all relevant ApiBookingInspector models
-        $bookedItems = ApiBookingInspector::query()
-            ->where('token_id', $tokenId)
+        $bookedItemsQuery = ApiBookingInspector::query()
             ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
-                $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
-                    if (filled($apiClientId)) {
-                        $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
-                    }
-                    if (filled($apiClientEmail)) {
-                        $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
-                    }
+            ->where('sub_type', 'create');
+
+        if (! filled($force)) {
+            $bookedItemsQuery->where('token_id', $tokenId)
+                ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
+                    $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
+                        if (filled($apiClientId)) {
+                            $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
+                        }
+                        if (filled($apiClientEmail)) {
+                            $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
+                        }
+                    });
                 });
-            })
+        }
+
+        $bookedItemsQuery
             ->when(filled($bookingDateFrom), function ($q) use ($bookingDateFrom) {
                 $q->whereDate('created_at', '>=', $bookingDateFrom);
             })
@@ -602,8 +608,9 @@ class BookApiHandler extends BaseController
                 $q->whereDate('created_at', '<=', $bookingDateTo);
             })
             ->has('metadata')
-            ->orderBy('created_at', 'desc')
-            ->get(['booking_item', 'created_at']);
+            ->orderBy('created_at', 'desc');
+
+        $bookedItems = $bookedItemsQuery->get(['booking_item', 'created_at']);
 
         // Map booking_item to created_at
         $bookedDates = $bookedItems->pluck('created_at', 'booking_item');

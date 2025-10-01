@@ -39,6 +39,13 @@ class BookingListBookingsRequest extends ApiRequest
      *      @OA\Schema(type="string", format="email", example="user@example.com")
      *   ),
      *   @OA\Parameter(
+     *      name="force",
+     *      in="query",
+     *      required=false,
+     *      description="If set to true, ignores filtering by API user and token.",
+     *      @OA\Schema(type="boolean", example=true)
+     *   ),
+     *   @OA\Parameter(
      *      name="page",
      *      in="query",
      *      required=false,
@@ -232,6 +239,7 @@ class BookingListBookingsRequest extends ApiRequest
             'booking_date_to' => 'nullable|date',
             'checkin_date_from' => 'nullable|date',
             'checkin_date_to' => 'nullable|date',
+            'force' => 'nullable|boolean',
         ];
     }
 
