@@ -11,7 +11,25 @@ use Illuminate\Foundation\Http\FormRequest;
  *     tags={"Payment"},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(ref="#/components/schemas/CreatePaymentIntentRequest")
+ *         @OA\JsonContent(
+ *             ref="#/components/schemas/CreatePaymentIntentRequest",
+ *             example={
+ *                     "order": {
+ *                         "products": {
+ *                             {
+ *                                 "name": "Signature Family Room",
+ *                                 "quantity": 1
+ *                             }
+ *                         }
+ *                     },
+ *                     "amount": 622.46,
+ *                     "currency": "USD",
+ *                     "booking_id": "767390c7-f9b7-4e1b-ad4d-16866270926f",
+ *                     "descriptor": "Hotel Booking Payment",
+ *                     "return_url": "https://domen/search-results/767390c7-f9b7-4e1b-ad4d-16866270926f/booking-confirmed",
+ *                     "merchant_order_id": "BK-1759069790539"
+ *                 }
+ *         )
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -19,18 +37,46 @@ use Illuminate\Foundation\Http\FormRequest;
  *         @OA\JsonContent(
  *             type="object",
  *             example={
- *                 "payment_intent_id": "int_hkpdskz7vg1xc7uscdj",
- *                 "request_id": "b01737e5-c5ab-4765-8834-cbd92dfeaf81",
- *                 "amount": 100,
- *                 "currency": "USD",
- *                 "status": "REQUIRES_PAYMENT_METHOD",
- *                 "merchant_order_id": "D202503210001",
- *                 "return_url": "https://www.airwallex.com",
- *                 "descriptor": "Airwallex - Test Descriptor",
- *                 "metadata": {"foo": "bar"},
- *                 "client_secret": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzgzMDY2MzAsImV4cCI6MTczODMxMDIzMCwidHlwZSI6ImNsaWVudC1zZWNyZXQiLCJwYWRjIjoiSEsiLCJhY2NvdW50X2lkIjoiN2EwYzQ3YzctNzM0Zi00NzdmLTk1OWItMzIxNTQyNzgxYTgyIiwiaW50ZW50X2lkIjoiaW50X2hrcGRza3o3dmcxeGM3dXNjZGoiLCJjdXN0b21lcl9pZCI6IjlmYWZjMmZiLTQyNjItNGZmOC1hMjA1LWQ2MGZiNDc4MWNiMCJ9.Rg1M2Vl0GDARU0rnTghenUVe9v1ix1IrSQOxQO7Zqyw",
- *                 "created_at": "2025-01-31T06:57:10+0000",
- *                 "updated_at": "2025-01-31T06:57:10+0000"
+ *                 "success": true,
+ *                 "data": {
+ *                     "request_id": "8329f85d-515d-4cee-a014-c3c2eb0edbc2",
+ *                     "amount": 622.46,
+ *                     "currency": "USD",
+ *                     "merchant_order_id": "BK-1759069790539",
+ *                     "order": {
+ *                         "products": {
+ *                             {
+ *                                 "name": "Signature Family Room",
+ *                                 "quantity": 1
+ *                             }
+ *                         }
+ *                     },
+ *                     "descriptor": "Hotel Booking Payment",
+ *                     "metadata": {
+ *                         "foo": "bar"
+ *                     },
+ *                     "status": "REQUIRES_PAYMENT_METHOD",
+ *                     "captured_amount": 0,
+ *                     "created_at": "2025-10-02T14:51:56+0000",
+ *                     "updated_at": "2025-10-02T14:51:56+0000",
+ *                     "available_payment_method_types": {
+ *                         "card",
+ *                         "airwallex_pay",
+ *                         "googlepay",
+ *                         "applepay"
+ *                     },
+ *                     "payment_method_options": {
+ *                         "card": {
+ *                             "card_input_via": "moto"
+ *                         }
+ *                     },
+ *                     "client_secret": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTk0MTY3MTYsImV4cCI6MTc1OTQyMDMxNiwidHlwZSI6ImNsaWVudC1zZWNyZXQiLCJwYWRjIjoiSEsiLCJhY2NvdW50X2lkIjoiMTdhMDY0MzktNzJiYy00YWQyLWI3NjYtMTk0OWM3MTFiYTgwIiwiaW50ZW50X2lkIjoiaW50X2hrZG1tNnI2cmhibnN2cWMwM3giLCJidXNpbmVzc19uYW1lIjoiRm9yYSBUcmF2ZWwgRGVtbyJ9.eTc-QvGOwj0VWx6c5T7e8PMx9PNIRRvpgarjuWqz8WQ",
+ *                     "return_url": "https://domen/search-results/767390c7-f9b7-4e1b-ad4d-16866270926f/booking-confirmed",
+ *                     "base_amount": 622.46,
+ *                     "base_currency": "USD",
+ *                     "payment_intent_id": "int_hkdmm6r6rhbnsvqc03x"
+ *                 },
+ *                 "message": "success"
  *             }
  *         )
  *     ),

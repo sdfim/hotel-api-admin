@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Enums\PaymentStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,10 +37,13 @@ class ApiBookingInspector extends Model
         'response_path',
         'client_response_path',
         'addons_meta',
+        'payment_intent_status',
     ];
 
     protected $casts = [
         'addons_meta' => 'array',
+        'payment_intent_status' => PaymentStatusEnum::class,
+
     ];
 
     public function token(): BelongsTo

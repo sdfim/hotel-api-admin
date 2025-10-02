@@ -2,7 +2,11 @@
 
 namespace Modules\API\Payment\Controllers;
 
+use App\Models\AirwallexApiLog;
+use App\Models\ApiBookingPaymentInit;
+use App\Models\Enums\PaymentStatusEnum;
 use Modules\API\BaseController;
+use Modules\API\Payment\Requests\ConfirmationPaymentIntentRequest;
 use Modules\API\Payment\Requests\CreatePaymentIntentRequest;
 use Modules\API\Suppliers\AirwallexSupplier\AirwallexClient;
 use OpenApi\Annotations as OA;
@@ -48,6 +52,15 @@ class AirwallexProxyController extends BaseController
             $result['payment_intent_id'] = $result['id'];
             unset($result['id']);
         }
+
+        ApiBookingPaymentInit::create([
+            'booking_id' => $validated['booking_id'],
+            'payment_intent_id' => $result['payment_intent_id'] ?? null,
+            'action' => PaymentStatusEnum::INIT->value,
+            'amount' => $validated['amount'],
+            'currency' => $validated['currency'],
+            'provider' => 'airwallex',
+        ]);
 
         $data = $result;
 
@@ -238,5 +251,54 @@ class AirwallexProxyController extends BaseController
         $data['available_payment_method_types'] = $result['available_payment_method_types'] ?? null;
 
         return $this->sendResponse($data, 'success');
+    }
+
+    public function confirmationPaymentIntent(ConfirmationPaymentIntentRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Retrieve booking_id by payment_intent_id from previous createPaymentIntent log
+        $log = AirwallexApiLog::where('payment_intent_id', $validated['payment_intent_id'])
+            ->where('method', 'createPaymentIntent')
+            ->latest()
+            ->first();
+        $bookingId = $log ? $log->booking_id : null;
+
+        if (! $bookingId) {
+            return $this->sendError('Booking ID not found for the given payment_intent_id', 'Error', 404);
+        }
+
+        ApiBookingPaymentInit::create([
+            'booking_id' => $bookingId,
+            'payment_intent_id' => $validated['payment_intent_id'],
+            'action' => PaymentStatusEnum::CONFIRMED->value,
+            'amount' => $validated['amount'],
+            'currency' => $validated['currency'],
+            'provider' => 'airwallex',
+        ]);
+
+        // Prepare response (can be customized as needed)
+        $response = [
+            'payment_intent_id' => $validated['payment_intent_id'],
+            'amount' => $validated['amount'],
+            'currency' => $validated['currency'],
+            'booking_id' => $bookingId,
+        ];
+
+        $payload['amount'] = $validated['amount'];
+        $payload['currency'] = $validated['currency'];
+
+        // Log the confirmation
+        AirwallexApiLog::create([
+            'method' => 'confirmationPaymentIntent',
+            'direction' => $request->all(),
+            'payload' => $payload,
+            'response' => $response,
+            'status_code' => 200,
+            'payment_intent_id' => $validated['payment_intent_id'],
+            'booking_id' => $bookingId,
+        ]);
+
+        return $this->sendResponse($response, 'success');
     }
 }

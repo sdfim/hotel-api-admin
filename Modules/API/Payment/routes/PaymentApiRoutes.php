@@ -12,6 +12,7 @@ class PaymentApiRoutes
             Route::post('create', [\Modules\API\Payment\Controllers\AirwallexProxyController::class, 'createPaymentIntent']);
             Route::get('payment-intent/{id}', [\Modules\API\Payment\Controllers\AirwallexProxyController::class, 'retrievePaymentIntent']);
             Route::get('transaction/{booking_id}', [\Modules\API\Payment\Controllers\AirwallexProxyController::class, 'getTransactionByBookingId']);
+            Route::post('confirmation', [\Modules\API\Payment\Controllers\AirwallexProxyController::class, 'confirmationPaymentIntent']);
             // Future Airwallex routes can be added here
         });
     }
