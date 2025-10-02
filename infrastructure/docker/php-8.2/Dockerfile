@@ -16,8 +16,10 @@ RUN apt-get update && \
         libfreetype6-dev \
         imagemagick \
         libmagickwand-dev \
+        pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
+# GD +
 RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype && \
     docker-php-ext-install -j$(nproc) gd pdo_mysql mysqli zip intl bcmath sockets
 

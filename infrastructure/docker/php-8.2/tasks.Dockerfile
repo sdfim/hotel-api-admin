@@ -5,7 +5,13 @@ WORKDIR /var/www
 RUN apt-get update && apt-get install -y git zip unzip cron \
     supervisor libicu-dev libzip-dev mariadb-client && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install zip && docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli && docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install bcmath && pecl install redis && docker-php-ext-enable redis && docker-php-ext-install sockets && docker-php-ext-configure sockets
+RUN docker-php-ext-install zip pdo_mysql mysqli bcmath sockets \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install intl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
