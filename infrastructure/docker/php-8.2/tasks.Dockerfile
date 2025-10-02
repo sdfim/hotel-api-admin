@@ -2,8 +2,10 @@ FROM php:8.2-cli
 
 WORKDIR /var/www
 
-RUN apt-get update && apt-get install -y git zip unzip cron \
-    supervisor libicu-dev libzip-dev mariadb-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    git zip unzip cron supervisor libicu-dev libzip-dev mariadb-client \
+    libjpeg-dev libpng-dev libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install zip pdo_mysql mysqli bcmath sockets \
     && docker-php-ext-configure intl \
@@ -11,7 +13,7 @@ RUN docker-php-ext-install zip pdo_mysql mysqli bcmath sockets \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd \
     && pecl install redis \
-    && docker-php-ext-enable redis \
+    && docker-php-ext-enable redis
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
