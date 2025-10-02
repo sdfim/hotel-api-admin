@@ -49,7 +49,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             'booking_request' => $requestBooking,
             'rooms' => $dataReservation,
             'searchRequest' => json_decode($searchRequest, true),
-            'hotelPhotoPath' => Storage::url($hotel->product->hero_image),
+            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
         ]);
         $total_net = 0;
         $total_tax = 0;
@@ -69,7 +69,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             'customerName' => 'Mr '.$clientFirstName.' '.$clientLastNane,
             'hotel' => $hotel,
             'hotelData' => [
-                'name' => $hotel->product->name,
+                'name' => $hotel?->product?->name ?? 'Unknown Hotel',
                 'address' => trim(
                     ($hotel->address['line_1'] ?? '').', '.
                     ($hotel->address['city'] ?? '').', '.
@@ -85,7 +85,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
                 'booking_agent' => $userAgent->name ?? 'KRISTINA SHACKNOW',
                 'booking_agent_email' => $userAgent->email ?? 'kshacknow@ultimatejetvacations.com',
             ],
-            'hotelPhotoPath' => Storage::url($hotel->product->hero_image),
+            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
         ]);
 
         return $this->subject('Your booking is confirmed')
