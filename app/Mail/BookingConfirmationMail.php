@@ -39,7 +39,10 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
         $bookingMeta = $booking?->metadata ?? [];
         $requestBooking = json_decode($booking?->request ?? '', true) ?? [];
         $agentId = Arr::get($requestBooking, 'api_client.id');
-        $userAgent = User::find($agentId);
+        $agentEmail = Arr::get($requestBooking, 'api_client.email');
+        $userAgent = User::where('id', $agentId)
+            ->orWhere('email', $agentEmail)
+            ->first();
         $clientLastNane = Arr::get($requestBooking, 'booking_contact.last_name');
         $clientFirstName = Arr::get($requestBooking, 'booking_contact.first_name');
 
