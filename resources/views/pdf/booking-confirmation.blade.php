@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0;
             background-color: rgb(244, 240, 237);
-            background-image: url('{{ Storage::url('images/bg-pdf-tm.png') }}');
+            background-image: url('{{ Storage::url('images/email-book-confirmation/bg-pdf-tm.png') }}');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center center;
@@ -170,7 +170,7 @@
     <!-- Секция 1: Логотип и Фото -->
     <div class="row-header">
         <div class="col-1-cell">
-            <img src="{{ Storage::url('images/logo-tm.png') }}" class="logo" alt="Terra Mare">
+            <img src="{{ Storage::url('images/email-book-confirmation/logo-tm.png') }}" class="logo" alt="Terra Mare">
         </div>
         <div class="col-2-cell">
             <img src="{{ $hotelPhotoPath ?? Storage::url($hotel->product?->hero_image) }}" class="hotel-photo" alt="Hotel Photo">
