@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,7 +173,7 @@
             <img src="{{ URL::asset('build/images/logo-tm.png') }}" class="logo" alt="Terra Mare">
         </div>
         <div class="col-2-cell">
-            <img src="{{ $hotelPhotoPath ?? URL::asset('build/images/hotel-photo.png') }}" class="hotel-photo" alt="Hotel Photo">
+            <img src="{{ $hotelPhotoPath ?? Storage::url($hotel->product?->hero_image) }}" class="hotel-photo" alt="Hotel Photo">
         </div>
     </div>
 
@@ -179,8 +183,8 @@
         </div>
         <div class="col-2 col-2-content-shift">
             <div style="margin-top: 10px;">
-                <strong>{{ $hotel['name'] ?? 'Grand Velas Riviera Maya' }}</strong><br>
-                {{ $hotel['address'] ?? 'Carretera Cancun Tulum, Playa del Carmen/Playacar, Quintana Roo, MX' }}
+                <strong>{{ $hotelData['name'] ?? 'Grand Velas Riviera Maya' }}</strong><br>
+                {{ $hotelData['address'] ?? 'Carretera Cancun Tulum, Playa del Carmen/Playacar, Quintana Roo, MX' }}
             </div>
         </div>
     </div>

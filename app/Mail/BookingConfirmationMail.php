@@ -49,6 +49,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             'booking_request' => $requestBooking,
             'rooms' => $dataReservation,
             'searchRequest' => json_decode($searchRequest, true),
+            'hotelPhotoPath' => Storage::url($hotel->product->hero_image),
         ]);
         $total_net = 0;
         $total_tax = 0;
@@ -66,7 +67,8 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
         $pdfService = app(PdfGeneratorService::class);
         $pdfContent = $pdfService->generateRaw('pdf.booking-confirmation', [
             'customerName' => 'Mr '.$clientFirstName.' '.$clientLastNane,
-            'hotel' => [
+            'hotel' => $hotel,
+            'hotelData' => [
                 'name' => $hotel->product->name,
                 'address' => trim(
                     ($hotel->address['line_1'] ?? '').', '.
