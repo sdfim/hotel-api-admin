@@ -1012,6 +1012,7 @@ class BookApiHandler extends BaseController
         $result['check_quote_search_query'] = json_decode($search->request, true);
         $result['giata_id'] = $giata_id;
         $result['booking_item'] = $parent_booking_item;
+        $result['booking_id'] = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
         $result['current_search'] = array_values($matchedRooms);
         $result['first_search'] = $dataFirstSearch;
 

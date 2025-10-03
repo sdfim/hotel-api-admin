@@ -11,8 +11,9 @@ use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
 use Modules\Enums\SupplierNameEnum;
+use Modules\API\BaseController;
 
-class HotelBookingCheckQuoteService
+class HotelBookingCheckQuoteService extends BaseController
 {
     public function __construct(
         private readonly ExpediaHotelBookingApiController $expedia,
@@ -171,6 +172,9 @@ class HotelBookingCheckQuoteService
 
     public function moveBookingItem($request, $supplier, $booking_item)
     {
+        if (is_null($booking_item)) {
+            return $this->sendError('booking_item is null');
+        }
         if (($supplier === SupplierNameEnum::HBSI->value || $supplier === SupplierNameEnum::HOTEL_TRADER->value)
             && Cache::get('room_combinations:'.$booking_item)) {
             $hotelService = new HotelCombinationService($supplier);
