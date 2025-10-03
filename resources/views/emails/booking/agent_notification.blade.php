@@ -33,7 +33,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Confirm your booking</title>
+    <title>Booking Confirmed by Client</title>
     <style>
         body { margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4; }
         .container {
@@ -62,8 +62,8 @@
         .info-data { margin:0; font-weight:bold; font-size: 16px; }
 
         .total-price { text-align:right; font-size:16px; font-weight:bold; }
-        .confirm-btn { background:#4f46e5; color:#fff; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold; display:inline-block; }
         .footer { padding:20px; color:#999; font-size:12px; text-align:center; }
+        .confirmed-block { background:#e6ffe6; border-radius:8px; padding:15px; margin-bottom:20px; color:#2e7d32; font-size:16px; font-weight:bold; text-align:center; }
     </style>
 </head>
 <body>
@@ -71,6 +71,10 @@
     <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="Logo" class="logo">
 </div>
 <div class="container">
+    <div class="confirmed-block">
+        Booking has been <strong>confirmed by the client</strong>.<br>
+        Please proceed with the next steps.
+    </div>
     <h4>Quote Number: {{ $quoteNumber ?? 'N/A' }}</h4>
     <h2 class="hotel-title">{{ $hotelName ?? 'Hotel' }}</h2>
     <p class="hotel-address">📍 {{ $hotelAddress }}</p>
@@ -130,38 +134,10 @@
     <p class="total-price">
         Total Booking Price: {{ number_format($grandTotal, 2) }} {{ $currency }}
     </p>
-    <div style="text-align:center; padding:20px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-            <tr>
-                <td align="center" bgcolor="#4f46e5" style="
-                border-radius: 6px;
-                background-color: #4f46e5;
-                padding: 0;
-            ">
-                    <a href="{{ $verificationUrl }}" target="_blank" style="
-                    background-color: #4f46e5;
-                    border: 1px solid #4f46e5;
-                    border-radius: 6px;
-                    color: #ffffff;
-                    display: inline-block;
-                    font-family: Arial, sans-serif;
-                    font-size: 16px;
-                    font-weight: bold;
-                    line-height: 1.2;
-                    padding: 12px 24px;
-                    text-align: center;
-                    text-decoration: none;
-                    mso-padding-alt: 0;
-                ">
-                        Confirm Booking
-                    </a>
-                </td>
-            </tr>
-        </table>
-    </div>
 </div>
 <div class="footer">
     Thank you!<br>{{ config('app.name') }}
 </div>
 </body>
 </html>
+

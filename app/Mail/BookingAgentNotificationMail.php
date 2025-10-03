@@ -9,17 +9,14 @@ use Illuminate\Queue\SerializesModels;
 use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\HotelContentRepository\Models\Hotel;
 
-class BookingEmailVerificationMail extends Mailable implements ShouldQueue
+class BookingAgentNotificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $verificationUrl;
-
     public $bookingItem;
 
-    public function __construct($verificationUrl, $bookingItem)
+    public function __construct($bookingItem)
     {
-        $this->verificationUrl = $verificationUrl;
         $this->bookingItem = $bookingItem;
     }
 
@@ -33,17 +30,15 @@ class BookingEmailVerificationMail extends Mailable implements ShouldQueue
         $giata_code = $dataReservation[0]['giata_code'] ?? null;
         $hotelData = Hotel::where('giata_code', $giata_code)->first();
 
-        logger('BookingEmailVerificationMail', [
-            'verificationUrl' => $this->verificationUrl,
+        logger('BookingAgentNotificationMail', [
             'hotel' => $hotelData,
             'rooms' => $dataReservation,
             'searchRequest' => json_decode($searchRequest, true),
         ]);
 
-        return $this->subject('Confirm your booking')
-            ->view('emails.booking.email_verification')
+        return $this->subject('Booking Confirmed by Client')
+            ->view('emails.booking.agent_notification')
             ->with([
-                'verificationUrl' => $this->verificationUrl,
                 'quoteNumber' => $quoteNumber,
                 'hotel' => $hotelData,
                 'rooms' => $dataReservation,
@@ -51,3 +46,4 @@ class BookingEmailVerificationMail extends Mailable implements ShouldQueue
             ]);
     }
 }
+
