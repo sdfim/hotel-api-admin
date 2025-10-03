@@ -254,6 +254,15 @@ class ApiBookingInspectorRepository
             ->exists();
     }
 
+    public static function getBookingIdByQuote(string $booking_item): string
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'complete')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->first()->booking_id;
+    }
+
     public static function exists(string $booking_id, string $booking_item): bool
     {
         return ApiBookingInspector::where('booking_id', $booking_id)

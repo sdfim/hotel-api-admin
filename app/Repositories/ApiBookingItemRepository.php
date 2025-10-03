@@ -184,6 +184,7 @@ class ApiBookingItemRepository
 
         $detailItems = [];
         foreach ($items as $i => $item) {
+            $detailItems[$i]['booking_id'] = ApiBookingInspectorRepository::getBookingIdByQuote($item->booking_item);
             $detailItems[$i]['booking_item'] = $item->booking_item;
             $detailItems[$i]['email_verified'] = (bool) $item->email_verified;
             $childItems = $item->child_items;
