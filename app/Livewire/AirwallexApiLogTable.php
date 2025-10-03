@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\Attributes\Url;
 
 class AirwallexApiLogTable extends Component implements HasForms, HasTable
 {
@@ -22,6 +23,9 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
     public ?AirwallexApiLog $selectedLog = null;
 
     public bool $showModal = false;
+
+    #[Url]
+    public ?string $id = null;
 
     public function viewLog(AirwallexApiLog $log): void
     {
@@ -34,6 +38,11 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
         return $table
             ->paginated([5, 10, 25, 50])
             ->query(AirwallexApiLog::query()->latest())
+            ->modifyQueryUsing(function ($query) {
+                if ($this->id) {
+                    $query->where('id', $this->id);
+                }
+            })
             ->columns([
                 TextColumn::make('id')->sortable()->toggleable(),
                 TextColumn::make('booking_id')->sortable()->searchable(isIndividual: true)->toggleable(),
@@ -45,8 +54,9 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
                         $response = is_array($record->response)
                             ? $record->response
                             : json_decode($record->response, true);
+
                         return Arr::get($response, 'amount')
-                            ? (Arr::get($response, 'amount') . ' (' . Arr::get($response, 'currency', '') . ')')
+                            ? (Arr::get($response, 'amount').' ('.Arr::get($response, 'currency', '').')')
                             : 'N/A';
                     }),
                 TextColumn::make('method')->sortable()->toggleable()->searchable(),

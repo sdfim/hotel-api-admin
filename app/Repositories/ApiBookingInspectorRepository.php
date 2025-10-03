@@ -312,6 +312,18 @@ class ApiBookingInspectorRepository
             ->toArray();
     }
 
+    public static function getPriceBookingId(string $booking_id): ?float
+    {
+        $priceingData = 0;
+        $items = self::bookedItems($booking_id)->pluck('booking_item')->toArray();
+        foreach ($items as $item) {
+            $itemPriced = ApiBookingItemRepository::getPricingData($item);
+            $priceingData += $itemPriced['total_price'] ?? 0;
+        }
+
+        return $priceingData;
+    }
+
     public static function bookedBookingItemsAll(): array
     {
         return ApiBookingInspector::where('type', 'book')

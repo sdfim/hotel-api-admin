@@ -209,6 +209,13 @@
                                         Booking Items</a>
                                 </li>
                             @endif
+                            @if($canView(ApiBookingInspector::class))
+                                <li>
+                                    <a href="{{ Route('payment-inspector.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Payment Intents</a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif

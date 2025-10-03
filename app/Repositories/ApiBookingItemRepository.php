@@ -57,6 +57,40 @@ class ApiBookingItemRepository
         return json_decode($bookingItem?->booking_pricing_data, true);
     }
 
+    public static function getPricingData(string $booking_item): ?array
+    {
+        $pricingData = [];
+        $childList = self::getChildrenBookingItems($booking_item);
+
+        if (! $childList) {
+            $itemPricedData = self::getItemPricingData($booking_item);
+            if ($itemPricedData) {
+                $pricingData = [
+                    'total_net' => $itemPricedData['total_net'] ?? 0,
+                    'total_tax' => $itemPricedData['total_tax'] ?? 0,
+                    'total_fees' => $itemPricedData['total_fees'] ?? 0,
+                    'total_price' => $itemPricedData['total_price'] ?? 0,
+                    'currency' => $itemPricedData['currency'] ?? 'USD',
+                ];
+            }
+
+            return $pricingData;
+        }
+
+        foreach ($childList as $child) {
+            $itemPricedData = self::getItemPricingData($child);
+            if ($itemPricedData) {
+                $pricingData['total_net'] = ($pricingData['total_net'] ?? 0) + ($itemPricedData['total_net'] ?? 0);
+                $pricingData['total_tax'] = ($pricingData['total_tax'] ?? 0) + ($itemPricedData['total_tax'] ?? 0);
+                $pricingData['total_fees'] = ($pricingData['total_fees'] ?? 0) + ($itemPricedData['total_fees'] ?? 0);
+                $pricingData['total_price'] = ($pricingData['total_price'] ?? 0) + ($itemPricedData['total_price'] ?? 0);
+                $pricingData['currency'] = $itemPricedData['currency'] ?? 'USD';
+            }
+        }
+
+        return $pricingData;
+    }
+
     public static function isNonRefundable(string $booking_item): bool
     {
         $res = false;

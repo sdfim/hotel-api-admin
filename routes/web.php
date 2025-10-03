@@ -50,6 +50,7 @@ use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
 use App\Http\Controllers\BookingEmailVerificationController;
+use Modules\AdministrationSuite\Http\Controllers\PaymentInitController;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +113,8 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('search-inspector', SearchInspectorController::class)->only(['index', 'show']);
         Route::resource('booking-inspector', BookingInspectorController::class)->only(['index', 'show']);
+        Route::resource('payment-inspector', PaymentInitController::class)->only(['index']);
+
         Route::resource('booking-items', BookingItemsController::class)->only(['index', 'show']);
         Route::resource('exceptions-report', ExceptionsReportController::class)->only('index');
         Route::resource('exceptions-report-chart', ExceptionsReportChartController::class)->only('index');

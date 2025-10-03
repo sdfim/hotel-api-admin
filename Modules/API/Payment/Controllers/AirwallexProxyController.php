@@ -53,6 +53,17 @@ class AirwallexProxyController extends BaseController
             unset($result['id']);
         }
 
+        // Создаём лог AirwallexApiLog
+        $log = AirwallexApiLog::create([
+            'method' => 'createPaymentIntent',
+            'payment_intent_id' => $result['payment_intent_id'] ?? null,
+            'direction' => $direction,
+            'payload' => $validated,
+            'response' => $result,
+            'status_code' => $result['status_code'] ?? null,
+            'booking_id' => $validated['booking_id'],
+        ]);
+
         ApiBookingPaymentInit::create([
             'booking_id' => $validated['booking_id'],
             'payment_intent_id' => $result['payment_intent_id'] ?? null,
@@ -60,6 +71,8 @@ class AirwallexProxyController extends BaseController
             'amount' => $validated['amount'],
             'currency' => $validated['currency'],
             'provider' => 'airwallex',
+            'related_id' => $log->id,
+            'related_type' => AirwallexApiLog::class,
         ]);
 
         $data = $result;
@@ -275,6 +288,8 @@ class AirwallexProxyController extends BaseController
             'amount' => $validated['amount'],
             'currency' => $validated['currency'],
             'provider' => 'airwallex',
+            'related_id' => $log?->id,
+            'related_type' => $log ? AirwallexApiLog::class : null,
         ]);
 
         // Prepare response (can be customized as needed)

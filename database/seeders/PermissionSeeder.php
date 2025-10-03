@@ -18,6 +18,7 @@ class PermissionSeeder extends Seeder
         'giata_geography',
         'api_search_inspector',
         'api_booking_inspector',
+        'api_booking_payment_init',
         'api_booking_item',
         'api_exception_report',
         'property',
