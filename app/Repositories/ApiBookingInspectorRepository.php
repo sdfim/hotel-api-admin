@@ -254,6 +254,15 @@ class ApiBookingInspectorRepository
             ->exists();
     }
 
+    public static function isBookById(string $booking_id): bool
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
     public static function exists(string $booking_id, string $booking_item): bool
     {
         return ApiBookingInspector::where('booking_id', $booking_id)

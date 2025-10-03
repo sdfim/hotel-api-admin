@@ -4,6 +4,7 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Mail\BookingEmailVerificationMail;
 use App\Models\ApiBookingItemCache;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Exception;
@@ -51,6 +52,12 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
                 if (BookingRepository::isDuplicate($request->booking_id, $request->booking_item)) {
                     return $this->sendError('booking_item, booking_id pair is not unique. This item is already in your cart.');
+                }
+
+                if (ApiBookingInspectorRepository::isBookById($request->booking_id)) {
+                    return $this->sendError(
+                        'The order cart (booking_id) is already booked. You cannot add new items to this cart.'
+                    );
                 }
 
                 $filters['booking_id'] = $request->booking_id;
