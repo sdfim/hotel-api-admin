@@ -1,5 +1,5 @@
 <?php
-namespace App\Providers;
+namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
 use App\Models\AirwallexApiLog;
