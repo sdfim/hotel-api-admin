@@ -42,6 +42,9 @@ class BookingEmailVerificationController extends Controller
         }
         Mail::to($agentEmail)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
 
+        // TODO: Send booking confirmation email to client
+        Mail::to('kevin.walker@cabinselect.com')->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
+
         return view('booking.email_verification_thankyou');
     }
 }
