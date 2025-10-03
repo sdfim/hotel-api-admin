@@ -17,7 +17,9 @@ use Illuminate\Foundation\Http\FormRequest;
  *             @OA\Property(property="payment_intent_id", type="string", example="int_hkdmrjzd6hb1gge4rv0"),
  *             @OA\Property(property="amount", type="number", format="float", example=100.50),
  *             @OA\Property(property="currency", type="string", example="USD"),
+ *             @OA\Property(property="provider", type="string", example="airwallex"),
  *             example={
+ *                 "provider": "airwallex",
  *                 "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
  *                 "amount": 100.50,
  *                 "currency": "USD"
@@ -60,6 +62,7 @@ class ConfirmationPaymentIntentRequest extends FormRequest
             'payment_intent_id' => 'required|string',
             'amount' => 'required|numeric',
             'currency' => 'required|string',
+            'provider' => 'sometimes|string',
         ];
     }
 }

@@ -14,6 +14,7 @@ use Illuminate\Foundation\Http\FormRequest;
  *         @OA\JsonContent(
  *             ref="#/components/schemas/CreatePaymentIntentRequest",
  *             example={
+ *                     "pprovider": "airwallex",
  *                     "order": {
  *                         "products": {
  *                             {
@@ -141,6 +142,7 @@ class CreatePaymentIntentRequest extends FormRequest
             'order.products' => 'required|array|min:1',
             'order.products.*.name' => 'required|string',
             'order.products.*.quantity' => 'required|numeric',
+            'provider' => 'sometimes|string',
         ];
     }
 }
