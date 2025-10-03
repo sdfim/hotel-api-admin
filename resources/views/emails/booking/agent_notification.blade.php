@@ -72,7 +72,7 @@
 </div>
 <div class="container">
     <div class="confirmed-block">
-        Booking has been <strong>confirmed by the client</strong>.<br>
+        Quote has been <strong>confirmed by the client</strong>.<br>
         Please proceed with the next steps.
     </div>
     <h4>Quote Number: {{ $quoteNumber ?? 'N/A' }}</h4>
