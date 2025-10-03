@@ -7,6 +7,7 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Jobs\RetrieveBookingJob;
 use App\Jobs\SaveBookingInspector;
+use App\Mail\BookingClientPaymentMail;
 use App\Mail\BookingConfirmationMail;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
@@ -157,6 +158,18 @@ class BookApiHandler extends BaseController
         $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
+
+        // Send payment email to client
+        try {
+            $payment_url = $request->input('payment_url');
+            $payment_url = $payment_url ?: request()->getSchemeAndHttpHost().'/payment/'.$request->booking_id;
+            $email_client = $request->input('booking_contact.email');
+            Mail::to($email_client)->queue(new BookingClientPaymentMail($payment_url));
+        } catch (\Throwable $mailException) {
+            Log::error('Booking payment email queue error: '.$mailException->getMessage());
+        }
+
+        // TODO: will need move to api/payment/confirmation
         foreach ($items as $item) {
             // Send confirmation email for each item after booking
             $email_verification = $request->input('email_verification', false);
