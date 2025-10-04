@@ -39,4 +39,24 @@ class ApiBookingPaymentInit extends Model
     {
         return $this->morphTo();
     }
+
+    public function getInitAmountAttribute()
+    {
+        return $this->action === PaymentStatusEnum::INIT ? $this->amount : null;
+    }
+
+    public function getInitCurrencyAttribute()
+    {
+        return $this->action === PaymentStatusEnum::INIT ? $this->currency : null;
+    }
+
+    public function getConfirmedAmountAttribute()
+    {
+        return $this->action === PaymentStatusEnum::CONFIRMED ? $this->amount : null;
+    }
+
+    public function getConfirmedCurrencyAttribute()
+    {
+        return $this->action === PaymentStatusEnum::CONFIRMED ? $this->currency : null;
+    }
 }
