@@ -96,7 +96,6 @@ class HotelTraderClient
             SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
                 ['side' => 'supplier', 'message' => 'HotelTrader Server error', 'parent_search_id' => $parent_search_id]);
 
-
             return ['error' => 'Server error'];
         } catch (Throwable $e) {
             Log::error('Unexpected error: '.$e->getMessage());

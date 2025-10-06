@@ -252,7 +252,8 @@ class HbsiClient
                 $response = $return['response']->children('soap-env', true)->Body->children()->children();
                 $code = (string) $response->children()->attributes()['Code'];
                 $message = Arr::get(self::ERRORS, $code, 'Unknown error');
-                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => $message]);
+                $errorMessage = (string) $response?->Errors?->Error;
+                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => $message.($errorMessage ? ': '.$errorMessage : '')]);
             }
 
             return $this->processXmlBody($body, $bodyQuery, true);

@@ -243,6 +243,10 @@ class HbsiBookApiController extends BaseBookApiController
 
         $dataResponse = json_decode(json_encode($response), true);
 
+        if (isset($dataResponse['Errors'])) {
+            return [];
+        }
+
         $dataResponseToSave = $dataResponse;
         $dataResponseToSave['original'] = [
             'request' => $xmlPriceData['request'],

@@ -170,6 +170,10 @@ class HotelTraderBookApiController extends BaseBookApiController
             $bookingInspector
         );
 
+        if (isset($retrieveData['errors'])) {
+            return [];
+        }
+
         $dataResponseToSave['original'] = [
             'request' => $retrieveData['request'],
             'response' => $retrieveData['response'],

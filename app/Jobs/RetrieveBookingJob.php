@@ -24,6 +24,8 @@ class RetrieveBookingJob implements ShouldQueue
 
     public function handle(): void
     {
+        sleep(1);
+
         $timeout = 10;
         $elapsed = 0;
         do {
