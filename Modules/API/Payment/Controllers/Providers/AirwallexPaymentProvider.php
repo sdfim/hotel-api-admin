@@ -39,6 +39,15 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
         );
 
         if ($error = $result['error'] ?? null) {
+            AirwallexApiLog::create([
+                'method' => 'createPaymentIntent',
+                'payment_intent_id' => null,
+                'direction' => $direction,
+                'payload' => $data,
+                'response' => $result,
+                'status_code' => 400,
+                'booking_id' => $data['booking_id'],
+            ]);
             return $this->sendError($error, 'Airwallex API error', 400);
         }
 
@@ -54,7 +63,7 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             'direction' => $direction,
             'payload' => $data,
             'response' => $result,
-            'status_code' => $result['status_code'] ?? null,
+            'status_code' => 201,
             'booking_id' => $data['booking_id'],
         ]);
 

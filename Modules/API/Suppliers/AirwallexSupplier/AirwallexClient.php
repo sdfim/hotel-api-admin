@@ -144,27 +144,9 @@ class AirwallexClient
                 'json' => $body,
             ]);
             $data = json_decode($response->getBody()->getContents(), true);
-            // Log response
-            AirwallexApiLog::create([
-                'method' => 'createPaymentIntent',
-                'direction' => $direction,
-                'payload' => $body,
-                'response' => $data,
-                'status_code' => $response->getStatusCode(),
-                'payment_intent_id' => Arr::get($data, 'id', ''),
-                'booking_id' => $bookingId,
-            ]);
 
             return $data;
         } catch (Exception $e) {
-            AirwallexApiLog::create([
-                'method' => 'createPaymentIntent',
-                'direction' => $direction,
-                'payload' => $body,
-                'response' => ['error' => $e->getMessage()],
-                'status_code' => $e->getCode(),
-                'payment_intent_id' => '',
-            ]);
             Log::error('Airwallex createPaymentIntent error: '.$e->getMessage());
 
             return ['error' => $e->getMessage()];
