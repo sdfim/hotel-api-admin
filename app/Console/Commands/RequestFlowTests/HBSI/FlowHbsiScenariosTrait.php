@@ -171,7 +171,13 @@ trait FlowHbsiScenariosTrait
 
     public function addBookingItem(string $bookingItem, ?string $bookingId = null): string|bool
     {
-        $requestData = ['booking_item' => $bookingItem];
+        $requestData = [
+            'booking_item' => $bookingItem,
+            'email_verification' => 'test@gmail.com',
+            'api_client' => [
+                'id' => 18,
+            ],
+        ];
 
         if ($bookingId) {
             $requestData['booking_id'] = $bookingId;
@@ -332,11 +338,11 @@ trait FlowHbsiScenariosTrait
             $this->error('Availability failed');
         }
         $this->info('softChange result : '.json_encode([
-                    'success' => Arr::get($responseAvailability, 'success'),
-                    'message' => Arr::get($responseAvailability, 'message'),
-                    'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
-                ]
-            ));
+            'success' => Arr::get($responseAvailability, 'success'),
+            'message' => Arr::get($responseAvailability, 'message'),
+            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+        ]
+        ));
 
         $this->info('------------------------------------');
         $this->handleSleep();
