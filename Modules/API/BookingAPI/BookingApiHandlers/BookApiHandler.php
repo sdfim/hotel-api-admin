@@ -52,6 +52,7 @@ use Modules\API\Services\BookApiHandlerService;
 use Modules\API\Services\HotelBookingAddPassengersService;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
+use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -559,15 +560,16 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        $latestIds = ApiBookingInspector::where('type', 'book')
-            ->where('sub_type', 'retrieve')
-            ->where('status', 'success')
-            ->groupBy('booking_id', 'booking_item')
-            ->selectRaw('MAX(id) as id')
+        $retrieved = ApiBookingInspector::whereIn('id', function ($query) {
+            $query->selectRaw('MAX(id)')
+                ->from('api_booking_inspector')
+                ->where('type', 'book')
+                ->where('sub_type', 'retrieve')
+                ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+                ->groupBy('booking_id', 'booking_item');
+        })
             ->orderByDesc('id')
-            ->pluck('id');
-
-        $retrieved = ApiBookingInspector::whereIn('id', $latestIds)->get();
+            ->get();
 
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
 
@@ -584,7 +586,8 @@ class BookApiHandler extends BaseController
         // Get all relevant ApiBookingInspector models
         $bookedItemsQuery = ApiBookingInspector::query()
             ->where('type', 'book')
-            ->where('sub_type', 'create');
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value);
 
         if (! filled($force)) {
             $bookedItemsQuery->where('token_id', $tokenId)
@@ -609,7 +612,16 @@ class BookApiHandler extends BaseController
             })
             // ->has('metadata') // Temporarily removed for testing
             ->orderBy('created_at', 'desc');
-        $bookedItems = $bookedItemsQuery->get(['booking_item', 'created_at']);
+
+        $bookedItems = $bookedItemsQuery->get(['booking_id', 'booking_item', 'created_at']);
+
+        logger()->debug('List bookings - booked items count: '.$bookedItems->count(), [
+            'filters' => $request->all(),
+            'api_client_id' => $apiClientId,
+            'api_client_email' => $apiClientEmail,
+            'bookedItems' => $bookedItems->pluck('booking_id'),
+            'retrieved' => $retrieved->pluck('booking_id'),
+        ]);
 
         // Map booking_item to created_at
         $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
