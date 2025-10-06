@@ -2,9 +2,14 @@
 namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
+use App\Mail\BookingConfirmationMail;
 use App\Models\AirwallexApiLog;
 use App\Models\ApiBookingPaymentInit;
 use App\Models\Enums\PaymentStatusEnum;
+use App\Repositories\ApiBookingInspectorRepository;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Modules\API\BaseController;
 use Modules\API\Suppliers\AirwallexSupplier\AirwallexClient;
 
@@ -300,6 +305,21 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             'payment_intent_id' => $data['payment_intent_id'],
             'booking_id' => $bookingId,
         ]);
+
+        $items = ApiBookingInspectorRepository::bookedItems($bookingId);
+
+        foreach ($items as $item) {
+            // Send confirmation email for each item after booking
+            $email_notification = Arr::get(json_decode($item->request, true), 'booking_contact.email');
+
+            if ($email_notification) {
+                try {
+                    Mail::to($email_notification)->queue(new BookingConfirmationMail($item->booking_item));
+                } catch (\Throwable $mailException) {
+                    Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
+                }
+            }
+        }
 
         return $this->sendResponse($response, 'success');
     }

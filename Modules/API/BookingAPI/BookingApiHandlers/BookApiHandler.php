@@ -170,23 +170,6 @@ class BookApiHandler extends BaseController
             Log::error('Booking payment email queue error: '.$mailException->getMessage());
         }
 
-        // TODO: will need move to api/payment/confirmation
-        foreach ($items as $item) {
-            // Send confirmation email for each item after booking
-            $email_verification = $request->input('email_verification', false);
-            if (! $email_verification) {
-                $email_verification = ApiBookingInspectorRepository::getEmailVerificationBookingItem($item->booking_item);
-            }
-
-            if ($email_verification) {
-                try {
-                    Mail::to($email_verification)->queue(new BookingConfirmationMail($item->booking_item));
-                } catch (\Throwable $mailException) {
-                    Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
-                }
-            }
-        }
-
         // Retrieve booking to get the full details after booking
         RetrieveBookingJob::dispatch($request->booking_id);
 
