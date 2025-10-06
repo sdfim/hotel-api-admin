@@ -117,18 +117,19 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
             ->filters([
                 Filter::make('booking_id')
                     ->form([
-                        \Filament\Forms\Components\Select::make('booking_id')
+                        \Filament\Forms\Components\MultiSelect::make('booking_id')
                             ->label('Booking ID')
-                            ->options(ApiBookingPaymentInit::query()->pluck('booking_id', 'booking_id')->toArray()),
+                            ->options(ApiBookingPaymentInit::query()->pluck('booking_id', 'booking_id')->toArray())
+                            ->searchable(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (! empty($data['booking_id'])) {
-                            $query->where('booking_id', $data['booking_id']);
+                            $query->whereIn('booking_id', (array) $data['booking_id']);
                         }
 
                         return $query;
                     })
-                    ->indicateUsing(fn (array $data) => ! empty($data['booking_id']) ? 'Booking ID: '.$data['booking_id'] : null),
+                    ->indicateUsing(fn (array $data) => ! empty($data['booking_id']) ? 'Booking ID: '.implode(', ', (array) $data['booking_id']) : null),
 
                 Filter::make('action')
                     ->form([
