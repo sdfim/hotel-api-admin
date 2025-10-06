@@ -620,7 +620,9 @@ class BookApiHandler extends BaseController
             'api_client_id' => $apiClientId,
             'api_client_email' => $apiClientEmail,
             'bookedItems' => $bookedItems->pluck('booking_id'),
+            'bookedItems_count' => $bookedItems->count(),
             'retrieved' => $retrieved->pluck('booking_id'),
+            'retrieved_count' => $retrieved->count(),
         ]);
 
         // Map booking_item to created_at
@@ -631,10 +633,20 @@ class BookApiHandler extends BaseController
             $disk = config('filesystems.default', 's3');
             $jsonRaw = Storage::disk($disk)->get($item->client_response_path);
             if (! $jsonRaw) {
+                Log::info('List bookings - missing client_response_path file', [
+                    'booking_id' => $item->booking_id,
+                    'booking_item' => $item->booking_item,
+                    'path' => $item->client_response_path,
+                ]);
                 continue;
             }
             $json = json_decode($jsonRaw, true);
             if (! $json) {
+                Log::info('List bookings - invalid JSON in client_response_path file', [
+                    'booking_id' => $item->booking_id,
+                    'booking_item' => $item->booking_item,
+                    'path' => $item->client_response_path,
+                ]);
                 continue;
             }
             if (! $bookedDates->has($item->booking_item)) {
