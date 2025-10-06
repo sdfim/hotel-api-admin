@@ -4,6 +4,7 @@ namespace App\Livewire\Inspectors;
 
 use App\Models\ApiBookingPaymentInit;
 use App\Models\Enums\PaymentStatusEnum;
+use App\Repositories\ApiBookingInspectorRepository;
 use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -39,7 +40,21 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                     ->label('Booking Cost')
                     ->numeric(2)
                     ->toggleable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(new class extends Summarizer
+                    {
+                        public function summarize($query, string $attribute): mixed
+                        {
+                            $bookingIds = $query->distinct()->pluck('booking_id');
+                            $sum = 0;
+                            foreach ($bookingIds as $bookingId) {
+                                $cost = ApiBookingInspectorRepository::getPriceBookingId($bookingId);
+                                $sum += $cost ?? 0;
+                            }
+
+                            return number_format($sum, 2);
+                        }
+                    }),
 
                 TextColumn::make('init_amount')
                     ->numeric(2)
