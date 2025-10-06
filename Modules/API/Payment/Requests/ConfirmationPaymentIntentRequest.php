@@ -2,7 +2,8 @@
 
 namespace Modules\API\Payment\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Modules\API\Requests\Traits\ValidatesApiClient;
+use Modules\API\Validate\ApiRequest;
 
 /**
  * @OA\Post(
@@ -12,8 +13,10 @@ use Illuminate\Foundation\Http\FormRequest;
  *     requestBody=@OA\RequestBody(
  *         required=true,
  *         description="Confirmation of Airwallex payment intent",
+ *
  *         @OA\JsonContent(
  *             required={"payment_intent_id", "amount", "currency"},
+ *
  *             @OA\Property(property="payment_intent_id", type="string", example="int_hkdmrjzd6hb1gge4rv0"),
  *             @OA\Property(property="amount", type="number", format="float", example=100.50),
  *             @OA\Property(property="currency", type="string", example="USD"),
@@ -26,9 +29,11 @@ use Illuminate\Foundation\Http\FormRequest;
  *             }
  *         )
  *     ),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Payment intent confirmed",
+ *
  *         @OA\JsonContent(
  *             example={
  *                 "success": true,
@@ -42,21 +47,23 @@ use Illuminate\Foundation\Http\FormRequest;
  *             }
  *         )
  *     ),
+ *
  *     @OA\Response(
  *         response=400,
  *         description="Validation error"
  *     )
  * )
  */
-
-class ConfirmationPaymentIntentRequest extends FormRequest
+class ConfirmationPaymentIntentRequest extends ApiRequest
 {
-    public function authorize()
+    use ValidatesApiClient;
+
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'payment_intent_id' => 'required|string',

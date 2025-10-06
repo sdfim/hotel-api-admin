@@ -2,15 +2,18 @@
 
 namespace Modules\API\Payment\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Modules\API\Requests\Traits\ValidatesApiClient;
+use Modules\API\Validate\ApiRequest;
 
 /**
  * @OA\Post(
  *     path="/api/payment/create",
  *     summary="Proxy for Airwallex createPaymentIntent",
  *     tags={"Payment"},
+ *
  *     @OA\RequestBody(
  *         required=true,
+ *
  *         @OA\JsonContent(
  *             ref="#/components/schemas/CreatePaymentIntentRequest",
  *             example={
@@ -32,9 +35,11 @@ use Illuminate\Foundation\Http\FormRequest;
  *                 }
  *         )
  *     ),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Airwallex API response",
+ *
  *         @OA\JsonContent(
  *             type="object",
  *             example={
@@ -81,18 +86,22 @@ use Illuminate\Foundation\Http\FormRequest;
  *             }
  *         )
  *     ),
+ *
  *     @OA\Response(
  *         response=422,
  *         description="Validation error",
+ *
  *         @OA\JsonContent(
  *             type="object",
  *             example={"message":"The given data was invalid.","errors":{"amount":{"The amount field is required."}}}
  *         )
  *     )
  * )
+ *
  * @OA\Schema(
  *     schema="CreatePaymentIntentRequest",
  *     required={"amount","currency","merchant_order_id","request_id","descriptor","return_url","order"},
+ *
  *     @OA\Property(property="amount", type="number", format="float", example=100),
  *     @OA\Property(property="currency", type="string", example="USD"),
  *     @OA\Property(property="merchant_order_id", type="string", example="D202503210001"),
@@ -111,9 +120,11 @@ use Illuminate\Foundation\Http\FormRequest;
  *         @OA\Property(
  *             property="products",
  *             type="array",
+ *
  *             @OA\Items(
  *                 type="object",
  *                 required={"name","quantity"},
+ *
  *                 @OA\Property(property="name", type="string", example="Product Name"),
  *                 @OA\Property(property="quantity", type="integer", example=2)
  *             )
@@ -121,14 +132,16 @@ use Illuminate\Foundation\Http\FormRequest;
  *     )
  * )
  */
-class CreatePaymentIntentRequest extends FormRequest
+class CreatePaymentIntentRequest extends ApiRequest
 {
-    public function authorize()
+    use ValidatesApiClient;
+
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount' => 'required|numeric',
