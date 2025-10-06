@@ -273,7 +273,7 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             return $this->sendError('Booking ID not found for the given payment_intent_id', 'Error', 404);
         }
 
-        ApiBookingPaymentInit::create([
+        $paymentInit = ApiBookingPaymentInit::create([
             'booking_id' => $bookingId,
             'payment_intent_id' => $data['payment_intent_id'],
             'action' => PaymentStatusEnum::CONFIRMED->value,
@@ -296,7 +296,7 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
         $payload['currency'] = $data['currency'];
 
         // Log the confirmation
-        AirwallexApiLog::create([
+        $logConfirm = AirwallexApiLog::create([
             'method' => 'confirmationPaymentIntent',
             'direction' => $data,
             'payload' => $payload,
@@ -305,6 +305,8 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             'payment_intent_id' => $data['payment_intent_id'],
             'booking_id' => $bookingId,
         ]);
+
+        $paymentInit->update(['related_id' => $logConfirm->id, 'related_type' => AirwallexApiLog::class]);
 
         $items = ApiBookingInspectorRepository::bookedItems($bookingId);
 
