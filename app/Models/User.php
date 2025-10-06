@@ -35,6 +35,7 @@ class User extends Authenticatable
         'password',
         'current_team_id',
         'channel_id',
+        'notification_emails',
     ];
 
     /** Hidden attributes for arrays. */
@@ -56,6 +57,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_emails' => 'array',
         ];
     }
 

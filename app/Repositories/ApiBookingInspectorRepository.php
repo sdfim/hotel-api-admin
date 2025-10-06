@@ -421,7 +421,7 @@ class ApiBookingInspectorRepository
         return Arr::get($request, 'email_verification');
     }
 
-    public static function getEmailAgentBookingItem(string $booking_item): ?string
+    public static function getEmailAgentBookingItem(string $booking_item): ?array
     {
         $request = ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'add_item')
@@ -436,8 +436,8 @@ class ApiBookingInspectorRepository
 
         $request = json_decode($request, true);
 
-        $apiClientId = Arr::get($request, 'api_client_id');
-        $apiClientEmail = Arr::get($request, 'api_client_email');
+        $apiClientId = Arr::get($request, 'api_client.id');
+        $apiClientEmail = Arr::get($request, 'api_client.email');
 
         // Determine missing api client info from User model
         if (filled($apiClientId) && empty($apiClientEmail)) {
@@ -446,8 +446,14 @@ class ApiBookingInspectorRepository
                 $apiClientEmail = $user->email;
             }
         }
+        if (filled($apiClientEmail) && empty($apiClientId)) {
+            $user = User::where('email', $apiClientEmail)->first();
+            if ($user) {
+                $apiClientId = $user->id;
+            }
+        }
 
-        return $apiClientEmail;
+        return [$apiClientEmail, $apiClientId];
     }
 
     public static function getBookItemsByBookingItem(string $booking_item): ?object

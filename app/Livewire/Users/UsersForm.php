@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -91,6 +92,11 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->visible(fn ($get) => (int) $get('role') === (int) $apiUserRoleId)
                     ->optionsLimit(20)
                     ->preload(),
+                TagsInput::make('notification_emails')
+                    ->label('Notification Emails')
+                    ->placeholder('Enter email')
+                    ->helperText('In addition to the main email, notifications about client quota confirmation will be sent to these emails.')
+                    ->visible(fn ($get) => (int) $get('role') === (int) $apiUserRoleId),
                 Select::make('vendor_ids')
                     ->label('Can View Vendors')
                     ->multiple()
@@ -153,6 +159,9 @@ class UsersForm extends Component implements HasForms, HasTable
 
         // Fill basic fields
         $this->record->fill(Arr::only($data, ['name', 'email']));
+        if (isset($data['notification_emails'])) {
+            $this->record->notification_emails = $data['notification_emails'];
+        }
 
         if (! $exists) {
             $this->record->password = bcrypt($data['password']);
