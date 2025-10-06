@@ -8,14 +8,12 @@ use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Jobs\RetrieveBookingJob;
 use App\Jobs\SaveBookingInspector;
 use App\Mail\BookingClientPaymentMail;
-use App\Mail\BookingConfirmationMail;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Reservation;
 use App\Models\Supplier;
-use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
@@ -50,6 +48,7 @@ use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\BookingRetrieveQuoteRequest;
+use Modules\API\Services\BookApiHandlerService;
 use Modules\API\Services\HotelBookingAddPassengersService;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
@@ -571,24 +570,10 @@ class BookApiHandler extends BaseController
         $retrieved = ApiBookingInspector::whereIn('id', $latestIds)->get();
 
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
-        $apiClientId = data_get($request->all(), 'api_client_id');
-        $apiClientEmail = data_get($request->all(), 'api_client_email');
 
         $force = $request->input('force');
 
-        // Determine missing api client info from User model
-        if (filled($apiClientId) && empty($apiClientEmail)) {
-            $user = User::find($apiClientId);
-            if ($user) {
-                $apiClientEmail = $user->email;
-            }
-        }
-        if (filled($apiClientEmail) && empty($apiClientId)) {
-            $user = User::where('email', $apiClientEmail)->first();
-            if ($user) {
-                $apiClientId = $user->id;
-            }
-        }
+        [$apiClientEmail, $apiClientId] = app(HotelBookingApiHandlerService::class)->getApiUserDataByRequest($request);
 
         $bookingDateFrom = $request->input('booking_date_from');
         $bookingDateTo = $request->input('booking_date_to');
@@ -622,9 +607,8 @@ class BookApiHandler extends BaseController
             ->when(filled($bookingDateTo), function ($q) use ($bookingDateTo) {
                 $q->whereDate('created_at', '<=', $bookingDateTo);
             })
-            ->has('metadata')
+            // ->has('metadata') // Temporarily removed for testing
             ->orderBy('created_at', 'desc');
-
         $bookedItems = $bookedItemsQuery->get(['booking_item', 'created_at']);
 
         // Map booking_item to created_at
@@ -677,6 +661,8 @@ class BookApiHandler extends BaseController
         $resultsPerPage = (int) $request->input('results_per_page', 10);
         $offset = ($page - 1) * $resultsPerPage;
         $paginatedData = array_slice($data, $offset, $resultsPerPage);
+
+        app(BookApiHandlerService::class)->addPaymentData($paginatedData);
 
         return $this->sendResponse([
             'count' => $totalCount,
