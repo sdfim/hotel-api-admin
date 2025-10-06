@@ -15,13 +15,13 @@ class BookingAddItemHotelRequest extends ApiRequest
      *
      *   @OA\RequestBody(
      *     required=true,
-     *     description="Request payload. At least one of api_client.id or api_client.email is required.<br><br><b>Fields email_verification and booking_item is mandatory</b>.  <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
+     *     description="Request payload. Fields booking_item and email_verification are required. You must also specify at least one of api_client.id or api_client.email.",
      *
      *     @OA\MediaType(
      *       mediaType="application/json",
      *
      *       @OA\Schema(
-     *         required={"booking_item", "email_verification"},
+     *         required={"booking_item", "email_verification", "api_client"},
      *
      *         @OA\Property(
      *           property="booking_item",
@@ -45,7 +45,7 @@ class BookingAddItemHotelRequest extends ApiRequest
      *         @OA\Property(
      *           property="api_client",
      *           type="object",
-     *           description="API client identification (either id or email is required)",
+     *           description="API client identification (must specify at least id or email)",
      *           @OA\Property(
      *             property="id",
      *             type="integer",
@@ -61,7 +61,7 @@ class BookingAddItemHotelRequest extends ApiRequest
      *       ),
      *
      *       @OA\Examples(
-     *         example="withEmail",
+     *         example="withId",
      *         summary="Booking item with client ID",
      *         value={
      *           "booking_item"="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
@@ -70,7 +70,7 @@ class BookingAddItemHotelRequest extends ApiRequest
      *         }
      *       ),
      *       @OA\Examples(
-     *         example="withId",
+     *         example="withEmail",
      *         summary="Booking item with client email",
      *         value={
      *           "booking_item"="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
@@ -119,9 +119,6 @@ class BookingAddItemHotelRequest extends ApiRequest
         return [
             'booking_item' => 'required|size:36',
             'booking_id' => 'sometimes|size:36',
-
-//            'email_verification' => 'sometimes|email:rfc,dns',
-//            'api_client.email' => 'sometimes|nullable|email:rfc,dns',
 
             'email_verification' => 'sometimes|email:rfc,dns',
             'api_client.id' => 'required_without:api_client.email|nullable|integer',

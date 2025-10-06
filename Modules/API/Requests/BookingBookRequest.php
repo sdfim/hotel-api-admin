@@ -19,7 +19,7 @@ class BookingBookRequest extends ApiRequest
      *
      *   @OA\RequestBody(
      *     required=true,
-     *     description="Request payload. At least one of api_client.id or api_client.email is required. <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
+     *     description="Request payload. At least one of api_client.id or api_client.email is required.",
      *
      *     @OA\MediaType(
      *       mediaType="application/json",
