@@ -9,8 +9,8 @@ class HotelBookingApiHandlerService
 {
     public function getApiUserDataByRequest($request): array
     {
-        $apiClientId = Arr::get($request, 'api_client.id');
-        $apiClientEmail = Arr::get($request, 'api_client.email');
+        $apiClientId = Arr::get($request, 'api_client.id') ?? Arr::get($request, 'api_client_id');
+        $apiClientEmail = Arr::get($request, 'api_client.email') ?? Arr::get($request, 'api_client_email');
 
         // Determine missing api client info from User model
         if (filled($apiClientId) && empty($apiClientEmail)) {
