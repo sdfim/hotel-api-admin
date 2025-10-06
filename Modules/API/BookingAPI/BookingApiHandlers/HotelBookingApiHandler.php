@@ -19,6 +19,7 @@ use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
+use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelCombinationService;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
@@ -79,6 +80,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
             $filters = array_merge($filters, $request->all());
             $filters = array_merge($filters, $booking_item_data);
+
+            app(HotelBookingApiHandlerService::class)->refreshFiltersByApiUser($filters, $request);
 
             $data = match (SupplierNameEnum::from($supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->addItem($filters),

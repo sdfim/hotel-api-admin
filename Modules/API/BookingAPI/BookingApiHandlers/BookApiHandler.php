@@ -51,6 +51,7 @@ use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\BookingRetrieveQuoteRequest;
 use Modules\API\Services\HotelBookingAddPassengersService;
+use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
@@ -85,6 +86,8 @@ class BookApiHandler extends BaseController
         }
 
         $filters = $request->all();
+
+        app(HotelBookingApiHandlerService::class)->refreshFiltersByApiUser($filters, $request);
 
         $items = ApiBookingInspectorRepository::notBookedItems($request->booking_id);
 
