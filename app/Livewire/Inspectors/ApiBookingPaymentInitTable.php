@@ -110,9 +110,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->sortable()
                     ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('m/d/Y H:i:s')),
             ])
             ->filters([
@@ -146,6 +144,35 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                         return $query;
                     })
                     ->indicateUsing(fn (array $data) => ! empty($data['action']) ? 'Status: '.implode(', ', (array) $data['action']) : null),
+
+                Filter::make('created_at_range')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('created_from')->label('Created from'),
+                        \Filament\Forms\Components\DatePicker::make('created_to')->label('Created to'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['created_from'])) {
+                            $query->whereDate('created_at', '>=', $data['created_from']);
+                        }
+                        if (! empty($data['created_to'])) {
+                            $query->whereDate('created_at', '<=', $data['created_to']);
+                        }
+
+                        return $query;
+                    })
+                    ->indicateUsing(function (array $data) {
+                        if (! empty($data['created_from']) && ! empty($data['created_to'])) {
+                            return 'Created: '.$data['created_from'].' - '.$data['created_to'];
+                        }
+                        if (! empty($data['created_from'])) {
+                            return 'Created from: '.$data['created_from'];
+                        }
+                        if (! empty($data['created_to'])) {
+                            return 'Created to: '.$data['created_to'];
+                        }
+
+                        return null;
+                    }),
             ]);
     }
 
