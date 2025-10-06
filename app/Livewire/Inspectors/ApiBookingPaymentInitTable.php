@@ -43,7 +43,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->summarize(new class extends Summarizer
                     {
-                        public function summarize($query, string $attribute): mixed
+                        public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
                         {
                             $bookingIds = $query->distinct()->pluck('booking_id');
                             $sum = 0;
@@ -111,6 +111,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->toggleable()
+                    ->sortable()
                     ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('m/d/Y H:i:s')),
             ])
             ->filters([
