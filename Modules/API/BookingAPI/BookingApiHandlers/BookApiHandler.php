@@ -19,7 +19,6 @@ use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -36,6 +35,7 @@ use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
 use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\BookingAPI\Controllers\HotelTraderBookApiController;
+use Modules\API\PricingAPI\ResponseModels\HotelCheckQuoteResponseTransformer;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingAvailabileEndpointsChangeBookHotelRequest;
 use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
@@ -55,7 +55,6 @@ use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Services\HotelContentApiTransformerService;
 
 /**
  * @OA\PathItem(
@@ -157,7 +156,6 @@ class BookApiHandler extends BaseController
          */
         $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
-
 
         // Send payment email to client
         try {
@@ -970,7 +968,7 @@ class BookApiHandler extends BaseController
         $dataFirstSearch = $service->getDataFirstSearch($bookingItem);
         $service->prepareFiltersForCheckQuote($filters, $request, $bookingItem, $firstSearch, $dataFirstSearch);
 
-        // 1 new search
+        // Second/new search. Check availability and price.
         try {
             $data = match (SupplierNameEnum::from($bookingItem->supplier->name)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->availabilityChange($filters, 'check_quote'),
@@ -989,37 +987,28 @@ class BookApiHandler extends BaseController
             return $this->sendError($data['errors'], $data['message']);
         }
 
-        $matchedRooms = $service->filterMatchingRooms($data, $dataFirstSearch);
-        $parent_booking_item = Arr::get($matchedRooms, '0.parent_booking_item');
-        $searchId = $result['check_quote_search_id'] = Arr::get($data, 'check_quote_search_id');
-
-        $search = ApiSearchInspectorRepository::getSearchInLoop($searchId);
-
         $query = json_decode($search?->request ?? '', true);
         unset($query['booking_item']);
         unset($query['token_id']);
 
         $giata_id = Arr::get($filters, 'giata_ids.0');
-        $hotel = Hotel::where('giata_code', $giata_id)->first();
+        $matchedRooms = $service->filterMatchingRooms($data, $dataFirstSearch);
+        $parent_booking_item = Arr::get($matchedRooms, '0.parent_booking_item');
 
-        // 2 compare results
-        $fieldsToCompare = ['total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
-        $result['comparison_of_amounts'] = $service->compareFieldSums($fieldsToCompare, $dataFirstSearch, $matchedRooms);
-        $result['check_quote_search_id'] = $searchId;
-        $result['hotel_image'] = $hotel?->product?->hero_image ? Storage::url($hotel->product->hero_image) : null;
-        $result['attributes'] = $hotel?->product?->attributes ? app(HotelContentApiTransformerService::class)->getHotelAttributes($hotel) : [];
-        $result['email_verification'] = ApiBookingInspectorRepository::getEmailVerificationBookingItem($bookingItem->booking_item);
-        $result['check_quote_search_query'] = json_decode($search->request, true);
-        $result['giata_id'] = $giata_id;
-        $result['booking_item'] = $parent_booking_item;
-        $result['booking_id'] = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
-        $result['current_search'] = array_values($matchedRooms);
-        $result['first_search'] = $dataFirstSearch;
+        $responseModel = HotelCheckQuoteResponseTransformer::transform(
+            $dataFirstSearch,
+            $data,                  // second search result. All rooms from the first search are available
+            $giata_id,
+            $bookingItem,           // booking_item from the first search
+            $matchedRooms,          // rooms from the first search that match the second search
+            $parent_booking_item,   // new booking_item from the second search
+        );
 
-        // 3 move booking_item from cache to new booking_item
+        // move new booking_item from api_booking_item_cache to api_booking_items
+        // and update api_booking_items for booking_item -> set checked_booking_item = new booking_item
         $service->moveBookingItem($request, $bookingItem->supplier->name, $parent_booking_item);
 
-        return $this->sendResponse($result, 'success');
+        return $this->sendResponse($responseModel->toArray(), 'success');
     }
 
     private function determinant(Request $request, bool $validateWithApiBookings = true): array

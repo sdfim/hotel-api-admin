@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class ApiBookingItem extends Model
@@ -51,6 +50,18 @@ class ApiBookingItem extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    // original booking_item that was booked during first search
+    public function firstBookingItem(): BelongsTo
+    {
+        return $this->belongsTo(ApiBookingItem::class, 'booking_item', 'checked_booking_item');
+    }
+
+    // new booking_item that was checked during check-quote after second search
+    public function secondBookingItem(): BelongsTo
+    {
+        return $this->belongsTo(ApiBookingItem::class, 'checked_booking_item', 'booking_item');
     }
 
     /**
