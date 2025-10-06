@@ -32,6 +32,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('booking_id')
                     ->label('Booking ID')
+                    ->searchable(isIndividual: true)
                     ->sortable()
                     ->formatStateUsing(fn ($state) => (string) $state)
                     ->action(fn ($record) => $this->filterByBookingId($record->booking_id)),
