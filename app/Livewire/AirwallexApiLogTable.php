@@ -44,8 +44,12 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
                 }
             })
             ->columns([
-                TextColumn::make('id')->sortable()->toggleable(),
-                TextColumn::make('booking_id')->sortable()->searchable(isIndividual: true)->toggleable(),
+                TextColumn::make('id')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('booking_id')
+                    ->sortable()
+                    ->searchable(isIndividual: true)->toggleable(),
                 TextColumn::make('response')
                     ->label('Amount')
                     ->sortable()
@@ -59,10 +63,21 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
                             ? (Arr::get($response, 'amount').' ('.Arr::get($response, 'currency', '').')')
                             : 'N/A';
                     }),
-                TextColumn::make('method')->sortable()->toggleable()->searchable(),
-                TextColumn::make('payment_intent_id')->sortable()->toggleable()->searchable(isIndividual: true),
-                TextColumn::make('status_code')->sortable()->toggleable()->searchable(),
-                TextColumn::make('created_at')->sortable()->toggleable(),
+                TextColumn::make('method')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('payment_intent_id')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('status_code')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(),
+                TextColumn::make('created_at')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->actions([
                 Action::make('view')
