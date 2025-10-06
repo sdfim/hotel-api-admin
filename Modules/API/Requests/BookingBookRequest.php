@@ -17,17 +17,9 @@ class BookingBookRequest extends ApiRequest
      *   summary="Create a new booking for a service or event",
      *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
      *
-     *   @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_id**, you need to execute '/api/booking/add-item'.",
-     *
-     *      @OA\Schema(type="string", example="550e8400-e29b-41d4-a716-446655440000")
-     *   ),
-     *
      *   @OA\RequestBody(
      *     required=true,
+     *     description="Request payload. At least one of api_client.id or api_client.email is required. <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
      *
      *     @OA\MediaType(
      *       mediaType="application/json",
@@ -127,10 +119,11 @@ class BookingBookRequest extends ApiRequest
      *       ),
      *
      *       @OA\Examples(
-     *         example="Example Booking Book Request",
-     *         summary="Example Booking Book Request",
+     *         example="Example Booking Book with ID",
+     *         summary="Example Booking Book Request with Client ID",
      *         value={
-     *           "api_client"={"id"=3,"email"="user@example.com"},
+     *           "api_client"={"id"=5},
+     *           "booking_id": "c9fb96cb-39d1-4ace-8d53-54cee94cfae3",
      *           "amount_pay"="Deposit",
      *           "booking_contact"={
      *             "first_name"="John",
@@ -142,31 +135,18 @@ class BookingBookRequest extends ApiRequest
      *         }
      *       ),
      *       @OA\Examples(
-     *         example="Example Booking Book Request Expedia",
-     *         summary="Example Booking Book Request Expedia",
+     *         example="Example Booking Book Request special_requests and comments",
+     *         summary="Example Booking Book Request with special_requests and comments",
      *         value={
-     *           "api_client"={"id"=3,"email"="user@example.com"},
-     *           "amount_pay"="Full Payment",
-     *           "travel_agency_identifier"="ABC",
+     *           "api_client"={"email"="user@example.com"},
+     *           "amount_pay": "Deposit",
+     *           "booking_id": "c9fb96cb-39d1-4ace-8d53-54cee94cfae3",
      *           "booking_contact"={
      *             "first_name"="Jane",
      *             "last_name"="Roe",
      *             "email"="jane.roe@example.com",
      *             "phone"={"country_code"=380,"area_code"=44,"number"="9876543"},
      *             "address"={"line_1"="Velyka Vasylkivska 1","city"="Kyiv","state_province_code"="30","postal_code"="01004","country_code"="UA"}
-     *           },
-     *           "credit_cards"={
-     *             {
-     *               "booking_item"="550e8400-e29b-41d4-a716-446655440000",
-     *               "credit_card"={
-     *                 "name_card"="Jane Roe",
-     *                 "number"="4111111111111111",
-     *                 "card_type"="VISA",
-     *                 "expiry_date"="11/2031",
-     *                 "cvv"="123",
-     *                 "billing_address"="Velyka Vasylkivska 1, Kyiv"
-     *               }
-     *             }
      *           },
      *           "special_requests"={
      *             {

@@ -15,7 +15,7 @@ class BookingAddItemHotelRequest extends ApiRequest
      *
      *   @OA\RequestBody(
      *     required=true,
-     *     description="Request payload. At least one of api_client.id or api_client.email is required. Field email_verification is mandatory.",
+     *     description="Request payload. At least one of api_client.id or api_client.email is required.<br><br><b>Fields email_verification and booking_item is mandatory</b>.  <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
      *
      *     @OA\MediaType(
      *       mediaType="application/json",
@@ -62,20 +62,20 @@ class BookingAddItemHotelRequest extends ApiRequest
      *
      *       @OA\Examples(
      *         example="withEmail",
+     *         summary="Booking item with client ID",
+     *         value={
+     *           "booking_item"="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+     *           "email_verification"="verify@example.com",
+     *           "api_client"={"id"=5}
+     *         }
+     *       ),
+     *       @OA\Examples(
+     *         example="withId",
      *         summary="Booking item with client email",
      *         value={
      *           "booking_item"="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
      *           "email_verification"="verify@example.com",
      *           "api_client"={"email"="client@example.com"}
-     *         }
-     *       ),
-     *       @OA\Examples(
-     *         example="withId",
-     *         summary="Booking item with client ID",
-     *         value={
-     *           "booking_item"="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
-     *           "email_verification"="verify@example.com",
-     *           "api_client"={"id"=12345}
      *         }
      *       ),
      *       @OA\Examples(
@@ -120,12 +120,12 @@ class BookingAddItemHotelRequest extends ApiRequest
             'booking_item' => 'required|size:36',
             'booking_id' => 'sometimes|size:36',
 
-            'email_verification' => 'sometimes|email:rfc,dns',
-            'api_client.email' => 'sometimes|nullable|email:rfc,dns',
+//            'email_verification' => 'sometimes|email:rfc,dns',
+//            'api_client.email' => 'sometimes|nullable|email:rfc,dns',
 
-//            'email_verification' => 'required|email:rfc,dns',
-//            'api_client.id' => 'required_without:api_client.email|nullable|integer',
-//            'api_client.email' => 'required_without:api_client.id|nullable|email:rfc,dns',
+            'email_verification' => 'sometimes|email:rfc,dns',
+            'api_client.id' => 'required_without:api_client.email|nullable|integer',
+            'api_client.email' => 'required_without:api_client.id|nullable|email:rfc,dns',
         ];
     }
 

@@ -373,7 +373,7 @@
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
                 "operationId": "6629f5969449157591265e51fe5119d2",
                 "requestBody": {
-                    "description": "Request payload. At least one of api_client.id or api_client.email is required. Field email_verification is mandatory.",
+                    "description": "Request payload. At least one of api_client.id or api_client.email is required.<br><br><b>Fields email_verification and booking_item is mandatory</b>.  <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -419,22 +419,22 @@
                             },
                             "examples": {
                                 "withEmail": {
+                                    "summary": "Booking item with client ID",
+                                    "value": {
+                                        "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+                                        "email_verification": "verify@example.com",
+                                        "api_client": {
+                                            "id": 5
+                                        }
+                                    }
+                                },
+                                "withId": {
                                     "summary": "Booking item with client email",
                                     "value": {
                                         "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
                                         "email_verification": "verify@example.com",
                                         "api_client": {
                                             "email": "client@example.com"
-                                        }
-                                    }
-                                },
-                                "withId": {
-                                    "summary": "Booking item with client ID",
-                                    "value": {
-                                        "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
-                                        "email_verification": "verify@example.com",
-                                        "api_client": {
-                                            "id": 12345
                                         }
                                     }
                                 },
@@ -796,19 +796,8 @@
                 "summary": "Create a new booking for a service or event",
                 "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
                 "operationId": "3e18d455bd4fbc66bf6b9163e216e737",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute '/api/booking/add-item'.",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "550e8400-e29b-41d4-a716-446655440000"
-                        }
-                    }
-                ],
                 "requestBody": {
+                    "description": "Request payload. At least one of api_client.id or api_client.email is required. <br><br><b>It is recommended to use only api_client.id</b>, as changes to api_client.email in the admin panel may cause issues in subsequent steps or endpoints of the booking flow.",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -1054,13 +1043,13 @@
                                 "type": "object"
                             },
                             "examples": {
-                                "Example Booking Book Request": {
-                                    "summary": "Example Booking Book Request",
+                                "Example Booking Book with ID": {
+                                    "summary": "Example Booking Book Request with Client ID",
                                     "value": {
                                         "api_client": {
-                                            "id": 3,
-                                            "email": "user@example.com"
+                                            "id": 5
                                         },
+                                        "booking_id": "c9fb96cb-39d1-4ace-8d53-54cee94cfae3",
                                         "amount_pay": "Deposit",
                                         "booking_contact": {
                                             "first_name": "John",
@@ -1081,15 +1070,14 @@
                                         }
                                     }
                                 },
-                                "Example Booking Book Request Expedia": {
-                                    "summary": "Example Booking Book Request Expedia",
+                                "Example Booking Book Request special_requests and comments": {
+                                    "summary": "Example Booking Book Request with special_requests and comments",
                                     "value": {
                                         "api_client": {
-                                            "id": 3,
                                             "email": "user@example.com"
                                         },
-                                        "amount_pay": "Full Payment",
-                                        "travel_agency_identifier": "ABC",
+                                        "amount_pay": "Deposit",
+                                        "booking_id": "c9fb96cb-39d1-4ace-8d53-54cee94cfae3",
                                         "booking_contact": {
                                             "first_name": "Jane",
                                             "last_name": "Roe",
@@ -1107,19 +1095,6 @@
                                                 "country_code": "UA"
                                             }
                                         },
-                                        "credit_cards": [
-                                            {
-                                                "booking_item": "550e8400-e29b-41d4-a716-446655440000",
-                                                "credit_card": {
-                                                    "name_card": "Jane Roe",
-                                                    "number": "4111111111111111",
-                                                    "card_type": "VISA",
-                                                    "expiry_date": "11/2031",
-                                                    "cvv": "123",
-                                                    "billing_address": "Velyka Vasylkivska 1, Kyiv"
-                                                }
-                                            }
-                                        ],
                                         "special_requests": [
                                             {
                                                 "booking_item": "550e8400-e29b-41d4-a716-446655440000",
