@@ -88,6 +88,7 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
 
         app(HotelBookingApiHandlerService::class)->refreshFiltersByApiUser($filters, $request);
+        unset($filters['booking_item']);
 
         $items = ApiBookingInspectorRepository::notBookedItems($request->booking_id);
 
@@ -97,13 +98,26 @@ class BookApiHandler extends BaseController
             return $this->sendError('No items to book OR the order cart (booking_id) is complete/booked', 'failed');
         }
 
-        if (isset($request->special_requests)) {
-            $arrItems = $items->pluck('booking_item')->toArray();
-            foreach ($request->special_requests as $item) {
-                if (! in_array($item['booking_item'], $arrItems)) {
+        $arrItems = $items->pluck('booking_item')->toArray();
+
+        if (isset($filters['special_requests'])) {
+            foreach ($filters['special_requests'] as &$special_request) {
+                $special_request['booking_item'] = ApiBookingItemRepository::checkBookingItem($special_request['booking_item']) ?? $special_request['booking_item'];
+                if (! in_array($special_request['booking_item'], $arrItems)) {
                     Log::info("BOOK ACTION - END - $request->booking_id", ['error' => 'special_requests must be in valid booking_item']); // $request->booking_id
 
                     return $this->sendError('special_requests must be in valid booking_item. '.
+                        'Valid booking_items: '.implode(',', $arrItems), 'failed');
+                }
+            }
+        }
+        if (isset($filters['comments'])) {
+            foreach ($filters['comments'] as &$comment) {
+                $comment['booking_item'] = ApiBookingItemRepository::checkBookingItem($comment['booking_item']) ?? $comment['booking_item'];
+                if (! in_array($comment['booking_item'], $arrItems)) {
+                    Log::info("BOOK ACTION - END - $request->booking_id", ['error' => 'comments must be in valid booking_item']);
+
+                    return $this->sendError('comments must be in valid booking_item. '.
                         'Valid booking_items: '.implode(',', $arrItems), 'failed');
                 }
             }
@@ -870,6 +884,9 @@ class BookApiHandler extends BaseController
         try {
             $response = [];
             foreach ($bookingRequestItems as $booking_item) {
+
+                $booking_item = ApiBookingItemRepository::checkBookingItem($booking_item) ?? $booking_item;
+
                 if (ApiBookingInspectorRepository::isBook($request->booking_id, $booking_item)) {
                     return $this->sendError('Cart is empty or booked', 'failed');
                 }

@@ -19,6 +19,15 @@ class ApiBookingItemRepository
         return $bookingItem->rate_type === ItemTypeEnum::COMPLETE->value;
     }
 
+    /*
+     * Check if booking_item is new_booking_item from second search (check-quote endpoint) then return the first booking_item from the first search
+     */
+    public static function checkBookingItem(?string $booking_item): ?string
+    {
+        $item = ApiBookingItem::where('booking_item', $booking_item)->first();
+        return $item && $item->firstBookingItem ? $item->firstBookingItem->booking_item : null;
+    }
+
     public static function getItemDataCache(string $booking_item): ?array
     {
         $bookingItem = ApiBookingItemCache::where('booking_item', $booking_item)->first();

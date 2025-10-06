@@ -4,6 +4,7 @@ namespace Modules\API\Services;
 
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
+use App\Repositories\ApiBookingItemRepository;
 use Carbon\Carbon;
 use Modules\Enums\TypeRequestEnum;
 
@@ -129,6 +130,8 @@ class HotelBookingAddPassengersService
         foreach ($input['passengers'] as $passenger) {
             foreach ($passenger['booking_items'] as $booking) {
                 $bookingItem = $booking['booking_item'];
+
+                $bookingItem = ApiBookingItemRepository::checkBookingItem($bookingItem) ?? $bookingItem;
 
                 $age = null;
                 if (! empty($passenger['date_of_birth'])) {
