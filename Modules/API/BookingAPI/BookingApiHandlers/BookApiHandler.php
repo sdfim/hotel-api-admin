@@ -628,25 +628,28 @@ class BookApiHandler extends BaseController
         // Map booking_item to created_at
         $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
 
+        $missingFiles = [];
+        $invalidJsons = [];
+
         $data = [];
         foreach ($retrieved as $item) {
             $disk = config('filesystems.default', 's3');
             $jsonRaw = Storage::disk($disk)->get($item->client_response_path);
             if (! $jsonRaw) {
-                Log::info('List bookings - missing client_response_path file', [
+                $missingFiles[] = [
                     'booking_id' => $item->booking_id,
                     'booking_item' => $item->booking_item,
                     'path' => $item->client_response_path,
-                ]);
+                ];
                 continue;
             }
             $json = json_decode($jsonRaw, true);
             if (! $json) {
-                Log::info('List bookings - invalid JSON in client_response_path file', [
+                $invalidJsons[] = [
                     'booking_id' => $item->booking_id,
                     'booking_item' => $item->booking_item,
                     'path' => $item->client_response_path,
-                ]);
+                ];
                 continue;
             }
             if (! $bookedDates->has($item->booking_item)) {
@@ -678,6 +681,13 @@ class BookApiHandler extends BaseController
             if ($add) {
                 $data[] = $json;
             }
+        }
+
+        if (! empty($missingFiles)) {
+            Log::info('List bookings - missing client_response_path files', $missingFiles);
+        }
+        if (! empty($invalidJsons)) {
+            Log::info('List bookings - invalid JSON in client_response_path files', $invalidJsons);
         }
 
         $totalCount = count($data);
