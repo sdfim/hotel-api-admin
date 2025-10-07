@@ -4,14 +4,17 @@ namespace App\Mail;
 
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Services\PdfGeneratorService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Modules\API\Services\HotelBookingCheckQuoteService;
 use Modules\HotelContentRepository\Models\Hotel;
 
-class BookingEmailVerificationMail extends Mailable implements ShouldQueue
+class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -44,13 +47,51 @@ class BookingEmailVerificationMail extends Mailable implements ShouldQueue
         $user = User::where('email', $this->agentData['email'])->first();
         $this->agentData['name'] = $user ? $user->name : 'N/A';
 
-        logger('BookingEmailVerificationMail', [
+        $hotel = $hotelData;
+
+        $total_net = 0;
+        $total_tax = 0;
+        $total_fees = 0;
+        $total_price = 0;
+        $dataReservation = $service->getDataFirstSearch($bookingItem);
+        foreach ($dataReservation as $item) {
+            $total_net += $item['total_net'] ?? 0;
+            $total_tax += $item['total_tax'] ?? 0;
+            $total_fees += $item['total_fees'] ?? 0;
+            $total_price += $item['total_price'] ?? 0;
+        }
+
+        logger('BookingQuoteVerificationMail', [
             'verificationUrl' => $this->verificationUrl,
             'denyUrl' => $this->denyUrl,
             'agentData' => $this->agentData,
             'hotel' => $hotelData,
             'rooms' => $dataReservation,
             'searchRequest' => json_decode($searchRequest, true),
+        ]);
+
+        // 🔹 генерируем PDF прямо здесь
+        $pdfService = app(PdfGeneratorService::class);
+        $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', [
+            'hotel' => $hotel,
+            'hotelData' => [
+                'name' => $hotel?->product?->name ?? 'Unknown Hotel',
+                'address' => trim(
+                    ($hotel->address['line_1'] ?? '').', '.
+                    ($hotel->address['city'] ?? '').', '.
+                    ($hotel->address['state_province_name'] ?? '').', '.
+                    ($hotel->address['country_code'] ?? '')
+                ),
+            ],
+            'total_net' => $total_net,
+            'total_tax' => $total_tax,
+            'total_fees' => $total_fees,
+            'total_price' => $total_price,
+            'agency' => [
+                'booking_agent' => Arr::get($this->agentData, 'name') ?? 'KRISTINA SHACKNOW',
+                'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@ultimatejetvacations.com',
+            ],
+            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
         ]);
 
         return $this->subject('Confirm your booking')
@@ -63,6 +104,9 @@ class BookingEmailVerificationMail extends Mailable implements ShouldQueue
                 'hotel' => $hotelData,
                 'rooms' => $dataReservation,
                 'searchRequest' => json_decode($searchRequest, true),
+            ])
+            ->attachData($pdfContent, 'BookingConfirmation.pdf', [
+                'mime' => 'application/pdf',
             ]);
     }
 }

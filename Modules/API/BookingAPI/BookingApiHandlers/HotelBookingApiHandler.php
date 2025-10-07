@@ -2,7 +2,7 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
-use App\Mail\BookingEmailVerificationMail;
+use App\Mail\BookingQuoteVerificationMail;
 use App\Models\ApiBookingItemCache;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
@@ -99,7 +99,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $verificationUrl = route('booking.verify', ['booking_item' => $request->booking_item, 'uuid' => $uuid]);
                 $denyUrl = route('booking.deny', ['booking_item' => $request->booking_item, 'uuid' => $uuid]);
                 try {
-                    Mail::to($email_verification)->queue(new BookingEmailVerificationMail($verificationUrl, $denyUrl, $request->booking_item, $filters['api_client']));
+                    Mail::to($email_verification)->queue(new BookingQuoteVerificationMail($verificationUrl, $denyUrl, $request->booking_item, $filters['api_client']));
                     $mailStatus = 'verification_email_queued';
                 } catch (\Throwable $mailException) {
                     Log::error('Email verification queue error: '.$mailException->getMessage());
