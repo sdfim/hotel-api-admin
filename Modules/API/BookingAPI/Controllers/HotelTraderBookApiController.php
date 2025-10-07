@@ -170,7 +170,7 @@ class HotelTraderBookApiController extends BaseBookApiController
             $bookingInspector
         );
 
-        if (isset($retrieveData['errors'])) {
+        if (! empty($retrieveData['errors'])) {
             return [];
         }
 
