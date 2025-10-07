@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Modules\Enums\SupplierNameEnum;
 
@@ -40,6 +42,8 @@ class ApiBookingsMetadata extends Model
         'supplier_booking_item_id',
         'hotel_supplier_id',
         'booking_item_data',
+        'status', // status booking flow (booked, cancelled, modified, etc.)
+        'retrieve', // RS API retrieve response for fast access
     ];
 
     /**
@@ -51,6 +55,8 @@ class ApiBookingsMetadata extends Model
     {
         return [
             'booking_item_data' => 'array',
+            'retrieve' => 'array',
+            'status' => BookingStatusEnum::class, // cast status as enum
         ];
     }
 
@@ -89,5 +95,13 @@ class ApiBookingsMetadata extends Model
             'hotel_supplier_id', // Local key on the current model (e.g., ApiBookingsMetadata)
             'giata_id' // Local key on the mappings table
         )->where('mappings.supplier', $this->supplier->name);
+    }
+
+    public function inspector(): HasOne
+    {
+        return $this->hasOne(ApiBookingInspector::class, 'booking_item', 'booking_item')
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->whereColumn('booking_id', 'api_bookings_metadata.booking_id');
     }
 }

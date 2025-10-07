@@ -18,6 +18,7 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRepository;
+use App\Services\BookingJsonOrderService;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
@@ -52,7 +52,6 @@ use Modules\API\Services\BookApiHandlerService;
 use Modules\API\Services\HotelBookingAddPassengersService;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
-use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -565,20 +564,6 @@ class BookApiHandler extends BaseController
             return response()->json(['error' => $determinant['error']], 400);
         }
 
-        $retrieved = ApiBookingInspector::whereIn('id', function ($query) {
-            $query->selectRaw('MAX(id)')
-                ->from('api_booking_inspector')
-                ->where('type', 'book')
-                ->where('sub_type', 'retrieve')
-                ->where('status', '!=', InspectorStatusEnum::ERROR->value)
-                ->groupBy('booking_id', 'booking_item');
-        })
-            ->orderByDesc('id')
-            ->get();
-
-        $retrievedTime = microtime(true);
-        Log::info('listBookings - after retrieved, elapsed: '.round($retrievedTime - $startTime, 3).'s');
-
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
         $force = $request->input('force');
         [$apiClientEmail, $apiClientId] = app(HotelBookingApiHandlerService::class)->getApiUserDataByRequest($request);
@@ -587,76 +572,37 @@ class BookApiHandler extends BaseController
         $checkinFrom = $request->input('checkin_date_from');
         $checkinTo = $request->input('checkin_date_to');
 
-        $bookedItemsQuery = ApiBookingInspector::query()
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->where('status', '!=', InspectorStatusEnum::ERROR->value);
-
+        $query = ApiBookingsMetadata::query();
         if (! filled($force)) {
-            $bookedItemsQuery->where('token_id', $tokenId)
-                ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
-                    $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
-                        if (filled($apiClientId)) {
-                            $query->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
-                        }
-                        if (filled($apiClientEmail)) {
-                            $query->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
-                        }
+            $query->whereHas('inspector', function ($q) use ($tokenId, $apiClientId, $apiClientEmail) {
+                $q->where('token_id', $tokenId)
+                    ->when(filled($apiClientId), function ($q2) use ($apiClientId) {
+                        $q2->orWhereJsonContains('request->api_client->id', (string) $apiClientId);
+                    })
+                    ->when(filled($apiClientEmail), function ($q2) use ($apiClientEmail) {
+                        $q2->orWhereJsonContains('request->api_client->email', (string) $apiClientEmail);
                     });
-                });
+            });
         }
-
-        $bookedItemsQuery
+        $query
             ->when(filled($bookingDateFrom), function ($q) use ($bookingDateFrom) {
-                $q->whereDate('created_at', '>=', $bookingDateFrom);
+                $q->whereDate('updated_at', '>=', $bookingDateFrom);
             })
             ->when(filled($bookingDateTo), function ($q) use ($bookingDateTo) {
-                $q->whereDate('created_at', '<=', $bookingDateTo);
+                $q->whereDate('updated_at', '<=', $bookingDateTo);
             })
-            // ->has('metadata') // Temporarily removed for testing
-            ->orderBy('created_at', 'desc');
+            ->orderBy('updated_at', 'desc');
 
-        $bookedItems = $bookedItemsQuery->get(['booking_id', 'booking_item', 'created_at']);
+        $bookings = $query->get();
 
-        $bookedItemsTime = microtime(true);
-        Log::info('listBookings - after bookedItemsQuery, elapsed: '.round($bookedItemsTime - $retrievedTime, 3).'s');
-
-        $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
-
-        $bookedDatesTime = microtime(true);
-        Log::info('listBookings - after bookedDates, elapsed: '.round($bookedDatesTime - $bookedItemsTime, 3).'s');
-
-        $missingFiles = [];
-        $invalidJsons = [];
         $data = [];
-        foreach ($retrieved as $item) {
-            $disk = config('filesystems.default', 's3');
-            $jsonRaw = Storage::disk($disk)->get($item->client_response_path);
-            if (! $jsonRaw) {
-                $missingFiles[] = [
-                    'booking_id' => $item->booking_id,
-                    'booking_item' => $item->booking_item,
-                    'path' => $item->client_response_path,
-                ];
-
-                continue;
-            }
-            $json = json_decode($jsonRaw, true);
+        foreach ($bookings as $item) {
+            $json = $item->retrieve;
             if (! $json) {
-                $invalidJsons[] = [
-                    'booking_id' => $item->booking_id,
-                    'booking_item' => $item->booking_item,
-                    'path' => $item->client_response_path,
-                ];
-
-                continue;
-            }
-            if (! $bookedDates->has($item->booking_item)) {
                 continue;
             }
             // Format booked_date as MySQL datetime
-            $json['booked_date'] = \Carbon\Carbon::parse($bookedDates[$item->booking_item])->format('Y-m-d H:i:s');
-
+            $json['booked_date'] = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s');
             $add = true;
             if (($checkinFrom || $checkinTo) && isset($json['rooms'])) {
                 foreach ($json['rooms'] as $room) {
@@ -676,44 +622,18 @@ class BookApiHandler extends BaseController
                     }
                 }
             }
-
             if ($add) {
-                $data[] = $json;
+                $data[] = BookApiHandlerService::reorderRsRetrieve($json);
             }
         }
 
-        $dataProcessTime = microtime(true);
-        Log::info('listBookings - after data process, elapsed: '.round($dataProcessTime - $bookedDatesTime, 3).'s');
-
-        // Log missingFiles and invalidJsons with timing
-        $logMissingStart = microtime(true);
-        if (! empty($missingFiles)) {
-            Log::info('List bookings - missing client_response_path files', $missingFiles);
-        }
-        if (! empty($invalidJsons)) {
-            Log::info('List bookings - invalid JSON in client_response_path files', $invalidJsons);
-        }
-        $logMissingEnd = microtime(true);
-        Log::info('listBookings - logging missing/invalid files, elapsed: '.round($logMissingEnd - $logMissingStart, 3).'s');
-
-        // If there is pagination/payment logic, add another checkpoint after it
-        $paginationStart = microtime(true);
         $totalCount = count($data);
         $page = (int) $request->input('page', 1);
         $resultsPerPage = (int) $request->input('results_per_page', 10);
         $offset = ($page - 1) * $resultsPerPage;
         $paginatedData = array_slice($data, $offset, $resultsPerPage);
 
-        $paymentDataStart = microtime(true);
         app(BookApiHandlerService::class)->addPaymentData($paginatedData);
-        $paymentDataEnd = microtime(true);
-        Log::info('listBookings - addPaymentData, elapsed: '.round($paymentDataEnd - $paymentDataStart, 3).'s');
-
-        $paginationEnd = microtime(true);
-        Log::info('listBookings - after pagination/payment, elapsed: '.round($paginationEnd - $dataProcessTime, 3).'s');
-
-        $totalTime = microtime(true) - $startTime;
-        Log::info('listBookings - END, total_elapsed: '.round($totalTime, 3).'s');
 
         return $this->sendResponse([
             'count' => $totalCount,

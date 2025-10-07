@@ -2,8 +2,11 @@
 
 namespace Modules\Inspector;
 
+use App\Enums\BookingStatusEnum;
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingsMetadata;
 use App\Models\Channel;
+use App\Repositories\ApiBookingInspectorRepository;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -63,6 +66,30 @@ class BookingInspectorController extends BaseInspectorController
             $booking = ApiBookingInspector::create($inspector);
 
             Log::debug('BookingInspectorController save to DB: '.$this->executionTime().' seconds');
+
+            // Update ApiBookingsMetadata if type is 'book' and sub_type is 'retrieve'
+            if (
+                isset($inspector['type'], $inspector['sub_type'], $inspector['booking_id'], $inspector['booking_item']) &&
+                $inspector['type'] === 'book' && $inspector['sub_type'] === 'retrieve'
+            ) {
+                $isBook = ApiBookingInspectorRepository::isBook($inspector['booking_id'], $inspector['booking_item']);
+                $isCancel = ApiBookingInspectorRepository::isCancel($inspector['booking_item']);
+                $status = $isCancel ? BookingStatusEnum::CANCELED : ($isBook ? BookingStatusEnum::BOOKED : 'other');
+
+                $metadata = ApiBookingsMetadata::where('booking_id', $inspector['booking_id'])
+                    ->where('booking_item', $inspector['booking_item'])
+                    ->first();
+                if ($metadata) {
+                    $metadata->status = $status;
+                    $metadata->retrieve = $client_content;
+                    $metadata->updated_at = $booking->created_at;
+                    $metadata->save();
+                    Log::debug('ApiBookingsMetadata updated for book/retrieve', [
+                        'booking_id' => $inspector['booking_id'],
+                        'booking_item' => $inspector['booking_item'],
+                    ]);
+                }
+            }
 
             return $booking->id;
 
