@@ -193,9 +193,11 @@ class ApiBookingItemRepository
 
         $detailItems = [];
         foreach ($items as $i => $item) {
+            $searchData = json_decode($item->search->request, true);
             $detailItems[$i]['booking_id'] = ApiBookingInspectorRepository::getBookIdByBookingItem($item->booking_item);
             $detailItems[$i]['booking_item'] = $item->booking_item;
-            $detailItems[$i]['email_verified'] = (bool) $item->email_verified;
+            $detailItems[$i]['email_verified'] = $item->email_verified;
+            $detailItems[$i]['checkin'] = Arr::get($searchData, 'checkin');
             $childItems = $item->child_items;
             if ($childItems && is_array($childItems)) {
                 foreach ($childItems as $r => $childItem) {
