@@ -615,16 +615,6 @@ class BookApiHandler extends BaseController
 
         $bookedItems = $bookedItemsQuery->get(['booking_id', 'booking_item', 'created_at']);
 
-        Log::info('List bookings - booked items count: '.$bookedItems->count(), [
-            'filters' => $request->all(),
-            'api_client_id' => $apiClientId,
-            'api_client_email' => $apiClientEmail,
-            'bookedItems' => $bookedItems->pluck('booking_id'),
-            'bookedItems_count' => $bookedItems->count(),
-            'retrieved' => $retrieved->pluck('booking_id'),
-            'retrieved_count' => $retrieved->count(),
-        ]);
-
         // Map booking_item to created_at
         $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
 
