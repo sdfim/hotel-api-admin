@@ -560,7 +560,6 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
             Log::info('listBookings - determinant failed, elapsed: '.round(microtime(true) - $startTime, 3).'s');
-
             return response()->json(['error' => $determinant['error']], 400);
         }
 
@@ -571,6 +570,9 @@ class BookApiHandler extends BaseController
         $bookingDateTo = $request->input('booking_date_to');
         $checkinFrom = $request->input('checkin_date_from');
         $checkinTo = $request->input('checkin_date_to');
+        $page = (int) $request->input('page', 1);
+        $resultsPerPage = (int) $request->input('results_per_page', 10);
+        $offset = ($page - 1) * $resultsPerPage;
 
         $query = ApiBookingsMetadata::query();
         if (! filled($force)) {
@@ -590,10 +592,30 @@ class BookApiHandler extends BaseController
             })
             ->when(filled($bookingDateTo), function ($q) use ($bookingDateTo) {
                 $q->whereDate('updated_at', '<=', $bookingDateTo);
-            })
-            ->orderBy('updated_at', 'desc');
+            });
 
-        $bookings = $query->get();
+        if ($checkinFrom || $checkinTo) {
+            $query->where(function ($q) use ($checkinFrom, $checkinTo) {
+                if ($checkinFrom) {
+                    $q->whereRaw(
+                        "EXISTS (SELECT 1 FROM JSON_TABLE(retrieve->'$.rooms', '$[*]' COLUMNS (checkin VARCHAR(20) PATH '$.checkin')) AS jt WHERE jt.checkin >= ?)",
+                        [$checkinFrom]
+                    );
+                }
+                if ($checkinTo) {
+                    $q->whereRaw(
+                        "EXISTS (SELECT 1 FROM JSON_TABLE(retrieve->'$.rooms', '$[*]' COLUMNS (checkout VARCHAR(20) PATH '$.checkout')) AS jt WHERE jt.checkout <= ?)",
+                        [$checkinTo]
+                    );
+                }
+            });
+        }
+
+        $totalCount = (clone $query)->count();
+        $bookings = $query->orderBy('updated_at', 'desc')
+            ->offset($offset)
+            ->limit($resultsPerPage)
+            ->get();
 
         $data = [];
         foreach ($bookings as $item) {
@@ -601,45 +623,17 @@ class BookApiHandler extends BaseController
             if (! $json) {
                 continue;
             }
-            // Format booked_date as MySQL datetime
             $json['booked_date'] = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s');
-            $add = true;
-            if (($checkinFrom || $checkinTo) && isset($json['rooms'])) {
-                foreach ($json['rooms'] as $room) {
-                    $add = false;
-                    $checkinValidFrom = $checkinValidTo = true;
-                    if (isset($room['checkin'], $room['checkout'])) {
-                        if ($checkinFrom && $room['checkin'] < $checkinFrom) {
-                            $checkinValidFrom = false;
-                        }
-                        if ($checkinTo && $room['checkout'] > $checkinTo) {
-                            $checkinValidTo = false;
-                        }
-                        if ($checkinValidFrom && $checkinValidTo) {
-                            $add = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if ($add) {
-                $data[] = BookApiHandlerService::reorderRsRetrieve($json);
-            }
+            $data[] = BookApiHandlerService::reorderRsRetrieve($json);
         }
 
-        $totalCount = count($data);
-        $page = (int) $request->input('page', 1);
-        $resultsPerPage = (int) $request->input('results_per_page', 10);
-        $offset = ($page - 1) * $resultsPerPage;
-        $paginatedData = array_slice($data, $offset, $resultsPerPage);
-
-        app(BookApiHandlerService::class)->addPaymentData($paginatedData);
+        app(BookApiHandlerService::class)->addPaymentData($data);
 
         return $this->sendResponse([
             'count' => $totalCount,
             'page' => $page,
             'results_per_page' => $resultsPerPage,
-            'result' => $paginatedData,
+            'result' => $data,
         ], 'success');
     }
 
