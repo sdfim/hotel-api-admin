@@ -170,3 +170,4 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::get('/booking/verify/{booking_item}/{uuid}', [BookingEmailVerificationController::class, 'verify'])->name('booking.verify');
+Route::get('/booking/deny/{booking_item}/{uuid}', [BookingEmailVerificationController::class, 'deny'])->name('booking.deny');

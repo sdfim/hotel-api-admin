@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -23,7 +24,8 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->first();
-        $quoteNumber = $bookingItem->booking_item ?? 'N/A';
+//        $quoteNumber = $bookingItem->booking_item ?? 'N/A';
+        $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
         $service = app(HotelBookingCheckQuoteService::class);
         $dataReservation = $service->getDataFirstSearch($bookingItem);
         $searchRequest = $bookingItem->search->request;

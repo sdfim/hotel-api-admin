@@ -97,8 +97,9 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 // Store the uuid and booking_item in cache for 1 week
                 Cache::put($cacheKey, $request->booking_item, now()->addWeek());
                 $verificationUrl = route('booking.verify', ['booking_item' => $request->booking_item, 'uuid' => $uuid]);
+                $denyUrl = route('booking.deny', ['booking_item' => $request->booking_item, 'uuid' => $uuid]);
                 try {
-                    Mail::to($email_verification)->queue(new BookingEmailVerificationMail($verificationUrl, $request->booking_item));
+                    Mail::to($email_verification)->queue(new BookingEmailVerificationMail($verificationUrl, $denyUrl, $request->booking_item, $filters['api_client']));
                     $mailStatus = 'verification_email_queued';
                 } catch (\Throwable $mailException) {
                     Log::error('Email verification queue error: '.$mailException->getMessage());

@@ -130,6 +130,12 @@
     <p class="total-price">
         Total Booking Price: {{ number_format($grandTotal, 2) }} {{ $currency }}
     </p>
+    @if(!empty($agentData))
+        <div style="margin-bottom: 15px;">
+            <p><strong>Agent Name:</strong> {{ \Illuminate\Support\Arr::get($agentData, 'name', 'N/A') }}</p>
+            <p><strong>Agent Email:</strong> {{ \Illuminate\Support\Arr::get($agentData, 'email', 'N/A') }}</p>
+        </div>
+    @endif
     <div style="text-align:center; padding:20px;">
         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
             <tr>
@@ -153,9 +159,33 @@
                     text-decoration: none;
                     mso-padding-alt: 0;
                 ">
-                        Confirm Booking
+                        Accept Quote
                     </a>
                 </td>
+{{--                <td style="width: 10px;">&nbsp;</td>--}}
+{{--                <td align="center" bgcolor="#e53e3e" style="--}}
+{{--                border-radius: 6px;--}}
+{{--                background-color: #e53e3e;--}}
+{{--                padding: 0;--}}
+{{--            ">--}}
+{{--                    <a href="{{ $denyUrl }}" target="_blank" style="--}}
+{{--                    background-color: #e53e3e;--}}
+{{--                    border: 1px solid #e53e3e;--}}
+{{--                    border-radius: 6px;--}}
+{{--                    color: #ffffff;--}}
+{{--                    display: inline-block;--}}
+{{--                    font-family: Arial, sans-serif;--}}
+{{--                    font-size: 16px;--}}
+{{--                    font-weight: bold;--}}
+{{--                    line-height: 1.2;--}}
+{{--                    padding: 12px 24px;--}}
+{{--                    text-align: center;--}}
+{{--                    text-decoration: none;--}}
+{{--                    mso-padding-alt: 0;--}}
+{{--                ">--}}
+{{--                        Deny Quote--}}
+{{--                    </a>--}}
+{{--                </td>--}}
             </tr>
         </table>
     </div>
