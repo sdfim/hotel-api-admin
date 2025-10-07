@@ -555,8 +555,13 @@ class BookApiHandler extends BaseController
 
     public function listBookings(BookingListBookingsRequest $request): JsonResponse
     {
+        $startTime = microtime(true);
+        Log::info('listBookings - START');
+
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
+            Log::info('listBookings - determinant failed, elapsed: '.round(microtime(true) - $startTime, 3).'s');
+
             return response()->json(['error' => $determinant['error']], 400);
         }
 
@@ -571,19 +576,17 @@ class BookApiHandler extends BaseController
             ->orderByDesc('id')
             ->get();
 
+        $retrievedTime = microtime(true);
+        Log::info('listBookings - after retrieved, elapsed: '.round($retrievedTime - $startTime, 3).'s');
+
         $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
-
         $force = $request->input('force');
-
         [$apiClientEmail, $apiClientId] = app(HotelBookingApiHandlerService::class)->getApiUserDataByRequest($request);
-
         $bookingDateFrom = $request->input('booking_date_from');
         $bookingDateTo = $request->input('booking_date_to');
-
         $checkinFrom = $request->input('checkin_date_from');
         $checkinTo = $request->input('checkin_date_to');
 
-        // Get all relevant ApiBookingInspector models
         $bookedItemsQuery = ApiBookingInspector::query()
             ->where('type', 'book')
             ->where('sub_type', 'create')
@@ -615,12 +618,16 @@ class BookApiHandler extends BaseController
 
         $bookedItems = $bookedItemsQuery->get(['booking_id', 'booking_item', 'created_at']);
 
-        // Map booking_item to created_at
+        $bookedItemsTime = microtime(true);
+        Log::info('listBookings - after bookedItemsQuery, elapsed: '.round($bookedItemsTime - $retrievedTime, 3).'s');
+
         $bookedDates = $bookedItems->pluck('created_at', 'booking_item');
+
+        $bookedDatesTime = microtime(true);
+        Log::info('listBookings - after bookedDates, elapsed: '.round($bookedDatesTime - $bookedItemsTime, 3).'s');
 
         $missingFiles = [];
         $invalidJsons = [];
-
         $data = [];
         foreach ($retrieved as $item) {
             $disk = config('filesystems.default', 's3');
@@ -631,6 +638,7 @@ class BookApiHandler extends BaseController
                     'booking_item' => $item->booking_item,
                     'path' => $item->client_response_path,
                 ];
+
                 continue;
             }
             $json = json_decode($jsonRaw, true);
@@ -640,6 +648,7 @@ class BookApiHandler extends BaseController
                     'booking_item' => $item->booking_item,
                     'path' => $item->client_response_path,
                 ];
+
                 continue;
             }
             if (! $bookedDates->has($item->booking_item)) {
@@ -673,20 +682,38 @@ class BookApiHandler extends BaseController
             }
         }
 
+        $dataProcessTime = microtime(true);
+        Log::info('listBookings - after data process, elapsed: '.round($dataProcessTime - $bookedDatesTime, 3).'s');
+
+        // Log missingFiles and invalidJsons with timing
+        $logMissingStart = microtime(true);
         if (! empty($missingFiles)) {
             Log::info('List bookings - missing client_response_path files', $missingFiles);
         }
         if (! empty($invalidJsons)) {
             Log::info('List bookings - invalid JSON in client_response_path files', $invalidJsons);
         }
+        $logMissingEnd = microtime(true);
+        Log::info('listBookings - logging missing/invalid files, elapsed: '.round($logMissingEnd - $logMissingStart, 3).'s');
 
+        // If there is pagination/payment logic, add another checkpoint after it
+        $paginationStart = microtime(true);
         $totalCount = count($data);
         $page = (int) $request->input('page', 1);
         $resultsPerPage = (int) $request->input('results_per_page', 10);
         $offset = ($page - 1) * $resultsPerPage;
         $paginatedData = array_slice($data, $offset, $resultsPerPage);
 
+        $paymentDataStart = microtime(true);
         app(BookApiHandlerService::class)->addPaymentData($paginatedData);
+        $paymentDataEnd = microtime(true);
+        Log::info('listBookings - addPaymentData, elapsed: '.round($paymentDataEnd - $paymentDataStart, 3).'s');
+
+        $paginationEnd = microtime(true);
+        Log::info('listBookings - after pagination/payment, elapsed: '.round($paginationEnd - $dataProcessTime, 3).'s');
+
+        $totalTime = microtime(true) - $startTime;
+        Log::info('listBookings - END, total_elapsed: '.round($totalTime, 3).'s');
 
         return $this->sendResponse([
             'count' => $totalCount,
