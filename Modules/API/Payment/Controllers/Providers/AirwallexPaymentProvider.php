@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
@@ -48,6 +49,7 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
                 'status_code' => 400,
                 'booking_id' => $data['booking_id'],
             ]);
+
             return $this->sendError($error, 'Airwallex API error', 400);
         }
 
@@ -170,14 +172,21 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
      */
     public function getTransactionByBookingId($booking_id)
     {
+        $logsConfirmation = \App\Models\AirwallexApiLog::where('booking_id', $booking_id)
+            ->where('method', 'confirmationPaymentIntent')
+            ->where('status_code', 200)
+            ->get()
+            ->pluck('payment_intent_id');
+
+        if ($logsConfirmation->isEmpty()) {
+            return response()->json(['error' => 'Transaction not found'], 404);
+        }
+
         $logs = \App\Models\AirwallexApiLog::where('booking_id', $booking_id)
             ->where('method', 'createPaymentIntent')
             ->where('status_code', 201)
+            ->whereIn('payment_intent_id', $logsConfirmation)
             ->get();
-
-        if ($logs->isEmpty()) {
-            return response()->json(['error' => 'Transaction not found'], 404);
-        }
 
         $transactions = [];
         foreach ($logs as $log) {
