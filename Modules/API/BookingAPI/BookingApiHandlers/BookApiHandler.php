@@ -18,7 +18,6 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRepository;
-use App\Services\BookingJsonOrderService;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
@@ -560,6 +559,7 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
             Log::info('listBookings - determinant failed, elapsed: '.round(microtime(true) - $startTime, 3).'s');
+
             return response()->json(['error' => $determinant['error']], 400);
         }
 
@@ -594,24 +594,19 @@ class BookApiHandler extends BaseController
                 $q->whereDate('updated_at', '<=', $bookingDateTo);
             });
 
-        if ($checkinFrom || $checkinTo) {
-            $query->where(function ($q) use ($checkinFrom, $checkinTo) {
+        $query->whereHas('inspector.search', function ($q) use ($checkinFrom, $checkinTo) {
+            $q->where(function ($subQ) use ($checkinFrom, $checkinTo) {
                 if ($checkinFrom) {
-                    $q->whereRaw(
-                        "EXISTS (SELECT 1 FROM JSON_TABLE(retrieve->'$.rooms', '$[*]' COLUMNS (checkin VARCHAR(20) PATH '$.checkin')) AS jt WHERE jt.checkin >= ?)",
-                        [$checkinFrom]
-                    );
+                    $subQ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')) >= ?", [$checkinFrom]);
                 }
                 if ($checkinTo) {
-                    $q->whereRaw(
-                        "EXISTS (SELECT 1 FROM JSON_TABLE(retrieve->'$.rooms', '$[*]' COLUMNS (checkout VARCHAR(20) PATH '$.checkout')) AS jt WHERE jt.checkout <= ?)",
-                        [$checkinTo]
-                    );
+                    $subQ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')) <= ?", [$checkinTo]);
                 }
             });
-        }
+        });
 
-        $totalCount = (clone $query)->count();
+        $totalCount = $query->count();
+
         $bookings = $query->orderBy('updated_at', 'desc')
             ->offset($offset)
             ->limit($resultsPerPage)
