@@ -866,8 +866,6 @@ class BookApiHandler extends BaseController
     {
         $dataInspector = ApiBookingInspectorRepository::getListQuoteFromInspector();
 
-        logger()->info('listQuote', ['dataInspector' => $dataInspector]);
-
         $quotes = ApiBookingItemRepository::getListQuoteByBookingItems(Arr::get($dataInspector, 'booking_items', []));
         $response = $dataInspector;
         unset($response['booking_items']);
