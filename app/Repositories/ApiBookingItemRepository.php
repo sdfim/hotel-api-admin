@@ -25,6 +25,7 @@ class ApiBookingItemRepository
     public static function checkBookingItem(?string $booking_item): ?string
     {
         $item = ApiBookingItem::where('booking_item', $booking_item)->first();
+
         return $item && $item->firstBookingItem ? $item->firstBookingItem->booking_item : null;
     }
 
@@ -193,53 +194,57 @@ class ApiBookingItemRepository
 
         $detailItems = [];
         foreach ($items as $i => $item) {
-            $searchData = json_decode($item->search->request, true);
-            $detailItems[$i]['booking_id'] = ApiBookingInspectorRepository::getBookIdByBookingItem($item->booking_item);
-            $detailItems[$i]['booking_item'] = $item->booking_item;
-            $detailItems[$i]['email_verified'] = $item->email_verified;
-            $detailItems[$i]['checkin'] = Arr::get($searchData, 'checkin');
-            $childItems = $item->child_items;
-            if ($childItems && is_array($childItems)) {
-                foreach ($childItems as $r => $childItem) {
-                    $childPricingData = self::getItemPricingData($item->booking_item);
-                    $room = 'room '.($r + 1);
-                    $roomNumber = $r + 1; // current room number
+            try {
+                $searchData = json_decode($item->search->request, true);
+                $detailItems[$i]['booking_id'] = ApiBookingInspectorRepository::getBookIdByBookingItem($item->booking_item);
+                $detailItems[$i]['booking_item'] = $item->booking_item;
+                $detailItems[$i]['email_verified'] = $item->email_verified;
+                $detailItems[$i]['checkin'] = Arr::get($searchData, 'checkin');
+                $childItems = $item->child_items;
+                if ($childItems && is_array($childItems)) {
+                    foreach ($childItems as $r => $childItem) {
+                        $childPricingData = self::getItemPricingData($item->booking_item);
+                        $room = 'room '.($r + 1);
+                        $roomNumber = $r + 1; // current room number
 
-                    // Filter breakdown for this room and extract the breakdown object
-                    $breakdownObj = null;
-                    if (! empty($childPricingData['breakdown'])) {
-                        foreach ($childPricingData['breakdown'] as $break) {
-                            if (isset($break['room']) && $break['room'] == $roomNumber) {
-                                $breakdownObj = $break['breakdown'] ?? null;
-                                break;
+                        // Filter breakdown for this room and extract the breakdown object
+                        $breakdownObj = null;
+                        if (! empty($childPricingData['breakdown'])) {
+                            foreach ($childPricingData['breakdown'] as $break) {
+                                if (isset($break['room']) && $break['room'] == $roomNumber) {
+                                    $breakdownObj = $break['breakdown'] ?? null;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if ($breakdownObj !== null) {
-                        $childPricingData['breakdown'] = $breakdownObj;
-                    }
-                    // Filter cancellation_policies for this room and extract the cancellation_policies array
-                    $cancellationPoliciesObj = null;
-                    if (! empty($childPricingData['cancellation_policies'])) {
-                        foreach ($childPricingData['cancellation_policies'] as $policy) {
-                            if (isset($policy['room']) && $policy['room'] == $roomNumber) {
-                                $cancellationPoliciesObj = $policy['cancellation_policies'] ?? null;
-                                break;
+                        if ($breakdownObj !== null) {
+                            $childPricingData['breakdown'] = $breakdownObj;
+                        }
+                        // Filter cancellation_policies for this room and extract the cancellation_policies array
+                        $cancellationPoliciesObj = null;
+                        if (! empty($childPricingData['cancellation_policies'])) {
+                            foreach ($childPricingData['cancellation_policies'] as $policy) {
+                                if (isset($policy['room']) && $policy['room'] == $roomNumber) {
+                                    $cancellationPoliciesObj = $policy['cancellation_policies'] ?? null;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if ($cancellationPoliciesObj !== null) {
-                        $childPricingData['cancellation_policies'] = $cancellationPoliciesObj;
-                    }
+                        if ($cancellationPoliciesObj !== null) {
+                            $childPricingData['cancellation_policies'] = $cancellationPoliciesObj;
+                        }
 
-                    $childPricingData['booking_item'] = $childItem;
+                        $childPricingData['booking_item'] = $childItem;
 
-                    // Remove room key from breakdown items
-                    $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder($childPricingData));
+                        // Remove room key from breakdown items
+                        $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder($childPricingData));
+                    }
+                } else {
+                    $room = 'room 1';
+                    $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder(json_decode($item->booking_pricing_data, true)));
                 }
-            } else {
-                $room = 'room 1';
-                $detailItems[$i]['rooms'][] = array_merge(['room' => $room], $reorder(json_decode($item->booking_pricing_data, true)));
+            } catch (\Exception $e) {
+                logger()->error('Error in getListQuoteByBookingItems: '.$e->getMessage(), ['booking_item' => $item->booking_item, 'trace' => $e->getTraceAsString()]);
             }
         }
 
