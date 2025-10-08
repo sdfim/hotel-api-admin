@@ -606,7 +606,8 @@ class HotelTraderBookApiController extends BaseBookApiController
         $filters['supplier_id'] = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
 
         $reservation['bookingId'] = Arr::get($bookingData, 'response.htConfirmationCode');
-        $reservation['main_guest'] = Arr::get($mainGuest, '0.lastName', '');
+        $reservation['main_guest']['Surname'] = Arr::get($mainGuest, '0.0.lastName', '');
+        $reservation['main_guest']['GivenName'] = Arr::get($mainGuest, '0.0.firstName', '');
 
         SaveBookingMetadata::dispatch($filters, $reservation);
     }

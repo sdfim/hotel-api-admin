@@ -605,6 +605,17 @@ class BookApiHandler extends BaseController
             });
         });
 
+        $guestLastName = $request->input('guest_last_name');
+        $hotelName = $request->input('hotel_name');
+
+        $query
+            ->when(filled($guestLastName), function ($q) use ($guestLastName) {
+                $q->whereJsonContains('booking_item_data->main_guest->Surname', $guestLastName);
+            })
+            ->when(filled($hotelName), function ($q) use ($hotelName) {
+                $q->whereJsonContains('booking_item_data->hotel_name', $hotelName);
+            });
+
         $totalCount = $query->count();
 
         $bookings = $query->orderBy('updated_at', 'desc')

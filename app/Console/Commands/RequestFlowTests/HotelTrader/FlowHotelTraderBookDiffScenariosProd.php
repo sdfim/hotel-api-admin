@@ -70,12 +70,15 @@ class FlowHotelTraderBookDiffScenariosProd extends Command
     {
         $this->info('------------------------------------');
         $this->warn('Starting Scenario #s1');
-        $occupancy = [['adults' => 2]];
+        $occupancy = [['adults' => 2], ['adults' => 1]];
         $nights = 2;
         $checkin = $this->checkin;
         $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
 
         $options = [
+            [
+                'non_refundable' => false,
+            ],
             [
                 'non_refundable' => false,
             ],

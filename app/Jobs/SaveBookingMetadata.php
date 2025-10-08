@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\ApiBookingsMetadata;
+use App\Models\Property;
 use App\Repositories\ApiBookingItemRepository;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -24,7 +25,7 @@ class SaveBookingMetadata implements ShouldQueue
      */
     public function __construct(
         private readonly array $filters,
-        private readonly array $reservation
+        private array $reservation
     ) {}
 
     /**
@@ -36,7 +37,12 @@ class SaveBookingMetadata implements ShouldQueue
         $hotelId = null;
 
         if ($bookingItem !== null) {
-            $hotelId = ApiBookingItemRepository::getHotelSupplierId($bookingItem);
+            $hotelSupplierId = ApiBookingItemRepository::getHotelSupplierId($bookingItem);
+            $hotelId = ApiBookingItemRepository::getHotelId($bookingItem);
+            $hotelName = Property::where('code', $hotelId)->value('name');
+
+            $this->reservation['giata_id'] = $hotelId;
+            $this->reservation['hotel_name'] = $hotelName;
         }
 
         ApiBookingsMetadata::updateOrInsert(
@@ -50,7 +56,7 @@ class SaveBookingMetadata implements ShouldQueue
                 'booking_id' => Arr::get($this->filters, 'booking_id'),
                 'supplier_id' => Arr::get($this->filters, 'supplier_id'),
                 'supplier_booking_item_id' => Arr::get($this->reservation, 'bookingId'),
-                'hotel_supplier_id' => $hotelId,
+                'hotel_supplier_id' => $hotelSupplierId,
                 'booking_item_data' => json_encode($this->reservation),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

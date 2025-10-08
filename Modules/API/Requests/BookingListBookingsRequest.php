@@ -87,6 +87,20 @@ class BookingListBookingsRequest extends ApiRequest
      *      description="Filter bookings with check-in up to this date (YYYY-MM-DD)",
      *      @OA\Schema(type="string", format="date", example="2025-09-30")
      *   ),
+     *   @OA\Parameter(
+     *      name="guest_last_name",
+     *      in="query",
+     *      required=false,
+     *      description="Filter by guest last name (main_guest.Surname)",
+     *      @OA\Schema(type="string", example="Tillman")
+     *   ),
+     *   @OA\Parameter(
+     *      name="hotel_name",
+     *      in="query",
+     *      required=false,
+     *      description="Filter by hotel name",
+     *      @OA\Schema(type="string", example="Park Central Hotel New York")
+     *   ),
      *   @OA\Response(response=200, description="OK",
      *   @OA\JsonContent(
      * example={
@@ -240,6 +254,8 @@ class BookingListBookingsRequest extends ApiRequest
             'checkin_date_from' => 'nullable|date',
             'checkin_date_to' => 'nullable|date',
             'force' => 'nullable|boolean',
+            'guest_last_name' => 'nullable|string',
+            'hotel_name' => 'nullable|string',
         ];
     }
 

@@ -2557,6 +2557,26 @@
                             "format": "date",
                             "example": "2025-09-30"
                         }
+                    },
+                    {
+                        "name": "guest_last_name",
+                        "in": "query",
+                        "description": "Filter by guest last name (main_guest.Surname)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Tillman"
+                        }
+                    },
+                    {
+                        "name": "hotel_name",
+                        "in": "query",
+                        "description": "Filter by hotel name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Park Central Hotel New York"
+                        }
                     }
                 ],
                 "responses": {
