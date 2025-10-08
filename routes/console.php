@@ -37,10 +37,10 @@ app(ScheduledTaskService::class)->registerTasks(app(Schedule::class));
 //// Download and process Giata data including Mapping Expedia, HBSI, IcePortal
 //// Schedule::command('download-giata-data')->weeklyOn(4, '04:00');
 
-Schedule::command('purge-baskets')->cron('0 1 * * *')->timezone('America/New_York');
-Schedule::command('purge-inspectors')->cron('0 1 * * *')->timezone('America/New_York');
-Schedule::command('purge-pricing-rules')->cron('0 1 * * *')->timezone('America/New_York');
-Schedule::command('purge-booking-item-cache')->cron('0 * * * *')->timezone('America/New_York');
+//Schedule::command('purge-baskets')->cron('0 1 * * *')->timezone('America/New_York');
+//Schedule::command('purge-inspectors')->cron('0 1 * * *')->timezone('America/New_York');
+//Schedule::command('purge-pricing-rules')->cron('0 1 * * *')->timezone('America/New_York');
+//Schedule::command('purge-booking-item-cache')->cron('0 * * * *')->timezone('America/New_York');
 
 // Report unmapped data daily at 7AM EST
 Schedule::command('report-unmapped-data')->cron('0 12 * * *')->timezone('America/New_York');

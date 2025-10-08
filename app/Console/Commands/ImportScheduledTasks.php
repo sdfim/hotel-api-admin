@@ -16,26 +16,26 @@ class ImportScheduledTasks extends Command
 
         // Define the initial tasks that were in console.php
         $tasks = [
-            [
-                'name' => 'Fetch Expedia Properties',
-                'description' => 'Content download archive, unzip, parse json, write to DB',
-                'command' => 'download-expedia-data',
-                'command_parameters' => ['content', '12345'],
-                'frequency_type' => 'weekly',
-                'day_of_week' => 0, // Sunday
-                'time' => '01:00',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Fetch Hilton Properties',
-                'description' => 'Hilton Content download to DB',
-                'command' => 'hilton:fetch-properties',
-                'command_parameters' => ['--limit' => 50],
-                'frequency_type' => 'weekly',
-                'day_of_week' => 6, // Saturday
-                'time' => '05:00',
-                'is_active' => true,
-            ],
+//            [
+//                'name' => 'Fetch Expedia Properties',
+//                'description' => 'Content download archive, unzip, parse json, write to DB',
+//                'command' => 'download-expedia-data',
+//                'command_parameters' => ['content', '12345'],
+//                'frequency_type' => 'weekly',
+//                'day_of_week' => 0, // Sunday
+//                'time' => '01:00',
+//                'is_active' => true,
+//            ],
+//            [
+//                'name' => 'Fetch Hilton Properties',
+//                'description' => 'Hilton Content download to DB',
+//                'command' => 'hilton:fetch-properties',
+//                'command_parameters' => ['--limit' => 50],
+//                'frequency_type' => 'weekly',
+//                'day_of_week' => 6, // Saturday
+//                'time' => '05:00',
+//                'is_active' => true,
+//            ],
             [
                 'name' => 'Fetch IcePortal Properties',
                 'description' => 'Download IcePortal data to DB',
@@ -47,6 +47,16 @@ class ImportScheduledTasks extends Command
                 'is_active' => true,
             ],
             [
+                'name' => 'Download HotelTrader Data',
+                'description' => 'Download HotelTrader data to DB',
+                'command' => 'hoteltrader:download-and-import',
+                'command_parameters' => [],
+                'frequency_type' => 'weekly',
+                'day_of_week' => 4, // Thursday
+                'time' => '04:00',
+                'is_active' => true,
+            ],
+            [
                 'name' => 'Download Giata Data',
                 'description' => 'Download and process Giata data including Mapping Expedia, HBSI, IcePortal',
                 'command' => 'download-giata-data',
@@ -54,6 +64,42 @@ class ImportScheduledTasks extends Command
                 'frequency_type' => 'weekly',
                 'day_of_week' => 4, // Thursday
                 'time' => '04:00',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Purge Basket',
+                'description' => 'A background routine to purge any baskets that have not turned into a booking',
+                'command' => 'purge-baskets',
+                'command_parameters' => [],
+                'frequency_type' => 'daily',
+                'time' => '01:00',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Purge Search Inspector',
+                'description' => 'Purge Search Inspector daily at 1AM EST',
+                'command' => 'purge-inspectors',
+                'command_parameters' => [],
+                'frequency_type' => 'daily',
+                'time' => '01:00',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Purge Pricing Rules',
+                'description' => 'Purge pricing rules daily at 1AM EST',
+                'command' => 'purge-pricing-rules',
+                'command_parameters' => [],
+                'frequency_type' => 'daily',
+                'time' => '01:00',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Purge Booking Item Cache',
+                'description' => 'Purge ApiBookingItemCache entries older than 1 hour',
+                'command' => 'purge-booking-item-cache',
+                'command_parameters' => [],
+                'frequency_type' => 'daily',
+                'time' => '01:00',
                 'is_active' => true,
             ],
         ];
