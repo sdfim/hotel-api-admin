@@ -210,7 +210,7 @@
                 $currentCurrency = Illuminate\Support\Arr::get($room, 'currency', $currency);
                 $minHeight = '400px';
                 $imageHeight = '380px';
-                $roomImage = $room?->room_image ?: $hotel?->product?->hero_image;
+                $roomImage = Illuminate\Support\Arr::get($room, 'room_image') ?? $hotel?->product?->hero_image;
             @endphp
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
                    style="margin-bottom: 88px;">
