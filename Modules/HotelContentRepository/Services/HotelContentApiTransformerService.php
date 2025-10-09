@@ -138,8 +138,6 @@ class HotelContentApiTransformerService
 
         $result['rooms'] = array_values($result['rooms']);
 
-        $result['rooms'] = array_values($result['rooms']);
-
         $result['structure'] = $structureSource;
 
         foreach ($result['rooms'] as &$room) {
@@ -359,7 +357,6 @@ class HotelContentApiTransformerService
             });
         })->values()->all();
     }
-
 
     private function getHotelDrivers($hotel): array
     {

@@ -7,11 +7,12 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
 use Modules\Enums\SupplierNameEnum;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\Models\HotelRoom;
 
 class HotelBookingCheckQuoteService extends BaseController
 {
@@ -64,6 +65,19 @@ class HotelBookingCheckQuoteService extends BaseController
     {
         $bookingItemData = explode(':', $childrenBookingItem->cache_checkpoint);
         $pricingData = json_decode($childrenBookingItem->booking_pricing_data, true);
+        $roomId = Arr::get($pricingData, 'giata_room_code');
+        $roomData = HotelRoom::with('galleries.images')->find($roomId);
+        $roomImage = null;
+        if ($roomData && $roomData->galleries->count()) {
+            $url = $roomData->galleries
+                ->flatMap(function ($gallery) {
+                    return $gallery->images;
+                })
+                ->pluck('image_url')
+                ->filter()
+                ->first();
+            $roomImage = $url ?: null;
+        }
 
         return [
             'giata_code' => Arr::get($bookingItemData, 0, 0),
@@ -79,6 +93,10 @@ class HotelBookingCheckQuoteService extends BaseController
             'markup' => Arr::get($pricingData, 'markup', 0),
             'currency' => Arr::get($pricingData, 'currency', 'USD'),
             'supplier_room_id' => Arr::get($pricingData, 'supplier_room_id', 'USD'),
+            'cancellation_policies' => Arr::get($pricingData, 'cancellation_policies', []),
+            'meal_plans_available' => Arr::get($pricingData, 'meal_plans_available', []),
+            'room_image' => $roomImage,
+            'room_id' => $roomId,
         ];
     }
 
