@@ -36,12 +36,6 @@
             margin-bottom: 32px;
             font-size: 20px;
         }
-        .logo {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 40px;
-        }
         .button {
             display: inline-block;
             padding: 16px 32px;
@@ -56,9 +50,14 @@
 </head>
 <body>
 <div class="container">
-    <div class="logo">
-        <img src="{{ asset('build/images/logo-tm.png') }}" alt="Terra Mare Hotel" width="108" height="76" style="display: inline-block; border: 0;">
-    </div>
+    <!-- Logo aligned right using table for email compatibility -->
+    <table role="presentation" width="100%" style="margin-bottom:40px;">
+        <tr>
+            <td align="right">
+                <img src="{{ asset('build/images/logo-tm.png') }}" alt="Terra Mare Hotel" width="108" height="76" style="display: inline-block; border: 0;">
+            </td>
+        </tr>
+    </table>
     <p>Hello,</p>
     <p>
         We are delighted to finalize your upcoming stay with <strong>{{ $hotelName }}</strong>. Below you’ll find a button that will take you to our payments page. We ask that you provide a payment method within 24 hours to confirm the booking. You will also find attached the confirmation packet with all the details of your trip.

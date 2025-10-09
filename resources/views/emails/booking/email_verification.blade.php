@@ -70,14 +70,23 @@
         p {
             line-height: 1.6;
             margin-bottom: 32px;
+            font-size: 20px;
+        }
+
+        ul {
+            font-size: 20px;
         }
     </style>
 <body>
 <div class="container">
     <div style="padding:90px;">
-        <div style="display: flex; justify-content: flex-end; align-items: center;">
-            <img src="{{ asset('build/images/logo-tm.png') }}" style="height:90px;">
-        </div>
+        <table role="presentation" width="100%" style="margin-bottom:40px;">
+            <tr>
+                <td align="right">
+                    <img src="{{ asset('build/images/logo-tm.png') }}" alt="Terra Mare Hotel" width="108" height="76" style="display: inline-block; border: 0;">
+                </td>
+            </tr>
+        </table>
 
         <p>
             Hello,
@@ -185,13 +194,14 @@
                         }
                     }
                 }
-                $rateType = '';
+                $rateCode = Illuminate\Support\Arr::get($room, 'rate_code', '');
+                $mealPlan = '';
                 if (!empty(Illuminate\Support\Arr::get($room, 'meal_plans_available'))) {
-                    $rateType = Illuminate\Support\Arr::get($room, 'meal_plans_available');
+                    $mealPlan = Illuminate\Support\Arr::get($room, 'meal_plans_available');
                 } elseif (!empty($hotel->hotel_board_basis)) {
-                    $rateType = is_array($hotel->hotel_board_basis) ? implode(', ', $hotel->hotel_board_basis) : $hotel->hotel_board_basis;
+                    $mealPlan = is_array($hotel->hotel_board_basis) ? implode(', ', $hotel->hotel_board_basis) : $hotel->hotel_board_basis;
                 } else {
-                    $rateType = 'All-Inclusive Meal Plan';
+                    $mealPlan = 'All-Inclusive Meal Plan';
                 }
                 $netPrice = number_format(Illuminate\Support\Arr::get($room, 'total_net', 0), 2);
                 $taxesFees = number_format(Illuminate\Support\Arr::get($room, 'total_tax', 0) + Illuminate\Support\Arr::get($room, 'total_fees', 0), 2);
@@ -226,9 +236,10 @@
                     <td style="width:41%; vertical-align:top; padding-left: 2%;">
                         <div
                             style="background:#c7d5c7; border-radius:30px; padding:25px; min-height: {{ $minHeight }}; height: 100%; box-sizing: border-box;">
-                            <span style="font-size:28px; display: block; margin-bottom: 5px;">Rate Type:</span>
+                            <span style="font-size:28px; display: block; margin-bottom: 5px;">Rate Type: </span>
+{{--                            <span style="font-size:20px; display: block;">{{ $rateCode }}</span>--}}
                             <span style="font-size:20px; display: block;">{{ $refundableUntil }}</span>
-                            <span style="font-size:20px; display: block; margin-bottom: 25px;">{{ $rateType }}</span>
+                            <span style="font-size:20px; display: block; margin-bottom: 25px;">{{ $mealPlan }}</span>
 
                             @if($occupancy)
                                 <span style="font-size:20px; display: block; margin-bottom: 20px;">
