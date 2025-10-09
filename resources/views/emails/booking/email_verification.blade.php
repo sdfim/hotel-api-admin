@@ -236,8 +236,7 @@
                     <td style="width:41%; vertical-align:top; padding-left: 2%;">
                         <div
                             style="background:#c7d5c7; border-radius:30px; padding:25px; min-height: {{ $minHeight }}; height: 100%; box-sizing: border-box;">
-                            <span style="font-size:28px; display: block; margin-bottom: 5px;">Rate Type: </span>
-{{--                            <span style="font-size:20px; display: block;">{{ $rateCode }}</span>--}}
+                            <span style="font-size:28px; display: block; margin-bottom: 5px;">Rate Type: {{ $rateCode }}</span>
                             <span style="font-size:20px; display: block;">{{ $refundableUntil }}</span>
                             <span style="font-size:20px; display: block; margin-bottom: 25px;">{{ $mealPlan }}</span>
 
