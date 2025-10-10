@@ -150,6 +150,12 @@ class PriceHotelRequest extends ApiRequest
 
     public function prepareForValidation()
     {
+        if (is_array($this->supplier)) {
+            $this->merge([
+                'supplier' => implode(',', $this->supplier), // <- Supplier is now a string
+            ]);
+        }
+
         $giata = $this->giata_ids ?? null;
         $ids = [];
         if (is_string($giata)) {
