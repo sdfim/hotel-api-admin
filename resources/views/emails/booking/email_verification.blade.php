@@ -19,6 +19,14 @@
     $grandTotal = 0;
     $currency = Arr::get($rooms, '0.currency', 'USD');
 
+    $perks = [];
+    $descriptiveContents = $hotel->product?->descriptiveContentsSection;
+    foreach ($descriptiveContents as $content) {
+        if ($content->descriptiveType->name === 'TerraMare Amenities') {
+            $perks = array_merge($perks, explode("\n", $content->value));
+        }
+    }
+
     function generateStarRating(int $rating): string {
         $html = '';
         for ($i = 0; $i < $rating; $i++) {
@@ -41,7 +49,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
     <style>
-
         body {
             margin: 0;
             padding: 0;
@@ -75,6 +82,78 @@
 
         ul {
             font-size: 20px;
+        }
+
+        /* Мобильная адаптация */
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 8px !important;
+                border-radius: 0 !important;
+                background-size: cover !important;
+            }
+
+            body {
+                font-size: 16px !important;
+            }
+
+            h1, h2, h3 {
+                font-size: 22px !important;
+                margin-top: 16px !important;
+                margin-bottom: 12px !important;
+            }
+
+            p, ul, li, div, span, a {
+                font-size: 16px !important;
+            }
+
+            table[role="presentation"], table {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* 1. Чек-ин/чек-аут/гости: каждая ячейка в столбик */
+            .check-table td {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 12px !important;
+                padding: 0 !important;
+            }
+            .check-table tr {
+                display: block !important;
+                width: 100% !important;
+            }
+            /* 2. Pricing table: уменьшить шрифт */
+            .pricing-table {
+                font-size: 14px !important;
+            }
+            .pricing-table td {
+                font-size: 14px !important;
+                padding-bottom: 4px !important;
+            }
+            /* 3. Общие стили для таблиц */
+            td {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 0 !important;
+            }
+
+            img {
+                width: 100% !important;
+                height: auto !important;
+                max-width: 100% !important;
+                border-radius: 12px !important;
+            }
+
+            .btn, a[style*="background"] {
+                font-size: 20px !important;
+                padding: 18px 10px !important;
+                border-radius: 18px !important;
+            }
+
+            .container > div {
+                padding: 12px !important;
+            }
         }
     </style>
 <body>
@@ -120,7 +199,7 @@
 
 
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"
-               style="margin: 74px auto; width: 80%; max-width: 100%;">
+               class="check-table" style="margin: 74px auto; width: 80%; max-width: 100%;">
             <tr>
                 <td align="center" style="padding: 0 15px;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -159,10 +238,9 @@
 
         <h3 style="color:#19332c; font-size:33px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
         <ul style="color:#4b635c; line-height:1.8; margin-bottom:16px;">
-            <li>$250 USD Hotel credit</li>
-            <li>Upgrade upon arrival, subject to availability</li>
-            <li>Complimentary daily breakfast for 2</li>
-            <li>Early check-in/late check-out, subject to availability</li>
+            @foreach($perks as $perk)
+                <li>{{ $perk }}</li>
+            @endforeach
         </ul>
 
         {{-- Room blocks with new styles, dynamic loop --}}
@@ -256,7 +334,7 @@
                                 style="font-size:28px; display: block; margin-top: 35px; margin-bottom: 15px;">Pricing:</span>
 
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-                                   style="font-size:20px;">
+                                   class="pricing-table" style="font-size:20px;">
                                 <tr>
                                     <td style="padding-bottom: 5px; vertical-align: top; width: 60%;">Net Price:</td>
                                     <td align="right"
@@ -269,20 +347,22 @@
                                         style="padding-bottom: 5px; vertical-align: top;">
                                         ${{ $taxesFees }}</td>
                                 </tr>
+                                @if ($agentCommission > 0)
+                                    <tr>
+                                        <td style="padding-bottom: 5px; vertical-align: top;">
+                                            Advisor Commission:
+                                        </td>
+                                        <td align="right"
+                                            style="padding-bottom: 5px; vertical-align: top;">
+                                            ${{ $agentCommission }}</td>
+                                    </tr>
+                                @endif
                                 <tr>
-                                    <td style="padding-bottom: 5px; vertical-align: top; border-bottom: 1px solid #777;">
-                                        Advisor Commission:
-                                    </td>
-                                    <td align="right"
-                                        style="padding-bottom: 5px; vertical-align: top; border-bottom: 1px solid #777;">
-                                        ${{ $agentCommission }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top;">
+                                    <td style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top; border-top: 1px solid #777;">
                                         Total Price:
                                     </td>
                                     <td align="right"
-                                        style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top;">
+                                        style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top;  border-top: 1px solid #777;">
                                         ${{ $totalPrice }}</td>
                                 </tr>
                             </table>
