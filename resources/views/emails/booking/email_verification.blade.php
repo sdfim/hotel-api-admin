@@ -88,6 +88,10 @@
             color: #000000 !important;
         }
 
+        . check-table {
+            width: 800%;
+        }
+
         /* Планшетная версия */
         @media only screen and (max-width: 1500px) and (min-width: 901px) {
             .container {
@@ -149,6 +153,11 @@
             }
 
             /* 1. Чек-ин/чек-аут/гости: каждая ячейка в столбик */
+            . check-table {
+                width: 100% !important;
+                margin: 10px auto !important;
+            }
+
             .check-table td {
                 display: block !important;
                 padding: 25px !important;
@@ -220,7 +229,7 @@
 
 
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"
-           class="check-table" style="margin: 74px auto; width: 80%; max-width: 100%;">
+           class="check-table">
         <tr>
             <td align="center" style="padding: 0 15px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
