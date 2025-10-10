@@ -88,8 +88,10 @@
             color: #000000 !important;
         }
 
-        . check-table {
-            width: 800%;
+        .check-table {
+            margin: 74px auto;
+            width: 80%;
+            max-width: 100%;
         }
 
         /* Планшетная версия */
@@ -100,6 +102,7 @@
 
             .check-table {
                 width: 100% !important;
+                margin: 74px 0;
             }
         }
 
@@ -111,6 +114,7 @@
 
             .check-table {
                 width: 100% !important;
+                margin: 74px 0;
             }
 
             .hotel-img {
@@ -153,7 +157,7 @@
             }
 
             /* 1. Чек-ин/чек-аут/гости: каждая ячейка в столбик */
-            . check-table {
+            .check-table {
                 width: 100% !important;
                 margin: 10px auto !important;
             }
