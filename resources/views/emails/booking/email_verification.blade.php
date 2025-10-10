@@ -84,6 +84,10 @@
             font-size: 20px;
         }
 
+        ul, ul li, ul span li, p {
+            color: #000000 !important;
+        }
+
         /* Мобильная адаптация */
         @media only screen and (max-width: 600px) {
             .container {
