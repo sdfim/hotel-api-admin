@@ -68,6 +68,7 @@ class HotelCombinationService
             $search_id = $bookingItem->search_id;
 
             $completeBookingItem['booking_item_data']['room_id'][] = $booking_item_data['room_id'];
+            $completeBookingItem['booking_item_data']['hotel_name'] = $booking_item_data['hotel_name'];
             $completeBookingItem['booking_item_data']['room_code'][] = $booking_item_data['room_code'];
             $completeBookingItem['booking_item_data']['rate_code'][] = $booking_item_data['rate_code'];
             $completeBookingItem['booking_item_data']['rate_ordinal'][] = $booking_item_data['rate_ordinal'];

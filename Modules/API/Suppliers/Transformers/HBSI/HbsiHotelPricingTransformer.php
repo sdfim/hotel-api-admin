@@ -522,6 +522,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
                 'hotel_id' => $giataId ?? 0,
+                'hotel_name' => $this->giata[$giataId]['hotel_name'] ?? '',
                 'hotel_supplier_id' => $supplierHotelId,
                 'rate_occupancy' => $rateOccupancy,
                 'rate_type' => $this->rate_type,

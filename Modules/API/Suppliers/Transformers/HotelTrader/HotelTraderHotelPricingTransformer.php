@@ -79,7 +79,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $hotelResponse->setGiataHotelId($giataId);
         $hotelResponse->setDistanceFromSearchLocation($this->giata[$giataId]['distance'] ?? 0);
         $hotelResponse->setRating(Arr::get($propertyGroup, 'starRating', ''));
-        $hotelResponse->setHotelName(Arr::get($propertyGroup, 'hotel_name', ''));
+//        $hotelResponse->setHotelName(Arr::get($propertyGroup, 'hotel_name', ''));
+        $hotelResponse->setHotelName($this->giata[$giataId]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(Arr::get($propertyGroup, 'board_basis', ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HOTEL_TRADER->value);
         $hotelResponse->setSupplierHotelId($supplierHotelId);
@@ -318,6 +319,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_item_data' => json_encode([
                 'hotel_id' => Arr::get($propertyGroup, 'giata_id', 0),
+                'hotel_name' => $this->giata[$giataId]['hotel_name'] ?? '',
                 'hotel_supplier_id' => $supplierHotelId,
                 'rate_occupancy' => $rateOccupancy,
                 'rate_type' => $this->rate_type,
