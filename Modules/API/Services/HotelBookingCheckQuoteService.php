@@ -26,6 +26,17 @@ class HotelBookingCheckQuoteService extends BaseController
     {
         $firstQuery = $firstSearch->request;
 
+        $booking_item_data = json_decode($bookingItem->booking_item_data, true);
+
+        $rateIdsSrt = $booking_item_data['room_id'];
+        $rateIds = is_array($rateIdsSrt) ? $rateIdsSrt : explode(';', $rateIdsSrt);
+
+        $rateCodesSrt = $booking_item_data['rate_code'];
+        $rateCodes = is_array($rateCodesSrt) ? $rateCodesSrt : explode(';', $rateCodesSrt);
+
+        $roomCodesSrt = $booking_item_data['room_code'];
+        $roomCodes = is_array($roomCodesSrt) ? $roomCodesSrt : explode(';', $roomCodesSrt);
+
         $filters = array_merge($filters, json_decode($firstQuery, true));
 
         if ($request->has('checkin') && $request->has('checkout')) {
@@ -35,6 +46,11 @@ class HotelBookingCheckQuoteService extends BaseController
 
         if ($request->has('occupancy')) {
             $filters['occupancy'] = $request->occupancy;
+        }
+        foreach ($filters['occupancy'] as $r => $occupancy) {
+            $filters['occupancy'][$r]['rate_code'] = $rateCodes[$r] ?? null;
+            $filters['occupancy'][$r]['room_code'] = $roomCodes[$r] ?? null;
+            $filters['occupancy'][$r]['room_id'] = $rateIds[$r] ?? null;
         }
 
         $filters['giata_ids'] = [$dataFirstSearch[0]['giata_code']];
@@ -83,8 +99,8 @@ class HotelBookingCheckQuoteService extends BaseController
             'giata_code' => Arr::get($bookingItemData, 0, 0),
             'room_code' => Arr::get($bookingItemData, 1, 0),
             'room_name' => Arr::get($pricingData, 'supplier_room_name', ''),
-//            'rate_code' => Arr::get($bookingItemData, 2, 0),
-            'rate_code' => Arr::get($pricingData, 'rate_name', ''),
+            //            'rate_code' => Arr::get($bookingItemData, 2, 0),
+            'rate_code' => Arr::get($pricingData, 'rate_plan_code', ''),
             'booking_item' => $childrenBookingItem->booking_item,
             'parent_booking_item' => $parentBookingItem->booking_item,
             'total_net' => Arr::get($pricingData, 'total_net', 0),
@@ -101,24 +117,24 @@ class HotelBookingCheckQuoteService extends BaseController
         ];
     }
 
-    public function filterMatchingRooms(array $hotelData, array $dataFirstSearch): array
+    public function filterMatchingRooms(array $dataSecondSearch, array $dataFirstSearch): array
     {
         $matchedRooms = [];
-        $allRooms = [];
-        foreach ($hotelData['result'] as $groups) {
+        $allRoomsSecondSearch = [];
+        foreach ($dataSecondSearch['result'] as $groups) {
             foreach (Arr::get($groups, 'room_groups', []) as $roomGroup) {
                 foreach (Arr::get($roomGroup, 'rooms', []) as $room) {
-                    $allRooms[] = $room;
+                    $allRoomsSecondSearch[] = $room;
                 }
             }
         }
 
-        // Get room_combinations from $hotelData
-        $roomCombinations = $hotelData['result'][0]['room_combinations'] ?? [];
+        // Get room_combinations from $dataSecondSearch
+        $roomCombinations = $dataSecondSearch['result'][0]['room_combinations'] ?? [];
 
         // 1. First, find unique rooms by filter
         foreach ($dataFirstSearch as $search) {
-            foreach ($allRooms as $room) {
+            foreach ($allRoomsSecondSearch as $room) {
                 $roomCodeMatch = (
                     (isset($room['room_type']) && $room['room_type'] == $search['room_code']));
                 $rateCodeMatch = (
@@ -135,6 +151,8 @@ class HotelBookingCheckQuoteService extends BaseController
                 }
             }
         }
+
+        logger('CheckQuote Matched Rooms: ', ['matchedRooms' => $matchedRooms, 'dataFirstSearch' => $dataFirstSearch, 'allRoomsSecondSearch' => $allRoomsSecondSearch, 'roomCombinations' => $roomCombinations]);
 
         // 2. Collect booking_item of all found rooms
         $matchedBookingItems = array_column($matchedRooms, 'booking_item');

@@ -68,6 +68,8 @@ class HotelCombinationService
             $search_id = $bookingItem->search_id;
 
             $completeBookingItem['booking_item_data']['room_id'][] = $booking_item_data['room_id'];
+            $completeBookingItem['booking_item_data']['room_code'][] = $booking_item_data['room_code'];
+            $completeBookingItem['booking_item_data']['rate_code'][] = $booking_item_data['rate_code'];
             $completeBookingItem['booking_item_data']['rate_ordinal'][] = $booking_item_data['rate_ordinal'];
             $completeBookingItem['booking_item_data']['rate_type'] = ItemTypeEnum::COMPLETE->value;
             $completeBookingItem['booking_item_data']['rate_occupancy'][] = $booking_item_data['rate_occupancy'];
@@ -75,8 +77,6 @@ class HotelCombinationService
             $completeBookingItem['booking_item_data']['hotel_id'] = $booking_item_data['hotel_id'];
 
             if ($this->supplier_name === SupplierNameEnum::HOTEL_TRADER->value) {
-                $completeBookingItem['booking_item_data']['room_code'][] = $booking_item_data['room_code'];
-                $completeBookingItem['booking_item_data']['rate_code'][] = $booking_item_data['rate_code'];
                 $completeBookingItem['booking_item_data']['htIdentifier'][] = $booking_item_data['htIdentifier'];
                 $completeBookingItem['booking_item_data']['rate'][] = $booking_item_data['rate'];
                 logger()->debug('Hotel Trader booking_item_data', $completeBookingItem['booking_item_data']);
@@ -132,12 +132,12 @@ class HotelCombinationService
         $completeBookingItem['rate_type'] = ItemTypeEnum::COMPLETE->value;
 
         $completeBookingItem['booking_item_data']['room_id'] = implode(';', $completeBookingItem['booking_item_data']['room_id']);
+        $completeBookingItem['booking_item_data']['room_code'] = implode(';', $completeBookingItem['booking_item_data']['room_code']);
+        $completeBookingItem['booking_item_data']['rate_code'] = implode(';', $completeBookingItem['booking_item_data']['rate_code']);
         $completeBookingItem['booking_item_data']['rate_ordinal'] = implode(';', $completeBookingItem['booking_item_data']['rate_ordinal']);
         $completeBookingItem['booking_item_data']['rate_occupancy'] = implode(';', $completeBookingItem['booking_item_data']['rate_occupancy']);
 
         if ($this->supplier_name === SupplierNameEnum::HOTEL_TRADER->value) {
-            $completeBookingItem['booking_item_data']['room_code'] = implode(';', $completeBookingItem['booking_item_data']['room_code']);
-            $completeBookingItem['booking_item_data']['rate_code'] = implode(';', $completeBookingItem['booking_item_data']['rate_code']);
             $completeBookingItem['booking_item_data']['htIdentifier'] = implode(';', $completeBookingItem['booking_item_data']['htIdentifier']);
             $completeBookingItem['booking_item_data']['rate'] = json_decode(json_encode($completeBookingItem['booking_item_data']['rate']));
         }

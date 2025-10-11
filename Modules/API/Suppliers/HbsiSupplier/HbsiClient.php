@@ -578,7 +578,7 @@ class HbsiClient
 
         foreach ($occupancies as $occupancy) {
             $roomStayCandidate = $xml->addChild('RoomStayCandidate');
-            $roomStayCandidate->addAttribute('RoomTypeCode', '*');
+            $roomStayCandidate->addAttribute('RoomTypeCode', Arr::get($occupancy, 'room_code', '*'));
             $roomStayCandidate->addAttribute('Quantity', '1');
             $roomStayCandidate->addAttribute('RPH', '1');
             $roomStayCandidate->addAttribute('RatePlanCandidateRPH', '1');
