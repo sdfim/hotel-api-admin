@@ -26,6 +26,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
@@ -649,6 +650,15 @@ class BookApiHandler extends BaseController
     public function retrieveBooking(BookingRetrieveItemsRequest $request): JsonResponse
     {
         $filters = $request->all();
+
+        if (! isset($filters['force'])) {
+            $latestRetrieves = ApiBookingInspectorRepository::getLatestRetrievesByBookingId($request->booking_id);
+            foreach ($latestRetrieves as $latestRetrieve) {
+                $data[] = json_decode(Storage::get($latestRetrieve->client_response_path));
+            }
+
+            return $this->sendResponse(['result' => $data], 'success');
+        }
 
         $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
 

@@ -40,7 +40,7 @@ class RetrieveBookingJob implements ShouldQueue
 
         /** @var BookApiHandler $bookApiHandler */
         $bookApiHandler = app(BookApiHandler::class);
-        $bookApiHandler->retrieveBooking(new BookingRetrieveItemsRequest(['booking_id' => $this->bookingId]));
+        $bookApiHandler->retrieveBooking(new BookingRetrieveItemsRequest(['booking_id' => $this->bookingId, 'force' => true]));
         logger()->info('RetrieveBookingJob completed', ['booking_id' => $this->bookingId]);
     }
 }
