@@ -22,6 +22,11 @@ class UpdateMealPlanInResponses extends Command
 
         foreach ($latestRetrieves as $latestRetrieve) {
             $path = $latestRetrieve->client_response_path;
+            if (empty($path)) {
+                $this->warn("Empty client_response_path for retrieve ID: {$latestRetrieve->id}");
+
+                continue;
+            }
             if (! Storage::exists($path)) {
                 $this->warn("File not found: $path");
 
