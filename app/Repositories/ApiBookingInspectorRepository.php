@@ -274,6 +274,24 @@ class ApiBookingInspectorRepository
             ->get();
     }
 
+    public static function getAllLatestRetrieves(): ?Collection
+    {
+        $subQuery = ApiBookingInspector::selectRaw('MAX(created_at) as max_created_at, booking_item')
+            ->where('type', 'book')
+            ->where('sub_type', 'retrieve')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->groupBy('booking_item');
+
+        return ApiBookingInspector::joinSub($subQuery, 'latest', function ($join) {
+            $join->on('api_booking_inspector.booking_item', '=', 'latest.booking_item')
+                ->on('api_booking_inspector.created_at', '=', 'latest.max_created_at');
+        })
+            ->where('api_booking_inspector.type', 'book')
+            ->where('api_booking_inspector.sub_type', 'retrieve')
+            ->where('api_booking_inspector.status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get();
+    }
+
     public static function isBookById(string $booking_id): bool
     {
         return ApiBookingInspector::where('booking_id', $booking_id)

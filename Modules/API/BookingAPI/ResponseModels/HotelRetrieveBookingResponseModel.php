@@ -4,31 +4,33 @@ namespace Modules\API\BookingAPI\ResponseModels;
 
 class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
 {
-    private string $room_name;
+    private string $room_name = '';
 
-    private string $room_type;
+    private string $room_type = '';
 
-    private string $board_basis;
+    private string $board_basis = '';
 
     private array $confirmation_numbers = [];
 
     private ?string $cancellation_number = null;
 
-    private array $query;
+    private array $query = [];
 
-    private string $supplier_book_id;
+    private string $supplier_book_id = '';
 
-    private array $billing_contact;
+    private array $billing_contact = [];
 
-    private string $billing_email;
+    private string $billing_email = '';
 
-    private array $billing_phone;
+    private array $billing_phone = [];
 
     private array $deposit_information = [];
 
-    private string $hotel_image;
+    private string $hotel_image = '';
 
-    private array $hotel_address;
+    private array $hotel_address = [];
+
+    private array $meal_plan = [];
 
     public function getBillingContact(): array
     {
@@ -160,6 +162,16 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         $this->hotel_address = $hotel_address;
     }
 
+    public function getHotelMealPlan(): array
+    {
+        return $this->meal_plan;
+    }
+
+    public function setHotelMealPlan(array $meal_plan): void
+    {
+        $this->meal_plan = $meal_plan;
+    }
+
     public function toRetrieveArray(): array
     {
         return array_merge(
@@ -171,6 +183,7 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
                 //                'room_name' => $this->getRoomName(),
                 //                'room_type' => $this->getRoomType(),
                 'board_basis' => $this->getBoardBasis(),
+                'meal_plan' => $this->getHotelMealPlan(),
                 'rooms' => $this->getRooms(),
                 'supplier_book_id' => $this->getSupplierBookId(),
                 'billing_contact' => $this->getBillingContact(),
