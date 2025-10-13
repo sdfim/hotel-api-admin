@@ -50,8 +50,8 @@ class UpdateMealPlanInResponses extends Command
                 continue;
             }
 
-            if (! array_key_exists('meal_plan', $data)) {
-                $data['meal_plan'] = $hotel?->hotel_board_basis ?? [];
+            if (! array_key_exists('meal_plans', $data)) {
+                $data['meal_plans'] = $hotel?->hotel_board_basis ?? [];
                 Storage::put($path, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
                 $updated++;
                 $this->info("Updated: $path");

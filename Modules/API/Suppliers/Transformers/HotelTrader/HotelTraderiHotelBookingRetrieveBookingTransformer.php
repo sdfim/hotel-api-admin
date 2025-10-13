@@ -68,7 +68,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setHotelName($name);
         $responseModel->setHotelImage($hotelImage);
         $responseModel->setHotelAddress($hotelAddress);
-        $responseModel->setHotelMealPlan($hotel?->hotel_board_basis);
+        $responseModel->setHotelMealPlans($hotel?->hotel_board_basis);
 
         $responseModel->setRooms($rooms);
 

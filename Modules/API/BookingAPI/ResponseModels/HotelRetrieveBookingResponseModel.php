@@ -162,14 +162,14 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         $this->hotel_address = $hotel_address;
     }
 
-    public function getHotelMealPlan(): array
+    public function getHotelMealPlans(): array
     {
-        return $this->meal_plan;
+        return $this->meal_plans;
     }
 
-    public function setHotelMealPlan(array $meal_plan): void
+    public function setHotelMealPlans(array $meal_plans): void
     {
-        $this->meal_plan = $meal_plan;
+        $this->meal_plans = $meal_plans;
     }
 
     public function toRetrieveArray(): array
@@ -183,7 +183,7 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
                 //                'room_name' => $this->getRoomName(),
                 //                'room_type' => $this->getRoomType(),
                 'board_basis' => $this->getBoardBasis(),
-                'meal_plan' => $this->getHotelMealPlan(),
+                'meal_plans' => $this->getHotelMealPlans(),
                 'rooms' => $this->getRooms(),
                 'supplier_book_id' => $this->getSupplierBookId(),
                 'billing_contact' => $this->getBillingContact(),
