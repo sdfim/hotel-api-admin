@@ -36,6 +36,7 @@ class PurgeBaskets extends Command
         that will be set within the Administration Suite.
         */
 
+        /*
         // delete by day config (time_Reservation_kept)
         $this->info('PurgeBaskets: delete by day config (time_Reservation_kept)');
         $kept_days = GeneralConfiguration::first()->time_reservations_kept;
@@ -58,6 +59,7 @@ class PurgeBaskets extends Command
                 $res->delete();
             }
         }
+        */
 
         // Stop bookings with in a number of hours from time of search execution, hours*
         $deleteBookingItems = [];
