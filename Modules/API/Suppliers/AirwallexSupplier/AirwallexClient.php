@@ -2,11 +2,8 @@
 
 namespace Modules\API\Suppliers\AirwallexSupplier;
 
-use App\Models\AirwallexApiLog;
-use Dotenv\Util\Str;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -126,6 +123,11 @@ class AirwallexClient
             'order' => $order,
             'request_id' => $requestId,
             'direction' => $direction,
+            'payment_method_options' => [
+                'card' => [
+                    'card_input_via' => 'ecommerce',
+                ],
+            ],
         ];
 
         if (! empty($descriptor)) {

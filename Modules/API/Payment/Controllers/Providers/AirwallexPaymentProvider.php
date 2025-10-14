@@ -36,8 +36,14 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             $data['return_url'] ?? null,
             $data['metadata'] ?? [],
             $direction,
-            $data['booking_id']
+            $data['booking_id'],
         );
+
+        $data['payment_method_options'] = [
+            'card' => [
+                'card_input_via' => 'ecommerce',
+            ],
+        ];
 
         if ($error = $result['error'] ?? null) {
             AirwallexApiLog::create([
