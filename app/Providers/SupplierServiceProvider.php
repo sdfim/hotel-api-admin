@@ -16,6 +16,7 @@ use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 use Modules\HotelContentRepository\Services\Suppliers\ExpediaHotelContentApiService;
+use Modules\HotelContentRepository\Services\Suppliers\HbsiHotelContentApiService;
 use Modules\HotelContentRepository\Services\Suppliers\HiltonHotelContentApiService;
 use Modules\HotelContentRepository\Services\Suppliers\HotelTraderContentApiService;
 use Modules\HotelContentRepository\Services\Suppliers\IcePortalHotelContentApiService;
@@ -40,6 +41,7 @@ class SupplierServiceProvider extends ServiceProvider
                 SupplierNameEnum::ICE_PORTAL->value => app(IcePortalHotelContentApiService::class),
                 SupplierNameEnum::HILTON->value => app(HiltonHotelContentApiService::class),
                 SupplierNameEnum::HOTEL_TRADER->value => app(HotelTraderContentApiService::class),
+                SupplierNameEnum::HBSI->value => app(HbsiHotelContentApiService::class),
                 default => throw new \InvalidArgumentException("Unknown supplier: {$params['supplier']}"),
             };
         });

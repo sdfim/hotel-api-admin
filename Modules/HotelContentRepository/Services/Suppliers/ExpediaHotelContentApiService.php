@@ -3,6 +3,8 @@
 namespace Modules\HotelContentRepository\Services\Suppliers;
 
 use App\Models\ExpediaContent;
+use App\Models\ExpediaContentSlave;
+use Illuminate\Support\Arr;
 use Modules\API\Services\MappingCacheService;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransformer;
 use Modules\HotelContentRepository\Services\SupplierInterface;
@@ -36,6 +38,28 @@ class ExpediaHotelContentApiService implements SupplierInterface
         }
 
         return $resultsExpedia;
+    }
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+
+        /** @var MappingCacheService $mappingCacheService */
+        $mappingCacheService = app(MappingCacheService::class);
+        $hashMapExpedia = $mappingCacheService->getMappingsExpediaHashMap();
+        $reversedHashMap = array_flip($hashMapExpedia);
+        $expediaCode = $reversedHashMap[$giataCode] ?? null;
+
+        $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
+            ->where('expedia_property_id', $expediaCode)
+            ->first();
+        $expediaData = $expediaData ? $expediaData->toArray() : [];
+
+        if (! empty($expediaData)) {
+            $roomsData = Arr::get($expediaData, 'rooms', []);
+        }
+
+        return $roomsData;
     }
 
     private function getExpediaCodes(array $giataCodes, array $mappingsExpedia): array

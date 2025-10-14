@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContentSourceEnum;
+use Modules\HotelContentRepository\Actions\Hotel\MappingLevelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\AddHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\CloneHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\EditHotelRoom;
@@ -48,6 +49,8 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 
     public string $title;
 
+    public Hotel $hotel;
+
     public HotelRoom $fromRoom;
 
     public HotelRoom $toRoom;
@@ -60,6 +63,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 
     public function mount(Hotel $hotel, ?HotelRoom $record = null)
     {
+        $this->hotel = $hotel;
         $this->record = $record;
         $this->hotelId = $hotel->id;
         $this->title = 'Hotel Room for '.$hotel->product->name;
@@ -365,6 +369,14 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
                     ->visible(fn () => Gate::allows('create', Hotel::class)),
+                Action::make('mapping-level-room-assistant')
+                    ->label('AI Room Mapper for Supplier Codes')
+                    ->iconButton()
+                    ->tooltip('AI Room Mapper for Supplier Codes')
+                    ->icon('heroicon-o-sparkles')
+                    ->action(fn () => app(MappingLevelRoom::class)->execute($this->hotel))
+                    ->visible(fn () => true), // TODO: Replace with supplier existence check if available
+
             ])
             ->filters([
                 SelectFilter::make('room_type')

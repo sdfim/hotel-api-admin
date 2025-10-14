@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Services\Suppliers;
 use App\Models\HiltonProperty;
 use App\Models\Mapping;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentDetailTransformer;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 
 class HiltonHotelContentApiService implements SupplierInterface
@@ -26,5 +27,35 @@ class HiltonHotelContentApiService implements SupplierInterface
         }
 
         return $results;
+    }
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+        $hiltonCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HILTON->value)
+            ->first()?->supplier_id;
+        $hiltonData = HiltonProperty::where('prop_code', $hiltonCode)->first();
+        $hiltonData = $hiltonData ? $hiltonData->toArray() : [];
+
+        // Example transformation, adjust according to your IcePortalPropertyAsset structure
+        $rooms = $hiltonData['guest_room_descriptions'] ?? [];
+
+        foreach ($rooms as $room) {
+            $roomId = $room['roomTypeCode'] ?? null;
+            $roomsData[] = [
+                'id' => $roomId,
+                'name' => $room['shortDescription'],
+                'descriptions' => $room['enhancedDescription'],
+                'area' => $room['area'] ?? null,
+                'views' => '',
+                'bed_groups' => $room['bedClass'] ?? [],
+                'amenities' => $room['roomAmenities'] ?? [],
+                'supplier' => SupplierNameEnum::HILTON->value,
+                'roomsOccupancy' => $room['maxOccupancy'],
+            ];
+        }
+
+        return $roomsData;
     }
 }
