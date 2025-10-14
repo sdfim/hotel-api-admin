@@ -47,51 +47,57 @@ class DownloadHotelTraderFilesAndImport extends Command
         $propertyFile = 'hoteltrader/HTR_property_static_data.csv';
         $roomsFile = 'hoteltrader/HTR_rooms.csv';
 
-        // Ensure directory exists (Storage handles this on put)
-
+        $this->info('Starting download of HotelTrader files...');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'Start downloading files', json_encode([
             'execution_time' => $this->executionTime('step').' sec',
         ]));
 
-        $propertyContent = $this->downloadFile($this->propertyUrl);
-        if ($propertyContent === false) {
+        $this->info('Downloading property mapping file...');
+        $propertySaved = $this->downloadFileStream($this->propertyUrl, $storageDisk->path($propertyFile));
+        if ($propertySaved === false) {
+            $this->error('Failed to download property mapping file.');
             $this->saveErrorReport('DownloadHotelTraderFilesAndImport', 'Failed to download property mapping file', json_encode([
                 'execution_time' => $this->executionTime('step').' sec',
             ]));
 
             return 1;
         }
-        $storageDisk->put($propertyFile, $propertyContent);
+        $this->info('Property mapping file downloaded successfully.');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'Property mapping file downloaded', json_encode([
             'execution_time' => $this->executionTime('step').' sec',
         ]));
 
-        $roomsContent = $this->downloadFile($this->roomsUrl);
-        if ($roomsContent === false) {
+        $this->info('Downloading rooms mapping file...');
+        $roomsSaved = $this->downloadFileStream($this->roomsUrl, $storageDisk->path($roomsFile));
+        if ($roomsSaved === false) {
+            $this->error('Failed to download rooms mapping file.');
             $this->saveErrorReport('DownloadHotelTraderFilesAndImport', 'Failed to download rooms mapping file', json_encode([
                 'execution_time' => $this->executionTime('step').' sec',
             ]));
 
             return 1;
         }
-        $storageDisk->put($roomsFile, $roomsContent);
+        $this->info('Rooms mapping file downloaded successfully.');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'Rooms mapping file downloaded', json_encode([
             'execution_time' => $this->executionTime('step').' sec',
         ]));
 
+        $this->info('Starting import of downloaded files...');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'Files downloaded. Starting import...', json_encode([
             'execution_time' => $this->executionTime('step').' sec',
         ]));
         $exitCode = Artisan::call('hoteltrader:import-properties', [
             'hotelCsvPath' => $propertyFile,
             'roomCsvPath' => $roomsFile,
-        ]);
+        ], $this->output);
+        $this->info('Import finished.');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'Import finished', json_encode([
             'artisan_output' => Artisan::output(),
             'execution_time' => $this->executionTime('step').' sec',
         ]));
 
         $totalTime = microtime(true) - $this->current_time['main'];
+        $this->info('All steps completed.');
         $this->saveSuccessReport('DownloadHotelTraderFilesAndImport', 'All steps completed', json_encode([
             'total_execution_time' => $totalTime.' sec',
             'memory_peak_usage' => (memory_get_peak_usage() / 1024 / 1024).' MB',
@@ -100,15 +106,37 @@ class DownloadHotelTraderFilesAndImport extends Command
         return $exitCode;
     }
 
-    private function downloadFile($url)
+    /**
+     * Download a file from a URL and save it directly to disk in chunks.
+     * Returns true on success, false on failure.
+     */
+    private function downloadFileStream($url, $localPath)
     {
         try {
-            $content = file_get_contents($url);
-            if ($content === false) {
+            $remoteStream = fopen($url, 'r');
+            if ($remoteStream === false) {
                 return false;
             }
+            $localStream = fopen($localPath, 'w');
+            if ($localStream === false) {
+                fclose($remoteStream);
 
-            return $content;
+                return false;
+            }
+            while (! feof($remoteStream)) {
+                $buffer = fread($remoteStream, 8192);
+                if ($buffer === false) {
+                    fclose($remoteStream);
+                    fclose($localStream);
+
+                    return false;
+                }
+                fwrite($localStream, $buffer);
+            }
+            fclose($remoteStream);
+            fclose($localStream);
+
+            return true;
         } catch (\Exception $e) {
             return false;
         }

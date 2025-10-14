@@ -51,9 +51,17 @@ class ImportHotelTraderProperties extends Command
             return 1;
         }
 
-        $hotels = $this->readCsvFromStorage($storageDisk, $hotelCsv);
-        $rooms = $this->readCsvFromStorage($storageDisk, $roomCsv);
+        $this->info('Starting HotelTrader properties import...');
 
+        $this->info('Reading hotel CSV file...');
+        $hotels = $this->readCsvFromStorage($storageDisk, $hotelCsv);
+        $this->info('Hotel CSV file loaded. Rows: '.count($hotels));
+
+        $this->info('Reading room CSV file...');
+        $rooms = $this->readCsvFromStorage($storageDisk, $roomCsv);
+        $this->info('Room CSV file loaded. Rows: '.count($rooms));
+
+        $this->info('Grouping rooms by propertyId...');
         // Group rooms by propertyId
         $roomsByProperty = [];
         foreach ($rooms as $room) {
@@ -62,11 +70,16 @@ class ImportHotelTraderProperties extends Command
                 $roomsByProperty[$propertyId][] = $room;
             }
         }
+        $this->info('Rooms grouped by propertyId. Unique properties: '.count($roomsByProperty));
 
         $count = 0;
-        foreach ($hotels as $hotel) {
+        $skipped = 0;
+        $total = count($hotels);
+        foreach ($hotels as $idx => $hotel) {
             $propertyId = $hotel['propertyId'] ?? null;
             if (! $propertyId) {
+                $skipped++;
+
                 continue;
             }
             $hotelRooms = $roomsByProperty[$propertyId] ?? [];
@@ -86,11 +99,14 @@ class ImportHotelTraderProperties extends Command
                     'trace' => $e->getTraceAsString(),
                 ]);
                 $this->saveErrorReport('ImportHotelTraderProperties', 'HotelTraderProperty import error', $errorContent);
-                $this->error('ImportHotelTraderProperties _ HotelTraderProperty import error.'.$e->getMessage());
+                $this->error('ImportHotelTraderProperties _ HotelTraderProperty import error: '.$e->getMessage());
+            }
+            if (($count + $skipped) % 100 === 0) {
+                $this->info('Progress: '.($count + $skipped)."/$total processed. Imported: $count, Skipped: $skipped");
             }
         }
 
-        $this->info("Imported $count properties.");
+        $this->info("Import complete. Imported $count properties. Skipped $skipped hotels without propertyId.");
 
         return 0;
     }
