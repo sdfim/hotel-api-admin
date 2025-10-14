@@ -37,7 +37,6 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->first();
-//        $quoteNumber = $bookingItem->booking_item ?? 'N/A';
         $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
         $service = app(HotelBookingCheckQuoteService::class);
         $dataReservation = $service->getDataFirstSearch($bookingItem);
@@ -70,9 +69,16 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             'searchRequest' => json_decode($searchRequest, true),
         ]);
 
-        // 🔹 генерируем PDF прямо здесь
-        $pdfService = app(PdfGeneratorService::class);
-        $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', [
+        // Cache confirmation date for 7 days using bookingItem as part of the key
+        $cacheKey = 'booking_confirmation_date_'.$this->bookingItem;
+        $confirmationDate = \Cache::get($cacheKey);
+        if (! $confirmationDate) {
+            $confirmationDate = now()->toDateString();
+            \Cache::put($cacheKey, $confirmationDate, now()->addDays(7));
+        }
+
+        // Build PDF data array
+        $pdfData = [
             'hotel' => $hotel,
             'hotelData' => [
                 'name' => $hotel?->product?->name ?? 'Unknown Hotel',
@@ -88,11 +94,20 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             'total_fees' => $total_fees,
             'total_price' => $total_price,
             'agency' => [
-                'booking_agent' => Arr::get($this->agentData, 'name') ?? 'KRISTINA SHACKNOW',
-                'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@ultimatejetvacations.com',
+                'booking_agent' => Arr::get($this->agentData, 'name') ?? 'OLIVER SHACKNOW',
+                'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@terramare.com',
             ],
             'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
-        ]);
+            'confirmation_date' => $confirmationDate,
+        ];
+
+        // Use cached PDF data for PDF generation
+        $pdfService = app(PdfGeneratorService::class);
+        $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', $pdfData);
+
+        // Cache the entire PDF data array for 7 days
+        $pdfCacheKey = 'booking_pdf_data_'.$this->bookingItem;
+        \Cache::put($pdfCacheKey, $pdfData, now()->addDays(7));
 
         return $this->subject('Confirm your booking')
             ->view('emails.booking.email_verification')

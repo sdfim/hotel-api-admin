@@ -173,14 +173,16 @@ class BookApiHandler extends BaseController
         $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
-        // Send payment email to client
-        try {
-            $paymentUrl = $request->input('payment_url');
-            $paymentUrl = $paymentUrl ?: request()->getSchemeAndHttpHost().'/payment/'.$request->booking_id;
-            $email_client = $request->input('booking_contact.email');
-            Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $request->booking_id));
-        } catch (\Throwable $mailException) {
-            Log::error('Booking payment email queue error: '.$mailException->getMessage());
+        foreach ($items as $item) {
+            // Send payment email to client
+            try {
+                $paymentUrl = $request->input('payment_url');
+                $paymentUrl = $paymentUrl ?: request()->getSchemeAndHttpHost().'/payment/'.$item->booking_id;
+                $email_client = $request->input('booking_contact.email');
+                Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $item->booking_id));
+            } catch (\Throwable $mailException) {
+                Log::error('Booking payment email queue error: '.$mailException->getMessage());
+            }
         }
 
         // Retrieve booking to get the full details after booking

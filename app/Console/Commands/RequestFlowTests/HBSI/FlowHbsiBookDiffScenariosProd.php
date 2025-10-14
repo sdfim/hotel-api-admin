@@ -150,7 +150,7 @@ class FlowHbsiBookDiffScenariosProd extends Command
         ];
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-        $this->cancel($bookingId);
+//        $this->cancel($bookingId);
     }
 
     // Scenario 5: Zen Pool, 1 adult, Jan 8-12, 2026

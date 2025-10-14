@@ -66,9 +66,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             $total_price += $item['total_price'] ?? 0;
         }
 
-        // 🔹 генерируем PDF прямо здесь
-        $pdfService = app(PdfGeneratorService::class);
-        $pdfContent = $pdfService->generateRaw('pdf.booking-confirmation', [
+        $pdfData = [
             'customerName' => 'Mr '.$clientFirstName.' '.$clientLastNane,
             'hotel' => $hotel,
             'hotelData' => [
@@ -85,20 +83,34 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             'total_fees' => $total_fees,
             'total_price' => $total_price,
             'agency' => [
-                'booking_agent' => $userAgent->name ?? 'KRISTINA SHACKNOW',
-                'booking_agent_email' => $userAgent->email ?? 'kshacknow@ultimatejetvacations.com',
+                'booking_agent' => $userAgent->name ?? 'OLIVER SHACKNOW',
+                'booking_agent_email' => $userAgent->email ?? 'kshacknow@terramare.com',
             ],
             'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
-        ]);
+        ];
+
+        // 🔹 генерируем PDF прямо здесь
+        $pdfService = app(PdfGeneratorService::class);
+        $pdfContent = $pdfService->generateRaw('pdf.booking-confirmation', $pdfData);
+
+        // Save cache for 7 days using bookingItem as part of the key
+        $cacheKey = 'booking_confirmation_pdf_data_'.$this->bookingItem;
+        \Cache::put($cacheKey, $pdfData, now()->addDays(7));
+
+        $emailData = [
+            'hotel' => $hotel,
+            'bookingMeta' => $bookingMeta,
+            'rooms' => $dataReservation,
+            'searchRequest' => json_decode($searchRequest, true),
+        ];
+
+        // Save cache for 7 days using bookingItem as part of the key
+        $cacheKey = 'booking_confirmation_email_date_'.$this->bookingItem;
+        \Cache::put($cacheKey, $emailData, now()->addDays(7));
 
         return $this->subject('Your booking is confirmed')
             ->view('emails.booking.confirmation')
-            ->with([
-                'hotel' => $hotel,
-                'bookingMeta' => $bookingMeta,
-                'rooms' => $dataReservation,
-                'searchRequest' => json_decode($searchRequest, true),
-            ])
+            ->with($emailData)
             ->attachData($pdfContent, 'BookingConfirmation.pdf', [
                 'mime' => 'application/pdf',
             ]);

@@ -7,6 +7,7 @@ use App\Mail\BookingConfirmationMail;
 use App\Models\AirwallexApiLog;
 use App\Models\ApiBookingPaymentInit;
 use App\Models\Enums\PaymentStatusEnum;
+use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -343,6 +344,19 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
                     Mail::to($email_notification)->queue(new BookingConfirmationMail($item->booking_item));
                 } catch (\Throwable $mailException) {
                     Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
+                }
+
+                [$agentEmail, $agentId] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
+                $notificationEmails = User::find($agentId)?->notification_emails ?? [];
+                foreach ($notificationEmails as $email) {
+                    if (empty($email)) {
+                        continue;
+                    }
+                    try {
+                        Mail::to($email)->queue(new \App\Mail\BookingConfirmationForAgentMail($item->booking_item));
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send agent notification email for booking item '.$item->booking_item.': '.$e->getMessage(), ['email' => $email]);
+                    }
                 }
             }
         }
