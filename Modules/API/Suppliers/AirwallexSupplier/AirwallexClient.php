@@ -103,8 +103,6 @@ class AirwallexClient
         ?string $descriptor,
         ?string $returnUrl,
         array $metadata = [],
-        array $direction = [],
-        ?string $bookingId = null
     ): ?array {
         $token = $this->getToken();
         if (! $token) {
@@ -122,7 +120,6 @@ class AirwallexClient
             'merchant_order_id' => $merchantOrderId,
             'order' => $order,
             'request_id' => $requestId,
-            'direction' => $direction,
             'payment_method_options' => [
                 'card' => [
                     'card_input_via' => 'ecommerce',

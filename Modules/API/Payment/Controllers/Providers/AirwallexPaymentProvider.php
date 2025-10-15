@@ -36,8 +36,6 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             $data['descriptor'] ?? null,
             $data['return_url'] ?? null,
             $data['metadata'] ?? [],
-            $direction,
-            $data['booking_id'],
         );
 
         $data['payment_method_options'] = [
