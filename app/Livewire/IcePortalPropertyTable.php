@@ -37,13 +37,13 @@ class IcePortalPropertyTable extends Component implements HasForms, HasTable
                 TextColumn::make('listingID')
                     ->label('Listing ID')
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('name')
                     ->wrap()
                     ->html()
                     ->toggleable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('addressLine1')
                     ->wrap()
