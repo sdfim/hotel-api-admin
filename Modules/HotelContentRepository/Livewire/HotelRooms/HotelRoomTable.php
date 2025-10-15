@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContentSourceEnum;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Actions\Hotel\MappingLevelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\AddHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\CloneHotelRoom;
@@ -219,11 +220,22 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 TextColumn::make('supplier_codes')
                     ->label('Supplier Room Codes')
                     ->formatStateUsing(function ($state) {
+                        $codes = json_decode($state, true) ?? [];
+                        $allowedSuppliers = SupplierNameEnum::getValues();
+                        $isSuperuser = config('superuser.email') === auth()->user()->email;
+
+                        if (! $isSuperuser) {
+                            $codes = array_filter($codes, function ($code) use ($allowedSuppliers) {
+                                return in_array($code['supplier'], $allowedSuppliers, true);
+                            });
+                        }
+
                         return implode('<br>', array_map(function ($code) {
                             return $code['supplier'].': '.$code['code'];
-                        }, json_decode($state, true) ?? []));
+                        }, $codes));
                     })
                     ->html(),
+
 
                 TextColumn::make('galleries_count')
                     ->label('Images')
