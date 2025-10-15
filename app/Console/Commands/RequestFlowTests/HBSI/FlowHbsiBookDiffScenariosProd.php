@@ -43,6 +43,7 @@ class FlowHbsiBookDiffScenariosProd extends Command
         $scenariosToRun = $this->argument('scenarios')
             ? array_map('trim', explode(',', $this->argument('scenarios')))
             : [
+                'scenario_10',
                 'scenario_1',
                 'scenario_2',
                 'scenario_3',
@@ -67,6 +68,28 @@ class FlowHbsiBookDiffScenariosProd extends Command
                 $this->warn("Scenario method $methodName does not exist.");
             }
         }
+    }
+
+    // Scenario 4: Zen Family Suite, 4 adults, 1 child (16), 1 infant, Jan 8-12, 2026
+    private function scenario_10(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #10');
+
+        $occupancy = [['adults' => 2]];
+        $checkin = $this->checkin;
+        $nights = 4;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+        $options = [
+            [
+                'non_refundable' => false,
+//                'rate_plan_code' => 'FORASPEEP',
+//                'room_type' => 'STE1K',
+            ],
+        ];
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $this->cancel($bookingId);
     }
 
     private function scenario_1(): void
@@ -150,7 +173,7 @@ class FlowHbsiBookDiffScenariosProd extends Command
         ];
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
 
-//        $this->cancel($bookingId);
+        $this->cancel($bookingId);
     }
 
     // Scenario 5: Zen Pool, 1 adult, Jan 8-12, 2026

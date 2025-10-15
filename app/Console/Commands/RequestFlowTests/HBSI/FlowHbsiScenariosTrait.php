@@ -40,6 +40,7 @@ trait FlowHbsiScenariosTrait
                         'rate_name' => $room['rate_name'] ?? null,
                         'rate_plan_code' => $room['rate_plan_code'] ?? null,
                         'meal_plan' => $room['meal_plan'] ?? null,
+                        'non_refundable' => $room['non_refundable'] ?? null,
                     ];
                     $bookingItemParamsMap[$bookingItem] = $params;
                 }
