@@ -24,16 +24,8 @@ class IcePortalAssetTransformer
                 if ($asset['category'][0]['expediaCategory']['name'] !== 'Room') {
 
                     // originalFileURL is not always set.
-                    if (isset($asset['links']['originalFileURL'])) {
-                        if (! str_contains($asset['links']['originalFileURL'], '.jpg')) {
-                            $hotelImages[] = $asset['links']['originalFileURL'].'.jpg';
-                        } else {
-                            $hotelImages[] = $asset['links']['originalFileURL'];
-                        }
-                    }
-
-                    if (isset($asset['links']['mediaLinkURL'])) {
-                        $hotelImages[] = $asset['links']['mediaLinkURL'];
+                    if (isset($asset['links']['cdnLinks'])) {
+                        $hotelImages = array_merge($hotelImages, $asset['links']['cdnLinks']);
                     }
 
                     if (isset($asset['autoKeywords'])) {

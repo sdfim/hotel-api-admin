@@ -22,7 +22,7 @@ class TestIceHBSIProcessListings extends Command
             ->where('supplier_id', $listingId)
             ->get();
 
-        $client = new IceHBSIClient(new IcePortalAssetTransformer());
+        $client = new IceHBSIClient(new IcePortalAssetTransformer);
         $results = $client->processListings($mapping, []);
 
         $this->info('Results:');
