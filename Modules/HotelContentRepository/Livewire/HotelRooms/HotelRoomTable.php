@@ -375,7 +375,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->tooltip('AI Room Mapper for Supplier Codes')
                     ->icon('heroicon-o-sparkles')
                     ->action(fn () => app(MappingLevelRoom::class)->execute($this->hotel))
-                    ->visible(fn () => true), // TODO: Replace with supplier existence check if available
+                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
 
             ])
             ->filters([
