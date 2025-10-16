@@ -344,8 +344,9 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
                     Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
                 }
 
-                [$agentEmail, $agentId] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
+                [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
                 $notificationEmails = User::find($agentId)?->notification_emails ?? [];
+                $notificationEmails = array_merge($notificationEmails, [$externalAdvisorEmail]);
                 foreach ($notificationEmails as $email) {
                     if (empty($email)) {
                         continue;

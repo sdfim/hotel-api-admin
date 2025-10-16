@@ -476,6 +476,7 @@ class ApiBookingInspectorRepository
 
         $apiClientId = Arr::get($request, 'api_client.id');
         $apiClientEmail = Arr::get($request, 'api_client.email');
+        $externalAdvisorEmail = Arr::get($request, 'email_verification');
 
         // Determine missing api client info from User model
         if (filled($apiClientId) && empty($apiClientEmail)) {
@@ -491,7 +492,7 @@ class ApiBookingInspectorRepository
             }
         }
 
-        return [$apiClientEmail, $apiClientId];
+        return [$apiClientEmail, $apiClientId, $externalAdvisorEmail];
     }
 
     public static function getBookItemsByBookingItem(string $booking_item): ?object

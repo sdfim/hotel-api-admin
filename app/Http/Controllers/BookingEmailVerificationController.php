@@ -38,7 +38,7 @@ class BookingEmailVerificationController extends Controller
         Log::info('Booking item email verified: '.$booking_item);
 
         // Send notification email to agent
-        [$agentEmail, $agentId] = ApiBookingInspectorRepository::getEmailAgentBookingItem($booking_item);
+        [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($booking_item);
         if ($agentEmail) {
             try {
                 Mail::to($agentEmail)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
