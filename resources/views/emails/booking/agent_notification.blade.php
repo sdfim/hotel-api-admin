@@ -33,7 +33,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Booking Confirmed by Client</title>
+    <title>Quote Approved by Advisor</title>
     <style>
         body { margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4; }
         .container {
@@ -72,7 +72,7 @@
 </div>
 <div class="container">
     <div class="confirmed-block">
-        Quote has been <strong>confirmed by the client</strong>.<br>
+        Quote has been approved by advisor.<br>
         Please proceed with the next steps.
     </div>
     <h4>Quote Number: {{ $quoteNumber ?? 'N/A' }}</h4>

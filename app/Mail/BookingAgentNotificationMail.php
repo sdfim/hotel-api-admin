@@ -38,7 +38,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             'searchRequest' => json_decode($searchRequest, true),
         ]);
 
-        return $this->subject('Booking Confirmed by Client')
+        return $this->subject('Quote Approved by Advisor')
             ->view('emails.booking.agent_notification')
             ->with([
                 'quoteNumber' => $quoteNumber,

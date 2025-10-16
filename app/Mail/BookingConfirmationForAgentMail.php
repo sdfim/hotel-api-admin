@@ -30,7 +30,7 @@ class BookingConfirmationForAgentMail extends Mailable implements ShouldQueue
         $cacheKey = 'booking_confirmation_email_date_'.$this->bookingItem;
         $emailData = \Cache::get($cacheKey);
 
-        return $this->subject('Booking Confirmation sent to Client')
+        return $this->subject('Booking is Confirmed')
             ->view('emails.booking.confirmation-for-agent')
             ->with($emailData)
             ->attachData($pdfContent, 'BookingConfirmation.pdf', [

@@ -109,7 +109,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         $pdfCacheKey = 'booking_pdf_data_'.$this->bookingItem;
         \Cache::put($pdfCacheKey, $pdfData, now()->addDays(7));
 
-        return $this->subject('Confirm your booking')
+        return $this->subject('Confirm the Quote')
             ->view('emails.booking.email_verification')
             ->with([
                 'verificationUrl' => $this->verificationUrl,
@@ -120,7 +120,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
                 'rooms' => $dataReservation,
                 'searchRequest' => json_decode($searchRequest, true),
             ])
-            ->attachData($pdfContent, 'BookingConfirmation.pdf', [
+            ->attachData($pdfContent, 'QuoteDetails.pdf', [
                 'mime' => 'application/pdf',
             ]);
     }
