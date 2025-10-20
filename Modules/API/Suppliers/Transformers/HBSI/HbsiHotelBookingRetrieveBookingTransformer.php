@@ -101,6 +101,24 @@ class HbsiHotelBookingRetrieveBookingTransformer
 
         $attributes = app(HotelContentApiTransformerService::class)->getHotelAttributes($hotel);
 
+        $roomsData = Arr::get($saveResponse, 'rooms', []);
+        $mealPlans = [];
+        if (is_array($roomsData)) {
+            if (array_key_exists('meal_plan', $roomsData) && ! is_array($roomsData['meal_plan'])) {
+                $mealPlans[] = $roomsData['meal_plan'];
+            } else {
+                foreach ($roomsData as $room) {
+                    if (is_array($room) && isset($room['meal_plan'])) {
+                        $mealPlans[] = $room['meal_plan'];
+                    }
+                }
+            }
+        }
+        $mealPlans = array_values(array_filter(array_unique($mealPlans), fn ($v) => $v !== null && $v !== ''));
+        if (empty($mealPlans)) {
+            $mealPlans = $hotel->hotel_board_basis;
+        }
+
         /** @var ResponseModel $responseModel */
         $responseModel = app(ResponseModel::class);
         $responseModel->setStatus($status);
@@ -110,7 +128,7 @@ class HbsiHotelBookingRetrieveBookingTransformer
         $responseModel->setHotelName($name);
         $responseModel->setHotelImage($hotelImage);
         $responseModel->setHotelAddress($hotelAddress);
-        $responseModel->setHotelMealPlans($hotel->hotel_board_basis);
+        $responseModel->setHotelMealPlans($mealPlans);
         $responseModel->setAmenities($attributes);
 
         $responseModel->setRooms($rooms);
