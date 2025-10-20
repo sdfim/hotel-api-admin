@@ -1128,11 +1128,275 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Validation errors",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingBookResponseErrorItem"
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "field": {
+                                                        "type": "string",
+                                                        "example": "booking_contact.email"
+                                                    },
+                                                    "message": {
+                                                        "type": "string",
+                                                        "example": "The booking_contact.email field is required."
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed."
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "missing_email": {
+                                        "summary": "Missing email",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.email",
+                                                    "message": "The booking_contact.email field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "invalid_phone": {
+                                        "summary": "Invalid phone",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone",
+                                                    "message": "The booking_contact.phone field must be a valid phone number."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_date": {
+                                        "summary": "Missing booking date",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_date",
+                                                    "message": "The booking_date field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_id": {
+                                        "summary": "Missing booking_id",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_id",
+                                                    "message": "The booking_id field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_amount_pay": {
+                                        "summary": "Missing amount_pay",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "amount_pay",
+                                                    "message": "The amount_pay field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_first_name": {
+                                        "summary": "Missing booking_contact.first_name",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.first_name",
+                                                    "message": "The booking_contact.first_name field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_last_name": {
+                                        "summary": "Missing booking_contact.last_name",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.last_name",
+                                                    "message": "The booking_contact.last_name field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_email": {
+                                        "summary": "Missing booking_contact.email",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.email",
+                                                    "message": "The booking_contact.email field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_phone_country_code": {
+                                        "summary": "Missing booking_contact.phone.country_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.country_code",
+                                                    "message": "The booking_contact.phone.country_code field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_phone_area_code": {
+                                        "summary": "Missing booking_contact.phone.area_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.area_code",
+                                                    "message": "The booking_contact.phone.area_code field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_phone_number": {
+                                        "summary": "Missing booking_contact.phone.number",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.number",
+                                                    "message": "The booking_contact.phone.number field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_address_line_1": {
+                                        "summary": "Missing booking_contact.address.line_1",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.address.line_1",
+                                                    "message": "The booking_contact.address.line_1 field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_address_city": {
+                                        "summary": "Missing booking_contact.address.city",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.address.city",
+                                                    "message": "The booking_contact.address.city field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_address_state_province_code": {
+                                        "summary": "Missing booking_contact.address.state_province_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.address.state_province_code",
+                                                    "message": "The booking_contact.address.state_province_code field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_address_postal_code": {
+                                        "summary": "Missing booking_contact.address.postal_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.address.postal_code",
+                                                    "message": "The booking_contact.address.postal_code field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "missing_booking_contact_address_country_code": {
+                                        "summary": "Missing booking_contact.address.country_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.address.country_code",
+                                                    "message": "The booking_contact.address.country_code field is required."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "invalid_booking_contact_phone_country_code": {
+                                        "summary": "Invalid booking_contact.phone.country_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.country_code",
+                                                    "message": "The booking_contact.phone.country_code field must be one of the allowed country codes (e.g., 1 for USA, 44 for UK). Valid values are integers between 1 and 999."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "invalid_booking_contact_phone_area_code": {
+                                        "summary": "Invalid booking_contact.phone.area_code",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.area_code",
+                                                    "message": "The booking_contact.phone.area_code field must be exactly 3 digits (e.g., 212 for New York)."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "invalid_booking_contact_phone_number": {
+                                        "summary": "Invalid booking_contact.phone.number",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "field": "booking_contact.phone.number",
+                                                    "message": "The booking_contact.phone.number field must be between 3 and 10 digits (e.g., 1234567)."
+                                                }
+                                            ],
+                                            "message": "Validation failed."
+                                        }
+                                    },
+                                    "valid_booking_contact_phone": {
+                                        "summary": "Valid booking_contact.phone example",
+                                        "value": {
+                                            "booking_contact": {
+                                                "phone": {
+                                                    "country_code": 1,
+                                                    "area_code": 212,
+                                                    "number": "1234567"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
