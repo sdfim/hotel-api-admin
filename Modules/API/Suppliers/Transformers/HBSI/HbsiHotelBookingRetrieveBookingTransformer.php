@@ -114,6 +114,7 @@ class HbsiHotelBookingRetrieveBookingTransformer
                 }
             }
         }
+
         $mealPlans = array_values(array_filter(array_unique($mealPlans), fn ($v) => $v !== null && $v !== ''));
         if (empty($mealPlans)) {
             $mealPlans = $hotel->hotel_board_basis;
