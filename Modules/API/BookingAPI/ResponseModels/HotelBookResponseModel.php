@@ -38,6 +38,8 @@ class HotelBookResponseModel
 
     private array $deposits = [];
 
+    private array $amenities = [];
+
     public function setConfirmationNumbersList(array $confirmation_numbers_list): void
     {
         $this->confirmation_numbers_list = $confirmation_numbers_list;
@@ -208,6 +210,16 @@ class HotelBookResponseModel
         return $this->deposits;
     }
 
+    public function setAmenities(array $amenities): void
+    {
+        $this->amenities = $amenities;
+    }
+
+    public function getAmenities(): array
+    {
+        return $this->amenities;
+    }
+
     public function toArray(): array
     {
         return [
@@ -228,6 +240,7 @@ class HotelBookResponseModel
             'per_night_breakdown' => $this->getPerNightBreakdown(),
             'confirmation_numbers_list' => $this->getConfirmationNumbersList(),
             'deposits' => $this->getDeposits(),
+            'amenities' => $this->getAmenities(),
         ];
     }
 }

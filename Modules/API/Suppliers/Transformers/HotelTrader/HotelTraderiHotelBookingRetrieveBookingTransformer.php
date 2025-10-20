@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Services\HotelContentApiTransformerService;
 
 class HotelTraderiHotelBookingRetrieveBookingTransformer
 {
@@ -59,6 +60,9 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $hotelAddress = $hotel?->address;
         $depositInformation = Arr::get($saveResponse, 'deposits', []);
 
+        $attributes = app(HotelContentApiTransformerService::class)->getHotelAttributes($hotel);
+
+
         /** @var ResponseModel $responseModel */
         $responseModel = app(ResponseModel::class);
         $responseModel->setStatus($status);
@@ -69,6 +73,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setHotelImage($hotelImage);
         $responseModel->setHotelAddress($hotelAddress);
         $responseModel->setHotelMealPlans($hotel?->hotel_board_basis);
+        $responseModel->setAmenities($attributes);
 
         $responseModel->setRooms($rooms);
 
