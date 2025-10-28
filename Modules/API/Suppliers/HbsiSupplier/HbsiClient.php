@@ -411,6 +411,8 @@ class HbsiClient
         foreach ($roomStaysArr as $roomStay) {
             $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
         }
+        $roomStays = str_replace('<Tax>', '', $roomStays);
+        $roomStays = str_replace('</Tax></Tax>', '</Tax>', $roomStays);
         $roomStays = '<RoomStays>'.$roomStays.'</RoomStays>';
         $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
         $iata = '';
