@@ -169,9 +169,9 @@ class BasePricingRulesApplier
                 default => 'totalPrice',
             };
 
-            //Do not include fees to calculate markup!!
+            // Do not include fees to calculate markup!!
             $basePriceForCalculation = $totalPropertyName === 'totalPrice' ? ($this->totalPrice - $this->totalFees) : $this->{$totalPropertyName};
-            //$basePriceForCalculation = $this->{$totalPropertyName};
+            // $basePriceForCalculation = $this->{$totalPropertyName};
             $percentageValue = ($basePriceForCalculation * $fixedValue) / 100;
 
             $this->markup += match ($priceValueTarget) {
@@ -243,23 +243,28 @@ class BasePricingRulesApplier
         return (int) $room['adults'] + (isset($room['children_ages']) ? count($room['children_ages']) : 0);
     }
 
-    protected function totals(bool $b2b = true): array
+    protected function totals(): array
     {
+        // Base totals coming from supplier (without our markup)
         $totals = [
-            'total_price' => $this->totalPrice,
-            'total_tax' => $this->totalTax,
-            'total_fees' => $this->totalFees,
-            'total_net' => $this->totalNet,
-            'commission_amount' => $this->commissionAmount,
+            'total_price' => (float) $this->totalPrice, // base = total_net + total_tax + total_fees
+            'total_tax' => (float) $this->totalTax,
+            'total_fees' => (float) $this->totalFees,
+            'total_net' => (float) $this->totalNet,
+            'commission_amount' => (float) $this->commissionAmount,
         ];
 
-        $markup = round($this->markup, 2);
+        // The value previously returned in "markup" (our rule-based markup)
+        $rulesMarkup = round((float) $this->markup, 2);
 
-        $b2b ? $totals['markup'] = $markup : $totals['total_price'] += $markup;
+        // Step 1: Move markup value to total_price
+        $finalTotalPrice = round($totals['total_price'] + $rulesMarkup, 2);
+        $totals['total_price'] = $finalTotalPrice;
 
-        /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,markup: float|int} $totals
-         */
+        // Step 2: Define markup as (total_price - total_net)
+        // It now includes taxes, fees, and our markup difference
+        $totals['markup'] = round($finalTotalPrice - $totals['total_net'], 2);
+
         return $totals;
     }
 }

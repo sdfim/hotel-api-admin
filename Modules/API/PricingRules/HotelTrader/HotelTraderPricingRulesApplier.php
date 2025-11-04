@@ -67,7 +67,7 @@ class HotelTraderPricingRulesApplier extends BasePricingRulesApplier implements 
             $this->applyParallelPricingRulesLogic($validPricingRules);
         }
 
-        $result = $this->totals($b2b);
+        $result = $this->totals();
         $result['validPricingRules'] = $validPricingRules;
 
         return $result;

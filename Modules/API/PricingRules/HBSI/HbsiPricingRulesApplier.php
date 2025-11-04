@@ -83,7 +83,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             }
         }
 
-        $result = $this->totals($b2b);
+        $result = $this->totals();
         $result['validPricingRules'] = $validPricingRules;
 
         return $result;
