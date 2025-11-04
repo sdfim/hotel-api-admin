@@ -77,6 +77,7 @@
                         <p><strong>Hotel name:</strong> {{ $field['hotel_name'] }}</p>
                         <p><strong>Supplier room name:</strong> {{ $field['price']['supplier_room_name'] }}</p>
                         <p><strong>Supplier rate name:</strong> {{ $field['price']['rate_name'] ??  $field['price']['rate_code'] ?? ''}}</p>
+                        <p><strong>Advisor email:</strong> {{ $advisorEmail ?? 'N/A' }}</p>
                     </div>
                 </div>
 
