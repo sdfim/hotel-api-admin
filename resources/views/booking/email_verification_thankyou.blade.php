@@ -12,6 +12,7 @@
         <h1 class="text-green-600 text-2xl font-bold mb-5 text-center">Thank you!</h1>
         <p class="mb-3 text-center text-base">Your quote has been approved.</p>
         <p class="mb-0 text-center text-base">We will send you a confirmation email once it has been completed.</p>
+        <p class="mb-0 text-center text-base">We will send your client a payment link to reserve the booking and let you know when they have paid.</p>
     </div>
 </div>
 </body>
