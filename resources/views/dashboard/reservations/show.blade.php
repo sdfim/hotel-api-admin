@@ -63,7 +63,15 @@
                         <p><strong>Total tax:</strong> {{ $field['price']['total_tax'] }}</p>
                         <p><strong>Total fees:</strong> {{ $field['price']['total_fees'] }}</p>
                         <p><strong>Total price:</strong> {{ $field['price']['total_price'] }}</p>
-                        <p><strong>Markup:</strong> {{ $field['price']['markup'] ?? 0 }}
+                        <p><strong>Markup:</strong> {{ $field['price']['markup'] ?? 0 }}</p>
+                        <p><strong>Paid:</strong>
+                            @if(!empty($paidByCurrency))
+                                @foreach($paidByCurrency as $i => $p)
+                                    {{ number_format($p['total'], 2, '.', ' ') }} {{ $p['currency'] }}@if(!$loop->last), @endif
+                                @endforeach
+                            @else
+                                0
+                            @endif
                         </p>
                     </div>
 
@@ -77,6 +85,7 @@
                         <p><strong>Hotel name:</strong> {{ $field['hotel_name'] }}</p>
                         <p><strong>Supplier room name:</strong> {{ $field['price']['supplier_room_name'] }}</p>
                         <p><strong>Supplier rate name:</strong> {{ $field['price']['rate_name'] ??  $field['price']['rate_code'] ?? ''}}</p>
+                        <p><strong>Advisor email:</strong> {{ $advisorEmail ?? 'N/A' }}</p>
                     </div>
                 </div>
 

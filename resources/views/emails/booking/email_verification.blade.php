@@ -270,12 +270,14 @@
         </tr>
     </table>
 
-    <h3 style="color:#19332c; font-size:33px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
-    <ul style="color:#4b635c; line-height:1.8; margin-bottom:16px;">
-        @foreach($perks as $perk)
-            <li>{{ $perk }}</li>
-        @endforeach
-    </ul>
+    @if(!empty($perks))
+        <h3 style="color:#19332c; font-size:33px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
+        <ul style="color:#4b635c; line-height:1.8; margin-bottom:16px;">
+            @foreach($perks as $perk)
+                <li>{{ $perk }}</li>
+            @endforeach
+        </ul>
+    @endif
 
     {{-- Room blocks with new styles, dynamic loop --}}
     <h3 style="color:#19332c; font-size:33px; margin:33px 0 28px;">Rooms & Rates:</h3>

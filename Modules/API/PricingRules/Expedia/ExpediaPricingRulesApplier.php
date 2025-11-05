@@ -76,7 +76,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             $this->applyParallelPricingRulesLogic($validPricingRules);
         }
 
-        $result = $this->totals($b2b);
+        $result = $this->totals();
         $result['validPricingRules'] = $validPricingRules;
 
         return $result;
