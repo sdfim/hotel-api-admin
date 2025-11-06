@@ -73,7 +73,6 @@ class BaseHotelBookTransformer
         $hotelBookResponseModel->setTotalTax($booking_pricing_data['total_tax']);
         $hotelBookResponseModel->setTotalFees($booking_pricing_data['total_fees']);
         $hotelBookResponseModel->setTotalNet($booking_pricing_data['total_net']);
-        $hotelBookResponseModel->setMarkup($booking_pricing_data['markup']);
         $hotelBookResponseModel->setCurrency($booking_pricing_data['currency']);
         $hotelBookResponseModel->setPerNightBreakdown(round(($booking_pricing_data['total_price'] / (int) $nights), 2));
 

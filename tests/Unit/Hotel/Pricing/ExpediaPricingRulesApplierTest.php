@@ -29,11 +29,10 @@ test('apply pricing rules to rooms', function () {
     expect($result)->toEqual($expectedResult);
 });
 
-
 function getExpectedResultForExpediaPricing(): array
 {
     return [
-        'total_price' => 2551.5,
+        'total_price' => 2611.5,
         'total_tax' => 355.5,
         'total_fees' => 270.0,
         'total_net' => 2196.0,

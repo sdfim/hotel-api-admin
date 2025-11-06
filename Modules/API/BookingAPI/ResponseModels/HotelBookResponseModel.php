@@ -28,8 +28,6 @@ class HotelBookResponseModel
 
     private float $total_net;
 
-    private float $markup;
-
     private string $currency;
 
     private float $per_night_breakdown;
@@ -170,16 +168,6 @@ class HotelBookResponseModel
         return $this->total_net;
     }
 
-    public function setMarkup(float $markup): void
-    {
-        $this->markup = $markup;
-    }
-
-    public function getMarkup(): float
-    {
-        return $this->markup;
-    }
-
     public function setCurrency(string $currency): void
     {
         $this->currency = $currency;
@@ -235,7 +223,6 @@ class HotelBookResponseModel
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-            'markup' => $this->getMarkup(),
             'currency' => $this->getCurrency(),
             'per_night_breakdown' => $this->getPerNightBreakdown(),
             'confirmation_numbers_list' => $this->getConfirmationNumbersList(),
