@@ -191,7 +191,6 @@ class RoomGroupsResponse extends BaseResponse
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-            'markup' => $this->getMarkup(),
             'currency' => $this->getCurrency(),
             'pay_now' => $this->getPayNow(),
             'pay_at_hotel' => $this->getPayAtHotel(),
