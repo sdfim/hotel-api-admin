@@ -109,6 +109,26 @@ class FlowHotelTraderBookDiffScenariosProd extends Command
         $this->cancel($bookingId, $bookingItem);
     }
 
+    private function scenario_s3(): void
+    {
+        $this->info('------------------------------------');
+        $this->warn('Starting Scenario #s3');
+        $occupancy = [['adults' => 2]];
+        $nights = 2;
+        $checkin = $this->checkin;
+        $checkout = Carbon::parse($checkin)->addDays($nights)->toDateString();
+
+        $options = [
+            [
+                'non_refundable' => false,
+            ],
+        ];
+
+        [$bookingId, $bookingItem] = $this->processBooking($occupancy, $checkin, $checkout, $options);
+
+        $this->cancel($bookingId, $bookingItem);
+    }
+
     // ######### additional methods ##########
     private function preset(): void
     {
