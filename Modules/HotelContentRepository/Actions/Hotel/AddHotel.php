@@ -136,6 +136,9 @@ class AddHotel
 
             if (! empty($dataSupplier['roomsData'])) {
                 foreach ($dataSupplier['roomsData'] as $room) {
+                    if ($room['supplier'] !== $data['main_supplier']) {
+                        continue;
+                    }
                     $roomId = Arr::get($room, 'id', 0);
                     $description = Arr::get($room, 'descriptions.overview');
                     $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
@@ -151,7 +154,7 @@ class AddHotel
                         ['name' => Arr::get($room, 'name')],
                         [
                             'description' => $descriptionAfterLayout,
-                            'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => $data['main_supplier']]]),
+                            'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => $room['supplier']]]),
                             'area' => Arr::get($room, 'area.square_feet', 0),
                             'room_views' => array_values(array_map(function ($view) {
                                 return $view['name'];
