@@ -77,11 +77,11 @@
         p {
             line-height: 1.6;
             margin-bottom: 32px;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         ul {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         ul, ul li, ul span li, p {
@@ -218,7 +218,7 @@
         Terra Mare Concierge
     </p>
 
-    <h2 style="font-size:40px; margin-top:24px; margin-bottom: 0 !important;  color:#19332c; font-weight:500;">{{ $hotelName }}</h2>
+    <h2 style="font-size:38px; margin-top:24px; margin-bottom: 0 !important;  color:#19332c; font-weight:500;">{{ $hotelName }}</h2>
     <p style="margin:4px 0 0 0; color:#4b635c;">{{ $hotelAddress }}</p>
     <div style="margin:8px 0 0 0;">{!! generateStarRating($rating) !!}</div>
 
@@ -239,8 +239,8 @@
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                         <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:22px; margin-bottom: 5px;">Check-in</div>
-                            <div style="font-size:33px;  color:#19332C;">{{ $checkin }}</div>
+                            <div style="font-size:20px; margin-bottom: 5px;">Check-in</div>
+                            <div style="font-size:31px;  color:#19332C;">{{ $checkin }}</div>
                         </td>
                     </tr>
                 </table>
@@ -249,8 +249,8 @@
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                         <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:22px; margin-bottom: 5px;">Check-out</div>
-                            <div style="font-size:33px;  color:#19332C;">{{ $checkout }}</div>
+                            <div style="font-size:20px; margin-bottom: 5px;">Check-out</div>
+                            <div style="font-size:31px;  color:#19332C;">{{ $checkout }}</div>
                         </td>
                     </tr>
                 </table>
@@ -259,8 +259,8 @@
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                         <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:22px; margin-bottom: 5px;">Rooms & Guests</div>
-                            <div style="font-size:33px;  color:#19332C;">
+                            <div style="font-size:20px; margin-bottom: 5px;">Rooms & Guests</div>
+                            <div style="font-size:31px;  color:#19332C;">
                                 {{ $guestInfo }}
                             </div>
                         </td>
@@ -271,7 +271,7 @@
     </table>
 
     @if(!empty($perks))
-        <h3 style="color:#19332c; font-size:33px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
+        <h3 style="color:#19332c; font-size:31px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
         <ul style="color:#4b635c; line-height:1.8; margin-bottom:16px;">
             @foreach($perks as $perk)
                 <li>{{ $perk }}</li>
@@ -280,15 +280,15 @@
     @endif
 
     {{-- Room blocks with new styles, dynamic loop --}}
-    <h3 style="color:#19332c; font-size:33px; margin:33px 0 28px;">Rooms & Rates:</h3>
+    <h3 style="color:#19332c; font-size:31px; margin:33px 0 28px;">Rooms & Rates:</h3>
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%; margin-bottom: 38px">
         <tr>
             <td style="width:50%; vertical-align:top; padding-right: 7%;" class="heder-room-info">
-                <div style="color:#246155; font-size: 28px;margin-bottom: 15px;">Room Information</div>
+                <div style="color:#246155; font-size: 26px;margin-bottom: 15px;">Room Information</div>
             </td>
             <td style="width:41%; vertical-align:top; padding-left: 2%;">
-                <div style="color:#246155; font-size: 28px;margin-bottom: 15px;">Rate Information</div>
+                <div style="color:#246155; font-size: 26px;margin-bottom: 15px;">Rate Information</div>
             </td>
         </tr>
     </table>
@@ -396,11 +396,11 @@
                                 </tr>
                             @endif
                             <tr>
-                                <td style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top; border-top: 1px solid #777;">
+                                <td style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 23px; vertical-align: top; border-top: 1px solid #777;">
                                     Total Price:
                                 </td>
                                 <td align="right"
-                                    style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 25px; vertical-align: top;  border-top: 1px solid #777;">
+                                    style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 23px; vertical-align: top;  border-top: 1px solid #777;">
                                     ${{ $totalPrice }}</td>
                             </tr>
                         </table>
@@ -415,7 +415,7 @@
            style="background: #263a3a;
                     border-radius: 30px;
                     color: #fff;
-                    font-size: 35px;
+                    font-size: 33px;
                     padding: 35px 45px;
                     text-decoration: none;
                     display: inline-block;">
