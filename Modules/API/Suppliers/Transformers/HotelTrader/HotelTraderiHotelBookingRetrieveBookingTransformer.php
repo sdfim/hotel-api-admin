@@ -104,10 +104,10 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
         $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
         $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
-        $responseModel->setCurrency(Arr::get($saveResponse, 'markup', ''));
+        $responseModel->setCurrency(Arr::get($saveResponse, 'currency', ''));
         $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setPerNightBreakdown(0.0);
-        $responseModel->setBoardBasis(Arr::get($roomsData[0], 'mealplanOptions.mealplanDescription', ''));
+        $responseModel->setBoardBasis(Arr::get($saveResponse, 'meal_plan', ''));
 
         $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId(Arr::get($data, 'htConfirmationCode', ''));
@@ -118,7 +118,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
                 'type_id' => 'HT',
             ],
         ]);
-        $responseModel->setCancellationNumber(Arr::get($roomsData[0], 'crsCancelConfirmationCode', null));
+        $responseModel->setCancellationNumber('');
         $responseModel->setBillingContact(Arr::get($bookRequest, 'booking_contact.address', []));
         $responseModel->setBillingEmail(Arr::get($bookRequest, 'booking_contact.email', ''));
         $responseModel->setBillingPhone(Arr::get($bookRequest, 'booking_contact.phone', []));
