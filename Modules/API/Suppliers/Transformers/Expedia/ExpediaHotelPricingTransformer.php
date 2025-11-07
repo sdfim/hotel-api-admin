@@ -204,8 +204,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['markup'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['markup'] ?? 0.0));
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['non_refundable']);
         $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['rate_id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['cancellation_policies']);
@@ -245,7 +243,6 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['markup'] = 0.0;
         $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
 
@@ -335,16 +332,15 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
-        $roomResponse->setMarkup($pricingRulesApplier['markup']);
         /** Commission tracking data */
         $roomResponse->setCommissionAmount($pricingRulesApplier['commission_amount']);
 
         if ($isCommissionTracking && ! ($pricingRulesApplier['commission_amount'] > 0)) {
-            $roomResponse->setMarkup(0);
-            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
-            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+            $roomResponse->setCommissionAmount(0.0);
         }
-        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionableAmount(
+            max(0.0, $roomResponse->getTotalPrice() - $roomResponse->getTotalTax())
+        );
 
 //        $resolvedPolicies = CancellationPolicyResolver::getRateLevel($roomResponse, Arr::get($this->cancellationPolicies, $giataId, []), $query, $giataId);
 //        if (! is_array($cancellationPolicies) || Arr::isAssoc($cancellationPolicies)) {

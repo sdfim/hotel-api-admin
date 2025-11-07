@@ -236,8 +236,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setTotalFees(round($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0, 2));
         $roomGroupsResponse->setTotalNet(round($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0, 2));
 
-        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0));
-
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
         $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
         $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies'] ?? []);
@@ -323,7 +321,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['markup'] = 0.0;
 
         $rateToApply = [];
 
@@ -477,13 +474,12 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'], 2));
         $roomResponse->setTotalNet(round($pricingRulesApplier['total_net'], 2));
 
-        $roomResponse->setMarkup(Arr::get($pricingRulesApplier, 'markup', 0.0));
         if ($isCommissionTracking) {
-            $roomResponse->setMarkup(0);
-            $roomResponse->setTotalPrice(Arr::get($pricingRulesApplier, 'total_price', 0.0));
-            $roomResponse->setCommissionAmount(Arr::get($pricingRulesApplier, 'markup', 0.0));
+            $roomResponse->setCommissionAmount(0.0);
         }
-        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionableAmount(
+            max(0.0, $roomResponse->getTotalPrice() - $roomResponse->getTotalTax())
+        );
         $roomResponse->setCurrency($this->currency ?? 'USD');
 
         $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));

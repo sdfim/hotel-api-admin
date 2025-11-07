@@ -70,7 +70,6 @@ class ExpediaHotelBookingRetrieveBookingTransformer
         $responseModel->setTotalTax(Arr::get($itemPricingData, 'total_tax', 0));
         $responseModel->setTotalFees(Arr::get($itemPricingData, 'total_fees', 0));
         $responseModel->setTotalNet(Arr::get($itemPricingData, 'total_net', 0));
-        $responseModel->setMarkup(Arr::get($itemPricingData, 'markup', 0));
         $responseModel->setCurrency(Arr::get($itemPricingData, 'currency', ''));
         $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');

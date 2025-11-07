@@ -256,14 +256,7 @@ class BasePricingRulesApplier
 
         // The value previously returned in "markup" (our rule-based markup)
         $rulesMarkup = round((float) $this->markup, 2);
-
-        // Step 1: Move markup value to total_price
-        $finalTotalPrice = round($totals['total_price'] + $rulesMarkup, 2);
-        $totals['total_price'] = $finalTotalPrice;
-
-        // Step 2: Define markup as (total_price - total_net)
-        // It now includes taxes, fees, and our markup difference
-        $totals['markup'] = round($finalTotalPrice - $totals['total_net'], 2);
+        $totals['total_price'] = round($totals['total_price'] + $rulesMarkup, 2);
 
         return $totals;
     }

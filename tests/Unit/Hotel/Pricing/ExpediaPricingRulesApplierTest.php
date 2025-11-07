@@ -17,7 +17,7 @@ test('apply pricing rules to rooms', function () {
     $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray, '', '', '', '', '');
 
     expect($result)->toBeArray()
-        ->and($result)->toHaveKeys(['total_price', 'total_tax', 'total_fees', 'total_net', 'markup'])
+        ->and($result)->toHaveKeys(['total_price', 'total_tax', 'total_fees', 'total_net'])
         ->and($result['total_price'])->not->toBeNull()
         ->and($result['total_tax'])->not->toBeNull()
         ->and($result['total_fees'])->not->toBeNull()
@@ -29,15 +29,13 @@ test('apply pricing rules to rooms', function () {
     expect($result)->toEqual($expectedResult);
 });
 
-
 function getExpectedResultForExpediaPricing(): array
 {
     return [
-        'total_price' => 2551.5,
+        'total_price' => 2611.5,
         'total_tax' => 355.5,
         'total_fees' => 270.0,
         'total_net' => 2196.0,
-        'markup' => 60.0,
         'commission_amount' => 0.0,
     ];
 }

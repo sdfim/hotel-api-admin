@@ -13,7 +13,6 @@ class RoomGroupsResponseFactory
         $roomGroupsResponse->setTotalTax(0.0);
         $roomGroupsResponse->setTotalFees(0.0);
         $roomGroupsResponse->setTotalNet(0.0);
-        $roomGroupsResponse->setMarkup(0.0);
         $roomGroupsResponse->setCurrency('');
         $roomGroupsResponse->setPayNow(false);
         $roomGroupsResponse->setPayAtHotel(false);

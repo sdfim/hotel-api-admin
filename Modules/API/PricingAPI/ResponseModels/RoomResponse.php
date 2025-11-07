@@ -21,7 +21,6 @@ class RoomResponse extends BaseResponse
     private float $total_net = 0.0;
     private float $commissionable_amount = 0.0;
     private float $commission_amount = 0.0;
-    private float $markup = 0.0;
     private string $booking_item = '';
     private string $currency = '';
     private string $room_type = '';
@@ -263,16 +262,6 @@ class RoomResponse extends BaseResponse
         return $this->total_fees;
     }
 
-    public function setMarkup(float $markup): void
-    {
-        $this->markup = $markup;
-    }
-
-    public function getMarkup(): float
-    {
-        return $this->markup;
-    }
-
     public function setTotalNet(float $total_net): void
     {
         $this->total_net = $total_net;
@@ -447,7 +436,6 @@ class RoomResponse extends BaseResponse
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-            'markup' => $this->getMarkup(),
 
             'pricing_rules_applier' => $this->getPricingRulesAppliers(),
 
@@ -532,9 +520,6 @@ class RoomResponse extends BaseResponse
         }
         if (isset($data['total_net'])) {
             $instance->setTotalNet($data['total_net']);
-        }
-        if (isset($data['markup'])) {
-            $instance->setMarkup($data['markup']);
         }
         if (isset($data['pricing_rules_applier'])) {
             $instance->setPricingRulesAppliers($data['pricing_rules_applier']);

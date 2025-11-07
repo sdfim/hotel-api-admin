@@ -26,7 +26,6 @@ class RoomResponseFactory
         $roomResponse->setTotalTax(0.0);
         $roomResponse->setTotalFees(0.0);
         $roomResponse->setTotalNet(0.0);
-        $roomResponse->setMarkup(0.0);
         $roomResponse->setCurrency('');
         $roomResponse->setBookingItem('');
         $roomResponse->setCancellationPolicies([]);

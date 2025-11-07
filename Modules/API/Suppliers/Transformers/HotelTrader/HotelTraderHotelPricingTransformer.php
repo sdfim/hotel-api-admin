@@ -79,7 +79,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $hotelResponse->setGiataHotelId($giataId);
         $hotelResponse->setDistanceFromSearchLocation($this->giata[$giataId]['distance'] ?? 0);
         $hotelResponse->setRating(Arr::get($propertyGroup, 'starRating', ''));
-//        $hotelResponse->setHotelName(Arr::get($propertyGroup, 'hotel_name', ''));
+        //        $hotelResponse->setHotelName(Arr::get($propertyGroup, 'hotel_name', ''));
         $hotelResponse->setHotelName($this->giata[$giataId]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(Arr::get($propertyGroup, 'board_basis', ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HOTEL_TRADER->value);
@@ -185,8 +185,6 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($isCommissionTracking ? 0 : ($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0));
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable']);
         $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom]['rate_id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies']);
@@ -229,7 +227,6 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['markup'] = 0.0;
 
         $rateOccupancy = $this->occupancies[$giataId][$rate['occupancyRefId']] ?? 0;
         $rateToApply['Rates'] = $rate['rateInfo'];
@@ -283,13 +280,12 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setTotalFees(round($pricingRulesApplier['total_fees'], 2));
         $roomResponse->setTotalNet(round($pricingRulesApplier['total_net'], 2));
 
-        $roomResponse->setMarkup($pricingRulesApplier['markup']);
         if ($isCommissionTracking) {
-            $roomResponse->setMarkup(0);
-            $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
-            $roomResponse->setCommissionAmount($pricingRulesApplier['markup']);
+            $roomResponse->setCommissionAmount(0.0);
         }
-        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() + $roomResponse->getMarkup() - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionableAmount(
+            max(0.0, $roomResponse->getTotalPrice() - $roomResponse->getTotalTax())
+        );
         $roomResponse->setCurrency($this->currency ?? 'USD');
 
         $roomResponse->setCancellationPolicies($this->transformCancellationPolicies(Arr::get($rate, 'cancellationPolicies', [])));
@@ -460,6 +456,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         if (Arr::isAssoc($policies)) {
             $policies = [$policies];
         }
+
         return array_map(function ($policy) {
             return [
                 'description' => 'General Cancellation Policy',

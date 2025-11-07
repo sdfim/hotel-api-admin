@@ -12,8 +12,6 @@ class RoomGroupsResponse extends BaseResponse
 
     private float $total_net;
 
-    private float $markup;
-
     private string $currency;
 
     private bool $pay_now;
@@ -44,16 +42,6 @@ class RoomGroupsResponse extends BaseResponse
     public function getDeposits(): array
     {
         return $this->deposits;
-    }
-
-    private function getMarkup(): float
-    {
-        return $this->markup;
-    }
-
-    public function setMarkup(float $markup): void
-    {
-        $this->markup = $markup;
     }
 
     public function getTotalPrice(): float
@@ -203,7 +191,6 @@ class RoomGroupsResponse extends BaseResponse
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-            'markup' => $this->getMarkup(),
             'currency' => $this->getCurrency(),
             'pay_now' => $this->getPayNow(),
             'pay_at_hotel' => $this->getPayAtHotel(),
