@@ -360,7 +360,9 @@ class BookApiHandler extends BaseController
         $apiSearchInspector = ApiSearchInspector::where('search_id', $searchId)->first()->request;
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
-        $passengersData = $this->dtoAddPassengers(['passengers' => $passengers])[$bookingItem];
+        $service = app(HotelBookingAddPassengersService::class);
+        $passengersData = $service->dtoAddPassengers(['passengers' => $passengers])[$bookingItem];
+
         for ($i = 1; $i <= $countRooms; $i++) {
             if (array_key_exists($i, $passengersData['rooms'])) {
                 $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
