@@ -654,6 +654,7 @@ class ApiBookingInspectorRepository
             ->where('token_id', $tokenId)
             ->where('type', 'add_item')
             ->where('sub_type', 'complete')
+            ->where('status', 'success')
             ->whereNotIn('booking_item', $bookedItems)
             ->when(filled($apiClientId) || filled($apiClientEmail), function ($q) use ($apiClientId, $apiClientEmail) {
                 $q->where(function ($query) use ($apiClientId, $apiClientEmail) {
