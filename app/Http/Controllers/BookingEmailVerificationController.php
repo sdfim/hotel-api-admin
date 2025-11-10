@@ -21,7 +21,7 @@ class BookingEmailVerificationController extends Controller
             return view('booking.email_verification_notfound');
         }
 
-        $inspector = ApiBookingInspector::where('booking_item', $booking_item->booking_item)->first();
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item)->first();
         if (! $inspector->exists()) {
             return view('booking.email_verification_notfound');
         }
