@@ -71,6 +71,8 @@ class PurgeBaskets extends Command
                 $subQuery->select('booking_id')
                     ->from('api_booking_inspector')
                     ->where('type', 'book')
+                    ->where('sub_type', 'create')
+                    ->where('status', 'success')
                     ->distinct();
             })
             ->get();
