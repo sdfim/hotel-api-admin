@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -15,9 +16,16 @@ class BookingEmailVerificationController extends Controller
     public function verify($booking_item, $uuid): View
     {
         $item = ApiBookingItem::where('booking_item', $booking_item)->first();
+
         if (! $item->exists()) {
             return view('booking.email_verification_notfound');
         }
+
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item->booking_item)->first();
+        if (! $inspector->exists()) {
+            return view('booking.email_verification_notfound');
+        }
+
         if ($item->exists() && (bool) $item->email_verified === true) {
             return view('booking.email_verification_already_verified');
         }
