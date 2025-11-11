@@ -41,6 +41,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->view('dashboard.reservations.column.contains'),
                 TextColumn::make('channel.name')
                     ->numeric()
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->sortable(),
 

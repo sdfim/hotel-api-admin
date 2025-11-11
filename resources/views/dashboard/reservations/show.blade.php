@@ -109,12 +109,16 @@
                             <div class="flex flex-wrap">
                                 @if ($images)
                                     @foreach($images as $imageNumber => $image)
-                                        <a href="{{ $image }}" class="reservation-show-glightbox mr-1 mb-1">
+                                        @php
+                                            $imageUrl = Str::startsWith($image, ['http://', 'https://']) ? $image : Storage::url($image);
+                                        @endphp
+                                        <a href="{{ $imageUrl }}" class="reservation-show-glightbox mr-1 mb-1">
                                             <img class="w-24 h-24 cursor-pointer animate-draw-attention"
-                                                 src="{{ $image }}" alt="Image {{ $imageNumber }}">
+                                                 src="{{ $imageUrl }}" alt="Image {{ $imageNumber }}">
                                         </a>
                                     @endforeach
                                 @endif
+
                             </div>
                         </div>
                     </div>
