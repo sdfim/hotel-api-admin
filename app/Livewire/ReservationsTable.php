@@ -55,6 +55,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         if (is_string($state)) {
                             return implode('<br>', array_map('trim', explode(',', $state)));
                         }
+
                         return '';
                     })
                     ->html(),
@@ -64,10 +65,14 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('apiBookingsMetadata')
                     ->label('Hotel/Vendor')
+                    ->wrap()
                     ->toggleable()
                     ->toggledHiddenByDefault(true)
                     ->formatStateUsing(function ($state, $record) {
-                        return $record->metadata?->hotel?->name ?? '';
+                        $hotelName = $record->apiBookingsMetadata?->hotel?->name ?? '';
+                        $vendorName = $record->apiBookingsMetadata?->supplier?->name ?? '';
+
+                        return "$hotelName ($vendorName)";
                     }),
 
                 ImageColumn::make('images')
