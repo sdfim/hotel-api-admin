@@ -9,11 +9,13 @@ use App\Models\Reservation;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use App\Repositories\ChannelRepository;
-use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
+use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Services\HotelService;
 
 class ReservationTools
 {
@@ -44,15 +46,32 @@ class ReservationTools
                 || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA
                 || SupplierNameEnum::from($supplier) === SupplierNameEnum::HOTEL_TRADER) {
                 $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
-                $hotelName = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']) : '';
-                $hotelImages = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']) : '';
+
                 $hotelId = $reservationsData['hotel_id'];
+
+                $hotelName = Hotel::where('giata_code', $hotelId)->first()?->product->name ?? '';
+                $hotelData = app(HotelService::class)->getDetailRespose($hotelId);
+                $hotelImages = [];
+                $images = Arr::get($hotelData, 'images', []);
+                if (is_array($images)) {
+                    foreach ($images as $image) {
+                        if (is_string($image)) {
+                            $hotelImages[] = $image;
+                        } elseif (is_array($image)) {
+                            $hotelImages[] = Arr::get($image, 'url');
+                        }
+                        if (count($hotelImages) >= 5) {
+                            break;
+                        }
+                    }
+                }
+
                 $checkin = $reservationsData['query']['checkin'];
                 $totalCost = $reservationsData['price']['total_price'];
             }
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
-                $reservation = new Reservation;
+                $reservation = new Reservation();
 
                 $reservation->date_offload = null;
                 $reservation->date_travel = date('Y-m-d', strtotime($checkin));
