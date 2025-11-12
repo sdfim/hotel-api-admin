@@ -303,7 +303,7 @@
                 if (Illuminate\Support\Arr::get($policy, 'description') === 'General Cancellation Policy') {
                     $penaltyStartDate = Illuminate\Support\Arr::get($policy, 'penalty_start_date');
                     if ($penaltyStartDate) {
-                        $refundableUntil = 'Refundable until ' . \Carbon\Carbon::parse($penaltyStartDate)->addDays(30)->format('m/d/Y');
+                        $refundableUntil = 'Refundable until ' . \Carbon\Carbon::parse($penaltyStartDate)->format('m/d/Y');
                         break;
                     }
                 }
