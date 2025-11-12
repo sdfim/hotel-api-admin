@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Transformers\HotelTrader;
 
+use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,9 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
         $saveResponse = $bookData ? json_decode(Storage::get($bookData->client_response_path), true) : [];
         $bookRequest = json_decode($bookData?->request ?? '', true) ?? [];
+
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $bookingPricingData = json_decode($bookingItem?->booking_pricing_data ?? '', true);
 
         $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
@@ -94,6 +98,8 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $responseModel->setAmenities($attributes);
 
         $responseModel->setRooms($rooms);
+
+        $responseModel->setNonRefundable(Arr::get($bookingPricingData, 'non_refundable', true));
 
         $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
             ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];

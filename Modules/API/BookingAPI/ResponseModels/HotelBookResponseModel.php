@@ -16,6 +16,8 @@ class HotelBookResponseModel
 
     private array $rooms;
 
+    private bool $non_refundable = false;
+
     private array $cancellation_terms;
 
     private string $rate;
@@ -106,6 +108,16 @@ class HotelBookResponseModel
     public function getRooms(): array
     {
         return $this->rooms;
+    }
+
+    public function setNonRefundable(bool $non_refundable): void
+    {
+        $this->non_refundable = $non_refundable;
+    }
+
+    public function getNonRefundable(): bool
+    {
+        return $this->non_refundable ?? false;
     }
 
     public function setCancellationTerms(array $cancellation_terms): void
@@ -217,6 +229,7 @@ class HotelBookResponseModel
             'supplier' => $this->getSupplier(),
             'hotel_name' => $this->getHotelName(),
             'rooms' => $this->getRooms(),
+            'non_refundable' => $this->getNonRefundable(),
             'cancellation_terms' => $this->getCancellationTerms(),
             'rate' => $this->getRate(),
             'total_price' => $this->getTotalPrice(),

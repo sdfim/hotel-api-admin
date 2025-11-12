@@ -39,7 +39,7 @@ class HbsiHotelBookingRetrieveBookingTransformer
 
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
         $bookingItemData = json_decode($bookingItem?->booking_item_data ?? '', true);
-
+        $bookingPricingData = json_decode($bookingItem?->booking_pricing_data ?? '', true);
         // region Confirmation Numbers
         $bookingDataFromFile = $bookData ? json_decode(Storage::get($bookData->response_path), true) : [];
 
@@ -133,6 +133,8 @@ class HbsiHotelBookingRetrieveBookingTransformer
         $responseModel->setAmenities($attributes);
 
         $responseModel->setRooms($rooms);
+
+        $responseModel->setNonRefundable(Arr::get($bookingPricingData, 'non_refundable', true));
 
         $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
             ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
