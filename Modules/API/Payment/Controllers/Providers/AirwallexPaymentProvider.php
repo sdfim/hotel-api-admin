@@ -37,7 +37,10 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             $data['return_url'] ?? null,
             $data['metadata'] ?? [],
         );
-
+        $parsedUrl = parse_url($data['return_url']);
+        $host = $parsedUrl['host'];
+        $data['auto_capture'] = true;
+        $data['request_origin'] = $host ?? 'https://fora-b2b-react-henna.vercel.app';
         $data['payment_method_options'] = [
             'card' => [
                 'card_input_via' => 'ecommerce',

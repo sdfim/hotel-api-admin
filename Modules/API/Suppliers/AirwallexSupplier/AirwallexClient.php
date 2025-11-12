@@ -108,6 +108,10 @@ class AirwallexClient
         if (! $token) {
             return null;
         }
+
+        $parsedUrl = parse_url($returnUrl);
+        $host = $parsedUrl['host'] ?? 'https://fora-b2b-react-henna.vercel.app';
+
         $url = $this->baseUrl.'/api/v1/pa/payment_intents/create';
         $headers = [
             'Authorization' => 'Bearer '.$token,
@@ -120,6 +124,8 @@ class AirwallexClient
             'merchant_order_id' => $merchantOrderId,
             'order' => $order,
             'request_id' => $requestId,
+            'request_origin' => $host,
+            'auto_capture' => true,
             'payment_method_options' => [
                 'card' => [
                     'card_input_via' => 'ecommerce',
