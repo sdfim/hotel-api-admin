@@ -4,6 +4,7 @@ namespace Modules\API\Suppliers\AirwallexSupplier;
 
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -110,7 +111,8 @@ class AirwallexClient
         }
 
         $parsedUrl = parse_url($returnUrl);
-        $host = $parsedUrl['host'] ?? 'https://fora-b2b-react-henna.vercel.app';
+        $host = Arr::get($parsedUrl, 'host');
+        $requestOrigin = $host ? 'https://'.$host : 'https://fora-b2b-react-henna.vercel.app';
 
         $url = $this->baseUrl.'/api/v1/pa/payment_intents/create';
         $headers = [
@@ -124,7 +126,7 @@ class AirwallexClient
             'merchant_order_id' => $merchantOrderId,
             'order' => $order,
             'request_id' => $requestId,
-            'request_origin' => $host,
+            'request_origin' => $requestOrigin,
             'auto_capture' => true,
             'payment_method_options' => [
                 'card' => [
