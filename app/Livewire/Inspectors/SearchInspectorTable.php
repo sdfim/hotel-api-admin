@@ -12,7 +12,6 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -67,18 +66,19 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                             $name = $properties[$code] ?? '';
                             $result[] = $name ? ("$code | $name ") : $code;
                         }
+
                         return implode(', ', $result);
                     }),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),
-                ViewColumn::make('request json')
+                ViewColumn::make('request')
                     ->label('')
+                    ->searchable()
                     ->view('dashboard.search-inspector.column.request'),
-                ViewColumn::make('request rooms')
+                ViewColumn::make('request-data')
                     ->label('Occupancy')
                     ->toggleable()
-                    ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.request-data'),
                 TextColumn::make('token.name')
                     ->label('Channel')
@@ -92,9 +92,23 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->formatStateUsing(function (ApiSearchInspector $record): string {
                         return Supplier::whereIn('id', explode(',', $record->suppliers))->pluck('name')->implode(', ');
                     })
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereIn('suppliers', explode(',', $search));
-                    }),
+                    ->searchable(
+                        query: function ($query, string $search) {
+                            $matchingIds = Supplier::where('name', 'like', "%{$search}%")->pluck('id')->toArray();
+
+                            if (empty($matchingIds)) {
+                                $query->whereRaw('0 = 1');
+
+                                return;
+                            }
+
+                            foreach ($matchingIds as $id) {
+                                $query->orWhereRaw('FIND_IN_SET(?, suppliers)', [$id]);
+                            }
+                        },
+                        isIndividual: true
+                    )
+                    ->extraAttributes(['data-custom-search' => 'suppliers']),
                 TextColumn::make('created_at')
                     ->toggleable()
                     ->searchable(isIndividual: true)
