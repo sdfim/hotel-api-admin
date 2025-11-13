@@ -36,6 +36,8 @@ class HotelResponse extends BaseResponse
 
     private array $deposit_information = [];
 
+    private array $ultimate_amenities = [];
+
     private array $descriptive_content = [];
 
     private array $cancellation_policies = [];
@@ -44,9 +46,13 @@ class HotelResponse extends BaseResponse
 
     private array $supplier_information;
 
-    private bool $holdable;
+    private bool $holdable = false;
 
     private array $hotel_contacts;
+
+    private array $informative_fees = [];
+
+    private array $commissions;
 
     public function setSupplierInformation(array $supplier_information): void
     {
@@ -156,6 +162,15 @@ class HotelResponse extends BaseResponse
         return $this->deposit_information;
     }
 
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
     public function setDescriptiveContent(array $descriptiveContent): void
     {
         $this->descriptive_content = $descriptiveContent;
@@ -271,6 +286,26 @@ class HotelResponse extends BaseResponse
         return $this->hotel_contacts;
     }
 
+    public function setInformativeFees(array $informative_fees): void
+    {
+        $this->informative_fees = $informative_fees;
+    }
+
+    public function getInformativeFees(): array
+    {
+        return $this->informative_fees;
+    }
+
+    public function setCommissions(array $commissions): void
+    {
+        $this->commissions = $commissions;
+    }
+
+    public function getCommissions(): array
+    {
+        return $this->commissions;
+    }
+
     public function toArray(): array
     {
         return [
@@ -294,7 +329,10 @@ class HotelResponse extends BaseResponse
             'deposit_information' => $this->getDepositInformation(),
             'holdable' => $this->getHoldable(),
             'descriptive_content' => $this->getDescriptiveContent(),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'hotel_contacts' => $this->getHotelContacts(),
+            'informative_fees' => $this->getInformativeFees(),
+            'commissions' => $this->getCommissions(),
         ];
     }
 

@@ -54,5 +54,6 @@ return [
             'username' => env('HOTEL_TRADER_PUSH_USERNAME', ''),
             'password' => env('HOTEL_TRADER_PUSH_PASSWORD', ''),
         ],
+        'use_debug_tax_fee' => env('USE_DEBUG_TAX_FEE', false),
     ],
 ];

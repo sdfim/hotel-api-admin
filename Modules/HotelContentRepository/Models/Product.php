@@ -102,6 +102,11 @@ class Product extends Model
         return $this->hasMany(ProductDescriptiveContentSection::class);
     }
 
+    public function feeTaxes(): HasMany
+    {
+        return $this->hasMany(ProductFeeTax::class);
+    }
+
     public function keyMappings(): HasMany
     {
         return $this->hasMany(KeyMapping::class);

@@ -10,28 +10,18 @@ class ServiceResolver
 {
     /**
      * Apply repo services to transformed rates.
-     *
-     * @param array $transformedRates
-     * @param string $giataCode
-     * @param string $ratePlanCode
-     * @param string $unifiedRoomCode
-     * @param int $numberOfPassengers
-     * @param string $checkinInput
-     * @param string $checkoutInput
-     * @param array $repoServicesInput
      */
     public function applyRepoService(
         array &$transformedRates,
         string $giataCode,
         string $ratePlanCode,
         string $unifiedRoomCode,
-        int    $numberOfPassengers,
+        int $numberOfPassengers,
         string $checkinInput,
         string $checkoutInput,
-        array  $repoServicesInput,
-        array  $occupancy = []
-    ): void
-    {
+        array $repoServicesInput,
+        array $occupancy = []
+    ): void {
         // Get services for the specific hotel (giata)
         $repoServices = Arr::get($repoServicesInput, $giataCode, []);
 
@@ -57,11 +47,6 @@ class ServiceResolver
     /**
      * Filter repo services.
      *
-     * @param array  $services
-     * @param Carbon $checkin
-     * @param Carbon $checkout
-     * @param int    $numberOfNights
-     * @param array  $occupancy
      * @return array Filtered list of services (array of service arrays)
      */
     protected function filterRepoServices(array $services, Carbon $checkin, Carbon $checkout, int $numberOfNights, array $occupancy): array
@@ -69,11 +54,11 @@ class ServiceResolver
         return array_values(array_filter($services, function ($service) use ($checkin, $checkout, $numberOfNights, $occupancy) {
             // 1. Date overlap check (stay period overlaps service period)
             $startDate = Arr::get($service, 'start_date');
-            $endDate   = Arr::get($service, 'end_date');
+            $endDate = Arr::get($service, 'end_date');
 
             if ($startDate && $endDate) {
                 $startDate = Carbon::parse($startDate);
-                $endDate   = Carbon::parse($endDate);
+                $endDate = Carbon::parse($endDate);
 
                 // If no overlap, exclude
                 if ($checkout <= $startDate || $checkin >= $endDate->addDay()) { // addDay to make end inclusive
@@ -93,11 +78,11 @@ class ServiceResolver
 
             // 3. Age restriction – exclude child-specific services when no eligible children.
             $ageFromRaw = Arr::get($service, 'age_from', null);
-            $ageToRaw   = Arr::get($service, 'age_to', null);
+            $ageToRaw = Arr::get($service, 'age_to', null);
             $ageFrom = is_null($ageFromRaw) ? null : (int) $ageFromRaw;
-            $ageTo   = is_null($ageToRaw) ? null : (int) $ageToRaw;
+            $ageTo = is_null($ageToRaw) ? null : (int) $ageToRaw;
 
-            if (!is_null($ageFrom) && !is_null($ageTo) && $ageTo > $ageFrom && $ageTo < 18) {
+            if (! is_null($ageFrom) && ! is_null($ageTo) && $ageTo > $ageFrom && $ageTo < 18) {
                 $hasChildInRange = false;
                 foreach ($occupancy as $occ) {
                     foreach (($occ['children_ages'] ?? []) as $childAge) {
@@ -111,6 +96,7 @@ class ServiceResolver
                     return false;
                 }
             }
+
             return true;
         }));
     }
@@ -118,13 +104,7 @@ class ServiceResolver
     /**
      * Process transformed rates and apply repo services.
      *
-     * @param array $transformedRates
-     * @param array $servicesFiltered List of services already filtered
-     * @param string $ratePlanCode
-     * @param string $unifiedRoomCode
-     * @param int $numberOfNights
-     * @param int $numberOfPassengers
-     * @return array
+     * @param  array  $servicesFiltered  List of services already filtered
      */
     protected function processTransformedRates(
         array $transformedRates,
@@ -133,8 +113,7 @@ class ServiceResolver
         string $unifiedRoomCode,
         int $numberOfNights,
         int $numberOfPassengers
-    ): array
-    {
+    ): array {
         foreach ($transformedRates as &$rate) {
             if (! empty($servicesFiltered)) {
                 foreach ($servicesFiltered as $service) {
@@ -159,7 +138,7 @@ class ServiceResolver
                     );
 
                     $rateData = [
-                        'Code' => 'OBE_' . $service['id'],
+                        'Code' => 'OBE_'.$service['id'],
                         'Amount' => $amount,
                         'RackAmount' => $rackAmount,
                         'DisplayableAmount' => $amount,
@@ -167,7 +146,7 @@ class ServiceResolver
                         'Description' => $service['name'],
                         'IsCommissionable' => (bool) $isCommissionable,
                         'Type' => $isCommissionable ? 'Inclusive' : 'Exclusive',
-                        'MultiplierFee' => 1,
+                        'multiplier_fee' => 1,
                         'CollectedBy' => $service['collected_by'] ?? null,
                     ];
 
@@ -190,11 +169,6 @@ class ServiceResolver
 
     /**
      * Check if the service is excluded based on rate code miss matching, the unified room code miss matching and if it is not mandatory.
-     *
-     * @param array $service
-     * @param string $ratePlanCode
-     * @param string $unifiedRoomCode
-     * @return bool
      */
     protected function isServiceExcluded(array $service, string $ratePlanCode, string $unifiedRoomCode): bool
     {
@@ -215,33 +189,22 @@ class ServiceResolver
 
     /**
      * Check if the rate code is different.
-     *
-     * @param string|null $serviceRateCode
-     * @param string $ratePlanCode
-     * @return bool
      */
     protected function hasDifferentRateCode(?string $serviceRateCode, string $ratePlanCode): bool
     {
-        return !is_null($serviceRateCode) && $serviceRateCode !== $ratePlanCode;
+        return ! is_null($serviceRateCode) && $serviceRateCode !== $ratePlanCode;
     }
 
     /**
      * Check if the unified room code is different.
-     *
-     * @param string|null $serviceUnifiedRoomCode
-     * @param string $unifiedRoomCode
-     * @return bool
      */
     protected function hasDifferentUnifiedRoomCode(?string $serviceUnifiedRoomCode, string $unifiedRoomCode): bool
     {
-        return !is_null($serviceUnifiedRoomCode) && $serviceUnifiedRoomCode !== $unifiedRoomCode;
+        return ! is_null($serviceUnifiedRoomCode) && $serviceUnifiedRoomCode !== $unifiedRoomCode;
     }
 
     /**
      * Check if the service is not mandatory.
-     *
-     * @param int $autoBook
-     * @return bool
      */
     protected function isNotMandatory(int $autoBook): bool
     {
@@ -250,12 +213,10 @@ class ServiceResolver
 
     /**
      * Initialize the Fees array if it doesn't exist.
-     *
-     * @param array $rate
      */
     protected function initializeFeesArray(array &$rate): void
     {
-        if (!isset($rate['Fees'])) {
+        if (! isset($rate['Fees'])) {
             $rate['Fees'] = [];
         }
     }
@@ -263,10 +224,10 @@ class ServiceResolver
     /**
      * Calculate the rate amount based on the apply type.
      *
-     * @param float|null $value The value to be calculated.
-     * @param string $applyType The apply type (e.g., PER_PERSON, PER_NIGHT_PER_PERSON).
-     * @param int $numberOfNights The number of nights.
-     * @param int|null $numberOfPassengers The number of passengers (optional).
+     * @param  float|null  $value  The value to be calculated.
+     * @param  string  $applyType  The apply type (e.g., PER_PERSON, PER_NIGHT_PER_PERSON).
+     * @param  int  $numberOfNights  The number of nights.
+     * @param  int|null  $numberOfPassengers  The number of passengers (optional).
      * @return float The calculated rate amount.
      */
     private function calculateRateAmount(?float $value, string $applyType, int $numberOfNights, ?int $numberOfPassengers = null): float

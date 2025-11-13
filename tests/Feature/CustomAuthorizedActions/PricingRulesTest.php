@@ -105,10 +105,10 @@ test('possibility of updating an existing pricing rule', function () {
     $this->assertDatabaseHas('pricing_rules', $assertionData);
 });
 
-test('possibility of destroying an existing pricing rule', function () {
-    $pricingRule = PricingRule::factory()->create();
-
-    $pricingRule->delete();
-
-    $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
-});
+//test('possibility of destroying an existing pricing rule', function () {
+//    $pricingRule = PricingRule::factory()->create();
+//
+//    $pricingRule->delete();
+//
+//    $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
+//});

@@ -20,6 +20,7 @@ use Modules\HotelContentRepository\API\Controllers\ProductAttributeController;
 use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
+use Modules\HotelContentRepository\API\Controllers\ProductFeeTaxController;
 use Modules\HotelContentRepository\API\Controllers\VendorController;
 
 class ContentRepositoryApiRoutes
@@ -61,6 +62,8 @@ class ContentRepositoryApiRoutes
 
             Route::resource('product-descriptive-content-sections', ProductDescriptiveContentSectionController::class)
                 ->parameters(['product-descriptive-content-sections' => 'section']);
+
+            Route::resource('product-fee-taxes', ProductFeeTaxController::class);
 
             Route::resource('contact-information', ContactInformationController::class);
 

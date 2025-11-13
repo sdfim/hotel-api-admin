@@ -10,7 +10,6 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -45,10 +44,6 @@ use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Actions\RoomLinkGroup\UiProductDescriptiveContent;
-use Modules\HotelContentRepository\Actions\RoomLinkGroup\UiProductFeeTax;
-use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
 use Modules\HotelContentRepository\Services\Suppliers\HbsiHotelContentApiService;
@@ -78,6 +73,14 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
         $this->productId = $product->id;
         $this->product = $product;
         $this->title = 'Fees and Taxes for '.$product->name;
+        if ($this->rateId) {
+            $this->title .= ' - Rate ID: '.$this->rateId;
+            $this->title .= ' - Rate Name: '.$rate->name;
+        }
+        if ($this->roomId) {
+            $this->title .= ' - Room ID: '.$this->roomId;
+            $this->title .= ' - Room Name: '.$room->name;
+        }
     }
 
     public function updatedSupplierId($value): void
@@ -133,6 +136,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     {
         return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('room_id')->default($this->roomId),
+            Hidden::make('rate_id')->default($this->rateId),
 
             Placeholder::make('action_description')
                 ->label('')
@@ -156,11 +161,14 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                 ->schema([
                     Select::make('supplier_id')
                         ->label('Supplier/Driver')
-                        ->rules(['required'])
+                        ->required(fn (Get $get) => ! in_array($get('action_type'), ['informative']))
                         ->options(
                             Supplier::query()
                                 ->whereJsonContains('product_type', 'hotel')
-                                ->where('name', SupplierNameEnum::HBSI->value)
+                                ->whereIn('name', [
+                                    SupplierNameEnum::HBSI->value,
+                                    SupplierNameEnum::HOTEL_TRADER->value,
+                                ])
                                 ->pluck('name', 'id')
                         )
                         ->reactive()
@@ -185,7 +193,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             'edit' => 'Edit',
                             'delete' => 'Delete',
                             'vat' => 'VAT management',
-                            'included' => 'Hilton inclusive',
+                            //                            'included' => 'Hilton inclusive',
                             'informative' => 'Informative',
                         ])
                         ->live()
@@ -288,7 +296,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 ];
                             }
                         })
-                        ->rules(['required']),
+                        ->required(),
                     Select::make('apply_type')
                         ->label('Apply Type')
                         ->options([
@@ -298,12 +306,13 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                         ])
                         ->reactive()
-                        ->rules(['required'])
+                        ->required()
                         ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
                     Select::make('currency')
                         ->label('Currency')
                         ->searchable()
+                        ->required()
                         ->options(Tools::getCurrencyOptions())
                         ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
 
@@ -311,11 +320,13 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->label('Net Value')
                         ->numeric(2)
                         ->reactive()
+                        ->required()
                         ->rules(['required', $this->getValueMismatchRule()]),
                     TextInput::make('rack_value')
                         ->label('Rack Value')
                         ->numeric(2)
                         ->reactive()
+                        ->required()
                         ->rules(['required', $this->getValueMismatchRule()])
                         ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
                 ]),

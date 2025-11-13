@@ -75,10 +75,10 @@ class ProductFeeTax extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function rate(): BelongsTo
-    {
-        return $this->belongsTo(HotelRate::class);
-    }
+//    public function rate(): BelongsTo
+//    {
+//        return $this->belongsTo(HotelRate::class);
+//    }
 
     public function room(): BelongsTo
     {

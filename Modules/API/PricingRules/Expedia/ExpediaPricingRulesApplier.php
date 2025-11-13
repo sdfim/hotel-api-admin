@@ -6,7 +6,7 @@ use App\Models\Supplier;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
-class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
+class ExpediaPricingRulesApplier extends BasePricingRulesApplier
 {
     public function __construct(array $requestArray, array $pricingRules)
     {

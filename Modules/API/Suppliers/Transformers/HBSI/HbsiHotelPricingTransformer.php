@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\Resolvers\DescriptiveContent\DescriptiveContentResolver;
+use Modules\API\PricingAPI\Resolvers\Services\ServiceResolver;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\HbsiTaxAndFeeResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
-use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
+use Modules\API\PricingRules\PricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
@@ -25,54 +27,7 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 {
-    private HbsiPricingRulesApplier $pricingRulesApplier;
-
-    /**
-     * @var string[]
-     */
-    public array $fees = [
-        'application fee',
-        'banquet service fee',
-        'city hotel fee',
-        'crib fee',
-        'early checkout fee',
-        'express handling fee',
-        'extra person charge',
-        'local fee',
-        'maintenance fee',
-        'package fee',
-        'resort fee',
-        'rollaway fee',
-        'room service fee',
-        'service charge',
-    ];
-
-    private array $taxes = [
-        'assessment/license tax',
-        'bed tax',
-        'city tax',
-        'country tax',
-        'county tax',
-        'energy tax',
-        'exempt',
-        'federal tax',
-        'food & beverage tax',
-        'goods and services tax (gst)',
-        'insurance premium tax',
-        'lodging tax',
-        'miscellaneous',
-        'occupancy tax',
-        'room tax',
-        'sales tax',
-        'standard',
-        'state tax',
-        'surcharge',
-        'surplus lines tax',
-        'total tax',
-        'tourism tax',
-        'vat/gst tax',
-        'value added tax (vat)',
-    ];
+    private PricingRulesApplier $pricingRulesApplier;
 
     private const MEAL_PLAN = [
         'AI' => 'All Inclusive',
@@ -86,6 +41,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     public array $bookingItems = [];
 
     public function __construct(
+        private readonly HbsiTaxAndFeeResolver $taxAndFeeResolver,
+        private readonly ServiceResolver $serviceResolver,
         private array $meal_plans_available = [],
         private array $roomCombinations = [],
         private string $rate_type = '',
@@ -102,7 +59,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
 
         $pricingRules = array_column($pricingRules, null, 'property');
-        $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
+        $this->pricingRulesApplier = new PricingRulesApplier($query, $pricingRules);
 
         foreach ($supplierResponse as $key => $propertyGroup) {
             yield $this->setHotelResponse($propertyGroup, $key, $query);
@@ -121,7 +78,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
+        $hotelResponse->setDestination($this->giata[$giataId]['city'] ?? $this->destinationData);
+        $hotelResponse->setCommissions($this->commissions[$giataId] ?? []);
 
         $descriptiveContent = DescriptiveContentResolver::getHotelLevel(Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId);
         $hotelResponse->setDescriptiveContent($descriptiveContent);
@@ -136,6 +94,9 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         foreach ($propertyGroup['rooms'] as $roomGroup) {
             $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $query);
+            if (empty($roomGroupsData)) {
+                continue;
+            }
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
             $lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
             if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
@@ -157,6 +118,19 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         }
 
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
+
+        $hotelResponse->setHotelContacts([]);
+
+        $hotelResponse->setInformativeFees(
+            $this->taxAndFeeResolver->getInformativeFeesHotelLevel(
+                informativeFees: $this->informativeFees,
+                giataId: $giataId,
+                supplierId: $this->supplier_id,
+                checkin: $this->checkin ?? null,
+                checkout: $this->checkout ?? null,
+                occupancy: $this->occupancy ?? [],
+            )
+        );
 
         return $hotelResponse->toArray();
     }
@@ -245,7 +219,16 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomGroupsResponse->setDeposits(DepositResolver::getRateLevel($roomResponseLowestPrice, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, $totalPrice));
+        $roomGroupsResponse->setDeposits(
+            DepositResolver::get(
+                $roomResponseLowestPrice,
+                Arr::get($this->depositInformation, $giataId, []),
+                $query,
+                $giataId,
+                $rating,
+                $this->roomCodes
+            )
+        );
 
         $roomGroupsResponse->setMealPlan($rooms[$keyLowestPricedRoom]['meal_plan'] ?? '');
 
@@ -327,10 +310,23 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
         $rateToApply['rateOccupancy'] = $rateOccupancy;
 
+        if (! isset($this->repoTaxFees[$giataId])) {
+            $repoTaxFees = [];
+        } else {
+            $repoTaxFees = $this->repoTaxFees[$giataId];
+        }
+
+        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates'], $repoTaxFees);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
+        $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
+
+//        dd($transformedRates);
+
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
                 giataId: $giataId,
-                roomsPricingArray: $rateToApply,
+                transformedRates: $transformedRates,
+                rateOccupancy: $rateOccupancy,
                 roomName: $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '',
                 roomCode: $rateOccupancy,
                 roomType: $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '',
@@ -432,10 +428,13 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         ]);
 
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
+
+        $bedGroups = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.bed_groups", []);
+        $roomResponse->setBedGroups($bedGroups);
         $roomResponse->setRoomType($roomType);
         $roomResponse->setRoomDescription($roomDescription);
 
-        $rateInclusions = DescriptiveContentResolver::getRateInclusions(Arr::get($this->descriptiveContent, $giataId, []), $query, $ratePlanCode);
+        $rateInclusions = DescriptiveContentResolver::getRateInclusions(Arr::get($this->descriptiveContent, $giataId, []), $query, $ratePlanCode, $unifiedRoomCode);
 
         $rateDescription = '';
         if ($rateInclusions !== '') {
@@ -494,18 +493,24 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setAmenities([]);
 
-        $breakdown = $this->getBreakdown($rateToApply);
+        $roomResponse->setInformativeFees($this->taxAndFeeResolver->getInformativeFeesRoomLevel(
+            informativeFees: $this->informativeFees,
+            giataId: $giataId,
+            supplierId: $this->supplier_id,
+            unifiedRoomCode: $unifiedRoomCode,
+            RateCode: $ratePlanCode,
+            occupancy: $this->occupancy ?? [],
+            checkin: $this->checkin ?? null,
+            checkout: $this->checkout ?? null
+        ));
 
-        $breakdown['fees'] = array_merge($breakdown['fees'], array_values([]));
+        $breakdown = $this->taxAndFeeResolver->getBreakdown($transformedRates, Carbon::parse($this->checkin), Carbon::parse($this->checkout), $this->currency);
         $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
-
-        $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, Arr::get($pricingRulesApplier, 'total_price', 0)));
 
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
@@ -532,10 +537,28 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType.':'.$ratePlanCode.':'.SupplierNameEnum::HBSI->value,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
+        $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(
+            DepositResolver::get(
+                $roomResponse,
+                Arr::get($this->depositInformation, $giataId, []),
+                $query,
+                $giataId,
+                $rating,
+                $this->roomCodes
+            )
+        );
 
-        $roomResponse->setDescriptiveContent(DescriptiveContentResolver::getRateLevel($roomResponse, Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId));
+        $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
+            $roomResponse,
+            Arr::get($this->descriptiveContent, $giataId, []),
+            $query,
+            $giataId,
+            $unifiedRoomCode
+        );
+        $roomResponse->setDescriptiveContent($dc);
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
