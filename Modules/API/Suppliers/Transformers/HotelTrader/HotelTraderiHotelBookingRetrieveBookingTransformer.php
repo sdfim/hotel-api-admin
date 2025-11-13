@@ -52,11 +52,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
 
         if ($hotel?->product?->hero_image) {
             $imagePath = $hotel->product->hero_image;
-            if (config('filesystems.default') === 's3') {
-                $hotelImage = rtrim(config('image_sources.sources.s3'), '/').'/'.ltrim($imagePath, '/');
-            } else {
-                $hotelImage = rtrim(config('image_sources.sources.local'), '/').'/storage/'.ltrim($imagePath, '/');
-            }
+            $hotelImage = Storage::url($imagePath);
         } else {
             $hotelImage = '';
         }
