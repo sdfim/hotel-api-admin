@@ -21,6 +21,7 @@ use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesT
 use Modules\HotelContentRepository\Livewire\ProductConsortiaAmenities\ProductConsortiaAmenitiesTable;
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
+use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 
@@ -49,6 +50,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
+        Livewire::component('products.product-fee-tax-table', ProductFeeTaxTable::class);
 
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);

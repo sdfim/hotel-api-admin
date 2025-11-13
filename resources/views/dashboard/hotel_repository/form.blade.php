@@ -16,6 +16,13 @@
                 ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
             ],
         ],
+        'Fees and Taxes' => [
+            'tab_name' => 'fee-and-tax',
+            'marker' => 'entity-pricing',
+            'related' => [
+                ['title' => 'Fees and Taxes', 'component' => 'products.product-fee-tax-table', 'marker' => ['pricing']],
+            ],
+        ],
         'Attributes' => [
             'tab_name' => 'attributes',
             'related' => [
