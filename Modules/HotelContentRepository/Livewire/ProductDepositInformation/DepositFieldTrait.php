@@ -117,7 +117,7 @@ trait DepositFieldTrait
                         ->columnSpan(1)
                         ->maxLength(191)
                         ->numeric()
-                        ->minValue(1)
+                        ->minValue(0)
                         ->required(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_after_booking')
                         ->visible(fn (Get $get): bool => $get('initial_payment_due_type') === 'days_after_booking'),
                     TextInput::make('days_before_arrival_initial_payment_due')
