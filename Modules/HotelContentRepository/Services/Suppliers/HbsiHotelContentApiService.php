@@ -52,4 +52,18 @@ class HbsiHotelContentApiService implements SupplierInterface
 
         return $roomsData;
     }
+
+    public function getTaxOptions(int $giataCode): array
+    {
+        $hbsiCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HBSI->value)
+            ->first()?->supplier_id;
+
+        $hbsiData = HbsiProperty::where('hotel_code', $hbsiCode)->first();
+        $hbsiData = $hbsiData ? $hbsiData->toArray() : [];
+
+        $taxOptions = Arr::get($hbsiData, 'tpa_extensions.Taxes', []);
+
+        return array_values(Arr::pluck($taxOptions, 'key'));
+    }
 }

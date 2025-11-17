@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Tools\PricingDtoTools;
+use Modules\Enums\HotelSaleTypeEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 
 class BaseHotelPricingTransformer
@@ -14,7 +15,9 @@ class BaseHotelPricingTransformer
 
     protected array $priorityContentFromSupplierRepo = [];
 
-    //    protected array $ultimateAmenities = [];
+    // protected array $ultimateAmenities = [];
+
+    protected array $informativeFees = [];
 
     protected array $depositInformation = [];
 
@@ -26,6 +29,8 @@ class BaseHotelPricingTransformer
 
     protected array $rates = [];
 
+    protected array $repoTaxFees = [];
+
     protected array $repoServices = [];
 
     protected array $features = [];
@@ -33,6 +38,8 @@ class BaseHotelPricingTransformer
     protected array $unifiedRoomCodes = [];
 
     protected array $roomCodes = [];
+
+    protected array $roomChannels = [];
 
     protected array $roomIdByUnifiedCode = [];
 
@@ -57,6 +64,8 @@ class BaseHotelPricingTransformer
     protected array $exclusionRoomNames = [];
 
     protected array $exclusionRoomTypes = [];
+
+    protected array $commissions = [];
 
     protected array $query = [
         'force_on_sale' => false,
@@ -100,38 +109,78 @@ class BaseHotelPricingTransformer
         // Fetch and process data
         $supplierRepositoryData = Hotel::with('rooms')->whereIn('giata_code', $giataIds)->get();
 
-//        $this->ultimateAmenities = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-//            return [
-//                $hotel->giata_code => $hotel->product?->affiliations->map(function ($affiliation) {
-//                    return [
-//                        'rate_code' => $affiliation->rate?->code,
-//                        'unified_room_code' => $affiliation->room?->external_code,
-//                        'start_date' => $affiliation->start_date,
-//                        'end_date' => $affiliation->end_date,
-//                        'amenities' => $affiliation->amenities->map(function ($amenity) {
-//                            $amenityData = [
-//                                'name' => $amenity->amenity->name,
-//                                'consortia' => $amenity->consortia,
-//                                'description' => $amenity->description,
-//                                'is_paid' => $amenity->is_paid,
-//                                'currency' => $amenity->currency,
-//                                'min_night_stay' => $amenity->min_night_stay,
-//                                'max_night_stay' => $amenity->max_night_stay,
-//                                'priority_rooms' => (! empty($amenity->priority_rooms))
-//                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
-//                                    : [],
-//                            ];
-//                            if ($amenity->is_paid) {
-//                                $amenityData['price'] = $amenity->price;
-//                                $amenityData['apply_type'] = $amenity->apply_type;
-//                            }
-//
-//                            return $amenityData;
-//                        })->toArray(),
-//                    ];
-//                })->toArray(),
-//            ];
-//        })->toArray();
+        // Adjust logic to include 'add', 'edit' with MANUAL_CONTRACT or 'informative' - tmp DISABLED
+        $this->informativeFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => $hotel->product?->feeTaxes
+                    ? $hotel->product->feeTaxes
+                        ->filter(function ($feeTax) {
+                            //                            $isManualContract = $hotel->sale_type === HotelSaleTypeEnum::MANUAL_CONTRACT->value;
+                            //                            $isActionTypeMatch = in_array($feeTax->action_type, ['add', 'edit']);
+                            //
+                            //                            return ($isManualContract && $isActionTypeMatch) || $feeTax->action_type === 'informative';
+                            return $feeTax->action_type === 'informative';
+                        })
+                        ->map(function ($informativeFees) {
+                            return [
+                                'room_id' => $informativeFees->room_id,
+                                'rate_id' => $informativeFees->rate_id,
+                                'rate_code' => $informativeFees->rate?->code,
+                                'unified_room_code' => $informativeFees->room?->external_code,
+                                'supplier_id' => $informativeFees->supplier_id,
+                                'description' => $informativeFees->name,
+                                'value_type' => $informativeFees->value_type,
+                                'apply_type' => $informativeFees->apply_type?->value,
+                                'net_value' => $informativeFees->net_value,
+                                'rack_value' => $informativeFees->rack_value,
+                                // Include filtering and identification attributes so resolvers can apply date/age filters
+                                'id' => $informativeFees->id,
+                                'name' => $informativeFees->name,
+                                'age_from' => $informativeFees->age_from,
+                                'age_to' => $informativeFees->age_to,
+                                'start_date' => $informativeFees->start_date ?? null,
+                                'end_date' => $informativeFees->end_date ?? null,
+                                'currency' => $informativeFees->currency ?? null,
+                                'collected_by' => $informativeFees->collected_by ?? null,
+                                'commissionable' => $informativeFees->commissionable ?? false,
+                            ];
+                        })->toArray()
+                    : [],
+            ];
+        })->toArray();
+
+        //        $this->ultimateAmenities = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        //            return [
+        //                $hotel->giata_code => $hotel->product?->affiliations->map(function ($affiliation) {
+        //                    return [
+        //                        'rate_code' => $affiliation->rate?->code,
+        //                        'unified_room_code' => $affiliation->room?->external_code,
+        //                        'start_date' => $affiliation->start_date,
+        //                        'end_date' => $affiliation->end_date,
+        //                        'amenities' => $affiliation->amenities->map(function ($amenity) {
+        //                            $amenityData = [
+        //                                'name' => $amenity->amenity->name,
+        //                                'consortia' => $amenity->consortia,
+        //                                'description' => $amenity->description,
+        //                                'is_paid' => $amenity->is_paid,
+        //                                'currency' => $amenity->currency,
+        //                                'min_night_stay' => $amenity->min_night_stay,
+        //                                'max_night_stay' => $amenity->max_night_stay,
+        //                                'priority_rooms' => (! empty($amenity->priority_rooms))
+        //                                    ? $amenity?->priorityRooms()->pluck('external_code')->toArray() ?? []
+        //                                    : [],
+        //                            ];
+        //                            if ($amenity->is_paid) {
+        //                                $amenityData['price'] = $amenity->price;
+        //                                $amenityData['apply_type'] = $amenity->apply_type;
+        //                            }
+        //
+        //                            return $amenityData;
+        //                        })->toArray(),
+        //                    ];
+        //                })->toArray(),
+        //            ];
+        //        })->toArray();
 
         $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
@@ -166,6 +215,8 @@ class BaseHotelPricingTransformer
                         $content['descriptive_type_location'] = $descriptiveContent->descriptiveType->location;
                     }
 
+                    $content['unified_room_code'] = $descriptiveContent->room?->external_code;
+
                     return $content;
                 })->toArray(),
             ];
@@ -186,7 +237,12 @@ class BaseHotelPricingTransformer
 
         $this->rates = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
-                $hotel->giata_code => $hotel?->rates?->toArray() ?? [],
+                $hotel->giata_code => $hotel?->rates?->mapWithKeys(function ($rate) {
+                    $rateArray = $rate->toArray();
+                    $rateArray['consortia'] = $rate->consortia->pluck('name')->toArray();
+
+                    return [$rate->code => $rateArray];
+                })->toArray() ?? [],
             ];
         })->toArray();
 
@@ -208,29 +264,89 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-        //        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+        $this->repoTaxFees = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                // Logic to include 'add', 'edit' with MANUAL_CONTRACT - tmp DISABLED
+                $hotel->giata_code => $hotel->product->feeTaxes->groupBy('action_type')->map(function ($group) {
+                    return $group
+//                        ->reject(function ($feeTax) use ($hotel) {
+//                            $isManualContract = $hotel->sale_type === HotelSaleTypeEnum::MANUAL_CONTRACT->value;
+//                            $isActionTypeMatch = in_array($feeTax->action_type, ['add', 'edit']);
+//
+//                            return $isManualContract && $isActionTypeMatch;
+//                        })
+                        ->mapWithKeys(function ($feeTax) {
+                            $feeTaxData = $feeTax->toArray();
+                            $feeTaxData['rate_code'] = null;
+                            $feeTaxData['level'] = match (true) {
+                                $feeTaxData['rate_id'] !== null => 'rate',
+                                ($feeTaxData['rate_id'] === null && $feeTaxData['room_id'] !== null) => 'room',
+                                default => 'hotel',
+                            };
+                            if ($feeTax->rate_id !== null) {
+                                $feeTaxData['rate_code'] = $feeTax->rate->code;
+                            }
+                            $feeTaxData['unified_room_code'] = null;
+
+                            if ($feeTax->room_id !== null && $feeTax->room !== null) {
+
+                                $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
+                            }
+
+                            return [$feeTax->id => $feeTaxData];
+                        })->toArray();
+                })->toArray(),
+            ];
+        })->toArray();
+
+        $this->basicHotelData = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => [
+                    'sale_type' => $hotel->sale_type,
+                ],
+            ];
+        })->toArray();
+
+        $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            if (! $hotel->product->informativeServices) {
+                return [
+                    $hotel->giata_code => [],
+                ];
+            }
+
+            return [
+                $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
+                    $feeTaxData = $service->toArray();
+                    $feeTaxData['rate_code'] = null;
+                    if ($service->rate_id !== null) {
+                        $feeTaxData['rate_code'] = $service->rate->code;
+                    }
+                    $feeTaxData['unified_room_code'] = null;
+                    if ($service->room_id !== null && $service?->room) {
+                        $feeTaxData['unified_room_code'] = $service->room?->external_code;
+                    }
+
+                    return $feeTaxData;
+                })->toArray(),
+            ];
+        })->toArray();
+
+        //        $this->commissions = $supplierRepositoryData->mapWithKeys(function ($hotel) {
         //            return [
-        //                $hotel->giata_code => [
-        //                    'sale_type' => $hotel->sale_type,
-        //                ],
-        //            ];
-        //        })->toArray();
-        //
-        //        $this->repoServices = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-        //            return [
-        //                $hotel->giata_code => $hotel->product->informativeServices->map(function ($service) {
-        //                    $feeTaxData = $service->toArray();
-        //                    $feeTaxData['rate_code'] = null;
-        //                    if ($service->rate_id !== null) {
-        //                        $feeTaxData['rate_code'] = $service->rate->code;
-        //                    }
-        //                    $feeTaxData['unified_room_code'] = null;
-        //                    if ($service->room_id !== null) {
-        //                        $feeTaxData['unified_room_code'] = $service->room->external_code;
-        //                    }
-        //
-        //                    return $feeTaxData;
-        //                })->toArray(),
+        //                $hotel->giata_code => $hotel->product?->travelAgencyCommissions->map(function ($commission) {
+        //                        return [
+        //                            'commission_value' => $commission->commission_value,
+        //                            'commission_value_type' => $commission->commission_value_type,
+        //                            'date_range_start' => $commission->date_range_start,
+        //                            'date_range_end' => $commission->date_range_end,
+        //                            'room_type' => $commission->room_type,
+        //                            'rate_type' => $commission->rate_type,
+        //                            'commission_name' => $commission->commission->name ?? null,
+        //                            'consortia' => $commission->getConfigConsortiaByIds()->map(function ($consortium) {
+        //                                return $consortium->name;
+        //                            })->toArray()
+        //                        ];
+        //                    })->toArray() ?? [],
         //            ];
         //        })->toArray();
 
@@ -293,6 +409,8 @@ class BaseHotelPricingTransformer
             'descriptiveContent' => $this->descriptiveContent,
             'cancellationPolicies' => $this->cancellationPolicies,
             'mapperSupplierRepository' => $this->mapperSupplierRepository,
+            'repoTaxFees' => $this->repoTaxFees,
+            'informativeFees' => $this->informativeFees,
             'repoServices' => $this->repoServices,
             'basicHotelData' => $this->basicHotelData,
             'unifiedRoomCodes' => $this->unifiedRoomCodes,
@@ -300,6 +418,7 @@ class BaseHotelPricingTransformer
             'roomIdByUnifiedCode' => $this->roomIdByUnifiedCode,
             'features' => $this->features,
             'rates' => $this->rates,
+            //            'commissions' => $this->commissions,
         ];
     }
 
@@ -318,6 +437,8 @@ class BaseHotelPricingTransformer
         $this->descriptiveContent = $cachedData['descriptiveContent'] ?? [];
         $this->cancellationPolicies = $cachedData['cancellationPolicies'] ?? [];
         $this->mapperSupplierRepository = $cachedData['mapperSupplierRepository'];
+        $this->repoTaxFees = $cachedData['repoTaxFees'];
+        $this->informativeFees = $cachedData['informativeFees'];
         $this->repoServices = $cachedData['repoServices'];
         $this->basicHotelData = $cachedData['basicHotelData'];
         $this->unifiedRoomCodes = $cachedData['unifiedRoomCodes'];
@@ -325,6 +446,7 @@ class BaseHotelPricingTransformer
         $this->roomIdByUnifiedCode = $cachedData['roomIdByUnifiedCode'];
         $this->features = $cachedData['features'];
         $this->rates = $cachedData['rates'];
+        //        $this->commissions = $cachedData['commissions'];
     }
 
     protected function initializePricingData(array $query, array $pricingExclusionRules, array $giataIds, string $search_id): void

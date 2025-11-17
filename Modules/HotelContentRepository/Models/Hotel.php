@@ -21,7 +21,7 @@ class Hotel extends Model
     use HasFactory;
     use LogsActivity;
 
-    protected static function newFactory()
+    protected static function newFactory(): HotelFactory
     {
         return HotelFactory::new();
     }
@@ -40,6 +40,7 @@ class Hotel extends Model
         'room_images_source_id',
         'hotel_board_basis',
         'travel_agent_commission',
+        'holdable',
     ];
 
     protected $hidden = [

@@ -26,6 +26,7 @@
         <exclude>
             <directory>app/Livewire/Charts</directory>
             <directory>app/Livewire/Inspectors</directory>
+            <file>app/Livewire/Helpers/ViewHelpers.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/BookingInspectorController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/BookingItemsController.php</file>
             <file>Modules/AdministrationSuite/Http/Controllers/ExceptionsReportChartController.php</file>

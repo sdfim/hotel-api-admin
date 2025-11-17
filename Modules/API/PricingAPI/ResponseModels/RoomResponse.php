@@ -5,42 +5,82 @@ namespace Modules\API\PricingAPI\ResponseModels;
 class RoomResponse extends BaseResponse
 {
     private array $amenities = [];
+
     private array $capacity = [];
+
     private string $unified_room_code = '';
+
     private bool $distribution = false;
+
     private string $giata_room_code = '';
+
     private string $giata_room_name = '';
+
     private string $supplier_room_name = '';
+
     private int|string $supplier_room_id = '';
+
     private string $per_day_rate_breakdown = '';
-    private int $supplier_bed_groups = 0;
+
+    private array $bed_groups = [];
+
+    private int|string $supplier_bed_groups = '';
+
     private array $links = [];
+
     private float $total_price = 0.0;
+
     private float $total_tax = 0.0;
+
     private float $total_fees = 0.0;
+
     private float $total_net = 0.0;
+
     private float $commissionable_amount = 0.0;
+
     private float $commission_amount = 0.0;
+
     private string $booking_item = '';
+
     private string $currency = '';
+
     private string $room_type = '';
+
     private string $rate_id = '';
+
     private string $rate_plan_code = '';
+
     private string $rate_name = '';
+
     private string $rate_description = '';
+
     private array $cancellation_policies = [];
+
     private bool $non_refundable = false;
+
     private string $meal_plan = '';
+
     private array $bed_configurations = [];
+
     private array $breakdown = [];
+
     private string $room_description = '';
+
     private bool $package_deal = false;
+
     private array $promotions = [];
-    private ?string $penalty_date = null;
+
+    private ?string $penalty_date = '';
+
     private string $query_package = '';
+
     private ?array $deposits = [];
+
     private array $descriptive_content = [];
+
     private ?array $pricingRulesApplier = [];
+
+    private array $informative_fees = [];
 
     public function setPricingRulesAppliers(array $pricingRulesApplier): void
     {
@@ -282,12 +322,22 @@ class RoomResponse extends BaseResponse
         return $this->links;
     }
 
-    public function setSupplierBedGroups(int $supplier_bed_groups): void
+    public function setBedGroups(array $bed_groups): void
+    {
+        $this->bed_groups = $bed_groups;
+    }
+
+    public function getBedGroups(): array
+    {
+        return $this->bed_groups;
+    }
+
+    public function setSupplierBedGroups(int|string $supplier_bed_groups): void
     {
         $this->supplier_bed_groups = $supplier_bed_groups;
     }
 
-    public function getSupplierBedGroups(): int
+    public function getSupplierBedGroups(): int|string
     {
         return $this->supplier_bed_groups;
     }
@@ -412,9 +462,21 @@ class RoomResponse extends BaseResponse
         $this->distribution = $distribution;
     }
 
+    public function setInformativeFees(array $informative_fees): void
+    {
+        $this->informative_fees = $informative_fees;
+    }
+
+    public function getInformativeFees(): array
+    {
+        return $this->informative_fees;
+    }
+
     public function toArray(): array
     {
         return [
+            'amenities' => $this->getAmenities(),
+            'capacity' => $this->getCapacity(),
             'unified_room_code' => $this->getUnifiedRoomCode(),
             'giata_room_code' => $this->getGiataRoomCode(),
             'giata_room_name' => $this->getGiataRoomName(),
@@ -423,11 +485,10 @@ class RoomResponse extends BaseResponse
             'supplier_room_id' => $this->getSupplierRoomCode(),
             'distribution' => $this->isDistribution(),
             'query_package' => $this->getQueryPackage(),
-            // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
+            'bed_groups' => $this->getBedGroups(),
+            'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'room_description' => $this->getRoomDescription(),
-            'amenities' => $this->getAmenities(),
-            'capacity' => $this->getCapacity(),
             'rate_id' => $this->getRateId(),
             'rate_plan_code' => $this->getRatePlanCode() ?? '',
             'rate_name' => $this->getRateName(),
@@ -454,6 +515,7 @@ class RoomResponse extends BaseResponse
             'descriptive_content' => $this->getDescriptiveContent(),
             'commissionable_amount' => $this->getCommissionableAmount(),
             'commission_amount' => $this->getCommissionAmount(),
+            'informative_fees' => $this->getInformativeFees(),
         ];
     }
 

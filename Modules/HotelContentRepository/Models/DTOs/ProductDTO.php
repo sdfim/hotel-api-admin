@@ -55,16 +55,16 @@ class ProductDTO
 
     public function __construct(
         private readonly ProductAffiliationDTO $productAffiliationDTO,
-        private readonly ProductAgeRestrictionDTO $productAgeRestrictionDTO,
+//        private readonly ProductAgeRestrictionDTO $productAgeRestrictionDTO,
         private readonly ProductAttributeDTO $productAttributeDTO,
         private readonly ProductDescriptiveContentSectionDTO $productDescriptiveContentSectionDTO,
         private readonly ProductFeeTaxDTO $productFeeTaxDTO,
-        private readonly ProductInformativeServiceDTO $productInformativeServiceDTO,
-        private readonly ProductPromotionDTO $productPromotionDTO,
+//        private readonly ProductInformativeServiceDTO $productInformativeServiceDTO,
+//        private readonly ProductPromotionDTO $productPromotionDTO,
         private readonly KeyMappingDTO $keyMappingDTO,
         private readonly ImageGalleryDTO $imageGalleryDTO,
-        private readonly ContactInformationDTO $contactInformationDTO,
-        private readonly ProductCancellationPolicyDTO $productCancellationPolicyDTO,
+//        private readonly ContactInformationDTO $contactInformationDTO,
+//        private readonly ProductCancellationPolicyDTO $productCancellationPolicyDTO,
         private readonly ProductDepositInformationDTO $productDepositInformationDTO,
     ) {}
 

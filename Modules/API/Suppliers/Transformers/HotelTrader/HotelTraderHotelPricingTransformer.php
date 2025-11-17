@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\Resolvers\DescriptiveContent\DescriptiveContentResolver;
+use Modules\API\PricingAPI\Resolvers\Services\ServiceResolver;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\HotelTraderTaxAndFeeResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
-use Modules\API\PricingRules\HotelTrader\HotelTraderPricingRulesApplier;
+use Modules\API\PricingRules\PricingRulesApplier;
 use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
 use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\ItemTypeEnum;
@@ -24,9 +26,18 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 {
     public array $bookingItems = [];
 
+    protected PricingRulesApplier $pricingRulesApplier;
+
+    protected $currency;
+
+    protected $fees = [];
+
+    protected $rate_type;
+
     public function __construct(
+        private readonly HotelTraderTaxAndFeeResolver $taxAndFeeResolver,
+        private readonly ServiceResolver $serviceResolver,
         private array $roomCombinations = [],
-        private string $rate_type = '',
         private array $occupancies = [],
         private string $supplier_id = '',
     ) {}
@@ -42,7 +53,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()?->id;
 
-        $this->pricingRulesApplier = new HotelTraderPricingRulesApplier($query, $pricingRules);
+        $this->pricingRulesApplier = new PricingRulesApplier($query, $pricingRules);
 
         foreach ($supplierResponse as $propertyGroup) {
             $giataId = $propertyGroup['giata_id'] ?? null;
@@ -111,6 +122,18 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
+        $hotelResponse->setHotelContacts([]);
+
+        $hotelResponse->setInformativeFees(
+            $this->taxAndFeeResolver->getInformativeFeesHotelLevel(
+                informativeFees: $this->informativeFees,
+                giataId: $giataId,
+                supplierId: $this->supplier_id,
+                checkin: $this->checkin ?? null,
+                checkout: $this->checkout ?? null,
+                occupancy: $this->occupancy ?? [],
+            )
+        );
         $descriptiveContent = DescriptiveContentResolver::getHotelLevel(Arr::get($this->descriptiveContent, $giataId, []), $this->query, $giataId);
         $hotelResponse->setDescriptiveContent($descriptiveContent);
 
@@ -137,7 +160,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
-        $this->currency = $roomGroup['rates'][0]['rateInfo']['currency'];
+        $this->currency = $roomGroup['rates'][0]['rateInfo']['currency'] ?? 'USD';
         $roomGroupsResponse->setCurrency($this->currency ?? 'USD');
 
         $rooms = [];
@@ -194,7 +217,16 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomGroupsResponse->setDeposits(DepositResolver::getRateLevel($roomResponseLowestPrice, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, $totalPrice));
+        $roomGroupsResponse->setDeposits(
+            DepositResolver::get(
+                $roomResponseLowestPrice,
+                Arr::get($this->depositInformation, $giataId, []),
+                $query,
+                $giataId,
+                $rating,
+                $this->roomCodes
+            )
+        );
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -204,8 +236,6 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
      */
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $query): array
     {
-        //                dd($rate, $propertyGroup, $giataId, $supplierHotelId, $query);
-
         $roomType = Arr::get($rate, 'roomType', '');
         $roomCode = Arr::get($rate, 'roomCode', 0);
         $roomName = Arr::get($rate, 'roomName', '');
@@ -222,6 +252,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $basicHotelData = Arr::get($this->basicHotelData, $giataId);
         $isCommissionTracking = (Arr::get($basicHotelData, 'sale_type') === 'Commission Tracking');
 
+        $numberOfPassengers = array_sum(array_values($this->occupancies));
+
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
         $pricingRulesApplier['total_tax'] = 0.0;
@@ -230,12 +262,17 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $rateOccupancy = $this->occupancies[$giataId][$rate['occupancyRefId']] ?? 0;
         $rateToApply['Rates'] = $rate['rateInfo'];
-        $rateToApply['rateOccupancy'] = $rateOccupancy;
+
+        $repoTaxFees = Arr::get($this->repoTaxFees, $giataId, []);
+        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates'], $repoTaxFees);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
+        $this->serviceResolver->applyRepoService($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
                 giataId: $giataId,
-                roomsPricingArray: $rateToApply,
+                transformedRates: $transformedRates,
+                rateOccupancy: $rateOccupancy,
                 roomName: $roomName,
                 roomCode: $roomCode,
                 roomType: $roomType,
@@ -243,7 +280,7 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
                 srRoomId: $srRoomId,
             );
         } catch (Exception $e) {
-            Log::error('HbsiHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error('HotelTraderHotelPricingTransformer | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
         }
 
@@ -291,17 +328,27 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setCancellationPolicies($this->transformCancellationPolicies(Arr::get($rate, 'cancellationPolicies', [])));
         $roomResponse->setNonRefundable(! Arr::get($rate, 'refundable', false));
         $roomResponse->setMealPlans(Arr::get($rate, 'mealplanOptions.mealplanName', ''));
+
         $roomResponse->setAmenities([]);
 
-        $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
+        $roomResponse->setInformativeFees($this->taxAndFeeResolver->getInformativeFeesRoomLevel(
+            informativeFees: $this->informativeFees,
+            giataId: $giataId,
+            supplierId: $this->supplier_id,
+            unifiedRoomCode: $unifiedRoomCode,
+            RateCode: $rateCode,
+            occupancy: $this->occupancy ?? [],
+            checkin: $this->checkin ?? null,
+            checkout: $this->checkout ?? null
+        ));
+
+        $breakdown = $this->taxAndFeeResolver->getBreakdown($transformedRates, Carbon::parse($this->checkin), Carbon::parse($this->checkout), $this->currency);
+        $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
-
-        $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomResponse->setDeposits(DepositResolver::getRateLevel($roomResponse, Arr::get($this->depositInformation, $giataId, []), $query, $giataId, $rating, Arr::get($pricingRulesApplier, 'total_price', 0)));
 
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
@@ -341,8 +388,25 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomCode.':'.$rateCode.':'.SupplierNameEnum::HOTEL_TRADER->value,
         ];
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(
+            DepositResolver::get(
+                $roomResponse,
+                Arr::get($this->depositInformation, $giataId, []),
+                $query,
+                $giataId,
+                $rating,
+                $this->roomCodes
+            )
+        );
 
-        $roomResponse->setDescriptiveContent(DescriptiveContentResolver::getRateLevel($roomResponse, Arr::get($this->descriptiveContent, $giataId, []), $query, $giataId));
+        $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
+            $roomResponse,
+            Arr::get($this->descriptiveContent, $giataId, []),
+            $query,
+            $giataId,
+            $unifiedRoomCode
+        );
+        $roomResponse->setDescriptiveContent($dc);
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
