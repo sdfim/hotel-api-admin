@@ -159,8 +159,8 @@ class DepositResolver
                         'initial_payment_due_type_value' => $depositInfo['initial_payment_due_type'] ?? 'not_set',
                         'available_fields' => array_keys(array_filter($depositInfo, function ($key) {
                             return str_contains($key, 'initial_payment') || str_contains($key, 'due');
-                        }, ARRAY_FILTER_USE_KEY))
-                    ]
+                        }, ARRAY_FILTER_USE_KEY)),
+                    ],
                 ];
             }
             $deposits[] = $calculatedDeposit;
@@ -264,6 +264,29 @@ class DepositResolver
             ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => $nights * $totalPersons,
             default => 1,
         };
+    }
+
+    private static function calculateInitialPaymentDueDate(string $initialPaymentDueType, array $depositInfo, array $query): ?string
+    {
+        switch ($initialPaymentDueType) {
+            case 'days_after_booking':
+                $days = Arr::get($depositInfo, 'days_after_booking_initial_payment_due', 0);
+                $bookingDate = Carbon::now();
+
+                return $bookingDate->copy()->addDays($days)->format('Y-m-d');
+
+            case 'days_before_arrival':
+                $days = Arr::get($depositInfo, 'days_before_arrival_initial_payment_due', 0);
+                $checkinDate = Carbon::parse($query['checkin']);
+
+                return $checkinDate->copy()->subDays($days)->format('Y-m-d');
+
+            case 'date':
+                return Arr::get($depositInfo, 'date_initial_payment_due');
+
+            default:
+                return null;
+        }
     }
 
     private static function primaryFiltersDeposit(Collection $depositInformation, array $query, $rating, string $level = 'hotel'): Collection

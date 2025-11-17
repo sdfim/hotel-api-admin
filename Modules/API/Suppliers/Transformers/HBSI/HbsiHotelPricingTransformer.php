@@ -320,8 +320,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 
-//        dd($transformedRates);
-
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
                 giataId: $giataId,
@@ -540,6 +538,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
+
         $roomResponse->setDeposits(
             DepositResolver::get(
                 $roomResponse,

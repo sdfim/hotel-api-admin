@@ -20,7 +20,7 @@ class DescriptiveContentResolver
 
         try {
             $active = self::getCachedFilteredDescriptiveContent($descriptiveContent, $query, $giataId);
-            if (!isset($active['hotel'])) {
+            if (! isset($active['hotel'])) {
                 return [];
             }
 
@@ -42,8 +42,9 @@ class DescriptiveContentResolver
             return $out;
         } catch (Throwable $e) {
             logger('Error in DescriptiveContentResolver::getHotelLevel: '.$e->getMessage(), [
-                'exception' => $e, 'giataId' => $giataId ?? 'unknown'
+                'exception' => $e, 'giataId' => $giataId ?? 'unknown',
             ]);
+
             return [];
         }
     }
@@ -75,8 +76,9 @@ class DescriptiveContentResolver
         } catch (Throwable $e) {
             logger('Error in DescriptiveContentResolver::getRoomLevel: '.$e->getMessage(), [
                 'exception' => $e,
-                'giataId'   => $giataId ?? 'unknown',
+                'giataId' => $giataId ?? 'unknown',
             ]);
+
             return [];
         }
     }
@@ -90,7 +92,7 @@ class DescriptiveContentResolver
         try {
             $ratePlanCode = $roomResponse->getRatePlanCode();
             $active = self::getCachedFilteredDescriptiveContent($descriptiveContent, $query, $giataId);
-            if (!isset($active['rate'])) {
+            if (! isset($active['rate'])) {
                 return [];
             }
 
@@ -104,8 +106,9 @@ class DescriptiveContentResolver
             return $out;
         } catch (Throwable $e) {
             logger('Error in DescriptiveContentResolver::getRateLevel: '.$e->getMessage(), [
-                'exception' => $e, 'giataId' => $giataId ?? 'unknown'
+                'exception' => $e, 'giataId' => $giataId ?? 'unknown',
             ]);
+
             return [];
         }
     }
@@ -113,8 +116,8 @@ class DescriptiveContentResolver
     public static function getForRoomResponse(RoomResponse $roomResponse, array $descriptiveContent, array $query, $giataId): array
     {
         $hotel = self::getHotelLevel($descriptiveContent, $query, $giataId);
-        $room  = self::getRoomLevel($roomResponse, $descriptiveContent, $query, $giataId);
-        $rate  = self::getRateLevel($roomResponse, $descriptiveContent, $query, $giataId, '');
+        $room = self::getRoomLevel($roomResponse, $descriptiveContent, $query, $giataId);
+        $rate = self::getRateLevel($roomResponse, $descriptiveContent, $query, $giataId, '');
 
         return array_values(array_merge($hotel, $room, $rate));
     }
@@ -138,9 +141,9 @@ class DescriptiveContentResolver
 
         $rateInclusions = $filteredContent->pluck('value')->filter()->toArray();
         if ($rateInclusions == []) {
-            $rateInclusions = $filteredContentAtHotelLevel . "\n";
+            $rateInclusions = $filteredContentAtHotelLevel."\n";
         } else {
-            $rateInclusions = implode("\n", $rateInclusions) . "\n" . $filteredContentAtHotelLevel . "\n";
+            $rateInclusions = implode("\n", $rateInclusions)."\n".$filteredContentAtHotelLevel."\n";
         }
 
         return $rateInclusions;
@@ -167,11 +170,11 @@ class DescriptiveContentResolver
     private static function getCachedFilteredDescriptiveContent(array $descriptiveContent, array $query, $giataId): array
     {
         $relevantParams = [
-            'checkin'   => $query['checkin'] ?? 'default',
-            'checkout'  => $query['checkout'] ?? 'default',
-            'radius'    => $query['radius'] ?? 'default',
-            'rating'    => $query['rating'] ?? 'default',
-            'supplier'  => $query['supplier'] ?? 'default',
+            'checkin' => $query['checkin'] ?? 'default',
+            'checkout' => $query['checkout'] ?? 'default',
+            'radius' => $query['radius'] ?? 'default',
+            'rating' => $query['rating'] ?? 'default',
+            'supplier' => $query['supplier'] ?? 'default',
             'occupancy' => json_encode($query['occupancy'] ?? []),
         ];
 
@@ -191,40 +194,40 @@ class DescriptiveContentResolver
 
         return [
             'hotel' => self::primaryFiltersDescriptiveContent($collection, $query, 'hotel'),
-            'room'  => self::primaryFiltersDescriptiveContent($collection, $query, 'room'),
-            'rate'  => self::primaryFiltersDescriptiveContent($collection, $query, 'rate'),
+            'room' => self::primaryFiltersDescriptiveContent($collection, $query, 'room'),
+            'rate' => self::primaryFiltersDescriptiveContent($collection, $query, 'rate'),
         ];
     }
 
     private static function primaryFiltersDescriptiveContent(Collection $descriptiveContent, array $query, string $level): Collection
     {
-        $checkin  = Carbon::parse($query['checkin'] ?? now());
+        $checkin = Carbon::parse($query['checkin'] ?? now());
         $checkout = Carbon::parse($query['checkout'] ?? now()->addDays());
 
         $filtered = $descriptiveContent->filter(function ($item) use ($level) {
-            $hasRate     = !is_null(Arr::get($item, 'rate_id'));
-            $hasRoom     = self::hasRoomIdentifiers($item);
+            $hasRate = ! is_null(Arr::get($item, 'rate_id'));
+            $hasRoom = self::hasRoomIdentifiers($item);
 
             return match ($level) {
-                'rate'  => $hasRate,
-                'room'  => !$hasRate && $hasRoom,
-                'hotel' => !$hasRate && !$hasRoom,
+                'rate' => $hasRate,
+                'room' => ! $hasRate && $hasRoom,
+                'hotel' => ! $hasRate && ! $hasRoom,
                 default => false,
             };
         });
 
         return $filtered->filter(function ($item) use ($checkin, $checkout) {
             $from = Arr::get($item, 'start_date');
-            $to   = Arr::get($item, 'end_date');
+            $to = Arr::get($item, 'end_date');
 
-            if (!$from || !$to) {
+            if (! $from || ! $to) {
                 return true;
             }
 
             $from = Carbon::parse($from);
-            $to   = Carbon::parse($to);
+            $to = Carbon::parse($to);
 
-            return ($from <= $checkout && $to >= $checkin);
+            return $from <= $checkout && $to >= $checkin;
         })->values();
     }
 
@@ -248,51 +251,51 @@ class DescriptiveContentResolver
             $matchesRate = (Arr::get($item, 'rate_id', '') === $ratePlanCode);
             $matchesRoom = (Arr::get($item, 'unified_room_code', '') === $unifiedRoomCode);
 
-            return ($matchesRate || $matchesRoom) && $matchesPriorityRooms;
+            return $matchesRate || $matchesRoom;
         });
 
         return $filtered->filter(function ($item) use ($checkin, $checkout) {
             $from = Arr::get($item, 'start_date');
-            $to   = Arr::get($item, 'end_date');
+            $to = Arr::get($item, 'end_date');
 
-            if (!$from || !$to) {
+            if (! $from || ! $to) {
                 return true;
             }
 
             $from = Carbon::parse($from);
-            $to   = Carbon::parse($to);
+            $to = Carbon::parse($to);
 
-            return ($from <= $checkout && $to >= $checkin);
+            return $from <= $checkout && $to >= $checkin;
         })->values();
     }
 
     private static function hasRoomIdentifiers(array $item): bool
     {
-        return !is_null(Arr::get($item, 'unified_room_code'))
-            || !is_null(Arr::get($item, 'room_id'))
-            || !is_null(Arr::get($item, 'supplier_room_id'));
+        return ! is_null(Arr::get($item, 'unified_room_code'))
+            || ! is_null(Arr::get($item, 'room_id'))
+            || ! is_null(Arr::get($item, 'supplier_room_id'));
     }
 
     private static function mapItem(array $item, string $level): array
     {
         return [
-            'level'         => $level,
-            'content_type'  => $item['descriptive_type'] ?? '',
+            'level' => $level,
+            'content_type' => $item['descriptive_type'] ?? '',
             'content_value' => $item['value'] ?? '',
-            'interval'      => [
+            'interval' => [
                 'from' => $item['start_date'] ?? null,
-                'to'   => $item['end_date'] ?? null,
+                'to' => $item['end_date'] ?? null,
             ],
             'type' => [
-                'name'        => $item['descriptive_type_name'] ?? '',
-                'type'        => $item['descriptive_type'] ?? '',
-                'location'    => $item['descriptive_type_location'] ?? '',
+                'name' => $item['descriptive_type_name'] ?? '',
+                'type' => $item['descriptive_type'] ?? '',
+                'location' => $item['descriptive_type_location'] ?? '',
                 'description' => $item['descriptive_type_description'] ?? '',
             ],
-            'rate_id'           => $item['rate_id'] ?? null,
-            'room_id'           => $item['room_id'] ?? null,
+            'rate_id' => $item['rate_id'] ?? null,
+            'room_id' => $item['room_id'] ?? null,
             'unified_room_code' => $item['unified_room_code'] ?? null,
-            'supplier_room_id'  => $item['supplier_room_id'] ?? null,
+            'supplier_room_id' => $item['supplier_room_id'] ?? null,
         ];
     }
 }
