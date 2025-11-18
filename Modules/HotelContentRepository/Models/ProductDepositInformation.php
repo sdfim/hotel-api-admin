@@ -34,10 +34,16 @@ class ProductDepositInformation extends Model
         'price_value',
         'price_value_type',
         'price_value_target',
+
         'days_after_booking_initial_payment_due',
         'days_before_arrival_initial_payment_due',
         'date_initial_payment_due',
         'initial_payment_due_type',
+
+        'days_after_booking_balance_payment_due',
+        'days_before_arrival_balance_payment_due',
+        'date_balance_payment_due',
+        'balance_payment_due_type',
     ];
 
     protected $hidden = [

@@ -144,6 +144,50 @@ trait DepositFieldTrait
                 ->columns(2)
                 ->visible($isDepositForm),
 
+            Fieldset::make('Balance Payment')
+                ->schema([
+                    Select::make('balance_payment_due_type')
+                        ->label('Balance Payment Due Type')
+                        ->inlineLabel()
+                        ->options([
+                            'days_after_booking' => 'Days After Booking',
+                            'days_before_arrival' => 'Days Before Arrival',
+                            'date' => 'Date',
+                        ])
+                        ->live(),
+                    TextInput::make('days_after_booking_balance_payment_due')
+                        ->label('Days')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->maxLength(191)
+                        ->numeric()
+                        ->minValue(0)
+                        ->required(fn (Get $get): bool => $get('balance_payment_due_type') === 'days_after_booking')
+                        ->visible(fn (Get $get): bool => $get('balance_payment_due_type') === 'days_after_booking'),
+                    TextInput::make('days_before_arrival_balance_payment_due')
+                        ->label('Days')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->maxLength(191)
+                        ->numeric()
+                        ->minValue(1)
+                        ->required(fn (Get $get): bool => $get('balance_payment_due_type') === 'days_before_arrival')
+                        ->visible(fn (Get $get): bool => $get('balance_payment_due_type') === 'days_before_arrival'),
+                    DateTimePicker::make('date_balance_payment_due')
+                        ->label('Date')
+                        ->inlineLabel()
+                        ->columnSpan(1)
+                        ->native(false)
+                        ->time(false)
+                        ->format('Y-m-d')
+                        ->displayFormat('d-m-Y')
+                        ->required(fn (Get $get): bool => $get('balance_payment_due_type') === 'date')
+                        ->visible(fn (Get $get): bool => $get('balance_payment_due_type') === 'date'),
+
+                ])
+                ->columns(2)
+                ->visible($isDepositForm),
+
             Fieldset::make('Сonditions')
                 ->schema([
                     $this->getBaseRepiter(),
