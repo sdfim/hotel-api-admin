@@ -73,14 +73,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
         $this->productId = $product->id;
         $this->product = $product;
         $this->title = 'Fees and Taxes for '.$product->name;
-        if ($this->rateId) {
-            $this->title .= ' - Rate ID: '.$this->rateId;
-            $this->title .= ' - Rate Name: '.$rate->name;
-        }
-        if ($this->roomId) {
-            $this->title .= ' - Room ID: '.$this->roomId;
-            $this->title .= ' - Room Name: '.$room->name;
-        }
     }
 
     public function updatedSupplierId($value): void
@@ -192,7 +184,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             'update' => 'Update',
                             'edit' => 'Edit',
                             'delete' => 'Delete',
-                            'vat' => 'VAT management',
+                            //                            'vat' => 'VAT management',
                             //                            'included' => 'Hilton inclusive',
                             'informative' => 'Informative',
                         ])
