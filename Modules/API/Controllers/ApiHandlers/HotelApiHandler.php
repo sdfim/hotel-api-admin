@@ -303,7 +303,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     /** @var array<int, string> $rawGiataIds key - giata_id, value - supplier_id */
                     $rawGiataIds = match (SupplierNameEnum::from($supplier)) {
                         SupplierNameEnum::HBSI => Arr::get($preSearchData, 'rawGiataIds', []),
-                        SupplierNameEnum::EXPEDIA => $preSearchData,
+                        SupplierNameEnum::EXPEDIA => array_flip($preSearchData),
                         SupplierNameEnum::HOTEL_TRADER => $preSearchData,
                         default => [],
                     };
@@ -329,7 +329,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $rawGiataIds
                         ) {
                             $result = match (SupplierNameEnum::from($supplier)) {
-                                SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $rawGiataIds),
+                                SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, array_flip($rawGiataIds)),
                                 SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $rawGiataIds),
                                 SupplierNameEnum::HOTEL_TRADER => $this->hTrader->price($currentFilters, $searchInspector, $rawGiataIds),
                                 default => throw new Exception("Unknown supplier: $supplier")

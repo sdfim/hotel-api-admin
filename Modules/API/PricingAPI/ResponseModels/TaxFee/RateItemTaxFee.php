@@ -22,7 +22,7 @@ class RateItemTaxFee
 
     protected ?string $end_date = null;
 
-    protected int|float|null $multiplier_fee = null;
+    protected int|float|null $multiplier_fee = 1;
 
     protected ?float $displayable_rack_amount = null;
 

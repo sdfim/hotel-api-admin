@@ -816,20 +816,27 @@ class BaseTaxAndFeeResolver
                     $applicableTaxes = ServiceCalculationHelper::filterTaxesForDate($taxesRate, $currentNightDate);
                     $breakdown[$night] = array_merge($breakdown[$night], $applicableTaxes);
                 } else {
-                    // Fallback to original behavior if no dates provided
+                    // Fallback to existing behavior if no dates provided
                     $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
                 }
 
                 $night++;
             }
 
-            $fees = array_values(array_unique(array_merge($fees, $feesRate), SORT_REGULAR));
+            foreach ($feesRate as $fee) {
+                $key = Arr::get($fee, 'code', '');
+                if (! isset($fees[$key])) {
+                    $fees[$key] = $fee;
+                } else {
+                    $fees[$key]['amount'] += round(Arr::get($fee, 'amount', 0), 2);
+
+                }
+            }
         }
+        $fees = array_values($fees);
 
         return [
             'nightly' => $breakdown,
-            // TODO: check if this is correct
-            //            'stay' => $stay,
             'stay' => [],
             'fees' => $fees,
         ];

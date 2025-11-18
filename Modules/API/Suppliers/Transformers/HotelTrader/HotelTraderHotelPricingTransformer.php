@@ -261,10 +261,10 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_net'] = 0.0;
 
         $rateOccupancy = $this->occupancies[$giataId][$rate['occupancyRefId']] ?? 0;
-        $rateToApply['Rates'] = $rate['rateInfo'];
+        $supplierRateData = $rate['rateInfo'];
 
         $repoTaxFees = Arr::get($this->repoTaxFees, $giataId, []);
-        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates'], $repoTaxFees);
+        $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees);
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 

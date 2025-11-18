@@ -304,19 +304,10 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
+        $supplierRateData = $rate['RoomRates']['RoomRate']['Rates'];
 
-        $rateToApply = [];
-
-        $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
-        $rateToApply['rateOccupancy'] = $rateOccupancy;
-
-        if (! isset($this->repoTaxFees[$giataId])) {
-            $repoTaxFees = [];
-        } else {
-            $repoTaxFees = $this->repoTaxFees[$giataId];
-        }
-
-        $transformedRates = $this->taxAndFeeResolver->transformRates($rateToApply['Rates'], $repoTaxFees);
+        $repoTaxFees = Arr::get($this->repoTaxFees, $giataId, []);
+        $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees);
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 

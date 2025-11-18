@@ -34,6 +34,9 @@ class TransformedRate
     /** @var RateItemTaxFee[] */
     protected array $fees = [];
 
+    /** @var RateItemTaxFee[] */
+    protected array $stay = [];
+
     public function getCode(): ?string
     {
         return $this->code;
@@ -164,6 +167,16 @@ class TransformedRate
         $this->fees = $fees;
     }
 
+    public function getStay(): array
+    {
+        return $this->stay;
+    }
+
+    public function setStay($stay): void
+    {
+        $this->stay = $stay;
+    }
+
     public function toArray(): array
     {
         return [
@@ -179,6 +192,7 @@ class TransformedRate
             'total_amount_after_tax' => $this->getTotalAmountAfterTax(),
             'total_currency_code' => $this->getTotalCurrencyCode(),
             'taxes' => array_map(fn ($tax) => $tax->toArray(), $this->getTaxes()),
+            'stay' => array_map(fn ($stay) => $stay->toArray(), $this->getStay()),
             'fees' => array_map(fn ($fee) => $fee->toArray(), $this->getFees()),
         ];
     }
