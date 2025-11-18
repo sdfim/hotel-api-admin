@@ -2,10 +2,6 @@
 
 namespace Tests\Unit\Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
-use Carbon\Carbon;
-use Modules\API\PricingAPI\Resolvers\TaxAndFees\HbsiTaxAndFeeResolver;
-use PHPUnit\Framework\TestCase;
-
 /**
  * Test class for Mandatory Taxes with Vendor Collection
  *
@@ -15,100 +11,8 @@ use PHPUnit\Framework\TestCase;
  * - Percentage/Amount value types
  * - per_room, per_person, per_night, per_night_per_person apply types
  */
-class MandatoryTaxVendorCollectedTest extends TestCase
+class MandatoryTaxVendorCollectedTest extends BaseTaxAndFeeResolverTest
 {
-    private HbsiTaxAndFeeResolver $taxAndFeeResolver;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->taxAndFeeResolver = new HbsiTaxAndFeeResolver;
-    }
-
-    /**
-     * Helper method to create base transformed rates structure
-     */
-    private function createBaseTransformedRates(float $baseNetRate, int $nights = 1, float $baseRackRate = 0): array
-    {
-        if ($baseRackRate === 0) {
-            $baseRackRate = $baseNetRate;
-        }
-
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $checkoutInput = Carbon::parse('2025-08-10')->startOfDay()->addDays($nights)->toDateString();
-
-        return [
-            [
-                'code' => '',
-                'rate_time_unit' => 'Day',
-                'unit_multiplier' => $nights,
-                'effective_date' => $checkinInput,
-                'expire_date' => $checkoutInput,
-                'amount_before_tax' => $baseNetRate,
-                'amount_after_tax' => $baseNetRate,
-                'currency_code' => 'USD',
-                'taxes' => [],
-                'total_amount_before_tax' => $baseNetRate * $nights,
-                'totalAmount-after_tax' => $baseNetRate * $nights,
-                'total_currency_code' => 'USD',
-            ],
-        ];
-    }
-
-    /**
-     * Helper method to execute applyRepoTaxFees and return result
-     */
-    private function executeApplyRepoTaxFees(array &$transformedRates, array $repoTaxFeesInput, int $numberOfPassengers = 2): void
-    {
-        $giataCode = 1002;
-        $ratePlanCode = 'Loyalty';
-        $unifiedRoomCode = '';
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $nights = 7;
-        $checkoutInput = Carbon::parse('2025-08-17')->startOfDay()->addDays($nights)->toDateString();
-        $occupancy = [
-            [
-                'adults' => 2,
-            ],
-        ];
-
-        $this->taxAndFeeResolver->applyRepoTaxFees(
-            $transformedRates,
-            $giataCode,
-            $ratePlanCode,
-            $unifiedRoomCode,
-            $numberOfPassengers,
-            $checkinInput,
-            $checkoutInput,
-            $repoTaxFeesInput,
-            $occupancy
-        );
-    }
-
-    /**
-     * Helper method to assert tax and fee results
-     */
-    private function assertTaxAndFeeResults(array $transformedRates, array $expectedResult): void
-    {
-        foreach ($expectedResult as $expectedItemKey => $expectedItemValue) {
-            if (is_array($expectedItemValue)) {
-                foreach ($expectedItemValue as $index => $item) {
-                    foreach ($item as $key => $value) {
-                        if (is_numeric($value)) {
-                            $this->assertEqualsWithDelta($value, $transformedRates[0][$expectedItemKey][$index][$key], 0.01);
-                        } else {
-                            $this->assertEquals($value, $transformedRates[0][$expectedItemKey][$index][$key]);
-                        }
-                    }
-                }
-            } else {
-                $this->assertEquals($expectedItemValue, $transformedRates[0][$expectedItemKey]);
-            }
-        }
-    }
-
-    // ============ TAX PERCENTAGE TESTS ============
-
     public function test_tax_percentage_per_room(): void
     {
         // Arrange

@@ -73,16 +73,16 @@ class TaxAndFeeResolverTest extends TestCase
                 'adults' => 2,
             ],
         ];
+        $repoTaxFees = [
+            'add' => $repoTaxFeesInput[1002]['add'],
+        ];
 
         $this->taxAndFeeResolver->applyRepoTaxFees(
             $transformedRates,
-            $giataCode,
-            $ratePlanCode,
-            $unifiedRoomCode,
             $numberOfPassengers,
             $checkinInput,
             $checkoutInput,
-            $repoTaxFeesInput,
+            $repoTaxFees,
             $occupancy
         );
     }
@@ -562,69 +562,69 @@ class TaxAndFeeResolverTest extends TestCase
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
     }
 
-//    public function test_tax_amount_per_person_per_night(): void
-//    {
-//        // Arrange
-//        $baseNetRate = 125;
-//        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7);
-//
-//        $repoTaxFeesInput = [
-//            1002 => [
-//                'add' => [
-//                    5 => [
-//                        'id' => 5,
-//                        'product_id' => 2,
-//                        'room_id' => null,
-//                        'rate_id' => null,
-//                        'start_date' => '2025-06-10T00:00:00.000000Z',
-//                        'end_date' => null,
-//                        'supplier_id' => 2,
-//                        'action_type' => 'add',
-//                        'old_name' => null,
-//                        'name' => 'VAT',
-//                        'net_value' => 10.0,
-//                        'rack_value' => 10.0,
-//                        'type' => 'Tax',
-//                        'value_type' => 'Amount',
-//                        'apply_type' => 'per_night_per_person',
-//                        'commissionable' => false,
-//                        'fee_category' => 'mandatory',
-//                        'collected_by' => 'Vendor',
-//                        'rate_code' => null,
-//                        'unified_room_code' => null,
-//                        'currency' => 'USD',
-//                    ],
-//                ],
-//            ],
-//        ];
-//
-//        $expectedResult = [
-//            'taxes' => [
-//                [
-//                    'code' => 'OBE_5',
-//                    'description' => 'VAT',
-//                    'obe_action' => 'add',
-//                    'is_commissionable' => false,
-//                    'type' => 'Exclusive',
-//                    'multiplier_fee' => '14',
-//                    'collected_by' => 'Vendor',
-//                    'amount' => 175 / 7,
-//                    'rack_amount' => 175 / 7,
-//                    'value_type' => 'Amount',
-//                    'displayable_rack_amount' => 175 / 7,
-//                    'displayable_amount' => 175 / 7,
-//                    'currency' => 'USD',
-//                ],
-//            ],
-//            'fees' => [],
-//        ];
-//
-//        // Act
-//        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
-//
-//        // Assert
-//        $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
-//    }
+    //    public function test_tax_amount_per_person_per_night(): void
+    //    {
+    //        // Arrange
+    //        $baseNetRate = 125;
+    //        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7);
+    //
+    //        $repoTaxFeesInput = [
+    //            1002 => [
+    //                'add' => [
+    //                    5 => [
+    //                        'id' => 5,
+    //                        'product_id' => 2,
+    //                        'room_id' => null,
+    //                        'rate_id' => null,
+    //                        'start_date' => '2025-06-10T00:00:00.000000Z',
+    //                        'end_date' => null,
+    //                        'supplier_id' => 2,
+    //                        'action_type' => 'add',
+    //                        'old_name' => null,
+    //                        'name' => 'VAT',
+    //                        'net_value' => 10.0,
+    //                        'rack_value' => 10.0,
+    //                        'type' => 'Tax',
+    //                        'value_type' => 'Amount',
+    //                        'apply_type' => 'per_night_per_person',
+    //                        'commissionable' => false,
+    //                        'fee_category' => 'mandatory',
+    //                        'collected_by' => 'Vendor',
+    //                        'rate_code' => null,
+    //                        'unified_room_code' => null,
+    //                        'currency' => 'USD',
+    //                    ],
+    //                ],
+    //            ],
+    //        ];
+    //
+    //        $expectedResult = [
+    //            'taxes' => [
+    //                [
+    //                    'code' => 'OBE_5',
+    //                    'description' => 'VAT',
+    //                    'obe_action' => 'add',
+    //                    'is_commissionable' => false,
+    //                    'type' => 'Exclusive',
+    //                    'multiplier_fee' => '14',
+    //                    'collected_by' => 'Vendor',
+    //                    'amount' => 175 / 7,
+    //                    'rack_amount' => 175 / 7,
+    //                    'value_type' => 'Amount',
+    //                    'displayable_rack_amount' => 175 / 7,
+    //                    'displayable_amount' => 175 / 7,
+    //                    'currency' => 'USD',
+    //                ],
+    //            ],
+    //            'fees' => [],
+    //        ];
+    //
+    //        // Act
+    //        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+    //
+    //        // Assert
+    //        $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
+    //    }
 
     public function test_tax_amount_per_room_and_per_person(): void
     {

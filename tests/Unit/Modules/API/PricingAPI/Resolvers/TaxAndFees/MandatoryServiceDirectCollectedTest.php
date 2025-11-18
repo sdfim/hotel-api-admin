@@ -11,78 +11,8 @@ use PHPUnit\Framework\TestCase;
  *
  * This class tests all combinations of mandatory services collected directly by the property.
  */
-class MandatoryServiceDirectCollectedTest extends TestCase
+class MandatoryServiceDirectCollectedTest extends BaseTaxAndFeeResolverTest
 {
-    private HbsiTaxAndFeeResolver $taxAndFeeResolver;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->taxAndFeeResolver = new HbsiTaxAndFeeResolver;
-    }
-
-    private function createBaseTransformedRates(float $baseNetRate, int $nights = 1, float $baseRackRate = 0): array
-    {
-        if ($baseRackRate === 0) {
-            $baseRackRate = $baseNetRate;
-        }
-
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $checkoutInput = Carbon::parse('2025-08-10')->startOfDay()->addDays($nights)->toDateString();
-
-        return [
-            [
-                'code' => '',
-                'rate_time_unit' => 'Day',
-                'unit_multiplier' => $nights,
-                'effective_date' => $checkinInput,
-                'expire_date' => $checkoutInput,
-                'amount_before_tax' => $baseNetRate,
-                'amount_after_tax' => $baseNetRate,
-                'currency_code' => 'USD',
-                'taxes' => [],
-                'total_amount_before_tax' => $baseNetRate * $nights,
-                'totalAmount-after_tax' => $baseNetRate * $nights,
-                'total_currency_code' => 'USD',
-            ],
-        ];
-    }
-
-    private function executeApplyRepoTaxFees(array &$transformedRates, array $repoTaxFeesInput, int $numberOfPassengers = 2): void
-    {
-        $giataCode = 1002;
-        $ratePlanCode = 'Loyalty';
-        $unifiedRoomCode = '';
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $nights = 7;
-        $checkoutInput = Carbon::parse('2025-08-17')->startOfDay()->addDays($nights)->toDateString();
-        $occupancy = [['adults' => 2]];
-
-        $this->taxAndFeeResolver->applyRepoTaxFees(
-            $transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode,
-            $numberOfPassengers, $checkinInput, $checkoutInput, $repoTaxFeesInput, $occupancy
-        );
-    }
-
-    private function assertTaxAndFeeResults(array $transformedRates, array $expectedResult): void
-    {
-        foreach ($expectedResult as $expectedItemKey => $expectedItemValue) {
-            if (is_array($expectedItemValue)) {
-                foreach ($expectedItemValue as $index => $item) {
-                    foreach ($item as $key => $value) {
-                        if (is_numeric($value)) {
-                            $this->assertEqualsWithDelta($value, $transformedRates[0][$expectedItemKey][$index][$key], 0.01);
-                        } else {
-                            $this->assertEquals($value, $transformedRates[0][$expectedItemKey][$index][$key]);
-                        }
-                    }
-                }
-            } else {
-                $this->assertEquals($expectedItemValue, $transformedRates[0][$expectedItemKey]);
-            }
-        }
-    }
-
     public function test_service_percentage_per_room_direct_collection(): void
     {
         $baseNetRate = 125;
