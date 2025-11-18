@@ -33,7 +33,7 @@ class DepositResolver
         $depositInformationRateCode = $roomResponse->getRatePlanCode();
         $totalPrice = $roomResponse->getTotalPrice();
 
-        $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId, $rating);
+        $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId, $rating, $supplierName);
 
         $filtered = $activeDepositInformation['rate']->filter(function ($item) use ($depositInformationRateCode) {
             $rateId = $item['rate_id'] ?? null;
@@ -205,19 +205,19 @@ class DepositResolver
         return $calculatedDeposits;
     }
 
-    private static function getCachedFilteredDepositInformation(array $depositInformation, array $query, $giataId, $rating): array
+    private static function getCachedFilteredDepositInformation(array $depositInformation, array $query, $giataId, $rating, $supplierName): array
     {
         $cacheKey = "filtered_deposit_information_{$giataId}";
 
-        return cache()->remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($depositInformation, $query, $rating) {
-            return self::getFilteredDepositInformation($depositInformation, $query, $rating);
+        return cache()->remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($depositInformation, $query, $rating, $supplierName) {
+            return self::getFilteredDepositInformation($depositInformation, $query, $rating, $supplierName);
         });
     }
 
-    private static function getFilteredDepositInformation(array $depositInformation, array $query, $rating): array
+    private static function getFilteredDepositInformation(array $depositInformation, array $query, $rating, $supplierName): array
     {
-        $rateLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating, 'rate');
-        $hotelLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating);
+        $rateLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating, $supplierName, 'rate');
+        $hotelLevel = self::primaryFiltersDeposit(collect($depositInformation), $query, $rating, $supplierName);
 
         return [
             'hotel' => $hotelLevel,
@@ -288,7 +288,7 @@ class DepositResolver
         }
     }
 
-    private static function primaryFiltersDeposit(Collection $depositInformation, array $query, $rating, string $level = 'hotel'): Collection
+    private static function primaryFiltersDeposit(Collection $depositInformation, array $query, $rating, $supplierName, string $level = 'hotel'): Collection
     {
         $checkin = Carbon::parse($query['checkin']);
         $checkout = Carbon::parse($query['checkout']);
@@ -380,9 +380,8 @@ class DepositResolver
         });
 
         // Filter for supplier_id to ensure the supplier matches the specified interval
-        $filtered = $filtered->filter(function ($item) use ($query) {
+        $filtered = $filtered->filter(function ($item) use ($supplierName) {
             $condition = collect($item['conditions'])->firstWhere('field', 'supplier_id');
-            $supplierName = $query['supplier'] ?? null;
             $supplierId = strval(Supplier::where('name', $supplierName)->first()?->id ?? 0);
             $conditionSupplierId = $condition['value_from'] ?? null;
             $compare = $condition['compare'] ?? null;
