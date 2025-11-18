@@ -501,6 +501,27 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
+        $rating = Arr::get($this->giata, "$giataId.rating", 0);
+        $roomResponse->setDeposits(
+            DepositResolver::get(
+                $roomResponse,
+                Arr::get($this->depositInformation, $giataId, []),
+                $query,
+                $giataId,
+                $rating,
+                $this->roomCodes
+            )
+        );
+
+        $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
+            $roomResponse,
+            Arr::get($this->descriptiveContent, $giataId, []),
+            $query,
+            $giataId,
+            $unifiedRoomCode
+        );
+        $roomResponse->setDescriptiveContent($dc);
+
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
 
@@ -528,27 +549,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'created_at' => Carbon::now()->toDateTimeString(),
             'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
-        $rating = Arr::get($this->giata, "$giataId.rating", 0);
-
-        $roomResponse->setDeposits(
-            DepositResolver::get(
-                $roomResponse,
-                Arr::get($this->depositInformation, $giataId, []),
-                $query,
-                $giataId,
-                $rating,
-                $this->roomCodes
-            )
-        );
-
-        $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
-            $roomResponse,
-            Arr::get($this->descriptiveContent, $giataId, []),
-            $query,
-            $giataId,
-            $unifiedRoomCode
-        );
-        $roomResponse->setDescriptiveContent($dc);
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }

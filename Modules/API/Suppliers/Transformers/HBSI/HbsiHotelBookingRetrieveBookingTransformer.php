@@ -95,6 +95,8 @@ class HbsiHotelBookingRetrieveBookingTransformer
         $hotelAddress = $hotel?->address;
         $depositInformation = Arr::get($saveResponse, 'deposits', []);
 
+//        dd($depositInformation);
+
         $attributes = app(HotelContentApiTransformerService::class)->getHotelAttributes($hotel);
 
         $roomsData = Arr::get($saveResponse, 'rooms', []);
