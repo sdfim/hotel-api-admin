@@ -155,7 +155,7 @@ class BaseTaxAndFeeResolver
 
         foreach ($transformedRates as &$rate) {
 
-            $numberOfNights = (int) Carbon::parse(Arr::get($rate, 'effective_date'))->diffInDays(Carbon::parse(Arr::get($rate, 'expire_date')));
+            $numberOfNights = (int) Carbon::parse($checkin)->diffInDays(Carbon::parse($checkout));
 
             $this->initializeFeesArray($rate);
 
