@@ -331,24 +331,21 @@ class BaseHotelPricingTransformer
             ];
         })->toArray();
 
-        //        $this->commissions = $supplierRepositoryData->mapWithKeys(function ($hotel) {
-        //            return [
-        //                $hotel->giata_code => $hotel->product?->travelAgencyCommissions->map(function ($commission) {
-        //                        return [
-        //                            'commission_value' => $commission->commission_value,
-        //                            'commission_value_type' => $commission->commission_value_type,
-        //                            'date_range_start' => $commission->date_range_start,
-        //                            'date_range_end' => $commission->date_range_end,
-        //                            'room_type' => $commission->room_type,
-        //                            'rate_type' => $commission->rate_type,
-        //                            'commission_name' => $commission->commission->name ?? null,
-        //                            'consortia' => $commission->getConfigConsortiaByIds()->map(function ($consortium) {
-        //                                return $consortium->name;
-        //                            })->toArray()
-        //                        ];
-        //                    })->toArray() ?? [],
-        //            ];
-        //        })->toArray();
+        $this->commissions = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => $hotel->product?->travelAgencyCommissions->map(function ($commission) {
+                    return [
+                        'commission_value' => $commission->commission_value,
+                        'commission_value_type' => $commission->commission_value_type,
+                        'date_range_start' => $commission->date_range_start,
+                        'date_range_end' => $commission->date_range_end,
+                        'room_type' => $commission->room_type,
+                        'rate_type' => $commission->rate_type,
+                        'commission_name' => $commission->commission->name ?? null,
+                    ];
+                })->toArray() ?? [],
+            ];
+        })->toArray();
 
         $this->unifiedRoomCodes = [];
         $this->roomCodes = [];
@@ -418,7 +415,7 @@ class BaseHotelPricingTransformer
             'roomIdByUnifiedCode' => $this->roomIdByUnifiedCode,
             'features' => $this->features,
             'rates' => $this->rates,
-            //            'commissions' => $this->commissions,
+            'commissions' => $this->commissions,
         ];
     }
 
@@ -446,7 +443,7 @@ class BaseHotelPricingTransformer
         $this->roomIdByUnifiedCode = $cachedData['roomIdByUnifiedCode'];
         $this->features = $cachedData['features'];
         $this->rates = $cachedData['rates'];
-        //        $this->commissions = $cachedData['commissions'];
+        $this->commissions = $cachedData['commissions'];
     }
 
     protected function initializePricingData(array $query, array $pricingExclusionRules, array $giataIds, string $search_id): void

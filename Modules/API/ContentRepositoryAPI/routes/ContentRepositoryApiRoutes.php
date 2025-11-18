@@ -21,6 +21,7 @@ use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
 use Modules\HotelContentRepository\API\Controllers\ProductFeeTaxController;
+use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\API\Controllers\VendorController;
 
 class ContentRepositoryApiRoutes
@@ -73,6 +74,8 @@ class ContentRepositoryApiRoutes
             Route::resource('key-mapping-owners', KeyMappingOwnerController::class);
 
             Route::resource('age-restrictions', ProductAgeRestrictionController::class);
+
+            Route::resource('travel-agency-commissions', TravelAgencyCommissionController::class);
 
             Route::resource('content-sources', ContentSourceController::class);
         });

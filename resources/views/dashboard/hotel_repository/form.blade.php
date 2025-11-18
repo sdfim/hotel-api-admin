@@ -4,6 +4,7 @@
             'tab_name' => '-product-tab',
             'related' => [
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
+                ['title' => 'Advisor Commission', 'component' => 'commissions.travel-agency-commission-table'],
             ],
         ],
         'Location' => [

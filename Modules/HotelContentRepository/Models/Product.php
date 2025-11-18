@@ -117,6 +117,11 @@ class Product extends Model
         return $this->belongsToMany(ImageGallery::class, 'pd_product_gallery', 'product_id', 'gallery_id');
     }
 
+    public function travelAgencyCommissions(): HasMany
+    {
+        return $this->hasMany(TravelAgencyCommission::class, 'product_id');
+    }
+
     public function depositInformations(): HasMany
     {
         return $this->hasMany(ProductDepositInformation::class, 'product_id');

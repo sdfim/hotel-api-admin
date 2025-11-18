@@ -19,6 +19,7 @@
     use Modules\HotelContentRepository\Models\Hotel;
     use Modules\HotelContentRepository\Models\Product;
     use Modules\HotelContentRepository\Models\Vendor;
+    use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigAttributeCategory;
@@ -30,6 +31,7 @@
     use App\Models\Configurations\ConfigInsuranceDocumentationType;
     use App\Models\Configurations\ConfigContactInformationDepartment;
     use Modules\HotelContentRepository\Models\KeyMappingOwner;
+    use Modules\HotelContentRepository\Models\Commission;
     use Modules\HotelContentRepository\Models\ImageGallery;
     use Modules\HotelContentRepository\Models\Image;
     use App\Models\Team;
@@ -46,10 +48,11 @@
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
         $canView(ConfigJobDescription::class) ||
-        $canView(ConfigChain::class);
-        $canView(ConfigInsuranceDocumentationType::class);
-        $canView(ConfigContactInformationDepartment::class);
-        $canView(KeyMappingOwner::class);
+        $canView(ConfigChain::class) ||
+        $canView(ConfigInsuranceDocumentationType::class) ||
+        $canView(ConfigContactInformationDepartment::class) ||
+        $canView(KeyMappingOwner::class) ||
+        $canView(Commission::class) ||
         $canView(ConfigRoomBedType::class);
 @endphp
 
@@ -64,6 +67,7 @@
         ['route' => 'configurations.descriptive-types.index', 'text' => 'Descriptive Types', 'model' => ConfigDescriptiveType::class],
         ['route' => 'configurations.job-descriptions.index', 'text' => 'Departments', 'model' => ConfigJobDescription::class],
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
+        ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
         ['route' => 'configurations.contact-information-departments.index', 'text' => 'TerraMare Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
@@ -308,8 +312,8 @@
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     HBSI
                                 </a>
-                        @endif
-                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HILTON->value))
+                                @endif
+                                @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HILTON->value))
                             </li>
                             <li>
                                 <a href="{{ Route('hilton.index') }}"

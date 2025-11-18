@@ -15,6 +15,7 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityCon
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeCategoryController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigCommissionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigContactInformationDepartmentController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
@@ -141,6 +142,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('product-repository', ProductController::class);
         Route::resource('vendor-repository', VendorController::class);
         Route::resource('hotel-rooms', HotelRoomController::class)->only(['index']);
+        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('pd-grid', PdGridController::class)->only(['index']);
 
@@ -156,6 +158,8 @@ Route::prefix('admin')->group(function () {
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
             Route::resource('insurance-documentation-types', ConfigInsuranceDocumentationTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('external-identifiers', ConfigKeyMappingOwnerController::class)->only(['index', 'create', 'edit']);
+            Route::resource('commissions', ConfigCommissionController::class)->only(['index', 'create', 'edit']);
+
         });
 
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);

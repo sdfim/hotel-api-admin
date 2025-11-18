@@ -15,6 +15,7 @@ use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigRoomBedType;
 use App\Models\Enums\RoleSlug;
 use App\Policies\AirwallexApiLogPolicy;
+use App\Policies\Configurations\CommissionPolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
 use App\Policies\Configurations\ConfigAttributeCategoryPolicy;
 use App\Policies\Configurations\ConfigAttributePolicy;
@@ -31,15 +32,18 @@ use App\Policies\HotelRoomPolicy;
 use App\Policies\ImageGalleryPolicy;
 use App\Policies\ImagePolicy;
 use App\Policies\ProductPolicy;
+use App\Policies\TravelAgencyCommissionPolicy;
 use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\HotelContentRepository\Models\Commission;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class PermissionServiceProvider extends ServiceProvider
@@ -68,6 +72,8 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigRoomBedType::class => ConfigRoomBedTypePolicy::class,
         ConfigContactInformationDepartment::class => ConfigContactInformationDepartmentPolicy::class,
         KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
+        Commission::class => CommissionPolicy::class,
+        TravelAgencyCommission::class => TravelAgencyCommissionPolicy::class,
         ImageGallery::class => ImageGalleryPolicy::class,
         Image::class => ImagePolicy::class,
         AirwallexApiLog::class => AirwallexApiLogPolicy::class,

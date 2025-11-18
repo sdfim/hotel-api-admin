@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Livewire\Configurations\Commission\CommissionForm;
+use App\Livewire\Configurations\Commission\CommissionTable;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerForm;
 use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerTable;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +24,7 @@ use Modules\HotelContentRepository\Livewire\ProductConsortiaAmenities\ProductCon
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
 use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
+use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 
@@ -56,6 +59,8 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
 
+        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
+
         Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
         Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
@@ -63,5 +68,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
 
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-table', KeyMappingOwnerTable::class);
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-form', KeyMappingOwnerForm::class);
+        Livewire::component('configurations.commissions.commission-table', CommissionTable::class);
+        Livewire::component('configurations.commissions.commission-form', CommissionForm::class);
     }
 }
