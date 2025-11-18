@@ -289,9 +289,11 @@ class BaseHotelPricingTransformer
                             $feeTaxData['unified_room_code'] = null;
 
                             if ($feeTax->room_id !== null && $feeTax->room !== null) {
-
                                 $feeTaxData['unified_room_code'] = $feeTax->room->external_code;
                             }
+
+                            $feeTaxData['supplier_name'] = $feeTax->supplier?->name;
+
 
                             return [$feeTax->id => $feeTaxData];
                         })->toArray();

@@ -227,6 +227,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
                 SupplierNameEnum::EXPEDIA->value,
             )
         );
+
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
@@ -260,9 +261,17 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $supplierRateData = $rate['occupancy_pricing'];
         $numberOfPassengers = array_key_first($supplierRateData);
 
-        $repoTaxFees = Arr::get($this->repoTaxFees, $giataId, []);
+        $repoTaxFees = collect(Arr::get($this->repoTaxFees, $giataId, []))
+            ->map(function ($items) {
+                return collect($items)->filter(function ($item) {
+                    return $item['supplier_name'] === null
+                        || $item['supplier_name'] === ContentSourceEnum::EXPEDIA->value;
+                })->all();
+            })
+            ->filter(fn ($items) => ! empty($items))
+            ->all();
         $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees, $this->checkin, $this->checkout);
-        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $this->currency);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 
         $rateOccupancy = '1-0-0';

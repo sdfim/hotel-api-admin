@@ -264,9 +264,17 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $rateOccupancy = $this->occupancies[$giataId][$rate['occupancyRefId']] ?? 0;
         $supplierRateData = $rate['rateInfo'];
 
-        $repoTaxFees = Arr::get($this->repoTaxFees, $giataId, []);
+        $repoTaxFees = collect(Arr::get($this->repoTaxFees, $giataId, []))
+            ->map(function ($items) {
+                return collect($items)->filter(function ($item) {
+                    return $item['supplier_name'] === null
+                        || $item['supplier_name'] === ContentSourceEnum::HBSI->value;
+                })->all();
+            })
+            ->filter(fn ($items) => ! empty($items))
+            ->all();
         $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees);
-        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoTaxFees, $this->occupancy, $this->currency);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $this->currency);
         $this->serviceResolver->applyRepoService($transformedRates, $giataId, $rateCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
 
         try {

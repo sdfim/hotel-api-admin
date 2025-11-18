@@ -4,6 +4,7 @@ namespace Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Laravel\Octane\Exceptions\DdException;
 use Modules\API\PricingAPI\Resolvers\Helpers\Filters;
 use Modules\API\PricingAPI\Resolvers\Helpers\ServiceCalculationHelper;
 use Modules\Enums\ProductApplyTypeEnum;
@@ -127,18 +128,23 @@ class BaseTaxAndFeeResolver
      * Apply repo tax fees to the transformed rates.
      *
      * @param  array  $transformedRates  The transformed rates.
-     * @param  string  $giataCode  The GIATA code.
-     * @param  string  $ratePlanCode  The rate plan code.
-     * @param  string  $unifiedRoomCode  The unified room code.
      * @param  int  $numberOfPassengers  The number of passengers.
      * @param  string  $checkinInput  The check-in date.
      * @param  string  $checkoutInput  The check-out date.
-     * @param  array  $repoTaxFeesInput  The repo tax fees input.
+     * @param  array  $repoTaxFees  The repo tax fees input.
+     * @param  array  $occupancy  The occupancy array.
+     *
+     * @throws DdException
      */
-    public function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $checkinInput, $checkoutInput, $repoTaxFeesInput, $occupancy, $hotelCurrency = 'USD'): void
-    {
-        $repoTaxFees = Arr::get($repoTaxFeesInput, $giataCode, []);
-
+    public function applyRepoTaxFees(
+        array &$transformedRates,
+        int $numberOfPassengers,
+        string $checkinInput,
+        string $checkoutInput,
+        array $repoTaxFees,
+        array $occupancy,
+        $hotelCurrency = 'USD'
+    ): void {
         $checkin = Carbon::parse($checkinInput);
         $checkout = Carbon::parse($checkoutInput);
 
@@ -153,19 +159,117 @@ class BaseTaxAndFeeResolver
 
             $this->initializeFeesArray($rate);
 
-            if (isset($repoTaxFeesInput[$giataCode]) && ! empty($repoTaxFeesInput[$giataCode])) {
+            // Apply edits
+            if (isset($repoTaxFees['edit'])) {
+                foreach ($repoTaxFees['edit'] as $editFeeTax) {
+                    //                        if ($this->isRateExcluded($editFeeTax, $ratePlanCode, $unifiedRoomCode)) {
+                    //                            continue;
+                    //                        }
 
-                //                dd($repoTaxFeesInput[$giataCode]);
+                    if ($editFeeTax['apply_type'] === 'per_room') {
+                        if ($editFeeTax['start_date'] || $editFeeTax['end_date']) {
+                            $baseRate = $rate['amount_before_tax'] ?? 0;
+                        } else {
+                            $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
+                        }
+                    } else {
+                        $baseRate = $rate['amount_before_tax'] ?? 0;
+                    }
 
-                // Apply edits
-                if (isset($repoTaxFees['edit'])) {
-                    foreach ($repoTaxFees['edit'] as $editFeeTax) {
-                        //                        if ($this->isRateExcluded($editFeeTax, $ratePlanCode, $unifiedRoomCode)) {
-                        //                            continue;
-                        //                        }
+                    foreach ($rate['taxes'] ?? [] as $key => &$tax) {
 
-                        if ($editFeeTax['apply_type'] === 'per_room') {
-                            if ($editFeeTax['start_date'] || $editFeeTax['end_date']) {
+                        if (! is_int($key) && ! is_string($key)) {
+                            continue;
+                        }
+
+                        if (! $this->isDescriptionMatching($tax['description'], $editFeeTax['old_name'])) {
+                            continue;
+                        }
+
+                        $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($editFeeTax, $checkin, $checkout, $numberOfNights);
+                        $rateData = $this->getRateData($editFeeTax);
+
+                        if ($editFeeTax['type'] === 'Fee') {
+                            $feeData = $this->getFeeData($editFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
+                            $rateData = array_merge($rateData, $feeData);
+                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Fee');
+                            $amountData = $this->getRateAmountData(
+                                $baseRate,
+                                $editFeeTax,
+                                $serviceNumberOfNights,
+                                'Fee',
+                                $hotelCurrency,
+                                $occupancy
+                            );
+                            $rateData = array_merge($rateData, $amountData);
+                            $rate['fees'][] = $rateData;
+                            unset($rate['taxes'][$key]);
+                        } else {
+                            $rateData = array_merge($rateData, $this->getTaxData($editFeeTax));
+                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
+                            $amountData = $this->getRateAmountData(
+                                $baseRate,
+                                $editFeeTax,
+                                $serviceNumberOfNights,
+                                'Tax',
+                                $hotelCurrency,
+                                $occupancy
+                            );
+                            $rateData = array_merge($rateData, $amountData);
+                            $rate['taxes'][] = $rateData;
+                            unset($rate['taxes'][$key]);
+                        }
+                    }
+
+                    foreach ($rate['fees'] ?? [] as $key => &$fee) {
+                        if (! is_int($key) && ! is_string($key)) {
+                            continue;
+                        }
+
+                        if (! $this->isDescriptionMatching($fee['description'], $editFeeTax['old_name'])) {
+                            continue;
+                        }
+
+                        $feeData = $this->getRateData($editFeeTax);
+                        $amountData = $this->getRateAmountData(
+                            $baseRate,
+                            $editFeeTax,
+                            $numberOfNights,
+                            'Fee',
+                            $editFeeTax['currency'],
+                            $occupancy
+                        );
+                        $feeData = array_merge($feeData, $amountData);
+                        $rate['fees'][] = $feeData;
+                        unset($rate['fees'][$key]);
+                    }
+                }
+            }
+
+            // Apply updates
+            if (isset($repoTaxFees['update'])) {
+                foreach ($repoTaxFees['update'] as $updateFeeTax) {
+                    //                        if ($this->isRateExcluded($updateFeeTax, $ratePlanCode, $unifiedRoomCode)) {
+                    //                            continue;
+                    //                        }
+
+                    $finalFeeOrTax = [];
+
+                    foreach ($rate['taxes'] as $key => $tax) {
+
+                        if (! is_int($key) && ! is_string($key)) {
+                            continue;
+                        }
+
+                        if (! $this->isDescriptionMatching($tax['description'], $updateFeeTax['old_name'])) {
+                            continue;
+                        }
+
+                        $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($updateFeeTax, $checkin, $checkout, $numberOfNights);
+                        $rateData = $this->getRateData($updateFeeTax);
+
+                        if ($updateFeeTax['apply_type'] === 'per_room') {
+                            if ($updateFeeTax['start_date'] || $updateFeeTax['end_date']) {
                                 $baseRate = $rate['amount_before_tax'] ?? 0;
                             } else {
                                 $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
@@ -174,257 +278,154 @@ class BaseTaxAndFeeResolver
                             $baseRate = $rate['amount_before_tax'] ?? 0;
                         }
 
-                        foreach ($rate['taxes'] ?? [] as $key => &$tax) {
-
-                            if (! is_int($key) && ! is_string($key)) {
-                                continue;
-                            }
-
-                            if (! $this->isDescriptionMatching($tax['description'], $editFeeTax['old_name'])) {
-                                continue;
-                            }
-
-                            $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($editFeeTax, $checkin, $checkout, $numberOfNights);
-                            $rateData = $this->getRateData($editFeeTax);
-
-                            if ($editFeeTax['type'] === 'Fee') {
-                                $feeData = $this->getFeeData($editFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
-                                $rateData = array_merge($rateData, $feeData);
-                                $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Fee');
-                                $amountData = $this->getRateAmountData(
-                                    $baseRate,
-                                    $editFeeTax,
-                                    $serviceNumberOfNights,
-                                    'Fee',
-                                    $hotelCurrency,
-                                    $occupancy
-                                );
-                                $rateData = array_merge($rateData, $amountData);
-                                $rate['fees'][] = $rateData;
-                                unset($rate['taxes'][$key]);
-                            } else {
-                                $rateData = array_merge($rateData, $this->getTaxData($editFeeTax));
-                                $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
-                                $amountData = $this->getRateAmountData(
-                                    $baseRate,
-                                    $editFeeTax,
-                                    $serviceNumberOfNights,
-                                    'Tax',
-                                    $hotelCurrency,
-                                    $occupancy
-                                );
-                                $rateData = array_merge($rateData, $amountData);
-                                $rate['taxes'][] = $rateData;
-                                unset($rate['taxes'][$key]);
+                        foreach (['amount', 'displayable_amount', 'rack_amount', 'displayable_rack_amount'] as $field) {
+                            if (isset($tax[$field])) {
+                                $rateData[$field] = $tax[$field];
                             }
                         }
 
-                        foreach ($rate['fees'] ?? [] as $key => &$fee) {
-                            if (! is_int($key) && ! is_string($key)) {
-                                continue;
-                            }
-
-                            if (! $this->isDescriptionMatching($fee['description'], $editFeeTax['old_name'])) {
-                                continue;
-                            }
-
-                            $feeData = $this->getRateData($editFeeTax);
+                        if ($updateFeeTax['type'] === 'Fee') {
+                            $feeData = $this->getFeeData($updateFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
+                            $rateData = array_merge($rateData, $feeData);
                             $amountData = $this->getRateAmountData(
                                 $baseRate,
-                                $editFeeTax,
-                                $numberOfNights,
+                                $rateData,
+                                $serviceNumberOfNights,
                                 'Fee',
-                                $editFeeTax['currency'],
+                                $updateFeeTax['currency'],
                                 $occupancy
                             );
-                            $feeData = array_merge($feeData, $amountData);
-                            $rate['fees'][] = $feeData;
-                            unset($rate['fees'][$key]);
-                        }
-                    }
-                }
-
-                // Apply updates
-                if (isset($repoTaxFees['update'])) {
-                    foreach ($repoTaxFees['update'] as $updateFeeTax) {
-                        //                        if ($this->isRateExcluded($updateFeeTax, $ratePlanCode, $unifiedRoomCode)) {
-                        //                            continue;
-                        //                        }
-
-                        $finalFeeOrTax = [];
-
-                        foreach ($rate['taxes'] as $key => $tax) {
-
-                            if (! is_int($key) && ! is_string($key)) {
-                                continue;
-                            }
-
-                            if (! $this->isDescriptionMatching($tax['description'], $updateFeeTax['old_name'])) {
-                                continue;
-                            }
-
-                            $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($updateFeeTax, $checkin, $checkout, $numberOfNights);
-                            $rateData = $this->getRateData($updateFeeTax);
-
-                            if ($updateFeeTax['apply_type'] === 'per_room') {
-                                if ($updateFeeTax['start_date'] || $updateFeeTax['end_date']) {
-                                    $baseRate = $rate['amount_before_tax'] ?? 0;
-                                } else {
-                                    $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
-                                }
-                            } else {
-                                $baseRate = $rate['amount_before_tax'] ?? 0;
-                            }
-
                             foreach (['amount', 'displayable_amount', 'rack_amount', 'displayable_rack_amount'] as $field) {
-                                if (isset($tax[$field])) {
-                                    $rateData[$field] = $tax[$field];
+                                if (isset($amountData['amount'])) {
+                                    $rateData[$field] = (float) $amountData['amount'];
                                 }
                             }
-
-                            if ($updateFeeTax['type'] === 'Fee') {
-                                $feeData = $this->getFeeData($updateFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
-                                $rateData = array_merge($rateData, $feeData);
-                                $amountData = $this->getRateAmountData(
-                                    $baseRate,
-                                    $rateData,
-                                    $serviceNumberOfNights,
-                                    'Fee',
-                                    $updateFeeTax['currency'],
-                                    $occupancy
-                                );
-                                foreach (['amount', 'displayable_amount', 'rack_amount', 'displayable_rack_amount'] as $field) {
-                                    if (isset($amountData['amount'])) {
-                                        $rateData[$field] = (float) $amountData['amount'];
-                                    }
-                                }
-                            } else {
-                                $rateData = array_merge($rateData, $this->getTaxData($updateFeeTax));
-                                $rateData['Type'] = 'Inclusive';
-                                $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($updateFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
-                                $amountData = $this->getRateAmountData(
-                                    $baseRate,
-                                    $updateFeeTax,
-                                    $serviceNumberOfNights,
-                                    'Tax',
-                                    $updateFeeTax['currency'],
-                                    $occupancy
-                                );
-                                $rateData = array_merge($rateData, $amountData);
-                            }
-
-                            if (empty($finalFeeOrTax)) {
-                                $finalFeeOrTax = $rateData;
-                            } else {
-                                $finalFeeOrTax['amount'] += $rateData['amount'];
-                                $finalFeeOrTax['displayable_amount'] += $rateData['displayable_amount'];
-                                $finalFeeOrTax['rack_amount'] += $rateData['rack_amount'];
-                                $finalFeeOrTax['displayable_rack_amount'] += $rateData['displayable_rack_amount'];
-                                $finalFeeOrTax['multiplier_fee'] += $rateData['multiplier_fee'];
-                            }
-
-                            unset($rate['taxes'][$key]);
+                        } else {
+                            $rateData = array_merge($rateData, $this->getTaxData($updateFeeTax));
+                            $rateData['Type'] = 'Inclusive';
+                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($updateFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
+                            $amountData = $this->getRateAmountData(
+                                $baseRate,
+                                $updateFeeTax,
+                                $serviceNumberOfNights,
+                                'Tax',
+                                $updateFeeTax['currency'],
+                                $occupancy
+                            );
+                            $rateData = array_merge($rateData, $amountData);
                         }
 
-                        if (! empty($finalFeeOrTax)) {
-                            $arrType = $updateFeeTax['type'] === 'Fee' ? 'fees' : 'taxes';
-                            $rate[$arrType][] = $finalFeeOrTax;
+                        if (empty($finalFeeOrTax)) {
+                            $finalFeeOrTax = $rateData;
+                        } else {
+                            $finalFeeOrTax['amount'] += $rateData['amount'];
+                            $finalFeeOrTax['displayable_amount'] += $rateData['displayable_amount'];
+                            $finalFeeOrTax['rack_amount'] += $rateData['rack_amount'];
+                            $finalFeeOrTax['displayable_rack_amount'] += $rateData['displayable_rack_amount'];
+                            $finalFeeOrTax['multiplier_fee'] += $rateData['multiplier_fee'];
                         }
+
+                        unset($rate['taxes'][$key]);
+                    }
+
+                    if (! empty($finalFeeOrTax)) {
+                        $arrType = $updateFeeTax['type'] === 'Fee' ? 'fees' : 'taxes';
+                        $rate[$arrType][] = $finalFeeOrTax;
                     }
                 }
+            }
 
-                // Apply included/hilton inclusive taxes
-                if (isset($repoTaxFees['included'])) {
-                    foreach ($repoTaxFees['included'] as $addFeeTax) {
-                        //                        if ($this->isRateExcluded($addFeeTax, $ratePlanCode, $unifiedRoomCode)) {
-                        //                            continue;
-                        //                        }
+            // Apply included/hilton inclusive taxes
+            if (isset($repoTaxFees['included'])) {
+                foreach ($repoTaxFees['included'] as $addFeeTax) {
+                    //                        if ($this->isRateExcluded($addFeeTax, $ratePlanCode, $unifiedRoomCode)) {
+                    //                            continue;
+                    //                        }
 
-                        $rateData = $this->getRateData($addFeeTax);
+                    $rateData = $this->getRateData($addFeeTax);
+                    $baseRate = $rate['amount_before_tax'] ?? 0;
+
+                    $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
+                    $rateData['multiplier_fee'] = $numberOfNights;
+                    $amountData = $this->getRateAmountData(
+                        $baseRate,
+                        $addFeeTax,
+                        $numberOfNights,
+                        'Tax',
+                        Arr::get($addFeeTax, 'currency', 'USD'),
+                        $occupancy
+                    );
+                    $rateData = array_merge($rateData, $amountData);
+                    $rateData['Type'] = 'Inclusive';
+                    $rate['taxes'][] = $rateData;
+                }
+            }
+
+            // Apply additions
+            if (isset($repoTaxFees['add'])) {
+                foreach ($repoTaxFees['add'] as $addFeeTax) {
+                    //                        if ($this->isRateExcluded($addFeeTax, $ratePlanCode, $unifiedRoomCode)) {
+                    //                            continue;
+                    //                        }
+
+                    if ($addFeeTax['fee_category'] !== 'mandatory') {
+                        continue;
+                    }
+
+                    $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($addFeeTax, $checkin, $checkout, $numberOfNights);
+                    $rateData = $this->getRateData($addFeeTax);
+
+                    if ($addFeeTax['apply_type'] === 'per_room') {
+                        if ($addFeeTax['start_date'] || $addFeeTax['end_date']) {
+                            $baseRate = $rate['amount_before_tax'] ?? 0;
+                        } else {
+                            $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
+                        }
+                    } else {
                         $baseRate = $rate['amount_before_tax'] ?? 0;
+                    }
 
-                        $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
-                        $rateData['multiplier_fee'] = $numberOfNights;
+                    if ($addFeeTax['type'] === 'Fee') {
+                        $feeData = $this->getFeeData($addFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
+                        $rateData = array_merge($rateData, $feeData);
                         $amountData = $this->getRateAmountData(
                             $baseRate,
                             $addFeeTax,
-                            $numberOfNights,
+                            $serviceNumberOfNights,
+                            'Fee',
+                            Arr::get($addFeeTax, 'currency', 'USD'),
+                            $occupancy
+                        );
+                        $rateData = array_merge($rateData, $amountData);
+                        $rate['fees'][] = $rateData;
+                    } else {
+                        $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
+                        $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($addFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
+                        $amountData = $this->getRateAmountData(
+                            $baseRate,
+                            $addFeeTax,
+                            $serviceNumberOfNights,
                             'Tax',
                             Arr::get($addFeeTax, 'currency', 'USD'),
                             $occupancy
                         );
                         $rateData = array_merge($rateData, $amountData);
-                        $rateData['Type'] = 'Inclusive';
                         $rate['taxes'][] = $rateData;
                     }
                 }
+            }
 
-                // Apply additions
-                if (isset($repoTaxFees['add'])) {
-                    foreach ($repoTaxFees['add'] as $addFeeTax) {
-                        //                        if ($this->isRateExcluded($addFeeTax, $ratePlanCode, $unifiedRoomCode)) {
-                        //                            continue;
-                        //                        }
+            // Apply deletions
+            if (isset($repoTaxFees['delete'])) {
 
-                        if ($addFeeTax['fee_category'] !== 'mandatory') {
-                            continue;
-                        }
+                foreach ($repoTaxFees['delete'] as $deleteFeeTax) {
+                    //                        if ($this->isRateExcluded($deleteFeeTax, $ratePlanCode, $unifiedRoomCode)) {
+                    //                            continue;
+                    //                        }
 
-                        $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($addFeeTax, $checkin, $checkout, $numberOfNights);
-                        $rateData = $this->getRateData($addFeeTax);
-
-                        if ($addFeeTax['apply_type'] === 'per_room') {
-                            if ($addFeeTax['start_date'] || $addFeeTax['end_date']) {
-                                $baseRate = $rate['amount_before_tax'] ?? 0;
-                            } else {
-                                $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
-                            }
-                        } else {
-                            $baseRate = $rate['amount_before_tax'] ?? 0;
-                        }
-
-                        if ($addFeeTax['type'] === 'Fee') {
-                            $feeData = $this->getFeeData($addFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
-                            $rateData = array_merge($rateData, $feeData);
-                            $amountData = $this->getRateAmountData(
-                                $baseRate,
-                                $addFeeTax,
-                                $serviceNumberOfNights,
-                                'Fee',
-                                Arr::get($addFeeTax, 'currency', 'USD'),
-                                $occupancy
-                            );
-                            $rateData = array_merge($rateData, $amountData);
-                            $rate['fees'][] = $rateData;
-                        } else {
-                            $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
-                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($addFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
-                            $amountData = $this->getRateAmountData(
-                                $baseRate,
-                                $addFeeTax,
-                                $serviceNumberOfNights,
-                                'Tax',
-                                Arr::get($addFeeTax, 'currency', 'USD'),
-                                $occupancy
-                            );
-                            $rateData = array_merge($rateData, $amountData);
-                            $rate['taxes'][] = $rateData;
-                        }
-                    }
-                }
-
-                // Apply deletions
-                if (isset($repoTaxFees['delete'])) {
-
-                    foreach ($repoTaxFees['delete'] as $deleteFeeTax) {
-                        //                        if ($this->isRateExcluded($deleteFeeTax, $ratePlanCode, $unifiedRoomCode)) {
-                        //                            continue;
-                        //                        }
-
-                        $rate['taxes'] = array_filter($rate['taxes'], function ($tax) use ($deleteFeeTax) {
-                            return ! $this->isDescriptionMatching($tax['description'], $deleteFeeTax['old_name']);
-                        });
-                    }
+                    $rate['taxes'] = array_filter($rate['taxes'], function ($tax) use ($deleteFeeTax) {
+                        return ! $this->isDescriptionMatching($tax['description'], $deleteFeeTax['old_name']);
+                    });
                 }
             }
         }

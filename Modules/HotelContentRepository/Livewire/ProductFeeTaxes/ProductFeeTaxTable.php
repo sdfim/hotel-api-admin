@@ -157,10 +157,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->options(
                             Supplier::query()
                                 ->whereJsonContains('product_type', 'hotel')
-                                ->whereIn('name', [
-                                    SupplierNameEnum::HBSI->value,
-                                    SupplierNameEnum::HOTEL_TRADER->value,
-                                ])
+                                ->whereIn('name', SupplierNameEnum::pricingList())
                                 ->pluck('name', 'id')
                         )
                         ->reactive()
