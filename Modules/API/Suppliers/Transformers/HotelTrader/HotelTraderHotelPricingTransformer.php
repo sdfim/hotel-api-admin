@@ -224,7 +224,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
                 $query,
                 $giataId,
                 $rating,
-                $this->roomCodes
+                $this->roomCodes,
+                SupplierNameEnum::HOTEL_TRADER->value,
             )
         );
 
@@ -358,7 +359,8 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
                 $query,
                 $giataId,
                 $rating,
-                $this->roomCodes
+                $this->roomCodes,
+                SupplierNameEnum::HOTEL_TRADER->value,
             )
         );
 

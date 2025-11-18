@@ -22,7 +22,8 @@ class DepositResolver
         array $query,
         int|string $giataId,
         float|int $rating,
-        array $roomCodes
+        array $roomCodes,
+        string $supplierName,
     ): array {
         if (empty($depositInformation)) {
             return [];
@@ -80,8 +81,6 @@ class DepositResolver
                 default => true,
             };
         });
-
-        $supplierName = $query['supplier'];
 
         // Filter by room type
         $filtered = $filtered->filter(function ($item) use ($roomResponseRoomType, $roomCodes, $supplierName, $giataId) {

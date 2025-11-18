@@ -223,7 +223,8 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
                 $query,
                 $giataId,
                 $rating,
-                $this->roomCodes
+                $this->roomCodes,
+                SupplierNameEnum::EXPEDIA->value,
             )
         );
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
@@ -427,7 +428,8 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
                 $query,
                 $giataId,
                 $rating,
-                $this->roomCodes
+                $this->roomCodes,
+                SupplierNameEnum::EXPEDIA->value,
             )
         );
 
