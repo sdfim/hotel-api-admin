@@ -510,7 +510,7 @@ class HotelTraderClient
             'Book' => [
                 'clientConfirmationCode' => $filters['booking_item'],
                 'otaConfirmationCode' => $filters['booking_item'],
-                'otaClientName' => 'htrader',
+                'otaClientName' => 'Fora',
                 'paymentInformation' => null,
                 'rooms' => $rooms,
             ],
@@ -690,7 +690,7 @@ class HotelTraderClient
                 'htConfirmationCode' => $htCode,
                 'clientConfirmationCode' => $filters['booking_item'],
                 'otaConfirmationCode' => $filters['booking_item'],
-                'otaClientName' => 'htrader',
+                'otaClientName' => 'Fora',
                 'rooms' => $rooms,
             ],
         ];
