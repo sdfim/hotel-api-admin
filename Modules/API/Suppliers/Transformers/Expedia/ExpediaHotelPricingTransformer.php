@@ -214,18 +214,7 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         /** @var RoomResponse $roomResponse */
         $roomResponse = app(RoomResponse::class);
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
-
-        $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $deposit = DepositResolver::get(
-            roomResponse: $roomResponseLowestPrice,
-            depositInformation: Arr::get($this->depositInformation, $giataId, []),
-            query: $query,
-            giataId: $giataId,
-            rating: $rating,
-            roomCodes: $this->roomCodes,
-            supplierName: SupplierNameEnum::EXPEDIA->value,
-        );
-        $roomResponse->setDeposits($roomResponse->getNonRefundable() ? [] : $deposit);
+        $roomGroupsResponse->setDeposits($roomResponseLowestPrice->getDeposits());
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -429,16 +418,19 @@ class ExpediaHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $deposit = DepositResolver::get(
-            roomResponse: $roomResponse,
-            depositInformation: Arr::get($this->depositInformation, $giataId, []),
-            query: $query,
-            giataId: $giataId,
-            rating: $rating,
-            roomCodes: $this->roomCodes,
-            supplierName: SupplierNameEnum::EXPEDIA->value,
-        );
-        $roomResponse->setDeposits($roomResponse->getNonRefundable() ? [] : $deposit);
+        if (! ($roomResponse->getNonRefundable() ?? false)) {
+            $roomResponse->setDeposits(DepositResolver::get(
+                roomResponse: $roomResponse,
+                depositInformation: Arr::get($this->depositInformation, $giataId, []),
+                query: $query,
+                giataId: $giataId,
+                rating: $rating,
+                roomCodes: $this->roomCodes,
+                supplierName: SupplierNameEnum::EXPEDIA->value,
+            ));
+        } else {
+            $roomResponse->setDeposits([]);
+        }
 
         $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
             $roomResponse,
