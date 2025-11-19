@@ -219,17 +219,16 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomGroupsResponse->setDeposits(
-            DepositResolver::get(
-                roomResponse: $roomResponseLowestPrice,
-                depositInformation: Arr::get($this->depositInformation, $giataId, []),
-                query: $query,
-                giataId: $giataId,
-                rating: $rating,
-                roomCodes: $this->roomCodes,
-                supplierName: SupplierNameEnum::HBSI->value,
-            )
+        $deposit = DepositResolver::get(
+            roomResponse: $roomResponseLowestPrice,
+            depositInformation: Arr::get($this->depositInformation, $giataId, []),
+            query: $query,
+            giataId: $giataId,
+            rating: $rating,
+            roomCodes: $this->roomCodes,
+            supplierName: SupplierNameEnum::HBSI->value,
         );
+        $roomGroupsResponse->setDeposits($rooms[$keyLowestPricedRoom]['non_refundable'] ? [] : $deposit);
 
         $roomGroupsResponse->setMealPlan($rooms[$keyLowestPricedRoom]['meal_plan'] ?? '');
 
@@ -511,17 +510,16 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-        $roomResponse->setDeposits(
-            DepositResolver::get(
-                roomResponse: $roomResponse,
-                depositInformation: Arr::get($this->depositInformation, $giataId, []),
-                query: $query,
-                giataId: $giataId,
-                rating: $rating,
-                roomCodes: $this->roomCodes,
-                supplierName: SupplierNameEnum::HBSI->value,
-            )
+        $deposit = DepositResolver::get(
+            roomResponse: $roomResponse,
+            depositInformation: Arr::get($this->depositInformation, $giataId, []),
+            query: $query,
+            giataId: $giataId,
+            rating: $rating,
+            roomCodes: $this->roomCodes,
+            supplierName: SupplierNameEnum::HBSI->value,
         );
+        $roomResponse->setDeposits($roomResponse->getNonRefundable() ? [] : $deposit);
 
         $dc = DescriptiveContentResolver::getRoomAndRateForRoomResponse(
             $roomResponse,
