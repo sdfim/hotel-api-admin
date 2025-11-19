@@ -22,8 +22,6 @@ class RateItemTaxFee
 
     protected ?string $end_date = null;
 
-    protected int|float|null $multiplier_fee = 1;
-
     protected ?float $displayable_rack_amount = null;
 
     protected ?float $displayable_amount = null;
@@ -126,16 +124,6 @@ class RateItemTaxFee
         $this->end_date = $end_date;
     }
 
-    public function getMultiplierFee(): int|float|null
-    {
-        return $this->multiplier_fee;
-    }
-
-    public function setMultiplierFee(int|float|null $multiplier_fee): void
-    {
-        $this->multiplier_fee = $multiplier_fee;
-    }
-
     public function getDisplayableRackAmount(): ?float
     {
         return $this->displayable_rack_amount;
@@ -208,7 +196,6 @@ class RateItemTaxFee
             'collected_by' => $this->getCollectedBy(),
             'start_date' => $this->getStartDate(),
             'end_date' => $this->getEndDate(),
-            'multiplier_fee' => $this->getMultiplierFee(),
             'displayable_rack_amount' => $this->getDisplayableRackAmount(),
             'displayable_amount' => $this->getDisplayableAmount(),
             'amount' => $this->getAmount(),

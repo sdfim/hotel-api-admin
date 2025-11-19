@@ -146,7 +146,6 @@ class ServiceResolver
                         'Description' => $service['name'],
                         'IsCommissionable' => (bool) $isCommissionable,
                         'Type' => $isCommissionable ? 'Inclusive' : 'Exclusive',
-                        'multiplier_fee' => 1,
                         'CollectedBy' => $service['collected_by'] ?? null,
                     ];
 

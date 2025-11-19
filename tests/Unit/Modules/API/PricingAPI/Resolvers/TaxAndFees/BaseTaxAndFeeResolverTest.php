@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class BaseTaxAndFeeResolverTest extends TestCase
 {
-    private HbsiTaxAndFeeResolver $taxAndFeeResolver;
+    public HbsiTaxAndFeeResolver $taxAndFeeResolver;
 
     /**
      * Set up the test environment.
@@ -60,14 +60,13 @@ class BaseTaxAndFeeResolverTest extends TestCase
     /**
      * Helper method to execute applyRepoTaxFees and return result
      */
-    public function executeApplyRepoTaxFees(array &$transformedRates, array $repoTaxFeesInput, int $numberOfPassengers = 2): void
+    public function executeApplyRepoTaxFees(array &$transformedRates, array $repoTaxFeesInput, int $numberOfPassengers = 2, int $nights = 7): void
     {
         $giataCode = 1002;
         $ratePlanCode = 'Loyalty';
         $unifiedRoomCode = '';
         $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $nights = 7;
-        $checkoutInput = Carbon::parse('2025-08-17')->startOfDay()->addDays($nights)->toDateString();
+        $checkoutInput = Carbon::parse('2025-08-10')->startOfDay()->addDays($nights)->toDateString();
         $occupancy = [
             [
                 'adults' => 2,

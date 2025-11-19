@@ -142,8 +142,6 @@ class PricingRulesApplier extends BasePricingRulesApplier
             $uniqueFees = array_values(array_unique($fees, SORT_REGULAR));
 
             foreach ($uniqueFees as $fee) {
-                $feeMultiplier = (float) Arr::get($fee, 'multiplier_fee', 1.0);
-
                 if (Arr::get($fee, 'type') !== 'PropertyCollects') {
                     $feeAmount = (float) Arr::get($fee, 'amount', 0.0);
                     if ($feeAmount == 0.0 && isset($fee['displayable_amount'])) {

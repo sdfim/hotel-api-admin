@@ -22,7 +22,8 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
         // Arrange
         $baseNetRate = 125;
         $baseRackRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7, $baseRackRate);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights, $baseRackRate);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -62,7 +63,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'direct',
                     'amount' => 12.5 / 7,
                     'rack_amount' => 12.5 / 7,
@@ -76,7 +76,7 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -86,7 +86,8 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
     {
         // Arrange
         $baseNetRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
         $repoTaxFeesInput = [
             1002 => [
                 'add' => [
@@ -125,7 +126,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'direct',
                     'amount' => 25,
                     'rack_amount' => 25,
@@ -139,7 +139,7 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -189,13 +189,12 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'direct',
-                    'amount' => 87.5 / 7,
-                    'rack_amount' => 87.5 / 7,
+                    'amount' => 12.5,
+                    'rack_amount' => 12.5,
                     'value_type' => 'Percentage',
-                    'displayable_rack_amount' => 87.5 / 7,
-                    'displayable_amount' => 87.5 / 7,
+                    'displayable_rack_amount' => 12.5,
+                    'displayable_amount' => 12.5,
                     'currency' => 'USD',
                 ],
             ],
@@ -253,7 +252,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '14',
                     'collected_by' => 'direct',
                     'amount' => 175 / 7,
                     'rack_amount' => 175 / 7,
@@ -280,7 +278,8 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
         // Arrange
         $baseNetRate = 125;
         $baseRackRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7, $baseRackRate);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights, $baseRackRate);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -320,7 +319,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'direct',
                     'amount' => 10 / 7,
                     'rack_amount' => 10 / 7,
@@ -334,7 +332,7 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -384,7 +382,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'direct',
                     'amount' => 20 / 7,
                     'rack_amount' => 20 / 7,
@@ -448,7 +445,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'direct',
                     'amount' => 70 / 7,
                     'rack_amount' => 70 / 7,
@@ -512,7 +508,6 @@ class MandatoryTaxDirectCollectedTest extends BaseTaxAndFeeResolverTest
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'PropertyCollects',
-                    'multiplier_fee' => '14',
                     'collected_by' => 'direct',
                     'amount' => 140 / 7,
                     'rack_amount' => 140 / 7,

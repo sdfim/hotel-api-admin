@@ -2,10 +2,6 @@
 
 namespace Tests\Unit\Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
-use Carbon\Carbon;
-use Modules\API\PricingAPI\Resolvers\TaxAndFees\HbsiTaxAndFeeResolver;
-use PHPUnit\Framework\TestCase;
-
 /**
  * Class TaxAndFeeResolverTest
  *
@@ -13,102 +9,8 @@ use PHPUnit\Framework\TestCase;
  *
  * @todo Get data from the database instead of hardcoding it.
  */
-class TaxAndFeeResolverTest extends TestCase
+class TaxAndFeeResolverTest extends BaseTaxAndFeeResolverTest
 {
-    private HbsiTaxAndFeeResolver $taxAndFeeResolver;
-
-    /**
-     * Set up the test environment.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->taxAndFeeResolver = new HbsiTaxAndFeeResolver;
-    }
-
-    /**
-     * Helper method to create base transformed rates structure
-     */
-    private function createBaseTransformedRates(float $baseNetRate, int $nights = 1, float $baseRackRate = 0): array
-    {
-        if ($baseRackRate === 0) {
-            $baseRackRate = $baseNetRate;
-        }
-
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $checkoutInput = Carbon::parse('2025-08-10')->startOfDay()->addDays($nights)->toDateString();
-
-        return [
-            [
-                'code' => '',
-                'rate_time_unit' => 'Day',
-                'unit_multiplier' => $nights,
-                'effective_date' => $checkinInput,
-                'expire_date' => $checkoutInput,
-                'amount_before_tax' => $baseNetRate,
-                'amount_after_tax' => $baseNetRate,
-                'currency_code' => 'USD',
-                'taxes' => [],
-                'total_amount_before_tax' => $baseNetRate * $nights,
-                'total_amount_after_tax' => $baseNetRate * $nights,
-                'total_currency_code' => 'USD',
-            ],
-        ];
-    }
-
-    /**
-     * Helper method to execute applyRepoTaxFees and return result
-     */
-    private function executeApplyRepoTaxFees(array &$transformedRates, array $repoTaxFeesInput, int $numberOfPassengers = 2): void
-    {
-        $giataCode = 1002;
-        $ratePlanCode = 'Loyalty';
-        $unifiedRoomCode = '';
-        $checkinInput = Carbon::parse('2025-08-10')->startOfDay()->toDateString();
-        $nights = 7;
-        $checkoutInput = Carbon::parse('2025-08-17')->startOfDay()->addDays($nights)->toDateString();
-        $occupancy = [
-            [
-                'adults' => 2,
-            ],
-        ];
-        $repoTaxFees = [
-            'add' => $repoTaxFeesInput[1002]['add'],
-        ];
-
-        $this->taxAndFeeResolver->applyRepoTaxFees(
-            $transformedRates,
-            $numberOfPassengers,
-            $checkinInput,
-            $checkoutInput,
-            $repoTaxFees,
-            $occupancy
-        );
-    }
-
-    /**
-     * Helper method to assert tax and fee results
-     */
-    private function assertTaxAndFeeResults(array $transformedRates, array $expectedResult): void
-    {
-        foreach ($expectedResult as $expectedItemKey => $expectedItemValue) {
-            if (is_array($expectedItemValue)) {
-                foreach ($expectedItemValue as $index => $item) {
-                    foreach ($item as $key => $value) {
-                        if (is_numeric($value)) {
-                            $this->assertEqualsWithDelta($value, $transformedRates[0][$expectedItemKey][$index][$key], 0.01);
-                        } else {
-                            $this->assertEquals($value, $transformedRates[0][$expectedItemKey][$index][$key]);
-                        }
-                    }
-                }
-            } else {
-                $this->assertEquals($expectedItemValue, $transformedRates[0][$expectedItemKey]);
-            }
-        }
-    }
-
     /**
      * Tests for applying repo tax fees with various scenarios
      * Taxes with Percentage and Amount value types
@@ -118,7 +20,8 @@ class TaxAndFeeResolverTest extends TestCase
         // Arrange
         $baseNetRate = 125;
         $baseRackRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7, $baseRackRate);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights, $baseRackRate);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -158,7 +61,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 12.5 / 7,
                     'rack_amount' => 12.5 / 7,
@@ -172,7 +74,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -182,7 +84,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
         $repoTaxFeesInput = [
             1002 => [
                 'add' => [
@@ -221,7 +124,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'Vendor',
                     'amount' => 25,
                     'rack_amount' => 25,
@@ -235,7 +137,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -285,7 +187,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 87.5 / 7,
                     'rack_amount' => 87.5 / 7,
@@ -349,7 +250,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '14',
                     'collected_by' => 'Vendor',
                     'amount' => 175 / 7,
                     'rack_amount' => 175 / 7,
@@ -374,7 +274,8 @@ class TaxAndFeeResolverTest extends TestCase
         // Arrange
         $baseNetRate = 125;
         $baseRackRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7, $baseRackRate);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights, $baseRackRate);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -414,7 +315,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 10 / 7,
                     'rack_amount' => 10 / 7,
@@ -428,7 +328,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -438,7 +338,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 125;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate, 7);
+        $nights = 7;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -478,7 +379,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'Vendor',
                     'amount' => 20 / 7,
                     'rack_amount' => 20 / 7,
@@ -492,7 +392,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -542,7 +442,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 70 / 7,
                     'rack_amount' => 70 / 7,
@@ -606,7 +505,6 @@ class TaxAndFeeResolverTest extends TestCase
     //                    'obe_action' => 'add',
     //                    'is_commissionable' => false,
     //                    'type' => 'Exclusive',
-    //                    'multiplier_fee' => '14',
     //                    'collected_by' => 'Vendor',
     //                    'amount' => 175 / 7,
     //                    'rack_amount' => 175 / 7,
@@ -694,7 +592,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 10 / 7,
                     'rack_amount' => 10 / 7,
@@ -709,7 +606,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'Vendor',
                     'amount' => 24 / 7,
                     'rack_amount' => 24 / 7,
@@ -797,7 +693,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 12.5 / 7,
                     'rack_amount' => 12.5 / 7,
@@ -812,7 +707,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'Vendor',
                     'amount' => 24 / 7,
                     'rack_amount' => 24 / 7,
@@ -924,7 +818,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '7',
                     'collected_by' => 'Vendor',
                     'amount' => 12.5 / 7,
                     'rack_amount' => 12.5 / 7,
@@ -939,7 +832,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '2',
                     'collected_by' => 'Vendor',
                     'amount' => 24 / 7,
                     'rack_amount' => 24 / 7,
@@ -956,7 +848,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '1',
                     'collected_by' => 'Vendor',
                     'amount' => 87.5 / 7,
                     'rack_amount' => 87.5 / 7,
@@ -982,7 +873,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 200.00;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate);
+        $nights = 1;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -1022,7 +914,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '1',
                     'collected_by' => 'Vendor',
                     'amount' => 20,
                     'rack_amount' => 20,
@@ -1036,7 +927,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -1046,7 +937,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 250.00;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate);
+        $nights = 1;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -1109,7 +1001,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '1',
                     'collected_by' => 'Vendor',
                     'value_type' => 'Percentage',
                     'amount' => 40,
@@ -1126,7 +1017,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 1,
                     'collected_by' => 'Vendor',
                     'value_type' => 'Percentage',
                     'amount' => 25.0,
@@ -1139,7 +1029,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -1189,7 +1079,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '1',
                     'collected_by' => 'Vendor',
                     'amount' => 0.0,
                     'rack_amount' => 0.0,
@@ -1213,7 +1102,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 400.00;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate);
+        $nights = 1;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -1253,7 +1143,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => '1',
                     'collected_by' => 'Vendor',
                     'value_type' => 'Percentage',
                     'amount' => 400.0,
@@ -1267,7 +1156,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -1277,7 +1166,8 @@ class TaxAndFeeResolverTest extends TestCase
     {
         // Arrange
         $baseNetRate = 125.00;
-        $transformedRates = $this->createBaseTransformedRates($baseNetRate);
+        $nights = 1;
+        $transformedRates = $this->createBaseTransformedRates($baseNetRate, $nights);
 
         $repoTaxFeesInput = [
             1002 => [
@@ -1363,7 +1253,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 1,
                     'collected_by' => 'Direct',
                     'amount' => 6.25,
                     'rack_amount' => 6.25,
@@ -1380,7 +1269,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => true,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 1,
                     'collected_by' => 'Vendor',
                     'amount' => 30.0,
                     'rack_amount' => 40.0,
@@ -1395,7 +1283,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => true,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 2,
                     'collected_by' => 'Direct',
                     'amount' => 20.0 / 2,
                     'rack_amount' => 40.0 / 2,
@@ -1408,7 +1295,7 @@ class TaxAndFeeResolverTest extends TestCase
         ];
 
         // Act
-        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput);
+        $this->executeApplyRepoTaxFees($transformedRates, $repoTaxFeesInput, 2, $nights);
 
         // Assert
         $this->assertTaxAndFeeResults($transformedRates, $expectedResult);
@@ -1481,7 +1368,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 1,
                     'collected_by' => 'Direct',
                     'amount' => 5.0,
                     'rack_amount' => 5.0,
@@ -1498,7 +1384,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => true,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 1,
                     'collected_by' => 'Vendor',
                     'amount' => 15.0,
                     'rack_amount' => 30.0,
@@ -1584,7 +1469,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => false,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 2,
                     'collected_by' => 'Direct',
                     'value_type' => 'Percentage',
                     'amount' => 7,
@@ -1601,7 +1485,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'obe_action' => 'add',
                     'is_commissionable' => true,
                     'type' => 'Exclusive',
-                    'multiplier_fee' => 2,
                     'collected_by' => 'Vendor',
                     'amount' => 10.0 / 2,
                     'rack_amount' => 20.0 / 2,
@@ -1640,7 +1523,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'obe_action' => 'add',
                         'is_commissionable' => false,
                         'type' => 'Inclusive',
-                        'multiplier_fee' => '1',
                         'collected_by' => 'vendor',
                         'amount' => 12.5,
                         'rack_amount' => 12.5,
@@ -1659,7 +1541,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'obe_action' => 'add',
                         'is_commissionable' => true,
                         'type' => 'Inclusive',
-                        'multiplier_fee' => 1,
                         'collected_by' => 'vendor',
                         'amount' => 18.75,
                         'rack_amount' => 25.0,
@@ -1676,7 +1557,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'description' => 'Service',
                         'is_commissionable' => true,
                         'type' => 'Inclusive',
-                        'multiplier_fee' => 1,
                     ],
                 ],
             ],
@@ -1700,7 +1580,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1724,7 +1603,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1748,7 +1626,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1772,7 +1649,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1796,7 +1672,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1820,7 +1695,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1844,7 +1718,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'type' => 'Inclusive',
                         'collected_by' => 'vendor',
                         'obe_action' => 'add',
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 12.5,
                         'displayable_amount' => 12.5,
                         'value_type' => 'Amount',
@@ -1862,7 +1735,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'type' => 'Inclusive',
                     'collected_by' => 'vendor',
                     'obe_action' => 'add',
-                    'multiplier_fee' => 1,
                     'displayable_amount' => 18.75,
                     'displayable_rack_amount' => 25.0,
                     'value_type' => 'Percentage',
@@ -1874,7 +1746,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'rack_amount' => 50.0,
                     'description' => 'Service',
                     'type' => 'Inclusive',
-                    'multiplier_fee' => 1,
                     'displayable_amount' => 25.0,
                     'displayable_rack_amount' => 50.0,
                     'code' => 'OBE_5',
@@ -2090,7 +1961,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'obe_action' => 'add',
                         'is_commissionable' => false,
                         'type' => 'Inclusive',
-                        'multiplier_fee' => '1',
                         'collected_by' => 'vendor',
                         'amount' => 5.0,
                         'rack_amount' => 5.0,
@@ -2109,7 +1979,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'obe_action' => 'add',
                         'is_commissionable' => true,
                         'type' => 'Inclusive',
-                        'multiplier_fee' => 1,
                         'collected_by' => 'vendor',
                         'amount' => 45.0,
                         'rack_amount' => 90.0,
@@ -2141,7 +2010,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'code' => 'OBE_5',
                         'obe_action' => 'add',
                         'is_commissionable' => false,
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 5.0,
                         'displayable_amount' => 5.0,
                         'value_type' => 'Amount',
@@ -2165,7 +2033,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'code' => 'OBE_5',
                         'obe_action' => 'add',
                         'is_commissionable' => false,
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 5.0,
                         'displayable_amount' => 5.0,
                         'value_type' => 'Amount',
@@ -2189,7 +2056,6 @@ class TaxAndFeeResolverTest extends TestCase
                         'code' => 'OBE_5',
                         'obe_action' => 'add',
                         'is_commissionable' => false,
-                        'multiplier_fee' => '1',
                         'displayable_rack_amount' => 5.0,
                         'displayable_amount' => 5.0,
                         'value_type' => 'Amount',
@@ -2206,7 +2072,6 @@ class TaxAndFeeResolverTest extends TestCase
                     'code' => 'OBE_8',
                     'obe_action' => 'add',
                     'is_commissionable' => true,
-                    'multiplier_fee' => 1,
                     'displayable_amount' => 45.0,
                     'displayable_rack_amount' => 90.0,
                     'value_type' => 'Amount',

@@ -192,7 +192,6 @@ class BaseTaxAndFeeResolver
                         if ($editFeeTax['type'] === 'Fee') {
                             $feeData = $this->getFeeData($editFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
                             $rateData = array_merge($rateData, $feeData);
-                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Fee');
                             $amountData = $this->getRateAmountData(
                                 $baseRate,
                                 $editFeeTax,
@@ -206,7 +205,6 @@ class BaseTaxAndFeeResolver
                             unset($rate['taxes'][$key]);
                         } else {
                             $rateData = array_merge($rateData, $this->getTaxData($editFeeTax));
-                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($editFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
                             $amountData = $this->getRateAmountData(
                                 $baseRate,
                                 $editFeeTax,
@@ -303,7 +301,6 @@ class BaseTaxAndFeeResolver
                         } else {
                             $rateData = array_merge($rateData, $this->getTaxData($updateFeeTax));
                             $rateData['Type'] = 'Inclusive';
-                            $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($updateFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
                             $amountData = $this->getRateAmountData(
                                 $baseRate,
                                 $updateFeeTax,
@@ -322,7 +319,6 @@ class BaseTaxAndFeeResolver
                             $finalFeeOrTax['displayable_amount'] += $rateData['displayable_amount'];
                             $finalFeeOrTax['rack_amount'] += $rateData['rack_amount'];
                             $finalFeeOrTax['displayable_rack_amount'] += $rateData['displayable_rack_amount'];
-                            $finalFeeOrTax['multiplier_fee'] += $rateData['multiplier_fee'];
                         }
 
                         unset($rate['taxes'][$key]);
@@ -346,7 +342,6 @@ class BaseTaxAndFeeResolver
                     $baseRate = $rate['amount_before_tax'] ?? 0;
 
                     $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
-                    $rateData['multiplier_fee'] = $numberOfNights;
                     $amountData = $this->getRateAmountData(
                         $baseRate,
                         $addFeeTax,
@@ -400,7 +395,6 @@ class BaseTaxAndFeeResolver
                         $rate['fees'][] = $rateData;
                     } else {
                         $rateData = array_merge($rateData, $this->getTaxData($addFeeTax));
-                        $rateData['multiplier_fee'] = ServiceCalculationHelper::getServiceMultiplier($addFeeTax, $serviceNumberOfNights, $occupancy, 'Tax');
                         $amountData = $this->getRateAmountData(
                             $baseRate,
                             $addFeeTax,
@@ -431,26 +425,10 @@ class BaseTaxAndFeeResolver
         }
 
         foreach ($rate['taxes'] ?? [] as $key => &$tax) {
-            $multiplierFee = Arr::get($tax, 'multiplier_fee', 1);
-
-            if (isset($tax['amount'])) {
-                $tax['amount'] *= $multiplierFee;
-            }
             if (Arr::get($tax, 'obe_action') === 'included') {
                 $rate['amount_before_tax'] -= $tax['amount'];
-                $rate['total_amount_before_tax'] -= $tax['amount'] * $numberOfNights;
+                $rate['total_amount_before_tax'] -= $tax['amount'];
             }
-            if (isset($tax['rack_amount'])) {
-                $tax['rack_amount'] *= $multiplierFee;
-            }
-            if (isset($tax['displayable_amount'])) {
-                $tax['displayable_amount'] *= $multiplierFee;
-            }
-            if (isset($tax['displayable_rack_amount'])) {
-                $tax['displayable_rack_amount'] *= $multiplierFee;
-            }
-
-            $tax['multiplier_fee'] = 1;
         }
     }
 
@@ -580,10 +558,8 @@ class BaseTaxAndFeeResolver
     {
         return [
             'type' => $this->getFeeType($fee),
-            'multiplier_fee' => ServiceCalculationHelper::getServiceMultiplier($fee, $numberOfNights, $occupancy, 'Fee'),
             'level' => $fee['level'] ?? null,
             'collected_by' => $fee['collected_by'],
-            // 'multiplier_fee' => !$fee['commissionable'] ? 1 :(int) $unitMultiplier,
         ];
     }
 

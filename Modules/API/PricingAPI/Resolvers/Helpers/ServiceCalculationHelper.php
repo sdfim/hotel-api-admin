@@ -34,33 +34,6 @@ class ServiceCalculationHelper
     }
 
     /**
-     * Get the multiplier for a service based on its apply_type.
-     *
-     * @param  string  $type  'Tax' or 'Fee' to determine calculation logic
-     */
-    public static function getServiceMultiplier(array $service, int $numberOfNights, array $occupancy = [], string $type = 'Fee'): int
-    {
-        $applyType = $service['apply_type'] ?? ProductApplyTypeEnum::PER_ROOM->value;
-
-        // For per_person and per_night_per_person, we need to count only people that meet age restrictions
-        if (in_array($applyType, [ProductApplyTypeEnum::PER_PERSON->value, ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value])) {
-            $eligiblePersons = Filters::getEligiblePersonsCount($service, $occupancy);
-
-            return match ($applyType) {
-                ProductApplyTypeEnum::PER_PERSON->value => $eligiblePersons,
-                ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => $numberOfNights * $eligiblePersons,
-                default => 1,
-            };
-        }
-
-        return match ($applyType) {
-            ProductApplyTypeEnum::PER_NIGHT->value => $numberOfNights,
-            ProductApplyTypeEnum::PER_ROOM->value => $type === 'Tax' ? $numberOfNights : 1,
-            default => 1,
-        };
-    }
-
-    /**
      * Filter taxes that apply to a specific night date.
      *
      * @param  array  $taxes  The taxes to filter.
