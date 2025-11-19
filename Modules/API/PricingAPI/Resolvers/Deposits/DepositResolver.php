@@ -187,13 +187,6 @@ class DepositResolver
                 $calculatedDeposit['balance_payment_due'] = [
                     'type' => null,
                     'calculated_due_date' => null,
-                    'debug_info' => [
-                        'has_balance_payment_due_type' => isset($depositInfo['balance_payment_due_type']),
-                        'balance_payment_due_type_value' => $depositInfo['balance_payment_due_type'] ?? 'not_set',
-                        'available_fields' => array_keys(array_filter($depositInfo, function ($key) {
-                            return str_contains($key, 'balance_payment') || str_contains($key, 'due');
-                        }, ARRAY_FILTER_USE_KEY)),
-                    ],
                 ];
             }
 

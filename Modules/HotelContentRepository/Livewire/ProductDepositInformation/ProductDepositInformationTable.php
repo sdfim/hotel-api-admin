@@ -107,6 +107,11 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                             if (! $data['expiration_date']) {
                                 $data['expiration_date'] = Carbon::create(2112, 02, 02);
                             }
+                            if (! $data['balance_payment_due_type']) {
+                                $data['days_after_booking_balance_payment_due'] = null;
+                                $data['days_before_arrival_balance_payment_due'] = null;
+                                $data['date_balance_payment_due'] = null;
+                            }
                             /* @var EditProductDepositInformation $editProductDepositInformation */
                             $editProductDepositInformation = app(EditProductDepositInformation::class);
                             $editProductDepositInformation->updateWithConditions($record, $data);
