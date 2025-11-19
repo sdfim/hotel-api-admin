@@ -219,13 +219,13 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
         $roomGroupsResponse->setDeposits(
             DepositResolver::get(
-                $roomResponseLowestPrice,
-                Arr::get($this->depositInformation, $giataId, []),
-                $query,
-                $giataId,
-                $rating,
-                $this->roomCodes,
-                SupplierNameEnum::HOTEL_TRADER->value,
+                roomResponse: $roomResponseLowestPrice,
+                depositInformation: Arr::get($this->depositInformation, $giataId, []),
+                query: $query,
+                giataId: $giataId,
+                rating: $rating,
+                roomCodes: $this->roomCodes,
+                supplierName: SupplierNameEnum::HOTEL_TRADER->value,
             )
         );
 
@@ -362,13 +362,13 @@ class HotelTraderHotelPricingTransformer extends BaseHotelPricingTransformer
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
         $roomResponse->setDeposits(
             DepositResolver::get(
-                $roomResponse,
-                Arr::get($this->depositInformation, $giataId, []),
-                $query,
-                $giataId,
-                $rating,
-                $this->roomCodes,
-                SupplierNameEnum::HOTEL_TRADER->value,
+                roomResponse: $roomResponse,
+                depositInformation: Arr::get($this->depositInformation, $giataId, []),
+                query: $query,
+                giataId: $giataId,
+                rating: $rating,
+                roomCodes: $this->roomCodes,
+                supplierName: SupplierNameEnum::HOTEL_TRADER->value,
             )
         );
 

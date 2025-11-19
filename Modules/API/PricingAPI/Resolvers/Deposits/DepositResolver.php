@@ -127,14 +127,13 @@ class DepositResolver
                     $query
                 ),
             ];
-            $calculatedDeposit['initial_payment_due_type'] = $initialPaymentDueType;
 
+            $calculatedDeposit['initial_payment_due_type'] = $initialPaymentDueType;
             if ($initialPaymentDueType) {
                 $calculatedDeposit['initial_payment_due'] = [
                     'type' => $initialPaymentDueType,
-                    'calculated_due_date' => self::calculateInitialPaymentDueDate($initialPaymentDueType, $depositInfo, $query),
+                    'calculated_due_date' => self::calculateDueDate($initialPaymentDueType, $depositInfo, $query, 'initial'),
                 ];
-
                 switch ($initialPaymentDueType) {
                     case 'days_after_booking':
                         $calculatedDeposit['initial_payment_due']['days_after_booking'] = Arr::get($depositInfo, 'days_after_booking_initial_payment_due');
@@ -162,8 +161,142 @@ class DepositResolver
                     ],
                 ];
             }
+
+            $balancePaymentDueType = Arr::get($depositInfo, 'balance_payment_due_type');
+            $calculatedDeposit['balance_payment_due_type'] = $balancePaymentDueType;
+            if ($balancePaymentDueType) {
+                $calculatedDeposit['balance_payment_due'] = [
+                    'type' => $balancePaymentDueType,
+                    'calculated_due_date' => self::calculateDueDate($balancePaymentDueType, $depositInfo, $query, 'balance'),
+                ];
+                switch ($balancePaymentDueType) {
+                    case 'days_after_booking':
+                        $calculatedDeposit['balance_payment_due']['days_after_booking'] = Arr::get($depositInfo, 'days_after_booking_balance_payment_due');
+                        break;
+                    case 'days_before_arrival':
+                        $calculatedDeposit['balance_payment_due']['days_before_arrival'] = Arr::get($depositInfo, 'days_before_arrival_balance_payment_due');
+                        break;
+                    case 'date':
+                        $calculatedDeposit['balance_payment_due']['date'] = Arr::get($depositInfo, 'date_balance_payment_due');
+                        break;
+                    default:
+                        $calculatedDeposit['balance_payment_due']['raw_value'] = Arr::get($depositInfo, 'balance_payment_due_value');
+                        break;
+                }
+            } else {
+                $calculatedDeposit['balance_payment_due'] = [
+                    'type' => null,
+                    'calculated_due_date' => null,
+                    'debug_info' => [
+                        'has_balance_payment_due_type' => isset($depositInfo['balance_payment_due_type']),
+                        'balance_payment_due_type_value' => $depositInfo['balance_payment_due_type'] ?? 'not_set',
+                        'available_fields' => array_keys(array_filter($depositInfo, function ($key) {
+                            return str_contains($key, 'balance_payment') || str_contains($key, 'due');
+                        }, ARRAY_FILTER_USE_KEY)),
+                    ],
+                ];
+            }
+
             $deposits[] = $calculatedDeposit;
         }
+
+        $deposits = self::processBalancePayment($deposits, $totalPrice);
+
+        return $deposits;
+    }
+
+    /**
+     * Processes the deposit array to standardize the structure and calculate the final balance.
+     * * 1. Tags existing entries as 'initial_payment' and sums up the total initial payment.
+     * 2. Finds the maximum (latest) balance payment due date among all rules.
+     * 3. Creates the final 'balance_payment' block with the remaining amount.
+     * 4. Promotes the calculated due date to a top-level 'due_date' field for all entries.
+     * 5. Sorts all deposit blocks by their 'due_date'.
+     *
+     * @param  array  $deposits  The initial array of calculated deposits.
+     * @param  float  $totalPrice  The total room price.
+     * @return array The processed and sorted array of deposit blocks.
+     */
+    private static function processBalancePayment(array $deposits, float $totalPrice): array
+    {
+        if (empty($deposits)) {
+            return [];
+        }
+
+        $totalInitialPayment = 0.0;
+        $maxBalanceDate = null;
+        $maxBalanceDueInfo = [];
+
+        // 1. Tag existing deposits, sum up amounts, and find the latest balance due date.
+        foreach ($deposits as &$deposit) {
+            // Tag as initial payment
+            $deposit['type'] = 'initial_payment';
+
+            // Sum initial payments
+            $amount = (float) ($deposit['total_deposit'] ?? 0);
+            $totalInitialPayment += $amount;
+
+            // Find the latest balance payment due date
+            $balanceDate = $deposit['balance_payment_due']['calculated_due_date'] ?? null;
+
+            if ($balanceDate) {
+                if ($maxBalanceDate === null || $balanceDate > $maxBalanceDate) {
+                    $maxBalanceDate = $balanceDate;
+                    $maxBalanceDueInfo = $deposit['balance_payment_due'];
+                }
+            }
+
+            // 2. Promote calculated_due_date to the top-level 'due_date'
+            // For initial payments, the relevant date is initial_payment_due
+            $deposit['due_date'] = $deposit['initial_payment_due']['calculated_due_date'] ?? null;
+        }
+        unset($deposit); // Unset the reference
+
+        // 3. Calculate the remaining balance
+        $remainingBalance = round($totalPrice - $totalInitialPayment, 2);
+
+        // 4. If the remainder is positive, create and add the balance block
+        if ($remainingBalance > 0) {
+            $paymentDue = [
+                'type' => $maxBalanceDueInfo['type'] ?? null,
+                'calculated_due_date' => $maxBalanceDate,
+            ];
+
+            if ($maxBalanceDueInfo) {
+                $paymentDue = array_merge($maxBalanceDueInfo, $paymentDue);
+            }
+
+            $balanceBlock = [
+                'name' => 'Remaining Balance',
+                'type' => 'balance_payment',
+                'level' => 'calculated_balance',
+                'total_deposit' => $remainingBalance,
+                'payment_due' => $paymentDue,
+
+                // Promote calculated_due_date to the top-level 'due_date'
+                'due_date' => $maxBalanceDate,
+
+                // Auxiliary fields
+                'base_price_amount' => $totalPrice,
+                'price_value_target' => 'remaining_amount',
+            ];
+
+            $deposits[] = $balanceBlock;
+        }
+
+        // 5. Sort all blocks by 'due_date'
+        // We use a stable sort mechanism here, comparing dates (which are strings)
+        usort($deposits, function ($a, $b) {
+            $dateA = $a['due_date'] ?? '9999-12-31'; // Put items without date at the end
+            $dateB = $b['due_date'] ?? '9999-12-31';
+
+            // Custom sort logic: nulls (9999-12-31) go last, otherwise standard string comparison
+            if ($dateA === $dateB) {
+                return 0;
+            }
+
+            return ($dateA < $dateB) ? -1 : 1;
+        });
 
         return $deposits;
     }
@@ -265,23 +398,30 @@ class DepositResolver
         };
     }
 
-    private static function calculateInitialPaymentDueDate(string $initialPaymentDueType, array $depositInfo, array $query): ?string
+    private static function calculateDueDate(string $paymentDueType, array $depositInfo, array $query, string $paymentLevel = 'initial'): ?string
     {
-        switch ($initialPaymentDueType) {
+        // Determine the field suffix based on the payment level ('_initial_payment_due' or '_balance_payment_due')
+        $suffix = $paymentLevel === 'initial' ? '_initial_payment_due' : '_balance_payment_due';
+
+        switch ($paymentDueType) {
             case 'days_after_booking':
-                $days = Arr::get($depositInfo, 'days_after_booking_initial_payment_due', 0);
+                $field = 'days_after_booking'.$suffix;
+                $days = Arr::get($depositInfo, $field, 0);
                 $bookingDate = Carbon::now();
 
                 return $bookingDate->copy()->addDays($days)->format('Y-m-d');
 
             case 'days_before_arrival':
-                $days = Arr::get($depositInfo, 'days_before_arrival_initial_payment_due', 0);
+                $field = 'days_before_arrival'.$suffix;
+                $days = Arr::get($depositInfo, $field, 0);
                 $checkinDate = Carbon::parse($query['checkin']);
 
                 return $checkinDate->copy()->subDays($days)->format('Y-m-d');
 
             case 'date':
-                return Arr::get($depositInfo, 'date_initial_payment_due');
+                $field = 'date'.$suffix;
+
+                return Arr::get($depositInfo, $field);
 
             default:
                 return null;

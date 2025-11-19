@@ -221,13 +221,13 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
         $roomGroupsResponse->setDeposits(
             DepositResolver::get(
-                $roomResponseLowestPrice,
-                Arr::get($this->depositInformation, $giataId, []),
-                $query,
-                $giataId,
-                $rating,
-                $this->roomCodes,
-                SupplierNameEnum::HBSI->value,
+                roomResponse: $roomResponseLowestPrice,
+                depositInformation: Arr::get($this->depositInformation, $giataId, []),
+                query: $query,
+                giataId: $giataId,
+                rating: $rating,
+                roomCodes: $this->roomCodes,
+                supplierName: SupplierNameEnum::HBSI->value,
             )
         );
 
@@ -511,7 +511,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setPricingRulesAppliers($this->transformPricingRulesAppliers($pricingRulesApplier));
 
         $rating = Arr::get($this->giata, "$giataId.rating", 0);
-
         $roomResponse->setDeposits(
             DepositResolver::get(
                 roomResponse: $roomResponse,
