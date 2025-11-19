@@ -166,15 +166,7 @@ class BaseTaxAndFeeResolver
                     //                            continue;
                     //                        }
 
-                    if ($editFeeTax['apply_type'] === 'per_room') {
-                        if ($editFeeTax['start_date'] || $editFeeTax['end_date']) {
-                            $baseRate = $rate['amount_before_tax'] ?? 0;
-                        } else {
-                            $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
-                        }
-                    } else {
-                        $baseRate = $rate['amount_before_tax'] ?? 0;
-                    }
+                    $baseRate = $rate['amount_before_tax'] ?? 0;
 
                     foreach ($rate['taxes'] ?? [] as $key => &$tax) {
 
@@ -265,16 +257,7 @@ class BaseTaxAndFeeResolver
 
                         $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($updateFeeTax, $checkin, $checkout, $numberOfNights);
                         $rateData = $this->getRateData($updateFeeTax);
-
-                        if ($updateFeeTax['apply_type'] === 'per_room') {
-                            if ($updateFeeTax['start_date'] || $updateFeeTax['end_date']) {
-                                $baseRate = $rate['amount_before_tax'] ?? 0;
-                            } else {
-                                $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
-                            }
-                        } else {
-                            $baseRate = $rate['amount_before_tax'] ?? 0;
-                        }
+                        $baseRate = $rate['amount_before_tax'] ?? 0;
 
                         foreach (['amount', 'displayable_amount', 'rack_amount', 'displayable_rack_amount'] as $field) {
                             if (isset($tax[$field])) {
@@ -369,16 +352,7 @@ class BaseTaxAndFeeResolver
 
                     $serviceNumberOfNights = ServiceCalculationHelper::calculateServiceAvailableNights($addFeeTax, $checkin, $checkout, $numberOfNights);
                     $rateData = $this->getRateData($addFeeTax);
-
-                    if ($addFeeTax['apply_type'] === 'per_room') {
-                        if ($addFeeTax['start_date'] || $addFeeTax['end_date']) {
-                            $baseRate = $rate['amount_before_tax'] ?? 0;
-                        } else {
-                            $baseRate = $rate['total_amount_before_tax'] ?? $rate['amount_before_tax'] ?? 0;
-                        }
-                    } else {
-                        $baseRate = $rate['amount_before_tax'] ?? 0;
-                    }
+                    $baseRate = $rate['amount_before_tax'] ?? 0;
 
                     if ($addFeeTax['type'] === 'Fee') {
                         $feeData = $this->getFeeData($addFeeTax, $serviceNumberOfNights, $numberOfPassengers, $occupancy);
@@ -427,7 +401,6 @@ class BaseTaxAndFeeResolver
         foreach ($rate['taxes'] ?? [] as $key => &$tax) {
             if (Arr::get($tax, 'obe_action') === 'included') {
                 $rate['amount_before_tax'] -= $tax['amount'];
-                $rate['total_amount_before_tax'] -= $tax['amount'];
             }
         }
     }
@@ -775,7 +748,6 @@ class BaseTaxAndFeeResolver
                 'type' => 'base_rate',
             ];
 
-            $nightsRate = $rate['unit_multiplier'];
             $baseFareRateNight = array_merge($fareRate, [
                 'amount' => round($rate['amount_before_tax'], 2),
                 'rack_amount' => round($rate['amount_before_tax'], 2),
@@ -784,21 +756,19 @@ class BaseTaxAndFeeResolver
             $taxesRate = Arr::get($rate, 'taxes', []);
             $feesRate = Arr::get($rate, 'fees', []);
 
-            for ($i = 0; $i < $nightsRate; $i++) {
-                $breakdown[$night][] = $baseFareRateNight;
+            $breakdown[$night][] = $baseFareRateNight;
 
-                // Filter taxes that apply to this specific night
-                if ($checkin && $checkout) {
-                    $currentNightDate = $checkin->copy()->addDays($night);
-                    $applicableTaxes = ServiceCalculationHelper::filterTaxesForDate($taxesRate, $currentNightDate);
-                    $breakdown[$night] = array_merge($breakdown[$night], $applicableTaxes);
-                } else {
-                    // Fallback to existing behavior if no dates provided
-                    $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
-                }
-
-                $night++;
+            // Filter taxes that apply to this specific night
+            if ($checkin && $checkout) {
+                $currentNightDate = $checkin->copy()->addDays($night);
+                $applicableTaxes = ServiceCalculationHelper::filterTaxesForDate($taxesRate, $currentNightDate);
+                $breakdown[$night] = array_merge($breakdown[$night], $applicableTaxes);
+            } else {
+                // Fallback to existing behavior if no dates provided
+                $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
             }
+
+            $night++;
 
             foreach ($feesRate as $fee) {
                 $key = Arr::get($fee, 'code', '');

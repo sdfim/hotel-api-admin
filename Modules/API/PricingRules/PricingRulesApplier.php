@@ -106,11 +106,10 @@ class PricingRulesApplier extends BasePricingRulesApplier
         ];
 
         foreach ($transformedRoomPricing as $rate) {
-            $totalInclusiveTax = 0.0;
-            $unitMultiplier = (int) Arr::get($rate, 'unit_multiplier', 1);
+            $inclusiveTax = 0.0;
 
             $baseRatePerNight = (float) Arr::get($rate, 'amount_before_tax', 0.0);
-            $totals['total_net'] += $baseRatePerNight * $unitMultiplier;
+            $totals['total_net'] += $baseRatePerNight;
 
             foreach (Arr::get($rate, 'taxes', []) as $tax) {
                 $collectedBy = strtolower((string) Arr::get($tax, 'collected_by'));
@@ -123,17 +122,17 @@ class PricingRulesApplier extends BasePricingRulesApplier
                     $amount = (float) $tax['displayable_amount'];
                 }
 
-                $totals['total_tax'] += $amount * $unitMultiplier;
+                $totals['total_tax'] += $amount;
                 if (Arr::get($tax, 'type') === 'Inclusive') {
-                    $totalInclusiveTax += $amount * $unitMultiplier;
+                    $inclusiveTax += $amount;
                 }
             }
 
-            $totalAmountBeforeTax = (float) Arr::get($rate, 'total_amount_before_tax', 0.0);
-            $totalAmountAfterTax = (float) Arr::get($rate, 'total_amount_after_tax', 0.0);
+            $amountBeforeTax = (float) Arr::get($rate, 'amount_before_tax', 0.0);
+            $amountAfterTax = (float) Arr::get($rate, 'amount_after_tax', 0.0);
 
-            if ($totalAmountBeforeTax == $totalAmountAfterTax && $totalInclusiveTax > 0) {
-                $totals['total_net'] -= $totalInclusiveTax;
+            if ($amountBeforeTax == $amountAfterTax && $inclusiveTax > 0) {
+                $totals['total_net'] -= $inclusiveTax;
             }
         }
 
@@ -149,7 +148,7 @@ class PricingRulesApplier extends BasePricingRulesApplier
                     }
 
                     if (strtolower((string) Arr::get($fee, 'collected_by')) !== 'direct') {
-                        $totals['total_fees'] += $feeAmount * $feeMultiplier;
+                        $totals['total_fees'] += $feeAmount;
                     }
                 }
             }

@@ -98,16 +98,12 @@ class ExpediaTaxAndFeeResolver extends BaseTaxAndFeeResolver
 
             $transformedRate = new TransformedRate;
             $transformedRate->setCode('EXP_RATE_NIGHT_'.($i + 1));
-            $transformedRate->setRateTimeUnit('Day');
-            $transformedRate->setUnitMultiplier(1);
             $transformedRate->setEffectiveDate($checkinDate->copy()->addDays($i));
             $transformedRate->setExpireDate($checkinDate->copy()->addDays($i + 1));
             $transformedRate->setAmountBeforeTax($baseRate);
             $transformedRate->setAmountAfterTax($baseRate + $dailyTaxAndFeeTotal);
             $transformedRate->setCurrencyCode($currency);
-            $transformedRate->setTotalAmountBeforeTax($baseRate);
-            $transformedRate->setTotalAmountAfterTax($baseRate + $dailyTaxAndFeeTotal);
-            $transformedRate->setTotalCurrencyCode($currency);
+
             $transformedRate->setTaxes($transformedTaxes);
             $transformedRate->setFees($transformedFees);
 

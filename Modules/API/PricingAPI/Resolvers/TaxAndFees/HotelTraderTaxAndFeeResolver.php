@@ -63,17 +63,11 @@ class HotelTraderTaxAndFeeResolver extends BaseTaxAndFeeResolver
 
             $transformedRate = new TransformedRate;
             $transformedRate->setCode('HT_RATE_NIGHT_'.($i + 1));
-            $transformedRate->setRateTimeUnit('Day');
-            $transformedRate->setUnitMultiplier(1);
             $transformedRate->setEffectiveDate(Carbon::parse($currentDate));
             $transformedRate->setExpireDate(Carbon::parse($rateDate->copy()->addDays($i + 1)->toDateString()));
             $transformedRate->setAmountBeforeTax($baseRate);
             $transformedRate->setAmountAfterTax($baseRate + $dailyTax);
             $transformedRate->setCurrencyCode($currency);
-
-            $transformedRate->setTotalAmountBeforeTax($baseRate);
-            $transformedRate->setTotalAmountAfterTax($baseRate + $dailyTax);
-            $transformedRate->setTotalCurrencyCode($currency);
 
             $transformedRate->setTaxes($taxes);
             $transformedRate->setFees($fees);

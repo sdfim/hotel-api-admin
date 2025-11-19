@@ -4,7 +4,6 @@ namespace Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Modules\API\PricingAPI\Resolvers\Helpers\ServiceCalculationHelper;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\RateItemTaxFee;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\TransformedRate;
 
@@ -76,27 +75,22 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
             }
         }
 
-        $numberOfNights = array_sum(array_column($transformedRates, 'unit_multiplier'));
-
         foreach ($transformedRates as $rate) {
             if (! empty($repoTaxFees['vat'])) {
                 $vat = array_values($repoTaxFees['vat'])[0];
                 $vatPercentage = $vat['net_value'] ?? 0;
 
                 // Calculate VAT
-                $vatAmount = ($rate->getTotalAmountBeforeTax() / (1 + $vatPercentage / 100)) * ($vatPercentage / 100);
-                $rate->setTotalAmountBeforeTax($rate->getTotalAmountBeforeTax() - $vatAmount);
-
-                $vatRate = round($vatAmount / $numberOfNights, 2);
+                $vatAmount = ($rate['amount_before_tax'] / (1 + $vatPercentage / 100)) * ($vatPercentage / 100);
 
                 // Add VAT to Taxes
                 $tax = new RateItemTaxFee;
                 $tax->setType('Inclusive');
-                $tax->setAmount($vatRate);
+                $tax->setAmount($vatAmount);
                 $tax->setDescription('VAT');
 
-                $rate->setTaxes([...$rate->getTaxes(), $tax]);
-                $rate->setAmountBeforeTax(round($rate->getAmountBeforeTax() - $vatRate, 2));
+                $rate['taxes'] = array_merge($rate['taxes'] ?? [], [$tax]);
+                $rate['amount_before_tax'] = round(($rate['amount_before_tax'] ?? 0) - $vatAmount, 2);
             }
         }
 
@@ -143,8 +137,12 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
 
                 $dailyRate['amount_before_tax'] = $dailyAmountBeforeTax;
                 $dailyRate['amount_after_tax'] = $dailyAmountAfterTax;
-                $dailyRate['total_amount_before_tax'] = $dailyAmountBeforeTax;
-                $dailyRate['total_amount_after_tax'] = $dailyAmountAfterTax;
+
+                unset($dailyRate['total_amount_after_tax']);
+                unset($dailyRate['total_amount_before_tax']);
+                unset($dailyRate['total_currency_code']);
+                unset($dailyRate['rate_time_unit']);
+                unset($dailyRate['unit_multiplier']);
 
                 $dailyRate['taxes'] = $rate['taxes'];
                 $dailyRate['fees'] = $rate['fees'];
@@ -175,22 +173,24 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
         }
         $transformedRate = new TransformedRate;
         $transformedRate->setCode($rate['@attributes']['Code'] ?? '');
-        $transformedRate->setRateTimeUnit($rate['@attributes']['RateTimeUnit'] ?? '');
-        $transformedRate->setUnitMultiplier((int) ($rate['@attributes']['UnitMultiplier'] ?? 0));
         $transformedRate->setEffectiveDate(new Carbon($rate['@attributes']['EffectiveDate'] ?? ''));
         $transformedRate->setExpireDate(new Carbon($rate['@attributes']['ExpireDate'] ?? ''));
         $transformedRate->setAmountBeforeTax((float) ($rate['Base']['@attributes']['AmountBeforeTax'] ?? 0));
         $transformedRate->setAmountAfterTax((float) ($rate['Base']['@attributes']['AmountAfterTax'] ?? 0));
         $transformedRate->setCurrencyCode($rate['Base']['@attributes']['CurrencyCode'] ?? '');
 
-        $transformedRate->setTotalAmountBeforeTax((float) ($rate['Total']['@attributes']['AmountBeforeTax'] ?? 0));
-        $transformedRate->setTotalAmountAfterTax((float) ($rate['Total']['@attributes']['AmountAfterTax'] ?? 0));
-        $transformedRate->setTotalCurrencyCode($rate['Total']['@attributes']['CurrencyCode'] ?? '');
-
         $transformedRate->setTaxes($this->transformTaxes($taxes, $transformedRate->getCurrencyCode()));
         $transformedRate->setFees($this->transformTaxes($fees, $transformedRate->getCurrencyCode()));
 
-        return $transformedRate->toArray();
+        $transformedRateArr = $transformedRate->toArray();
+
+        $transformedRateArr['rate_time_unit'] = $rate['@attributes']['RateTimeUnit'] ?? '';
+        $transformedRateArr['unit_multiplier'] = (int) ($rate['@attributes']['UnitMultiplier'] ?? 0);
+        $transformedRateArr['total_amount_before_tax'] = $rate['Total']['@attributes']['AmountBeforeTax'] ?? 0;
+        $transformedRateArr['total_amount_after_tax'] = $rate['Total']['@attributes']['AmountAfterTax'] ?? 0;
+        $transformedRateArr['total_currency_code'] = $rate['Total']['@attributes']['CurrencyCode'] ?? '';
+
+        return $transformedRateArr;
     }
 
     /**

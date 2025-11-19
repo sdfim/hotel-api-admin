@@ -50,9 +50,6 @@ class BaseTaxAndFeeResolverTest extends TestCase
                 'amount_after_tax' => $baseNetRate,
                 'currency_code' => 'USD',
                 'taxes' => [],
-                'total_amount_before_tax' => $baseNetRate * $nights,
-                'total_amount_after_tax' => $baseNetRate * $nights,
-                'total_currency_code' => 'USD',
             ],
         ];
     }
