@@ -26,17 +26,6 @@
             $perks = array_merge($perks, explode("\n", $content->value));
         }
     }
-
-    function generateStarRating(int $rating): string {
-        $html = '';
-        for ($i = 0; $i < $rating; $i++) {
-            $html .= '<span style="color: #FFC107; font-size: 20px;">★</span>';
-        }
-        for ($i = $rating; $i < 5; $i++) {
-            $html .= '<span style="color: #ccc; font-size: 20px;">★</span>';
-        }
-        return $html;
-    }
 @endphp
 
     <!DOCTYPE html>
@@ -220,7 +209,7 @@
 
     <h2 style="font-size:38px; margin-top:24px; margin-bottom: 0 !important;  color:#19332c; font-weight:500;">{{ $hotelName }}</h2>
     <p style="margin:4px 0 0 0; color:#4b635c;">{{ $hotelAddress }}</p>
-    <div style="margin:8px 0 0 0;">{!! generateStarRating($rating) !!}</div>
+    <div style="margin:8px 0 0 0;">{!! \App\Helpers\StarRatingHelper::generateStarRating($rating) !!}</div>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
         <tr>

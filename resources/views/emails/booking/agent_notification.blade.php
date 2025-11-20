@@ -16,17 +16,6 @@
 
     $grandTotal = 0;
     $currency = Arr::get($rooms, '0.currency', 'USD');
-
-    function generateStarRating(int $rating): string {
-        $html = '';
-        for ($i = 0; $i < $rating; $i++) {
-            $html .= '<span style="color: #FFC107; font-size: 20px;">★</span>';
-        }
-        for ($i = $rating; $i < 5; $i++) {
-            $html .= '<span style="color: #ccc; font-size: 20px;">★</span>';
-        }
-        return $html;
-    }
 @endphp
 
 <!DOCTYPE html>
@@ -80,7 +69,7 @@
     <p class="hotel-address">📍 {{ $hotelAddress }}</p>
 
     <div style="margin-bottom: 20px;">
-        {!! generateStarRating($rating) !!}
+        {!! \App\Helpers\StarRatingHelper::generateStarRating($rating) !!}
     </div>
     <div style="padding:20px 0; display: flex; justify-content: space-between;">
         <div class="info-block" style="flex-grow: 1;">
