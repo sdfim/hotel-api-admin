@@ -48,7 +48,8 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         private string $rate_type = '',
         private string $currency = '',
         private int $supplier_id = 0,
-    ) {}
+    ) {
+    }
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): \Generator
     {
@@ -481,11 +482,44 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
         $roomResponse->setNonRefundable($nonRefundable);
-        $mealPlanCode = $rate['RatePlans']['RatePlan']['MealsIncluded']['@attributes']['MealPlanCodes'] ?? '';
-        $mealPlanName = self::MEAL_PLAN[$mealPlanCode] ?? '';
+
+        $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
+        $roomResponse->setNonRefundable($nonRefundable);
+
+        // --- Meal plan mapping (hotel-specific + default) ---
+
+        // Raw value from supplier (could be a code like "AI" or a text like "No additional meals")
+        $mealPlanRaw = Arr::get(
+            $rate,
+            'RatePlans.RatePlan.MealsIncluded.@attributes.MealPlanCodes',
+            ''
+        );
+        $mealPlanRaw = is_string($mealPlanRaw) ? trim($mealPlanRaw) : '';
+
+        // Build mapping for this hotel: default + hotel-specific overrides
+        $mealPlanMapping = $this->getMealPlanMappingForGiata($giataId);
+
+        $mealPlanName = '';
+
+        if ($mealPlanRaw !== '') {
+            // Try exact match (hotel-specific mapping has priority via array_merge)
+            if (array_key_exists($mealPlanRaw, $mealPlanMapping)) {
+                $mealPlanName = $mealPlanMapping[$mealPlanRaw];
+
+                // Try case-insensitive code match (e.g. "ai" vs "AI")
+            } elseif (array_key_exists(strtoupper($mealPlanRaw), $mealPlanMapping)) {
+                $mealPlanName = $mealPlanMapping[strtoupper($mealPlanRaw)];
+
+                // If there is no mapping for this value, treat it as already human-readable
+                // e.g. "No additional meals"
+            } else {
+                $mealPlanName = $mealPlanRaw;
+            }
+        }
+
         $roomResponse->setMealPlans($mealPlanName);
 
-        if (! in_array($mealPlanName, $this->meal_plans_available)) {
+        if ($mealPlanName !== '' && ! in_array($mealPlanName, $this->meal_plans_available, true)) {
             $this->meal_plans_available[] = $mealPlanName;
         }
 
@@ -661,5 +695,24 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'fees' => $fees,
 
         ];
+    }
+
+    /**
+     * Get meal plan mapping for a given hotel (giataId).
+     * Hotel-specific config overrides default MEAL_PLAN codes.
+     */
+    private function getMealPlanMappingForGiata(int $giataId): array
+    {
+        $defaultMapping = self::MEAL_PLAN;
+
+        // Hotel-specific mapping from config/hbsi_meal_plans.php
+        $hotelSpecific = config("hbsi_meal_plans.$giataId", []);
+
+        if (! is_array($hotelSpecific)) {
+            $hotelSpecific = [];
+        }
+
+        // Hotel-specific keys override defaults on conflict
+        return array_merge($defaultMapping, $hotelSpecific);
     }
 }
