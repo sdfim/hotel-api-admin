@@ -42,4 +42,3 @@ aws --region us-east-1 cloudformation deploy --template-file cf_frontend.yaml --
 
 # The second frontend deployment. It will deploy only Cloudfront distribution, all other needed resources were deployed in a previous (first) deployment of the frontend.
 aws --region us-east-1 cloudformation deploy --template-file cf_frontend.yaml --stack-name fora-frontend2-stage --parameter-overrides APPNAME=fora-stage BackendStackName=fora-backend-stage
-
