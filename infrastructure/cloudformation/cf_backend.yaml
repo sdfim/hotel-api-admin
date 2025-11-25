@@ -323,7 +323,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Effect: Allow
                 Resource:
-                  - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:fora-stage-envs*"
+                  - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${APPNAME}-envs-*"
                 Sid: SecretsManagerAccess
               - Action:
                   - logs:CreateLogGroup
