@@ -108,11 +108,9 @@ Parameters:
     MinLength: '9'
     Type: String
   DbDatabase:
-    Default: fora_stage_engine
     Description: Mysql database name (DB_DATABASE)
     Type: String
   DbSupplierContentDatabase:
-    Default: fora_stage_supplier_content
     Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
   LatestAmiId:
@@ -932,8 +930,8 @@ Resources:
                 "QUEUE_CONNECTION": "rabbitmq",
                 "LOG_CHANNEL": "cloudwatch",
                 "DB_CONNECTION": "mysql",
-                "DB_DATABASE": os.environ.get("DB_DATABASE", "fora_stage_engine"),
-                "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get("SUPPLIER_CONTENT_DB_DATABASE", "fora_stage_supplier_content"),
+                "DB_DATABASE": os.environ.get("DB_DATABASE", f"{app_name}_engine"),
+                "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get("SUPPLIER_CONTENT_DB_DATABASE", f"{app_name}_supplier_content"),
               }
 
               # Fetch Application Environment Secrets
