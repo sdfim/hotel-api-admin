@@ -74,7 +74,11 @@ class AppServiceProvider extends ServiceProvider
         $config = \App\Models\GeneralConfiguration::first();
         if ($config) {
             if (! is_null($config->content_supplier)) {
-                Cache::forever('constant:content_supplier', $config->content_supplier);
+                try {
+                    Cache::forever('constant:content_supplier', $config->content_supplier);
+                } catch (\Throwable $e) {
+                    logger()->error('Cache error: '.$e->getMessage());
+                }
             }
         }
         // add more constants to warm up here
