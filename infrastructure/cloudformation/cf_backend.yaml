@@ -1123,7 +1123,7 @@ Resources:
       DBName: !Ref 'DbDatabase'
       DBSubnetGroupName: !Ref 'RdsSubnetGroup'
       Engine: mysql
-      EngineVersion: 8.0.35
+      EngineVersion: 8.0.41
       MasterUserPassword: !Join
         - ''
         - - '{{resolve:secretsmanager:'
