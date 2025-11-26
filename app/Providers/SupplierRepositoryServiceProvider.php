@@ -70,5 +70,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('configurations.key-mapping-owners.key-mapping-owner-form', KeyMappingOwnerForm::class);
         Livewire::component('configurations.commissions.commission-table', CommissionTable::class);
         Livewire::component('configurations.commissions.commission-form', CommissionForm::class);
+
+        Livewire::component('meal-plan-mapping.table', \Modules\HotelContentRepository\Livewire\MealPlanMapping\MealPlanMappingTable::class);
     }
 }

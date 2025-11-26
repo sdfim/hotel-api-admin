@@ -24,6 +24,7 @@ use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
 use Modules\Enums\ContentSourceEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
+use Modules\HotelContentRepository\Models\MealPlanMapping;
 
 class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 {
@@ -40,15 +41,23 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
     public array $bookingItems = [];
 
+    /**
+     * Cache for meal plan mappings per hotel (giata_id).
+     *
+     * @var array<int, array<string, string>>
+     */
+    private array $mealPlanMappingsCache = [];
+
     public function __construct(
         private readonly HbsiTaxAndFeeResolver $taxAndFeeResolver,
-        private readonly ServiceResolver $serviceResolver,
-        private array $meal_plans_available = [],
-        private array $roomCombinations = [],
-        private string $rate_type = '',
-        private string $currency = '',
-        private int $supplier_id = 0,
-    ) {}
+        private readonly ServiceResolver       $serviceResolver,
+        private array                          $meal_plans_available = [],
+        private array                          $roomCombinations = [],
+        private string                         $rate_type = '',
+        private string                         $currency = '',
+        private int                            $supplier_id = 0,
+    ) {
+    }
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): \Generator
     {
@@ -183,7 +192,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                 continue;
             }
 
-            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $query);
+            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId, $query);
             if (empty($roomData)) {
                 continue;
             }
@@ -283,7 +292,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
          * Adding $unknown causes room_combinations generation conflicts for multi-room search
          */
         //        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
-        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
+        $rateOccupancy = $adults . '-' . $children . '-' . $infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
         $numberOfPassengers = $adults + $children + $infants;
 
@@ -301,7 +310,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                         || $item['supplier_name'] === ContentSourceEnum::HBSI->value;
                 })->all();
             })
-            ->filter(fn ($items) => ! empty($items))
+            ->filter(fn ($items) => !empty($items))
             ->all();
         $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees);
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $this->currency);
@@ -368,7 +377,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                     $data['nights'] = $cancelPenalty['AmountPercent']['@attributes']['NmbrOfNights'];
                 }
 
-                if (! isset($data['currency'])) {
+                if (!isset($data['currency'])) {
                     $data['currency'] = $this->currency ?? 'USD';
                 }
 
@@ -468,11 +477,43 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
         $roomResponse->setNonRefundable($nonRefundable);
-        $mealPlanCode = $rate['RatePlans']['RatePlan']['MealsIncluded']['@attributes']['MealPlanCodes'] ?? '';
-        $mealPlanName = self::MEAL_PLAN[$mealPlanCode] ?? '';
+
+        $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
+        $roomResponse->setNonRefundable($nonRefundable);
+
+        // --- Meal plan mapping (hotel-specific + DB overrides) ---
+
+        // Raw value from supplier (could be a code like "AI" or a text like "No additional meals")
+        $mealPlanRaw = Arr::get(
+            $rate,
+            'RatePlans.RatePlan.MealsIncluded.@attributes.MealPlanCodes',
+            ''
+        );
+        $mealPlanRaw = is_string($mealPlanRaw) ? trim($mealPlanRaw) : '';
+
+        // Try to resolve meal plan using DB mapping (pd_meal_plan_mappings)
+        $mealPlanName = $this->resolveMealPlanName(
+            giataId: $giataId,
+            mealPlanRaw: $mealPlanRaw,
+            ratePlanCode: $ratePlanCode
+        );
+
+        // Fallbacks if DB mapping is not found
+        if ($mealPlanName === '') {
+            // 1) Try default constant mapping by raw code (e.g. "AI" => "All Inclusive")
+            if ($mealPlanRaw !== '' && isset(self::MEAL_PLAN[$mealPlanRaw])) {
+                $mealPlanName = self::MEAL_PLAN[$mealPlanRaw];
+                // 2) If nothing matched, treat raw value as already human-readable string
+            } elseif ($mealPlanRaw !== '') {
+                $mealPlanName = $mealPlanRaw;
+            }
+        }
+
+        // Save meal plan to room response (single value per room/rate)
         $roomResponse->setMealPlans($mealPlanName);
 
-        if (! in_array($mealPlanName, $this->meal_plans_available)) {
+        // Collect unique meal plans for hotel-level summary
+        if ($mealPlanName !== '' && ! in_array($mealPlanName, $this->meal_plans_available, true)) {
             $this->meal_plans_available[] = $mealPlanName;
         }
 
@@ -546,7 +587,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0) . ':' . $roomType,
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
@@ -602,18 +643,18 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
                         if ($type !== 'fee') {
                             $taxesFeesRate[] = [
-                                'type' => $type ?? 'tax'.' '.$name,
+                                'type' => $type ?? 'tax' . ' ' . $name,
                                 'amount' => $_tax['@attributes']['Amount'],
                                 'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                    ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
                                     : $_tax['@attributes']['Code']),
                             ];
                         } else {
                             $fees[] = [
-                                'type' => $type ?? 'tax'.' '.$name,
+                                'type' => $type ?? 'tax' . ' ' . $name,
                                 'amount' => $_tax['@attributes']['Amount'],
                                 'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                    ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
                                     : $_tax['@attributes']['Code']),
                             ];
                         }
@@ -650,5 +691,88 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'fees' => $fees,
 
         ];
+    }
+
+    /**
+     * Resolve final meal plan name for given hotel and rate.
+     *
+     * Priority:
+     *  1) DB mapping by meal_plan_code_from_supplier (exact match)
+     *  2) DB mapping by rate_plan_code_from_supplier (RatePlanCode)
+     *  3) fallback to constant MEAL_PLAN or raw value (handled in caller)
+     */
+    private function resolveMealPlanName(int $giataId, string $mealPlanRaw, string $ratePlanCode): string
+    {
+        // 1) Try mapping by explicit meal plan code from supplier
+        if ($mealPlanRaw !== '') {
+            $mapped = $this->findMealPlanInDb($giataId, $mealPlanRaw, 'meal_plan_code_from_supplier');
+            if ($mapped !== null) {
+                return $mapped;
+            }
+
+            // Try case-insensitive look-up
+            $mapped = $this->findMealPlanInDb($giataId, strtolower($mealPlanRaw), 'meal_plan_code_from_supplier', true);
+            if ($mapped !== null) {
+                return $mapped;
+            }
+        }
+
+        // 2) If supplier did not send explicit meal plan code,
+        //    or it wasn't mapped, try mapping by rate plan code
+        if ($ratePlanCode !== '') {
+            $mapped = $this->findMealPlanInDb($giataId, $ratePlanCode, 'rate_plan_code_from_supplier');
+            if ($mapped !== null) {
+                return $mapped;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Find meal plan in pd_meal_plan_mappings table.
+     *
+     * @param int    $giataId          Hotel identifier (giata_code)
+     * @param string $needle           Value from supplier (meal plan code or rate plan code)
+     * @param string $column           Column to search in (meal_plan_code_from_supplier or rate_plan_code_from_supplier)
+     * @param bool   $caseInsensitive  If true, compare values in lowercase
+     */
+    private function findMealPlanInDb(int $giataId, string $needle, string $column, bool $caseInsensitive = false): ?string
+    {
+        // Normalize column name to be safe
+        if (! in_array($column, ['meal_plan_code_from_supplier', 'rate_plan_code_from_supplier'], true)) {
+            return null;
+        }
+
+        // Load mappings for this hotel only once and keep them in memory
+        if (! isset($this->mealPlanMappingsCache[$giataId])) {
+            $this->mealPlanMappingsCache[$giataId] = MealPlanMapping::query()
+                ->where('giata_id', $giataId)
+                ->where('is_enabled', true)
+                ->get()
+                ->toArray();
+        }
+
+        $rows = $this->mealPlanMappingsCache[$giataId];
+
+        foreach ($rows as $row) {
+            $value = $row[$column] ?? null;
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($caseInsensitive) {
+                if (mb_strtolower($value) === $needle) {
+                    return $row['our_meal_plan'] ?? null;
+                }
+            } else {
+                if ($value === $needle) {
+                    return $row['our_meal_plan'] ?? null;
+                }
+            }
+        }
+
+        return null;
     }
 }
