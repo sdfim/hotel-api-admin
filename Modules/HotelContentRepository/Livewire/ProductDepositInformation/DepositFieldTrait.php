@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductManipulablePriceTypeEnum;
 use Modules\Enums\ProductPriceValueTypeEnum;
+use Modules\Enums\SupplierNameEnum;
 
 trait DepositFieldTrait
 {
@@ -272,7 +273,7 @@ trait DepositFieldTrait
                         'supplier_id' => [
                             Select::make('value_from')
                                 ->label('Supplier ID')
-                                ->options(Supplier::all()->pluck('name', 'id'))
+                                ->options(Supplier::whereIn('name', SupplierNameEnum::getValues())->pluck('name', 'id'))
                                 ->required(),
                         ],
                         'channel_id' => [
