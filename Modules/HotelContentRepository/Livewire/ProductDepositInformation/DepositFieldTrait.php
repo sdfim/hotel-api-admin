@@ -273,7 +273,7 @@ trait DepositFieldTrait
                         'supplier_id' => [
                             Select::make('value_from')
                                 ->label('Supplier ID')
-                                ->options(Supplier::whereIn('name', SupplierNameEnum::getValues())->pluck('name', 'id'))
+                                ->options(Supplier::whereIn('name', SupplierNameEnum::pricingList())->pluck('name', 'id'))
                                 ->required(),
                         ],
                         'channel_id' => [
