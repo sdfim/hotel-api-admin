@@ -68,16 +68,16 @@ class SearchInspectorController extends BaseInspectorController
                 };
 
                 Storage::put($path, $prepareContent($content));
-                Log::debug('SearchInspectorController save to Storage: '.$this->executionTime().' seconds');
+                Log::debug('SearchInspectorController save to Storage: '.$this->executionTime().' seconds', ['path' => $path, 'size' => strlen($content)]);
 
                 Storage::put($client_path, $prepareContent($clientContent));
-                Log::debug('SearchInspectorController save client_response to Storage: '.$this->executionTime().' seconds');
+                Log::debug('SearchInspectorController save client_response to Storage: '.$this->executionTime().' seconds', ['path' => $client_path, 'size' => strlen($clientContent)]);
 
                 Storage::put($client_path_with_pr, $prepareContent($clientContentWithPricingRules));
-                Log::debug('SearchInspectorController save client_response_with_pr to Storage: '.$this->executionTime().' seconds');
+                Log::debug('SearchInspectorController save client_response_with_pr to Storage: '.$this->executionTime().' seconds', ['path' => $client_path_with_pr, 'size' => strlen($clientContentWithPricingRules)]);
 
                 Storage::put($original_path, $prepareContent($original));
-                Log::debug('SearchInspectorController save original to Storage: '.$this->executionTime().' seconds');
+                Log::debug('SearchInspectorController save original to Storage: '.$this->executionTime().' seconds', ['path' => $original_path, 'size' => strlen($original)]);
 
                 $inspector['client_response_path'] = $client_path;
                 $inspector['original_path'] = $original_path;
