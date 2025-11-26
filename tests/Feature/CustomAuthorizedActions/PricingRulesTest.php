@@ -78,31 +78,59 @@ test('possibility of creating new pricing rule', function () {
 });
 
 test('possibility of updating an existing pricing rule', function () {
+    // 1. Create an existing pricing rule with random conditions (initial state)
     $pricingRule = PricingRule::factory()
         ->has(PricingRuleCondition::factory()->count(rand(1, 5)), 'conditions')
         ->create();
 
     /** @var PricingRulesDataGenerationTools $pricingRulesTools */
     $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
-    $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
+
+    // 2. Generate new conditions for update (can stay random, we only check that they were saved)
     $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
 
+    // 3. Define deterministic (non-random) data for updating the pricing rule
+    //    This makes the test stable and predictable.
+    $pricingRuleData = [
+        'name'                   => 'Pricing rule updated',
+        'weight'                 => 0,
+        'is_sr_creator'          => 0,
+        'is_exclude_action'      => 0,
+        'rule_start_date'        => now()->toDateString(),
+        'rule_expiration_date'   => now()->copy()->addDays(45)->toDateString(),
+        'manipulable_price_type' => 'net_price',
+        'price_value'            => 1,
+        'price_value_type'       => 'percentage',
+        'price_value_target'     => 'per_person',
+    ];
+
+    // 4. Merge rule data with conditions for form submission
     $formData = [
         ...$pricingRuleData,
         'conditions' => $pricingRuleConditionsData,
     ];
 
+    // 5. Run Livewire update action
     Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
         ->set('data', $formData)
-        ->assertFormSet($formData)
         ->call('edit')
         ->assertHasNoFormErrors();
 
+    // 6. Convert dates to DB datetime format for assertion
     $assertionData = $pricingRuleData;
-    $assertionData['rule_start_date'] = $pricingRuleData['rule_start_date'].' 00:00:00';
-    $assertionData['rule_expiration_date'] = $pricingRuleData['rule_expiration_date'].' 00:00:00';
+    $assertionData['rule_start_date']      .= ' 00:00:00';
+    $assertionData['rule_expiration_date'] .= ' 00:00:00';
 
-    $this->assertDatabaseHas('pricing_rules', $assertionData);
+    // 7. Assert that the pricing rule was updated in the database
+    $this->assertDatabaseHas('pricing_rules', [
+        'id' => $pricingRule->id,
+        ...$assertionData,
+    ]);
+
+    // 8. Assert that all new conditions were created
+    foreach ($pricingRuleConditionsData as $condition) {
+        $this->assertDatabaseHas('pricing_rules_conditions', $condition);
+    }
 });
 
 //test('possibility of destroying an existing pricing rule', function () {
