@@ -108,11 +108,9 @@ Parameters:
     MinLength: '9'
     Type: String
   DbDatabase:
-    Default: fora_stage_engine
     Description: Mysql database name (DB_DATABASE)
     Type: String
   DbSupplierContentDatabase:
-    Default: fora_stage_supplier_content
     Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
   LatestAmiId:
@@ -323,7 +321,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Effect: Allow
                 Resource:
-                  - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:fora-stage-envs*"
+                  - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${APPNAME}-envs-*"
                 Sid: SecretsManagerAccess
               - Action:
                   - logs:CreateLogGroup
@@ -932,8 +930,8 @@ Resources:
                 "QUEUE_CONNECTION": "rabbitmq",
                 "LOG_CHANNEL": "cloudwatch",
                 "DB_CONNECTION": "mysql",
-                "DB_DATABASE": os.environ.get("DB_DATABASE", "fora_stage_engine"),
-                "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get("SUPPLIER_CONTENT_DB_DATABASE", "fora_stage_supplier_content"),
+                "DB_DATABASE": os.environ.get("DB_DATABASE", f"{app_name}_engine"),
+                "SUPPLIER_CONTENT_DB_DATABASE": os.environ.get("SUPPLIER_CONTENT_DB_DATABASE", f"{app_name}_supplier_content"),
               }
 
               # Fetch Application Environment Secrets
@@ -1123,7 +1121,7 @@ Resources:
       DBName: !Ref 'DbDatabase'
       DBSubnetGroupName: !Ref 'RdsSubnetGroup'
       Engine: mysql
-      EngineVersion: 8.0.35
+      EngineVersion: 8.0.41
       MasterUserPassword: !Join
         - ''
         - - '{{resolve:secretsmanager:'
