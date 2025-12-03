@@ -758,9 +758,13 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         return '';
     }
 
-    private function findMealPlanInDb(int $giataId, string $needle, string $column, bool $caseInsensitive = false): ?string
-    {
-        // Normalize column name to be safe
+    private function findMealPlanInDb(
+        int $giataId,
+        string $needle,
+        string $column,
+        bool $caseInsensitive = false
+    ): ?string {
+        // Allow matching only by these two supported columns
         if (! in_array($column, ['meal_plan_code_from_supplier', 'rate_plan_code_from_supplier'], true)) {
             return null;
         }
@@ -768,19 +772,47 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         $rows = $this->getMealPlanMappingsForHotel($giataId);
 
         foreach ($rows as $row) {
+            $mealValue = $row['meal_plan_code_from_supplier'] ?? null;
+            $rateValue = $row['rate_plan_code_from_supplier'] ?? null;
+
+            /**
+             * IMPORTANT:
+             * When searching ONLY by meal_plan_code_from_supplier,
+             * skip rows where rate_plan_code_from_supplier is also filled.
+             * Those rows must be handled exclusively by the AND-logic method.
+             */
+            if (
+                $column === 'meal_plan_code_from_supplier' &&
+                $rateValue !== null && $rateValue !== ''
+            ) {
+                continue;
+            }
+
+            /**
+             * Symmetric case:
+             * When searching ONLY by rate_plan_code_from_supplier,
+             * skip rows where meal_plan_code_from_supplier is also filled.
+             */
+            if (
+                $column === 'rate_plan_code_from_supplier' &&
+                $mealValue !== null && $mealValue !== ''
+            ) {
+                continue;
+            }
+
             $value = $row[$column] ?? null;
 
+            // Skip empty values
             if ($value === null || $value === '') {
                 continue;
             }
 
             if ($caseInsensitive) {
-                $needleLower = mb_strtolower($needle);
-                if (mb_strtolower($value) === $needleLower) {
+                if (mb_strtolower((string) $value) === mb_strtolower($needle)) {
                     return $row['our_meal_plan'] ?? null;
                 }
             } else {
-                if ($value === $needle) {
+                if ((string) $value === $needle) {
                     return $row['our_meal_plan'] ?? null;
                 }
             }
