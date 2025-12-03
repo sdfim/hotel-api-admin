@@ -54,7 +54,7 @@
         class="bg-white rounded-3xl px-6 py-10
                    sm:px-10 sm:py-12
                    md:px-16 md:py-14
-                   max-w-[960px] w-full text-center text-brandDark font-meno"
+                   max-w-[740px] w-full text-center text-brandDark font-meno"
     >
         <h1 class="text-[32px] sm:text-[40px] md:text-[64px] leading-[1.5] font-normal mb-6">
             Thank You!

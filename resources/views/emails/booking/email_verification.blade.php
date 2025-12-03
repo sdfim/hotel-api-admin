@@ -32,7 +32,7 @@
         $subtotal          += Arr::get($room, 'total_net', 0);
         $taxes             += Arr::get($room, 'total_tax', 0);
         $fees              += Arr::get($room, 'total_fees', 0);
-        $advisorCommission += Arr::get($room, 'agent_commission', 0);
+        $advisorCommission += Arr::get($room, 'commission_amount', 0);
     }
 
     $totalPrice = $subtotal + $taxes + $fees;
@@ -55,8 +55,8 @@
             }
         }
 
-        if (!empty(Arr::get($firstRoom, 'meal_plans_available'))) {
-            $mealPlanSummary = Arr::get($firstRoom, 'meal_plans_available');
+        if (!empty(Arr::get($firstRoom, 'meal_plan'))) {
+            $mealPlanSummary = Arr::get($firstRoom, 'meal_plan');
         } elseif (!empty($hotel->hotel_board_basis)) {
             $mealPlanSummary = is_array($hotel->hotel_board_basis)
                 ? implode(', ', $hotel->hotel_board_basis)
@@ -70,7 +70,7 @@
     $perks = $perks ?? [];
 @endphp
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
