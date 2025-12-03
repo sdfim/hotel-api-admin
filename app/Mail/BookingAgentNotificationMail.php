@@ -12,7 +12,8 @@ use Modules\HotelContentRepository\Models\Hotel;
 
 class BookingAgentNotificationMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $bookingItem;
 
@@ -24,13 +25,16 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->first();
-//        $quoteNumber = $bookingItem->booking_item ?? 'N/A';
+        //        $quoteNumber = $bookingItem->booking_item ?? 'N/A';
         $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
         $service = app(HotelBookingCheckQuoteService::class);
         $dataReservation = $service->getDataFirstSearch($bookingItem);
         $searchRequest = $bookingItem->search->request;
         $giata_code = $dataReservation[0]['giata_code'] ?? null;
         $hotelData = Hotel::where('giata_code', $giata_code)->first();
+
+        // Get hotel name from hotel data
+        $hotelName = Arr::get($hotelData, 'product.name', '[Hotel Name]');
 
         logger('BookingAgentNotificationMail', [
             'hotel' => $hotelData,
@@ -43,9 +47,9 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             ->with([
                 'quoteNumber' => $quoteNumber,
                 'hotel' => $hotelData,
+                'hotelName' => $hotelName,
                 'rooms' => $dataReservation,
                 'searchRequest' => json_decode($searchRequest, true),
             ]);
     }
 }
-

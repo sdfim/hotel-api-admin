@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Services\PdfGeneratorService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,62 +17,102 @@ use Modules\HotelContentRepository\Models\Hotel;
 
 class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
-    public $verificationUrl;
+    public ?string $verificationUrl;
+    public ?string $denyUrl;
+    public ?string $bookingItem;
+    public ?array $agentData;
 
-    public $denyUrl;
-
-    public $bookingItem;
-
-    public $agentData;
-
-    public function __construct($verificationUrl, $denyUrl, $bookingItem, $agentData)
+    /**
+     * @param string $verificationUrl
+     * @param string $denyUrl
+     * @param string $bookingItem
+     * @param array $agentData
+     */
+    public function __construct(string $verificationUrl, string $denyUrl, string $bookingItem, array $agentData)
     {
         $this->verificationUrl = $verificationUrl;
-        $this->denyUrl = $denyUrl;
-        $this->bookingItem = $bookingItem;
-        $this->agentData = $agentData;
+        $this->denyUrl         = $denyUrl;
+        $this->bookingItem     = $bookingItem;
+        $this->agentData       = $agentData;
     }
 
     public function build()
     {
-        // 1) Base data
+        // 1) Base booking data
         $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->firstOrFail();
         $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
 
-        $service = app(HotelBookingCheckQuoteService::class);
+        $service         = app(HotelBookingCheckQuoteService::class);
         $dataReservation = $service->getDataFirstSearch($bookingItem);
-        $searchRequest = $bookingItem->search->request;
-        $giata_code = $dataReservation[0]['giata_code'] ?? null;
+        $searchRequest   = $bookingItem->search->request;
+        $searchArray     = json_decode($searchRequest, true) ?? [];
 
-        // 2) Eager-load hotel with product -> descriptive sections -> type
+        $giataCode = $dataReservation[0]['giata_code'] ?? null;
+
+        // 2) Load hotel with related product + descriptive sections
         $hotelData = Hotel::query()
             ->with(['product.descriptiveContentsSection.descriptiveType'])
-            ->where('giata_code', $giata_code)
+            ->where('giata_code', $giataCode)
             ->first();
+
+        $hotel = $hotelData;
 
         // 3) Agent name fallback
         $user = User::where('email', $this->agentData['email'] ?? null)->first();
         $this->agentData['name'] = $user ? $user->name : 'N/A';
 
-        $hotel = $hotelData;
-
-        // 4) Totals across rooms
-        $total_net = 0;
-        $total_tax = 0;
-        $total_fees = 0;
+        // 4) Totals across all rooms
+        $total_net   = 0;
+        $total_tax   = 0;
+        $total_fees  = 0;
         $total_price = 0;
+
         foreach ($dataReservation as $item) {
-            $total_net += $item['total_net'] ?? 0;
-            $total_tax += $item['total_tax'] ?? 0;
-            $total_fees += $item['total_fees'] ?? 0;
+            $total_net   += $item['total_net']   ?? 0;
+            $total_tax   += $item['total_tax']   ?? 0;
+            $total_fees  += $item['total_fees']  ?? 0;
             $total_price += $item['total_price'] ?? 0;
         }
 
-        // 5) Build perks (TerraMare Amenities) as clean list of strings
-        //    - respects optional active window (start_date / end_date)
-        //    - splits by newlines, bullets, semicolons, ". "
+        // 4.1) Extra totals and currency
+        $currency     = Arr::get($dataReservation, '0.currency', 'USD');
+        $taxesAndFees = $total_tax + $total_fees;
+
+        // 4.2) Dates / guests for pills
+        $checkinRaw  = Arr::get($searchArray, 'checkin');
+        $checkoutRaw = Arr::get($searchArray, 'checkout');
+
+        $checkin  = $checkinRaw ? Carbon::parse($checkinRaw)->format('m/d/Y') : null;
+        $checkout = $checkoutRaw ? Carbon::parse($checkoutRaw)->format('m/d/Y') : null;
+
+        $roomsCount    = count($dataReservation);
+        $adultsCount   = collect(Arr::get($searchArray, 'occupancy', []))->sum('adults');
+        $childrenCount = collect(Arr::get($searchArray, 'occupancy', []))
+            ->sum(fn ($o) => count(Arr::get($o, 'children_ages', [])));
+
+        $guestInfo = sprintf('%d Room(s), %d Adults, %d Children', $roomsCount, $adultsCount, $childrenCount);
+
+        // 4.3) Room / rate info (null-safe if fields are missing)
+        $mainRoomName  = Arr::get($dataReservation, '0.room_name');
+        $rateRefundable = Arr::get($dataReservation, '0.rate_refundable_label')
+            ?? Arr::get($dataReservation, '0.cancellation_policy_text');
+        $rateMealPlan   = Arr::get($dataReservation, '0.meal_plan_name')
+            ?? Arr::get($dataReservation, '0.meal_plan');
+
+        // 4.4) Hero photo with proper fallback
+        // Expected test file: storage/app/public/hotel.webp -> public/storage/hotel.webp
+        $defaultHeroPath = Storage::url('hotel.webp');
+
+        if ($hotel?->product?->hero_image) {
+            $hotelPhotoPath = Storage::url($hotel->product->hero_image);
+        } else {
+            $hotelPhotoPath = $defaultHeroPath;
+        }
+
+        // 5) Build perks (TerraMare Amenities) as a clean list of strings
         $perks = collect($hotelData?->product?->descriptiveContentsSection ?? [])
             ->filter(function ($sec) {
                 $name = trim($sec->descriptiveType->name ?? '');
@@ -79,10 +120,11 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
                 return $name === 'TerraMare Amenities';
             })
             ->filter(function ($sec) {
-                $now = now();
+                $now    = now();
                 $starts = $sec->start_date ? $sec->start_date->startOfDay() : null;
-                $ends = $sec->end_date ? $sec->end_date->endOfDay() : null;
+                $ends   = $sec->end_date ? $sec->end_date->endOfDay() : null;
 
+                // Only keep perks that are currently active (respect start/end dates if present)
                 return (! $starts || $now->gte($starts)) && (! $ends || $now->lte($ends));
             })
             ->sortByDesc(fn ($sec) => optional($sec->start_date)->timestamp ?? 0)
@@ -97,15 +139,16 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         // 6) Logging (no heavy data)
         logger('BookingQuoteVerificationMail', [
             'verificationUrl' => $this->verificationUrl,
-            'denyUrl' => $this->denyUrl,
-            'agentEmail' => $this->agentData['email'] ?? null,
-            'hotelGiata' => $hotelData?->giata_code,
-            'rooms_count' => count($dataReservation),
+            'denyUrl'         => $this->denyUrl,
+            'agentEmail'      => $this->agentData['email'] ?? null,
+            'hotelGiata'      => $hotelData?->giata_code,
+            'rooms_count'     => count($dataReservation),
         ]);
 
         // 7) Cache confirmation date for 7 days using bookingItem as part of the key
-        $cacheKey = 'booking_confirmation_date_'.$this->bookingItem;
+        $cacheKey         = 'booking_confirmation_date_'.$this->bookingItem;
         $confirmationDate = \Cache::get($cacheKey);
+
         if (! $confirmationDate) {
             $confirmationDate = now()->toDateString();
             \Cache::put($cacheKey, $confirmationDate, now()->addDays(7));
@@ -113,28 +156,50 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 
         // 8) Build PDF payload (address composed safely)
         $addr = $hotel?->address ?? [];
+
         $hotelAddress = implode(', ', array_filter([
-            $addr['line_1'] ?? null,
-            $addr['city'] ?? null,
+            $addr['line_1']              ?? null,
+            $addr['city']                ?? null,
             $addr['state_province_name'] ?? null,
-            $addr['country_code'] ?? null,
+            $addr['country_code']        ?? null,
         ]));
 
         $pdfData = [
             'hotel' => $hotel,
             'hotelData' => [
-                'name' => $hotel?->product?->name ?? 'Unknown Hotel',
+                'name'    => $hotel?->product?->name ?? 'Unknown Hotel',
                 'address' => $hotelAddress,
             ],
-            'total_net' => $total_net,
-            'total_tax' => $total_tax,
-            'total_fees' => $total_fees,
-            'total_price' => $total_price,
+
+            // Totals
+            'total_net'      => $total_net,
+            'total_tax'      => $total_tax,
+            'total_fees'     => $total_fees,
+            'total_price'    => $total_price,
+            'currency'       => $currency,
+            'taxes_and_fees' => $taxesAndFees,
+
+            // Agency info
             'agency' => [
-                'booking_agent' => Arr::get($this->agentData, 'name') ?? 'OLIVER SHACKNOW',
+                'booking_agent'       => Arr::get($this->agentData, 'name')  ?? 'OLIVER SHACKNOW',
                 'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@terramare.com',
             ],
-            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel->product->hero_image) : '',
+
+            // Images
+            'hotelPhotoPath' => $hotelPhotoPath,
+
+            // Pills / rate info
+            'checkin'         => $checkin,
+            'checkout'        => $checkout,
+            'guest_info'      => $guestInfo,
+            'main_room_name'  => $mainRoomName,
+            'rate_refundable' => $rateRefundable,
+            'rate_meal_plan'  => $rateMealPlan,
+
+            // Perks
+            'perks' => $perks,
+
+            // Misc
             'confirmation_date' => $confirmationDate,
         ];
 
@@ -145,18 +210,18 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         // 10) Cache PDF data for 7 days
         \Cache::put('booking_pdf_data_'.$this->bookingItem, $pdfData, now()->addDays(7));
 
-        // 11) Build mail
+        // 11) Build mail with attached PDF
         return $this->subject('Confirm the Quote')
             ->view('emails.booking.email_verification')
             ->with([
                 'verificationUrl' => $this->verificationUrl,
-                'denyUrl' => $this->denyUrl,
-                'agentData' => $this->agentData,
-                'quoteNumber' => $quoteNumber,
-                'hotel' => $hotelData,
-                'rooms' => $dataReservation,
-                'searchRequest' => json_decode($searchRequest, true),
-                'perks' => $perks, // << pass prepared perks to Blade
+                'denyUrl'         => $this->denyUrl,
+                'agentData'       => $this->agentData,
+                'quoteNumber'     => $quoteNumber,
+                'hotel'           => $hotelData,
+                'rooms'           => $dataReservation,
+                'searchRequest'   => $searchArray,
+                'perks'           => $perks,
             ])
             ->attachData($pdfContent, 'QuoteDetails.pdf', [
                 'mime' => 'application/pdf',
