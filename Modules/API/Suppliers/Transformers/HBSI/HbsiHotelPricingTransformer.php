@@ -484,18 +484,19 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         // --- Meal plan mapping (hotel-specific + DB overrides) ---
 
         // Raw value from supplier (could be a code like "AI" or a text like "No additional meals")
-        $mealPlanRaw = Arr::get(
+        // Force cast to string so that 0/1 are treated as "0"/"1", not as booleans
+        $mealPlanRaw = (string) Arr::get(
             $rate,
             'RatePlans.RatePlan.MealsIncluded.@attributes.MealPlanCodes',
             ''
         );
-        $mealPlanRaw = is_string($mealPlanRaw) ? trim($mealPlanRaw) : '';
+        $mealPlanRaw = trim($mealPlanRaw);
 
         // Try to resolve meal plan using DB mapping (pd_meal_plan_mappings)
         $mealPlanName = $this->resolveMealPlanName(
-            giataId: $giataId,
+            giataId:     $giataId,
             mealPlanRaw: $mealPlanRaw,
-            ratePlanCode: $ratePlanCode
+            ratePlanCode: (string) $ratePlanCode, // just in case, also force string here
         );
 
         // Fallbacks if DB mapping is not found
@@ -694,16 +695,44 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
     }
 
     /**
+     * Load mappings for a given hotel (giata_id) once and cache them in memory.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getMealPlanMappingsForHotel(int $giataId): array
+    {
+        if (! isset($this->mealPlanMappingsCache[$giataId])) {
+            $this->mealPlanMappingsCache[$giataId] = MealPlanMapping::query()
+                ->where('giata_id', $giataId)
+                ->where('is_enabled', true)
+                ->get()
+                ->toArray();
+        }
+
+        return $this->mealPlanMappingsCache[$giataId];
+    }
+
+    /**
      * Resolve final meal plan name for given hotel and rate.
      *
      * Priority:
-     *  1) DB mapping by meal_plan_code_from_supplier (exact match)
+     *  0) If BOTH codes are present -> DB mapping by BOTH columns (AND logic)
+     *  1) DB mapping by meal_plan_code_from_supplier (exact / case-insensitive)
      *  2) DB mapping by rate_plan_code_from_supplier (RatePlanCode)
      *  3) fallback to constant MEAL_PLAN or raw value (handled in caller)
      */
     private function resolveMealPlanName(int $giataId, string $mealPlanRaw, string $ratePlanCode): string
     {
-        // 1) Try mapping by explicit meal plan code from supplier
+        // 0) AND logic: both codes present in supplier data
+        if ($mealPlanRaw !== '' && $ratePlanCode !== '') {
+            $mapped = $this->findMealPlanInDbByBoth($giataId, $mealPlanRaw, $ratePlanCode);
+
+            if ($mapped !== null) {
+                return $mapped;
+            }
+        }
+
+        // 1) Try mapping by explicit meal plan code from supplier (OR logic - as before)
         if ($mealPlanRaw !== '') {
             $mapped = $this->findMealPlanInDb($giataId, $mealPlanRaw, 'meal_plan_code_from_supplier');
             if ($mapped !== null) {
@@ -711,14 +740,14 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             }
 
             // Try case-insensitive look-up
-            $mapped = $this->findMealPlanInDb($giataId, strtolower($mealPlanRaw), 'meal_plan_code_from_supplier', true);
+            $mapped = $this->findMealPlanInDb($giataId, $mealPlanRaw, 'meal_plan_code_from_supplier', true);
             if ($mapped !== null) {
                 return $mapped;
             }
         }
 
         // 2) If supplier did not send explicit meal plan code,
-        //    or it wasn't mapped, try mapping by rate plan code
+        //    or it wasn't mapped, try mapping by rate plan code (OR logic - as before)
         if ($ratePlanCode !== '') {
             $mapped = $this->findMealPlanInDb($giataId, $ratePlanCode, 'rate_plan_code_from_supplier');
             if ($mapped !== null) {
@@ -729,14 +758,6 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
         return '';
     }
 
-    /**
-     * Find meal plan in pd_meal_plan_mappings table.
-     *
-     * @param int    $giataId          Hotel identifier (giata_code)
-     * @param string $needle           Value from supplier (meal plan code or rate plan code)
-     * @param string $column           Column to search in (meal_plan_code_from_supplier or rate_plan_code_from_supplier)
-     * @param bool   $caseInsensitive  If true, compare values in lowercase
-     */
     private function findMealPlanInDb(int $giataId, string $needle, string $column, bool $caseInsensitive = false): ?string
     {
         // Normalize column name to be safe
@@ -744,16 +765,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             return null;
         }
 
-        // Load mappings for this hotel only once and keep them in memory
-        if (! isset($this->mealPlanMappingsCache[$giataId])) {
-            $this->mealPlanMappingsCache[$giataId] = MealPlanMapping::query()
-                ->where('giata_id', $giataId)
-                ->where('is_enabled', true)
-                ->get()
-                ->toArray();
-        }
-
-        $rows = $this->mealPlanMappingsCache[$giataId];
+        $rows = $this->getMealPlanMappingsForHotel($giataId);
 
         foreach ($rows as $row) {
             $value = $row[$column] ?? null;
@@ -763,13 +775,58 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             }
 
             if ($caseInsensitive) {
-                if (mb_strtolower($value) === $needle) {
+                $needleLower = mb_strtolower($needle);
+                if (mb_strtolower($value) === $needleLower) {
                     return $row['our_meal_plan'] ?? null;
                 }
             } else {
                 if ($value === $needle) {
                     return $row['our_meal_plan'] ?? null;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find meal plan in pd_meal_plan_mappings table by BOTH codes.
+     *
+     * This is used when both meal plan code and rate plan code are present.
+     * In this case we want AND logic:
+     *  - mapping row must have BOTH columns filled
+     *  - BOTH values must match the supplier values.
+     */
+    private function findMealPlanInDbByBoth(
+        int $giataId,
+        string $mealPlanRaw,
+        string $ratePlanCode
+    ): ?string {
+        $rows = $this->getMealPlanMappingsForHotel($giataId);
+
+        foreach ($rows as $row) {
+            $mealValue = $row['meal_plan_code_from_supplier'] ?? null;
+            $rateValue = $row['rate_plan_code_from_supplier'] ?? null;
+
+            // We only consider rows where BOTH columns are filled
+            if (
+                $mealValue === null || $mealValue === '' ||
+                $rateValue === null || $rateValue === ''
+            ) {
+                continue;
+            }
+
+            // First try strict match
+            if ($mealValue === $mealPlanRaw && $rateValue === $ratePlanCode) {
+                return $row['our_meal_plan'] ?? null;
+            }
+
+            // Then try case-insensitive for meal plan code (rate plan stays exact)
+            if (
+                mb_strtolower($mealValue) === mb_strtolower($mealPlanRaw) &&
+                $rateValue === $ratePlanCode
+            ) {
+                return $row['our_meal_plan'] ?? null;
             }
         }
 

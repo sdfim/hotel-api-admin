@@ -299,8 +299,8 @@
             }
             $rateCode = Illuminate\Support\Arr::get($room, 'rate_code', '');
             $mealPlan = '';
-            if (!empty(Illuminate\Support\Arr::get($room, 'meal_plans_available'))) {
-                $mealPlan = Illuminate\Support\Arr::get($room, 'meal_plans_available');
+            if (!empty(Illuminate\Support\Arr::get($room, 'meal_plan'))) {
+                $mealPlan = Illuminate\Support\Arr::get($room, 'meal_plan');
             } elseif (!empty($hotel->hotel_board_basis)) {
                 $mealPlan = is_array($hotel->hotel_board_basis) ? implode(', ', $hotel->hotel_board_basis) : $hotel->hotel_board_basis;
             } else {

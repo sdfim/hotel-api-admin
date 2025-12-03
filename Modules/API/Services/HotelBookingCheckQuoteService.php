@@ -112,6 +112,7 @@ class HotelBookingCheckQuoteService extends BaseController
             'supplier_room_id' => Arr::get($pricingData, 'supplier_room_id', 'USD'),
             'cancellation_policies' => Arr::get($pricingData, 'cancellation_policies', []),
             'meal_plans_available' => Arr::get($pricingData, 'meal_plans_available', []),
+            'meal_plan' => Arr::get($pricingData, 'meal_plan', ''),
             'room_image' => $roomImage,
             'room_id' => $roomId,
         ];
