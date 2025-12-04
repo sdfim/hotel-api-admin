@@ -2,9 +2,12 @@
 
 namespace App\Mail;
 
+use App\Models\ApiBookingItem;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Services\AdvisorCommissionService;
 use App\Services\PdfGeneratorService;
+use Cache;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,12 +28,6 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
     public ?string $bookingItem;
     public ?array $agentData;
 
-    /**
-     * @param string $verificationUrl
-     * @param string $denyUrl
-     * @param string $bookingItem
-     * @param array $agentData
-     */
     public function __construct(string $verificationUrl, string $denyUrl, string $bookingItem, array $agentData)
     {
         $this->verificationUrl = $verificationUrl;
@@ -42,7 +39,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         // 1) Base booking data
-        $bookingItem = \App\Models\ApiBookingItem::where('booking_item', $this->bookingItem)->firstOrFail();
+        $bookingItem = ApiBookingItem::where('booking_item', $this->bookingItem)->firstOrFail();
         $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
 
         $service         = app(HotelBookingCheckQuoteService::class);
@@ -81,12 +78,17 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         $currency     = Arr::get($dataReservation, '0.currency', 'USD');
         $taxesAndFees = $total_tax + $total_fees;
 
-        // 4.2) Dates / guests for pills
+        // 4.2) Advisor commission
+        /** @var AdvisorCommissionService $advisorCommissionService */
+        $advisorCommissionService = app(AdvisorCommissionService::class);
+        $advisorCommission        = $advisorCommissionService->calculate($bookingItem, $total_price);
+
+        // 4.3) Dates / guests for pills
         $checkinRaw  = Arr::get($searchArray, 'checkin');
         $checkoutRaw = Arr::get($searchArray, 'checkout');
 
-        $checkin  = $checkinRaw ? Carbon::parse($checkinRaw)->format('m/d/Y') : null;
-        $checkout = $checkoutRaw ? Carbon::parse($checkoutRaw)->format('m/d/Y') : null;
+        $checkinFormatted  = $checkinRaw ? Carbon::parse($checkinRaw)->format('m/d/Y') : null;
+        $checkoutFormatted = $checkoutRaw ? Carbon::parse($checkoutRaw)->format('m/d/Y') : null;
 
         $roomsCount    = count($dataReservation);
         $adultsCount   = collect(Arr::get($searchArray, 'occupancy', []))->sum('adults');
@@ -95,15 +97,14 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 
         $guestInfo = sprintf('%d Room(s), %d Adults, %d Children', $roomsCount, $adultsCount, $childrenCount);
 
-        // 4.3) Room / rate info (null-safe if fields are missing)
-        $mainRoomName  = Arr::get($dataReservation, '0.room_name');
+        // 4.4) Room / rate info (null-safe if fields are missing)
+        $mainRoomName   = Arr::get($dataReservation, '0.room_name');
         $rateRefundable = Arr::get($dataReservation, '0.rate_refundable_label')
             ?? Arr::get($dataReservation, '0.cancellation_policy_text');
         $rateMealPlan   = Arr::get($dataReservation, '0.meal_plan_name')
             ?? Arr::get($dataReservation, '0.meal_plan');
 
-        // 4.4) Hero photo with proper fallback
-        // Expected test file: storage/app/public/hotel.webp -> public/storage/hotel.webp
+        // 4.5) Hero photo with proper fallback
         $defaultHeroPath = Storage::url('hotel.webp');
 
         if ($hotel?->product?->hero_image) {
@@ -124,7 +125,6 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
                 $starts = $sec->start_date ? $sec->start_date->startOfDay() : null;
                 $ends   = $sec->end_date ? $sec->end_date->endOfDay() : null;
 
-                // Only keep perks that are currently active (respect start/end dates if present)
                 return (! $starts || $now->gte($starts)) && (! $ends || $now->lte($ends));
             })
             ->sortByDesc(fn ($sec) => optional($sec->start_date)->timestamp ?? 0)
@@ -147,14 +147,14 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 
         // 7) Cache confirmation date for 7 days using bookingItem as part of the key
         $cacheKey         = 'booking_confirmation_date_'.$this->bookingItem;
-        $confirmationDate = \Cache::get($cacheKey);
+        $confirmationDate = Cache::get($cacheKey);
 
         if (! $confirmationDate) {
             $confirmationDate = now()->toDateString();
-            \Cache::put($cacheKey, $confirmationDate, now()->addDays(7));
+            Cache::put($cacheKey, $confirmationDate, now()->addDays(7));
         }
 
-        // 8) Build PDF payload (address composed safely)
+        // 8) Build PDF payload
         $addr = $hotel?->address ?? [];
 
         $hotelAddress = implode(', ', array_filter([
@@ -172,12 +172,13 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             ],
 
             // Totals
-            'total_net'      => $total_net,
-            'total_tax'      => $total_tax,
-            'total_fees'     => $total_fees,
-            'total_price'    => $total_price,
-            'currency'       => $currency,
-            'taxes_and_fees' => $taxesAndFees,
+            'total_net'           => $total_net,
+            'total_tax'           => $total_tax,
+            'total_fees'          => $total_fees,
+            'total_price'         => $total_price,
+            'currency'            => $currency,
+            'taxes_and_fees'      => $taxesAndFees,
+            'advisor_commission'  => $advisorCommission,
 
             // Agency info
             'agency' => [
@@ -189,8 +190,8 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             'hotelPhotoPath' => $hotelPhotoPath,
 
             // Pills / rate info
-            'checkin'         => $checkin,
-            'checkout'        => $checkout,
+            'checkin'         => $checkinFormatted,
+            'checkout'        => $checkoutFormatted,
             'guest_info'      => $guestInfo,
             'main_room_name'  => $mainRoomName,
             'rate_refundable' => $rateRefundable,
@@ -208,20 +209,31 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', $pdfData);
 
         // 10) Cache PDF data for 7 days
-        \Cache::put('booking_pdf_data_'.$this->bookingItem, $pdfData, now()->addDays(7));
+        Cache::put('booking_pdf_data_'.$this->bookingItem, $pdfData, now()->addDays(7));
 
         // 11) Build mail with attached PDF
-        return $this->subject('Confirm the Quote')
+        return $this->subject('Your Quote from Terra Mare: Please Confirm')
             ->view('emails.booking.email_verification')
             ->with([
-                'verificationUrl' => $this->verificationUrl,
-                'denyUrl'         => $this->denyUrl,
-                'agentData'       => $this->agentData,
-                'quoteNumber'     => $quoteNumber,
-                'hotel'           => $hotelData,
-                'rooms'           => $dataReservation,
-                'searchRequest'   => $searchArray,
-                'perks'           => $perks,
+                'verificationUrl'    => $this->verificationUrl,
+                'denyUrl'            => $this->denyUrl,
+                'agentData'          => $this->agentData,
+                'quoteNumber'        => $quoteNumber,
+                'hotel'              => $hotelData,
+                'rooms'              => $dataReservation,
+                'searchRequest'      => $searchArray,
+                'perks'              => $perks,
+
+                // Pre-calculated values for Blade
+                'checkinDate'        => $checkinFormatted,
+                'checkoutDate'       => $checkoutFormatted,
+                'guestInfo'          => $guestInfo,
+                'currency'           => $currency,
+                'subtotal'           => $total_net,
+                'taxes'              => $total_tax,
+                'fees'               => $total_fees,
+                'totalPrice'         => $total_price,
+                'advisorCommission'  => $advisorCommission,
             ])
             ->attachData($pdfContent, 'QuoteDetails.pdf', [
                 'mime' => 'application/pdf',

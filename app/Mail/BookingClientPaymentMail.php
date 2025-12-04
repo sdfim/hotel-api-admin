@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\ApiBookingsMetadata;
 use App\Services\PdfGeneratorService;
+use Cache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -15,11 +16,11 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $payment_url;
+    public ?string $payment_url;
 
-    public $booking_id;
+    public ?string $booking_id;
 
-    public function __construct($payment_url, $booking_id)
+    public function __construct(string $payment_url, string $booking_id)
     {
         $this->payment_url = $payment_url;
         $this->booking_id = $booking_id;
@@ -27,7 +28,7 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $hotelName = null;
+        $hotelName = 'your hotel';
         $bookimgMetadata = ApiBookingsMetadata::where('booking_id', $this->booking_id)->first();
         $bookimgItemData = $bookimgMetadata?->booking_item_data;
 
@@ -37,7 +38,7 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
             $hotelName = Arr::get($bookimgItemData, 'hotel_name');
         }
 
-        $mail = $this->subject('Your booking is ready for payment')
+        $mail = $this->subject("Your Fora Advisor has booked you at $hotelName and your booking is ready for payment")
             ->view('emails.booking.client_payment')
             ->with([
                 'payment_url' => $this->payment_url,
@@ -46,7 +47,7 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
 
         // Cache the entire PDF data array for 7 days
         $pdfCacheKey = 'booking_pdf_data_'.$bookimgMetadata?->booking_item;
-        $cachedPdfData = \Cache::get($pdfCacheKey);
+        $cachedPdfData = Cache::get($pdfCacheKey);
 
         $pdfContent = null;
         if ($cachedPdfData) {

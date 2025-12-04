@@ -1,6 +1,7 @@
 @php
     use Illuminate\Support\Arr;
     use Carbon\Carbon;
+    use Illuminate\Support\Facades\Storage;
 
     /** Basic hotel info */
     $hotelName    = Arr::get($hotel, 'product.name', 'Hotel Name');
@@ -9,35 +10,20 @@
         ? Storage::url($hotel->product->hero_image)
         : asset('images/email-backgrounds/hotel-placeholder.png');
 
-    /** Dates */
-    $checkin  = Carbon::parse(Arr::get($searchRequest, 'checkin'))->format('m/d/Y');
-    $checkout = Carbon::parse(Arr::get($searchRequest, 'checkout'))->format('m/d/Y');
+    /** Dates and guests (already calculated in mailable) */
+    $checkin  = $checkinDate  ?? null;
+    $checkout = $checkoutDate ?? null;
+    $guestInfo = $guestInfo   ?? null;
 
-    /** Guests */
-    $roomsCount    = count($rooms);
-    $adultsCount   = collect(Arr::get($searchRequest, 'occupancy', []))->sum('adults');
-    $childrenCount = collect(Arr::get($searchRequest, 'occupancy', []))
-        ->sum(fn ($o) => count(Arr::get($o, 'children_ages', [])));
+    /** Currency and totals (already calculated in mailable) */
+    $currency          = $currency          ?? 'USD';
+    $subtotal          = $subtotal          ?? 0;
+    $taxes             = $taxes             ?? 0;
+    $fees              = $fees              ?? 0;
+    $totalPrice        = $totalPrice        ?? ($subtotal + $taxes + $fees);
+    $advisorCommission = $advisorCommission ?? 0;
 
-    $guestInfo = $roomsCount.' Room(s), '.$adultsCount.' Adults, '.$childrenCount.' Children';
-
-    /** Currency and totals */
-    $currency           = Arr::get($rooms, '0.currency', 'USD');
-    $subtotal           = 0;
-    $taxes              = 0;
-    $fees               = 0;
-    $advisorCommission  = 0;
-
-    foreach ($rooms as $room) {
-        $subtotal          += Arr::get($room, 'total_net', 0);
-        $taxes             += Arr::get($room, 'total_tax', 0);
-        $fees              += Arr::get($room, 'total_fees', 0);
-        $advisorCommission += Arr::get($room, 'commission_amount', 0);
-    }
-
-    $totalPrice = $subtotal + $taxes + $fees;
-
-    /** Rate Type summary (по первой комнате) */
+    /** Rate Type summary (first room only) */
     $firstRoom        = $rooms[0] ?? null;
     $refundableUntil  = '';
     $mealPlanSummary  = '';
