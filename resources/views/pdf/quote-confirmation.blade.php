@@ -1,260 +1,330 @@
 @php
     use Illuminate\Support\Facades\Storage;
+
+    $hotelName    = $hotelData['name']    ?? 'Hotel Name';
+    $hotelAddress = $hotelData['address'] ?? '';
+
+    $heroImage = $hotelPhotoPath
+        ?: ($hotel->product?->hero_image
+            ? Storage::url($hotel->product->hero_image)
+            : Storage::url('hotel.webp'));
+
+    $secondaryImage = $heroImage;
+
+    $totalNet    = $total_net   ?? 0;
+    $totalTax    = $total_tax   ?? 0;
+    $totalFees   = $total_fees  ?? 0;
+    $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
+
+    $agencyName  = $agency['booking_agent']       ?? 'Terra Mare Tours';
+    $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
+
+    $checkin        = $checkin         ?? null;
+    $checkout       = $checkout        ?? null;
+    $guestInfo      = $guest_info      ?? null;
+    $mainRoomName   = $main_room_name  ?? null;
+    $rateRefundable = $rate_refundable ?? null;
+    $rateMealPlan   = $rate_meal_plan  ?? null;
+    $perks          = $perks           ?? [];
+    $currency       = $currency        ?? 'USD';
+    $taxesAndFees   = $taxes_and_fees  ?? ($totalTax + $totalFees);
+
+    $logoTm = asset('images/emails/terra-mare-logo-pdf.png');
+    $bgWave = asset('images/email-backgrounds/wave-bg.png');
 @endphp
 
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Booking Confirmation</title>
+    <title>Quote Details</title>
+
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: rgb(244, 240, 237);
-            background-image: url('{{ Storage::url('images/email-book-confirmation/bg-pdf-tm.png') }}');
+        }
+
+        body {
+            font-family: "Times New Roman", Georgia, serif;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #1c2525;
+            background-color: #f4f0ed;
+            background-image: url('{{ $bgWave }}');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center center;
         }
-        body {
-            font-family: Helvetica, Arial, sans-serif;
+
+        .page {
+            padding: 40px 40px 36px 40px;
+        }
+
+        h1 {
+            font-size: 30px;
+            font-weight: normal;
+            margin: 0 0 6px 0;
+        }
+
+        .hotel-address {
             font-size: 14px;
-            line-height: 1.5;
-            color: #000000;
-        }
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-        .container {
-            margin: 60px 50px 50px 60px;
+            margin-bottom: 12px;
         }
 
-        .row {
+        .hotel-image-main {
             width: 100%;
-            margin-bottom: 32px;
-            margin-top: 32px;
-            overflow: hidden;
-        }
-        .col-1 {
-            width: 25%;
-            float: left;
-            box-sizing: border-box;
-            padding-right: 20px;
-        }
-        .col-2 {
-            width: 70%;
-            float: left;
-            box-sizing: border-box;
-        }
-
-        .row-header {
-            width: 100%;
-            margin-bottom: 32px;
-            display: table;
-            table-layout: fixed;
-        }
-        .col-1-cell,
-        .col-2-cell {
-            float: none;
-            display: table-cell;
-            vertical-align: bottom;
-            box-sizing: border-box;
-        }
-        .col-1-cell {
-            width: 25%;
-            padding-right: 20px;
-        }
-        .col-2-cell {
-            width: 75%;
-            padding-left: 20px;
-        }
-
-        .logo {
-            width: 130px;
-            display: block;
-        }
-        .hotel-photo {
-            width: 98%;
+            height: auto;
             display: block;
         }
 
-        .greeting-text {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #000000;
+        .logo-tm {
+            width: 78px;
+            height: auto;
+            display: block;
         }
-        .greeting-text p {
-            margin: 0 0 10px 0;
+
+        .pill-row {
+            margin-bottom: 10px;
         }
-        .agent-block {
+
+        .pill {
+            background: #c7d5c7;
+            border-radius: 999px;
+            padding: 8px 10px;
+            text-align: center;
+            font-size: 20px;
+        }
+        .pill-title {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .pill-value {
+            display: block;
+            font-size: 18px;
+        }
+
+        .card-vertical {
+            background: #c7d5c7;
+            border-radius: 26px;
+            padding: 10px 12px;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .card-vertical-title {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .card-vertical-line {
+            display: block;
+            font-size: 18px;
+        }
+
+        ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 4px;
             font-size: 11px;
         }
-        .agent-block strong {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+
+        .contact-block {
             font-size: 14px;
-        }
-        .agent-block p {
-            margin: 0;
             line-height: 1.6;
         }
-        .commission-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #CCCCCC;
-            font-size: 14px;
-            margin-bottom: 8px;
-            table-layout: fixed;
-            margin-left: 0;
+        .contact-name {
+            font-size: 20px;
+            margin-bottom: 6px;
         }
 
-        .commission-table th,
-        .commission-table td {
-            border: 1px solid #CCCCCC;
-            padding: 8px;
+        .pricing-card {
+            background: #c7d5c7;
+            border-radius: 26px;
+            padding: 16px 24px;
+            font-size: 11px;
+        }
+        .pricing-title {
             text-align: left;
+            font-size: 26px;
+            margin-bottom: 8px;
         }
 
-        .commission-table th {
-            font-weight: normal;
-            width: 65%;
-            padding-left: 10px;
-            color: #444444;
+        .pricing-row td {
+            padding: 2px 0;
         }
-
-        .commission-table td {
+        .pricing-label {
+            text-align: left;
+            font-size: 16px;
+        }
+        .pricing-value {
             text-align: right;
-            width: 35%;
-            padding-right: 10px;
-            color: #444444;
+            font-size: 16px;
         }
 
-        .commission-table th,
-        .commission-table td {
-            background-color: transparent;
+        .pricing-total {
+            border-top: 1px solid #263a3a;
+            padding-top: 4px;
+            margin-top: 4px;
         }
 
-        .commission-table tbody tr:last-child th,
-        .commission-table tbody tr:last-child td {
-            font-weight: bold;
-            background-color: #E6F0E6;
-            color: #000000;
-        }
-
-        .hotel-summary h2 {
-            font-family: 'Bodoni Moda', 'Times New Roman', serif;
-            font-size: 24px;
-            font-weight: normal;
-            margin: 0 0 15px 0;
-        }
-
-        .col-2-content-shift {
-            padding-left: 0 !important;
-        }
-
-        .row-tight {
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
+        .big-spacer { height: 26px; }
     </style>
 </head>
 <body>
-<div class="container">
+    <div class="page">
 
-    <!-- Секция 1: Логотип и Фото -->
-    <div class="row-header">
-        <div class="col-1-cell">
-            <img src="{{ Storage::url('images/email-book-confirmation/logo-tm.png') }}" class="logo" alt="Terra Mare">
-        </div>
-        <div class="col-2-cell">
-            <img src="{{ $hotelPhotoPath ?? Storage::url($hotel->product?->hero_image) }}" class="hotel-photo" alt="Hotel Photo">
-        </div>
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <tr valign="top">
+
+                <td width="64%" style="padding-right: 26px;">
+                    <h1>{{ $hotelName }}</h1>
+
+                    @if($hotelAddress)
+                        <div class="hotel-address">
+                            {{ $hotelAddress }}
+                        </div>
+                    @endif
+
+                    @if($heroImage)
+                        <img src="{{ $heroImage }}" class="hotel-image-main" alt="Hotel image">
+                    @endif
+                </td>
+
+                <td width="36%" align="right">
+                    <div style="text-align:right; margin-bottom: 24px;">
+                        <img src="{{ $logoTm }}" alt="Terra Mare" class="logo-tm">
+                    </div>
+
+                    @if($checkin || $checkout)
+                        <table width="100%" cellspacing="0" cellpadding="0" class="pill-row">
+                            <tr>
+                                <td width="50%" style="padding-right:4px;">
+                                    <div class="pill">
+                                        <span class="pill-title">Check-In</span>
+                                        <span class="pill-value">{{ $checkin ?? '—' }}</span>
+                                    </div>
+                                </td>
+                                <td width="50%" style="padding-left:4px;">
+                                    <div class="pill">
+                                        <span class="pill-title">Check-Out</span>
+                                        <span class="pill-value">{{ $checkout ?? '—' }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    @endif
+
+                    @if($rateRefundable || $rateMealPlan)
+                        <div class="card-vertical">
+                            <div class="card-vertical-title">Rate Type</div>
+                            @if($rateRefundable)
+                                <span class="card-vertical-line">{{ $rateRefundable }}</span>
+                            @endif
+                            @if($rateMealPlan)
+                                <span class="card-vertical-line">{{ $rateMealPlan }}</span>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if($mainRoomName || $guestInfo)
+                        <div class="card-vertical">
+                            <div class="card-vertical-title">Rooms &amp; Guests</div>
+                            @if($mainRoomName)
+                                <span class="card-vertical-line">{{ $mainRoomName }}</span>
+                            @endif
+                            @if($guestInfo)
+                                <span class="card-vertical-line">{{ $guestInfo }}</span>
+                            @endif
+                        </div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+
+        <div class="big-spacer"></div>
+
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <tr valign="top">
+
+                <td width="60%" style="padding-right:26px;">
+                    <div style="font-size:24px; margin: 0 0 10px 0;">Terra Mare Exclusive Perks:</div>
+
+                    @if(!empty($perks))
+                        <ul>
+                            @foreach($perks as $perk)
+                                <li style="font-size: 14px;">{{ $perk }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div style="font-size:16px;">
+                            Perks information will be provided upon request.
+                        </div>
+                    @endif
+                </td>
+
+                <td width="40%">
+                    @if($secondaryImage)
+                        <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Hotel view">
+                    @endif
+                </td>
+            </tr>
+        </table>
+
+        <div class="big-spacer"></div>
+
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 40px;">
+            <tr valign="top">
+
+                <td width="50%" style="padding-right:26px;">
+                    <div class="contact-block">
+                        <div class="contact-name">Terra Mare Tours</div>
+                        <div >225 Broadway, Fl. 23,</div>
+                        <div>New York, NY, 10007, USA</div>
+                        <div>+1 (332)-232-8351</div>
+                        <div>{{ $agencyEmail }}</div>
+                    </div>
+                </td>
+
+                <td width="50%" align="right">
+                    <div class="pricing-card" style="width: 320px;">
+                        <div class="pricing-title">Pricing:</div>
+
+                        <table width="100%" class="pricing-row" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td class="pricing-label">Reservation Subtotal:</td>
+                                <td class="pricing-value">
+                                    {{ $currency }} {{ number_format($totalNet, 2) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pricing-label">Taxes &amp; Fees:</td>
+                                <td class="pricing-value">
+                                    {{ $currency }} {{ number_format($taxesAndFees, 2) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="pricing-total">
+                                    <table width="100%" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td class="pricing-label" style="font-size: 20px;">Total Price:</td>
+                                            <td class="pricing-value" style="font-size: 20px;">
+                                                {{ $currency }} {{ number_format($totalPrice, 2) }}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
+
     </div>
-
-    <!-- Секция 2: Адрес Отеля (Сдвинут влево) -->
-    <div class="row clearfix row-tight">
-        <div class="col-1">
-        </div>
-        <div class="col-2 col-2-content-shift">
-            <div style="margin-top: 10px;">
-                <strong>{{ $hotelData['name'] ?? 'Grand Velas Riviera Maya' }}</strong><br>
-                {{ $hotelData['address'] ?? 'Carretera Cancun Tulum, Playa del Carmen/Playacar, Quintana Roo, MX' }}
-            </div>
-        </div>
-    </div>
-
-    <!-- Секция 3: Приветствие (Сдвинуто влево) -->
-    <div class="row clearfix">
-        <div class="col-1">
-        </div>
-        <div class="col-2 col-2-content-shift">
-            <div class="greeting-text">
-                <p>We are delighted to assist you with the first step of your booking.<br>
-                    Below is a summary of your itinerary to help you prepare for
-                    a seamless and relaxing experience.</p>
-                <p>Should you have any questions, dietary preferences, or
-                    additional requests, our concierge team will be happy to
-                    assist you. Simply reply to this email, or contact us at
-                    {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}.</p>
-                <p>We look forward to welcoming you soon for an unforgettable
-                    escape in Mexico.</p>
-                <p>Warm regards, Terra Mare Concierge</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Секция 4: Заголовок Hotel Summary (Сдвинут влево) -->
-    <div class="row clearfix row-tight">
-        <div class="col-1">
-        </div>
-        <div class="col-2 col-2-content-shift">
-            <div class="hotel-summary">
-                <h2>Hotel Summary (Paid In USD):</h2>
-            </div>
-        </div>
-    </div>
-
-    <!-- Секция 5: Booking Agent и Таблица (Таблица сдвинута влево) -->
-    <div class="row clearfix row-tight">
-        <div class="col-1">
-            <div class="agent-block">
-                <strong>Booking Agent</strong>
-                <p>
-                    {{ $agency['booking_agent'] ?? 'test-api-user' }}<br>
-                    {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}
-                </p>
-            </div>
-        </div>
-        <div class="col-2 col-2-content-shift">
-            <table class="commission-table">
-                <tbody>
-                <tr>
-                    <th>Total Net</th>
-                    <td>${{ number_format($total_net ?? 6086.00, 2) }}</td>
-                </tr>
-                <tr>
-                    <th>Total Tax</th>
-                    <td>${{ number_format($total_tax ?? 0.00, 2) }}</td>
-                </tr>
-                <tr>
-                    <th>Total Fees</th>
-                    <td>${{ number_format($total_fees ?? 0.00, 2) }}</td>
-                </tr>
-                <tr>
-                    <th>Total Price</th>
-                    <td><strong>${{ number_format($total_price ?? 6086.00, 2) }}</strong></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-</div>
 </body>
 </html>
