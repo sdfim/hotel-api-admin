@@ -104,26 +104,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
         return $supplierTaxOptions;
     }
 
-    private function getValueMismatchRule(): Closure
-    {
-        return function (Get $get) {
-            return function (string $attribute, $value, Closure $fail) use ($get) {
-                $collectedBy = $get('collected_by');
-                $netValue = $get('net_value');
-                $rackValue = $get('rack_value');
-                $actionType = $get('action_type');
-
-                if (($actionType === 'add' || $actionType === 'edit') &&
-                    $collectedBy === FeeTaxCollectedByEnum::DIRECT->value &&
-                    ! is_null($netValue) &&
-                    ! is_null($rackValue) &&
-                    $netValue != $rackValue) {
-                    $fail('When Collected By is Direct, Net Value and Rack Value must be equal.');
-                }
-            };
-        };
-    }
-
     public function schemeForm(): array
     {
         return [
@@ -310,14 +290,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->numeric(2)
                         ->reactive()
                         ->required()
-                        ->rules(['required', $this->getValueMismatchRule()]),
-                    TextInput::make('rack_value')
-                        ->label('Rack Value')
-                        ->numeric(2)
-                        ->reactive()
-                        ->required()
-                        ->rules(['required', $this->getValueMismatchRule()])
-                        ->visible(fn (Get $get) => $get('action_type') !== 'vat'),
+                        ->rules(['required']),
                 ]),
             Grid::make()
                 ->schema([
@@ -390,7 +363,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     ->wrap(),
                 TextColumn::make('type')->label('Type')->sortable(),
                 TextColumn::make('net_value')->label('Net')->sortable(),
-                TextColumn::make('rack_value')->label('Rack')->sortable(),
                 IconColumn::make('value_type')
                     ->label('')
                     ->icon(fn (string $state): string => match ($state) {
@@ -476,7 +448,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 $data['value_type'] = null;
                                 $data['apply_type'] = null;
                                 $data['net_value'] = null;
-                                $data['rack_value'] = null;
                             }
                             if ($data['action_type'] === 'add') {
                                 // General Setting
@@ -490,7 +461,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 $data['value_type'] = null;
                                 $data['apply_type'] = null;
                                 $data['net_value'] = null;
-                                $data['rack_value'] = null;
                             }
                             $record->update($data);
                         })
@@ -560,7 +530,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             $data['value_type'] = null;
                             $data['apply_type'] = null;
                             $data['net_value'] = null;
-                            $data['rack_value'] = null;
                         }
                         if ($data['action_type'] === 'add') {
                             $data['old_name'] = null;
@@ -572,7 +541,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             $data['value_type'] = null;
                             $data['apply_type'] = null;
                             $data['net_value'] = null;
-                            $data['rack_value'] = null;
                         }
                         ProductFeeTax::create($data);
                     }),
