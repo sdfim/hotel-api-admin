@@ -47,6 +47,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('apiBookingsMetadata.supplier_booking_item_id')
                     ->fontFamily(FontFamily::Mono)
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->label('Confirmation')
                     ->formatStateUsing(function ($state) {
@@ -62,6 +63,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->html(),
                 TextColumn::make('apiBookingsMetadata.hotel_supplier_id')
                     ->label('Hotel Id')
+                    ->toggleable()
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true),
                 TextColumn::make('apiBookingsMetadata')
@@ -77,6 +79,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     }),
 
                 ImageColumn::make('images')
+                    ->toggleable()
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
                         $images = [];
@@ -99,6 +102,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->label('Offload')
                     ->default('N\A')
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -108,16 +112,17 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->sortable(),
                 TextColumn::make('date_travel')
                     ->date()
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('passenger_surname')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(isIndividual: true),
+
                 TextColumn::make('total_cost')
                     ->numeric()
                     ->weight(FontWeight::Bold)
                     ->size(TextColumn\TextColumnSize::Large)
-                    ->searchable(isIndividual: true)
                     ->money(function (Reservation $reservation) {
                         $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
 
@@ -135,6 +140,21 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         };
                     })
                     ->sortable(),
+
+                TextColumn::make('paid')
+                    ->label('Paid')
+                    ->weight(FontWeight::Bold)
+                    ->color('danger')
+                    ->size(TextColumn\TextColumnSize::Large)
+                    ->numeric()
+                    ->money(function (Reservation $reservation) {
+                        $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
+
+                        return $price['currency'] ?? 'USD';
+                    })
+                    ->url(fn (Reservation $record): string => route('payment-inspector.index', ['booking_id' => $record->booking_id]))
+                    ->openUrlInNewTab(),
+
 
                 TextColumn::make('canceled_at')
                     ->dateTime()

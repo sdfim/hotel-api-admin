@@ -22,6 +22,7 @@ class Reservation extends Model
         'reservation_contains',
         'channel_id',
         'total_cost',
+        'paid',
         'canceled_at',
         'created_at',
         'updated_at',

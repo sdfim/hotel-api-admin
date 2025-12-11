@@ -23,6 +23,19 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public function mount(): void
+    {
+        if (request()->has('booking_id')) {
+            $bookingId = request()->get('booking_id');
+
+            $this->tableFilters = [
+                'booking_id' => [
+                    'booking_id' => [$bookingId],
+                ],
+            ];
+        }
+    }
+
     public function table(Table $table): Table
     {
         return $table
