@@ -9,6 +9,7 @@ class AirwallexApiLog extends Model
     protected $fillable = [
         'method',
         'payment_intent_id',
+        'method_action_id',
         'direction',
         'payload',
         'response',

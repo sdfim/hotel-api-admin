@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\Mail;
 use Modules\API\BaseController;
 use Modules\API\Payment\Requests\ConfirmationPaymentIntentRequest;
 use Modules\API\Payment\Requests\CreatePaymentIntentRequest;
+use Modules\API\Payment\Requests\RetrievePaymentConsentRequest;
 
 class PaymentController extends BaseController
 {
-    protected function getProvider(Request $request): PaymentProviderInterface
+    protected function getProvider(?Request $request): PaymentProviderInterface
     {
-        $provider = $request->input('provider');
+        $provider = $request?->input('provider');
 
         return PaymentProviderResolver::resolve($provider);
     }
@@ -28,11 +29,32 @@ class PaymentController extends BaseController
 
         $booking_id = $request->input('booking_id');
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id . ' - booking_id not found or not booked';
+            $error = $booking_id.' - booking_id not found or not booked';
+
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
 
         return $provider->createPaymentIntent($request->validated());
+    }
+
+    public function createPaymentIntentMoFoF(string $booking_id, float $amount)
+    {
+        $provider = $this->getProvider(null);
+
+        if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
+            $error = $booking_id.' - booking_id not found or not booked';
+
+            return $this->sendError($error, 'Booking not found or not booked', 404);
+        }
+
+        return $provider->createPaymentIntentMoFoF($booking_id, $amount);
+    }
+
+    public function retrievePaymentConsent(RetrievePaymentConsentRequest $request, string $consentId)
+    {
+        $provider = $this->getProvider($request);
+
+        return $provider->retrievePaymentConsent($consentId);
     }
 
     public function confirmationPaymentIntent(ConfirmationPaymentIntentRequest $request)

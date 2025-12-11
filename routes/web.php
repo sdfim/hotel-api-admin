@@ -43,6 +43,7 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
+use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageController;
