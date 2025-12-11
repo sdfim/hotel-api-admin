@@ -102,6 +102,15 @@ class ImportScheduledTasks extends Command
                 'time' => '01:00',
                 'is_active' => true,
             ],
+            [
+                'name' => 'Automatically close remaining balance for active reservations',
+                'description' => 'Automatically close remaining balance for active reservations',
+                'command' => 'reservations:close-remaining-balance',
+                'command_parameters' => [],
+                'frequency_type' => 'daily',
+                'time' => '20:00',
+                'is_active' => true,
+            ],
         ];
 
         $count = 0;
