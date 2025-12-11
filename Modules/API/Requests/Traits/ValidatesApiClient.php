@@ -76,9 +76,9 @@ trait ValidatesApiClient
             return;
         }
 
-//        if ((int) $tokenChannel->id !== (int) $apiUser->channel_id) {
-//            $v->errors()->add('api_client', 'The API user does not belong to the authenticated channel.');
-//        }
+        if ((int) $tokenChannel->id !== (int) $apiUser->channel_id) {
+            $v->errors()->add('api_client', 'The API user does not belong to the authenticated channel.');
+        }
     }
 
     /**
