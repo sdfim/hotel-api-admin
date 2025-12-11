@@ -3,8 +3,6 @@
 namespace App\Mail;
 
 use App\Models\ApiBookingsMetadata;
-use App\Services\PdfGeneratorService;
-use Cache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -38,30 +36,11 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
             $hotelName = Arr::get($bookimgItemData, 'hotel_name');
         }
 
-        $mail = $this->subject("Your Fora Advisor has booked you at $hotelName and your booking is ready for payment")
+        return $this->subject("Your Fora Advisor has booked you at $hotelName and your booking is ready for payment")
             ->view('emails.booking.client_payment')
             ->with([
                 'payment_url' => $this->payment_url,
                 'hotelName' => $hotelName,
             ]);
-
-        // Cache the entire PDF data array for 7 days
-        $pdfCacheKey = 'booking_pdf_data_'.$bookimgMetadata?->booking_item;
-        $cachedPdfData = Cache::get($pdfCacheKey);
-
-        $pdfContent = null;
-        if ($cachedPdfData) {
-            // Use cached PDF data for PDF generation
-            $pdfService = app(PdfGeneratorService::class);
-            $pdfContent = $pdfService->generateRaw('pdf.booking_ready', $cachedPdfData);
-        }
-
-        if ($pdfContent) {
-            $mail->attachData($pdfContent, 'BookingConfirmation.pdf', [
-                'mime' => 'application/pdf',
-            ]);
-        }
-
-        return $mail;
     }
 }
