@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Reservation;
+use App\Repositories\ApiBookingItemRepository;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
@@ -18,10 +19,12 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
+use Modules\API\Payment\Controllers\PaymentController;
 use Modules\API\Requests\BookingCancelBooking;
 
 class ReservationsTable extends Component implements HasForms, HasTable
@@ -47,6 +50,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('apiBookingsMetadata.supplier_booking_item_id')
                     ->fontFamily(FontFamily::Mono)
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->label('Confirmation')
                     ->formatStateUsing(function ($state) {
@@ -62,6 +66,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->html(),
                 TextColumn::make('apiBookingsMetadata.hotel_supplier_id')
                     ->label('Hotel Id')
+                    ->toggleable()
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true),
                 TextColumn::make('apiBookingsMetadata')
@@ -77,6 +82,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     }),
 
                 ImageColumn::make('images')
+                    ->toggleable()
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
                         $images = [];
@@ -99,6 +105,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->label('Offload')
                     ->default('N\A')
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -108,16 +115,17 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->sortable(),
                 TextColumn::make('date_travel')
                     ->date()
+                    ->toggleable()
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('passenger_surname')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(isIndividual: true),
+
                 TextColumn::make('total_cost')
                     ->numeric()
                     ->weight(FontWeight::Bold)
                     ->size(TextColumn\TextColumnSize::Large)
-                    ->searchable(isIndividual: true)
                     ->money(function (Reservation $reservation) {
                         $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
 
@@ -135,6 +143,20 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         };
                     })
                     ->sortable(),
+
+                TextColumn::make('paid')
+                    ->label('Paid')
+                    ->weight(FontWeight::Bold)
+                    ->color('danger')
+                    ->size(TextColumn\TextColumnSize::Large)
+                    ->numeric()
+                    ->money(function (Reservation $reservation) {
+                        $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
+
+                        return $price['currency'] ?? 'USD';
+                    })
+                    ->url(fn (Reservation $record): string => route('payment-inspector.index', ['booking_id' => $record->booking_id]))
+                    ->openUrlInNewTab(),
 
                 TextColumn::make('canceled_at')
                     ->dateTime()
@@ -172,13 +194,24 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             // Only update canceled_at if cancellation is successful
                             if (isset($result['success']) || (isset($result['result']) && empty($result['error']))) {
                                 $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
-                            } else {
-                                // Optionally, handle error (e.g., flash message)
                             }
                         })
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')
                         ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && $record->canceled_at === null),
+                    Action::make('Close Remaining Balance')
+                        ->requiresConfirmation()
+                        ->action(function (Reservation $record) {
+                            $remainingBalance = ApiBookingItemRepository::getDepositData($record->booking_id);
+
+                            foreach ($remainingBalance as $balance) {
+                                $controller = app(PaymentController::class);
+                                $controller->createPaymentIntentMoFoF($record->booking_id, Arr::get($balance, 'total_deposit'));
+                            }
+                        })
+                        ->icon('heroicon-o-banknotes')
+                        ->color('success')
+                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
                 ])->color('gray'),
             ])
             ->filters([

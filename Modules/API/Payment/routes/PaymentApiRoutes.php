@@ -14,6 +14,8 @@ class PaymentApiRoutes
 
             Route::get('payment-intent/{id}', [\Modules\API\Payment\Controllers\PaymentController::class, 'retrievePaymentIntent']);
             Route::get('transaction/{booking_id}', [\Modules\API\Payment\Controllers\PaymentController::class, 'getTransactionByBookingId']);
+
+            Route::get('consent/{consentId}', [\Modules\API\Payment\Controllers\PaymentController::class, 'retrievePaymentConsent']);
         });
     }
 }

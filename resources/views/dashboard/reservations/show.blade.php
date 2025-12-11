@@ -58,21 +58,13 @@
                             <h5 class="text-17">Price</h5>
                         </div>
 
-                        <p><strong>Currency:</strong> {{ $field['price']['currency'] }}</p>
-                        <p><strong>Total net:</strong> {{ $field['price']['total_net'] }}</p>
-                        <p><strong>Total tax:</strong> {{ $field['price']['total_tax'] }}</p>
-                        <p><strong>Total fees:</strong> {{ $field['price']['total_fees'] }}</p>
-                        <p><strong>Total price:</strong> {{ $field['price']['total_price'] }}</p>
-                        <p><strong>Markup:</strong> {{ $field['price']['markup'] ?? 0 }}</p>
-                        <p><strong>Paid:</strong>
-                            @if(!empty($paidByCurrency))
-                                @foreach($paidByCurrency as $i => $p)
-                                    {{ number_format($p['total'], 2, '.', ' ') }} {{ $p['currency'] }}@if(!$loop->last), @endif
-                                @endforeach
-                            @else
-                                0
-                            @endif
-                        </p>
+                        <p><strong>Currency:</strong> {{ Arr::get($field, 'price.currency', 'USD') }}</p>
+                        <p><strong>Total net:</strong> {{ Arr::get($field, 'price.total_net', 0) }}</p>
+                        <p><strong>Total tax:</strong> {{ Arr::get($field, 'price.total_tax', 0) }}</p>
+                        <p><strong>Total fees:</strong> {{ Arr::get($field, 'price.total_fees', 0) }}</p>
+                        <p><strong>Total price:</strong> {{ Arr::get($field, 'price.total_price', 0) }}</p>
+                        <p><strong>Markup:</strong> {{ Arr::get($field, 'price.markup', 0) }}</p>
+                        <p><strong>Paid:</strong> {{ $reservation->paid ?? 0 }}</p>
                     </div>
 
                     <!-- Reservation Contains Column -->

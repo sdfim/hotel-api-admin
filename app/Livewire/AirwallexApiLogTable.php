@@ -67,6 +67,10 @@ class AirwallexApiLogTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
+                TextColumn::make('method_action_id')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('payment_intent_id')
                     ->sortable()
                     ->toggleable()

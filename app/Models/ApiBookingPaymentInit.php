@@ -4,9 +4,12 @@ namespace App\Models;
 
 use App\Models\Enums\PaymentStatusEnum;
 use App\Repositories\ApiBookingInspectorRepository;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Observers\ApiBookingPaymentInitObserver;
 
+#[ObservedBy([ApiBookingPaymentInitObserver::class])]
 class ApiBookingPaymentInit extends Model
 {
     use HasFactory;
