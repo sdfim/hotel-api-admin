@@ -5,13 +5,17 @@ namespace Modules\API\Payment\Controllers\Providers;
 use App\Contracts\PaymentProviderInterface;
 use App\Mail\BookingConfirmationMail;
 use App\Models\AirwallexApiLog;
+use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingPaymentInit;
 use App\Models\Enums\PaymentStatusEnum;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingItemRepository;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Suppliers\AirwallexSupplier\AirwallexClient;
 
@@ -21,6 +25,9 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
         private AirwallexClient $client
     ) {}
 
+    /**
+     * @throws GuzzleException
+     */
     public function createPaymentIntent(array $data)
     {
         $direction = [
@@ -28,37 +35,36 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             'token' => $data['token'] ?? null,
         ];
 
-        $result = $this->client->createPaymentIntent(
-            $data['amount'],
-            $data['currency'],
-            $data['merchant_order_id'],
-            $data['order'],
-            $data['descriptor'] ?? null,
-            $data['return_url'] ?? null,
-            $data['metadata'] ?? [],
-        );
-        $parsedUrl = parse_url($data['return_url']);
-        $host = Arr::get($parsedUrl, 'host');
-        $requestOrigin = $host ? 'https://'.$host : 'https://fora-b2b-react-henna.vercel.app';
-        $data['auto_capture'] = true;
-        $data['request_origin'] = $requestOrigin;
-        $data['payment_method_options'] = [
-            'card' => [
-                'card_input_via' => 'ecommerce',
-            ],
-        ];
+        // Check if isset deposit then create customer and payment consent
+        $bookingId = Arr::get($data, 'booking_id');
+        $deposit = ApiBookingItemRepository::getDepositData($bookingId);
+        if (! empty($deposit)) {
+            $book = ApiBookingInspector::where('booking_id', $bookingId)
+                ->where('type', 'book')
+                ->where('sub_type', 'create')
+                ->where('status', 'success')
+                ->first();
+            $bookRequest = json_decode($book?->request, true);
+            $user = Arr::get($bookRequest, 'booking_contact.first_name', 'Test User');
+            $email = Arr::get($bookRequest, 'booking_contact.email', 'test.user@example.com');
 
+            $uniqueId = $user.time();
+            $merchantOrderId = $data['merchant_order_id'] ?? 'ORDER_PI_'.time();
+            [$customer, $createCustomerPayload] = $this->client->createCustomer($uniqueId, $user, $email);
+            $this->logAirwallexApiData($data, 'createCustomer', $customer, $direction, $createCustomerPayload);
+
+            $customerId = $customer['id'];
+            [$consent, $createPaymentConsentPayload] = $this->client->createPaymentConsent($customerId, $merchantOrderId);
+            $this->logAirwallexApiData($data, 'createPaymentConsent', $consent, $direction, $createPaymentConsentPayload);
+            $consentId = $consent['id'];
+
+            $data['customer_id'] = $customerId;
+        }
+
+        [$result, $payload] = $this->client->createPaymentIntent($data) ?: [[], []];
+
+        $this->logAirwallexApiData($data, 'createPaymentIntent', $result, $direction, $payload);
         if ($error = $result['error'] ?? null) {
-            AirwallexApiLog::create([
-                'method' => 'createPaymentIntent',
-                'payment_intent_id' => null,
-                'direction' => $direction,
-                'payload' => $data,
-                'response' => $result,
-                'status_code' => 400,
-                'booking_id' => $data['booking_id'],
-            ]);
-
             return $this->sendError($error, 'Airwallex API error', 400);
         }
 
@@ -67,31 +73,161 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             unset($result['id']);
         }
 
-        // Создаём лог AirwallexApiLog
-        $log = AirwallexApiLog::create([
-            'method' => 'createPaymentIntent',
-            'payment_intent_id' => $result['payment_intent_id'] ?? null,
-            'direction' => $direction,
-            'payload' => $data,
-            'response' => $result,
-            'status_code' => 201,
-            'booking_id' => $data['booking_id'],
-        ]);
-
-        ApiBookingPaymentInit::create([
-            'booking_id' => $data['booking_id'],
-            'payment_intent_id' => $result['payment_intent_id'] ?? null,
-            'action' => PaymentStatusEnum::INIT->value,
-            'amount' => $data['amount'],
-            'currency' => $data['currency'],
-            'provider' => 'airwallex',
-            'related_id' => $log->id,
-            'related_type' => AirwallexApiLog::class,
-        ]);
-
         $responseData = $result;
 
         return $this->sendResponse($responseData, 'success');
+    }
+
+    /**
+     * Создание нового Payment Intent для оставшейся суммы (MoFoF).
+     * Требует передачи в $data: booking_id, amount, currency, customer_id.
+     *
+     * @throws GuzzleException
+     */
+    public function createPaymentIntentMoFoF(string $bookingId, float $amount)
+    {
+        $data = [];
+        $airwallexApiLog = AirwallexApiLog::where('booking_id', $bookingId)
+            ->where('method', 'createPaymentIntent')
+            ->where('status_code', 201)
+            ->latest()
+            ->first();
+        $data['consent_id'] = $airwallexApiLog->response['customer_payment_consents']['customer_id'] ?? null;
+        $data = $airwallexApiLog->payload ?? [];
+        $data['booking_id'] = $bookingId;
+        $data['amount'] = $amount;
+        [$result, $payload] = $this->client->createPaymentIntent($data) ?: [[], []];
+
+        $this->logAirwallexApiData($data, 'createPaymentIntentMoFoF', $result, [], $payload);
+
+        if ($error = $result['error'] ?? null) {
+            logger('Airwallex MIT API error: '.$error);
+
+            return $this->sendError($error, 'Airwallex MIT API error', 400);
+        }
+
+        $this->confirmPaymentIntentMoFoF($result['id'], $amount, $currency = $data['currency'] ?? 'USD');
+
+        if (isset($result['id'])) {
+            $result['payment_intent_id'] = $result['id'];
+            unset($result['id']);
+        }
+
+        return $this->sendResponse($result, 'success');
+    }
+
+    /**
+     * Подтверждение Payment Intent для MoFoF с использованием согласия на оплату.
+     *
+     * @throws GuzzleException
+     */
+    public function confirmPaymentIntentMoFoF(string $paymentIntentId, float $amount, string $currency = 'USD'): void
+    {
+        $airwallexApiLog = AirwallexApiLog::where('payment_intent_id', $paymentIntentId)
+            ->where('method', 'createPaymentIntentMoFoF')
+            ->where('status_code', 201)
+            ->first();
+        $consentId = $airwallexApiLog->response['customer_payment_consents'][0]['id'] ?? null;
+        $customerId = $airwallexApiLog->response['customer_payment_consents'][0]['customer_id'] ?? null;
+        $paymentMethodId = $airwallexApiLog->response['customer_payment_consents'][0]['payment_method']['id'] ?? null;
+
+        if (! $paymentIntentId || ! $consentId || ! $paymentMethodId) {
+            logger('Airwallex MIT API error: Missing payment_intent_id or consent_id ', [
+                'paymentIntentId' => $paymentIntentId,
+                'customer_payment_consents' => $airwallexApiLog->response['customer_payment_consents'][0]['customer_id'],
+            ]);
+
+            return;
+        }
+
+        $confirmPayload = [
+            'request_id' => Str::uuid()->toString(),
+            'payment_consent_id' => $consentId,
+            'customer_id' => $customerId,
+        ];
+
+        [$result, $payload] = $this->client->confirmPaymentIntentWithConsent($paymentIntentId, $confirmPayload) ?: [[], []];
+
+        if ($error = $result['error'] ?? null) {
+            logger('Airwallex MIT API error: '.$error);
+
+            return;
+        }
+
+        $logData = [
+            'booking_id' => $airwallexApiLog->booking_id,
+            'payment_intent_id' => $paymentIntentId,
+            'amount' => $amount,
+            'currency' => $currency,
+        ];
+        $this->logAirwallexApiData($logData, 'confirmationPaymentIntentMoFoF', $result, [], $payload);
+    }
+
+    private function logAirwallexApiData(array $data, string $method, array $result, array $direction, array $payload): void
+    {
+        $payment_intent_id = in_array($method, ['createPaymentIntent', 'createPaymentIntentMoFoF', 'confirmationPaymentIntentMoFoF'])
+            ? ($result['id'] ?? null) : null;
+        $airwallexApiLogData = [
+            'method' => $method,
+            'payment_intent_id' => $payment_intent_id,
+            'method_action_id' => $result['id'] ?? null,
+            'direction' => $direction,
+            'payload' => $payload,
+            'response' => $result,
+            'status_code' => $result['status_code'] ?? 201,
+            'booking_id' => $data['booking_id'],
+        ];
+
+        if ($error = $result['error'] ?? null) {
+            $airwallexApiLogData['status_code'] = $result['status_code'] ?? 400;
+            AirwallexApiLog::create($airwallexApiLogData);
+
+            return;
+        }
+
+        $log = AirwallexApiLog::create($airwallexApiLogData);
+
+        if (in_array($method, ['createPaymentIntent', 'createPaymentIntentMoFoF', 'confirmationPaymentIntentMoFoF']) && $log) {
+            $action = $method === 'confirmationPaymentIntentMoFoF' ? PaymentStatusEnum::CONFIRMED->value : PaymentStatusEnum::INIT->value;
+            ApiBookingPaymentInit::create([
+                'booking_id' => $log->booking_id,
+                'payment_intent_id' => $log->payment_intent_id,
+                'action' => $action,
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'provider' => 'airwallex',
+                'related_id' => $log->id,
+                'related_type' => AirwallexApiLog::class,
+            ]);
+        }
+    }
+
+    /**
+     * Retrieve Payment Consent by ID
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws GuzzleException
+     */
+    public function retrievePaymentConsent($consentId)
+    {
+        [$result, $payload] = $this->client->retrievePaymentConsent($consentId);
+        $data['booking_id'] = AirwallexApiLog::where('method', 'createPaymentConsent')
+            ->where('method_action_id', $consentId)
+            ->latest()
+            ->value('booking_id');
+        $this->logAirwallexApiData($data, 'retrievePaymentConsent', $result, [], $payload);
+
+        if ($error = $result['error'] ?? null) {
+            return $this->sendError($error, 'Airwallex API error', 400);
+        }
+
+        $data = [
+            'consent_id' => $consentId,
+            'response' => $result,
+        ];
+
+        return $this->sendResponse($data, 'Payment consent retrieved successfully');
     }
 
     /**
@@ -330,6 +466,7 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
             'response' => $response,
             'status_code' => 200,
             'payment_intent_id' => $data['payment_intent_id'],
+            'method_action_id' => $data['payment_intent_id'],
             'booking_id' => $bookingId,
         ]);
 

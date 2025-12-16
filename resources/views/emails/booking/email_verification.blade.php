@@ -1,420 +1,415 @@
 @php
     use Illuminate\Support\Arr;
     use Carbon\Carbon;
+    use Illuminate\Support\Facades\Storage;
 
-    $hotelName = Arr::get($hotel, 'product.name');
-    $hotelAddress = implode(', ', Arr::get($hotel, 'address'));
-    $hotelGiata = Arr::get($hotel, 'giata_code');
-    $rating = Arr::get($hotel, 'star_rating', 0);
+    /** Basic hotel info */
+    $hotelName    = Arr::get($hotel, 'product.name', 'Hotel Name');
+    $hotelAddress = implode(', ', Arr::get($hotel, 'address', []));
+    $heroImage    = $hotel->product?->hero_image
+        ? Storage::url($hotel->product->hero_image)
+        : asset('images/email-backgrounds/hotel-placeholder.png');
 
-    $checkin = Carbon::parse(Arr::get($searchRequest, 'checkin'))->format('m/d/Y');
-    $checkout = Carbon::parse(Arr::get($searchRequest, 'checkout'))->format('m/d/Y');
+    /** Dates and guests (already calculated in mailable) */
+    $checkin  = $checkinDate  ?? null;
+    $checkout = $checkoutDate ?? null;
+    $guestInfo = $guestInfo   ?? null;
 
-    $roomsCount = count($rooms);
-    $adultsCount = collect(Arr::get($searchRequest, 'occupancy', []))->sum('adults');
-    $childrenCount = collect(Arr::get($searchRequest, 'occupancy', []))->sum(fn($o) => count(Arr::get($o, 'children_ages', [])));
+    /** Currency and totals (already calculated in mailable) */
+    $currency          = $currency          ?? 'USD';
+    $subtotal          = $subtotal          ?? 0;
+    $taxes             = $taxes             ?? 0;
+    $fees              = $fees              ?? 0;
+    $totalPrice        = $totalPrice        ?? ($subtotal + $taxes + $fees);
+    $advisorCommission = $advisorCommission ?? 0;
 
-    $guestInfo = $roomsCount . ' Room(s), ' . $adultsCount . ' Adults, ' . $childrenCount . ' Children';
+    /** Rate Type summary (first room only) */
+    $firstRoom        = $rooms[0] ?? null;
+    $refundableUntil  = '';
+    $mealPlanSummary  = '';
 
-    $grandTotal = 0;
-    $currency = Arr::get($rooms, '0.currency', 'USD');
+    if ($firstRoom) {
+        $cancellationPolicies = Arr::get($firstRoom, 'cancellation_policies', []);
+        foreach ($cancellationPolicies as $policy) {
+            if (Arr::get($policy, 'description') === 'General Cancellation Policy') {
+                $penaltyStartDate = Arr::get($policy, 'penalty_start_date');
+                if ($penaltyStartDate) {
+                    $refundableUntil = 'Refundable until ' .
+                        Carbon::parse($penaltyStartDate)->format('m/d/Y');
+                    break;
+                }
+            }
+        }
 
-    $perks = [];
-    $descriptiveContents = $hotel->product?->descriptiveContentsSection;
-    foreach ($descriptiveContents as $content) {
-        if ($content->descriptiveType->name === 'TerraMare Amenities') {
-            $perks = array_merge($perks, explode("\n", $content->value));
+        if (!empty(Arr::get($firstRoom, 'meal_plan'))) {
+            $mealPlanSummary = Arr::get($firstRoom, 'meal_plan');
+        } elseif (!empty($hotel->hotel_board_basis)) {
+            $mealPlanSummary = is_array($hotel->hotel_board_basis)
+                ? implode(', ', $hotel->hotel_board_basis)
+                : $hotel->hotel_board_basis;
+        } else {
+            $mealPlanSummary = 'All-Inclusive Meal Plan';
         }
     }
+
+    /** Perks */
+    $perks = $perks ?? [];
 @endphp
 
-    <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terra Mare – Quote Confirmation</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Terra Mare Hotel - Payment Confirmation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {{-- Serif font --}}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Playfair Display', Georgia, serif !important;
-            font-size: calc(1em * 1.2);
         }
-
-        .container {
-            border-radius: 8px;
-            padding: 100px;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: 'Playfair Display', Georgia, serif !important;
-            font-size: inherit;
-            font-weight: 300;
-            background: #fff url('{{ asset('build/images/bg-mail-tm.png') }}') no-repeat center top;
-            background-size: cover;
+        table { border-collapse: collapse; }
+        img {
+            border: 0;
+            display: block;
+            line-height: 0;
         }
-
-        h1, h2, h3, h4, h5, h6, p, ul, li, div, span, a {
-            font-family: 'Playfair Display', Georgia, serif !important;
-            font-size: inherit;
-            font-weight: 300;
-        }
-
         p {
-            line-height: 1.6;
-            margin-bottom: 32px;
-            font-size: 18px;
+            margin: 0 0 24px 0;
+            font-weight: 300;
         }
 
-        ul {
-            font-size: 18px;
-        }
-
-        ul, ul li, ul span li, p {
-            color: #000000 !important;
-        }
-
-        .check-table {
-            margin: 74px auto;
-            width: 80%;
-            max-width: 100%;
-        }
-
-        /* Планшетная версия */
-        @media only screen and (max-width: 1500px) and (min-width: 901px) {
-            .container {
-                padding: 50px;
-            }
-
-            .check-table {
-                width: 100% !important;
-                margin: 74px 0;
-            }
-        }
-
-        /* Десктопная версия */
-        @media only screen and (max-width: 900px) and (min-width: 601px) {
-            .container {
-                padding: 20px;
-            }
-
-            .check-table {
-                width: 100% !important;
-                margin: 74px 0;
-            }
-
-            .hotel-img {
-                width: 100% !important;
-                height: auto !important;
-                max-width: 100% !important;
-                border-radius: 25px !important;
-            }
-
-            img {
-                width: 100% !important;
-                height: auto !important;
-                max-width: 100% !important;
-                border-radius: 18px !important;
-            }
-        }
-
-
-        /* Мобильная адаптация */
         @media only screen and (max-width: 600px) {
-            .hotel-img {
-                width: 100% !important;
-                height: auto !important;
-                max-width: 100% !important;
-                border-radius: 25px !important;
-            }
-
-            .container {
-                padding: 8px !important;
-                border-radius: 0 !important;
-                background-size: cover !important;
-            }
-
-            .heder-room-info {
-                display: none;
-            }
-
-            body {
-                font-size: 16px !important;
-            }
-
-            /* 1. Чек-ин/чек-аут/гости: каждая ячейка в столбик */
-            .check-table {
-                width: 100% !important;
-                margin: 10px auto !important;
-            }
-
-            .check-table td {
-                display: block !important;
-                padding: 25px !important;
-            }
-
-            .check-table tr {
-                display: block !important;
-                width: 100% !important;
-            }
-
-            /* 3. Общие стили для таблиц */
-            .main-table td {
-                display: block !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-                margin-bottom: 25px !important;
-            }
-
-            .pricing-table td {
-                display: table-cell !important;
-            }
-
-            .container > div {
-                padding: 12px !important;
+            .wrapper      { padding: 16px 8px !important; }
+            .card-padding { padding: 28px 20px 0 20px !important; }
+            .inner-pad    { padding: 0 20px 32px 20px !important; }
+            .pricing-card { padding: 24px 20px !important; }
+            .button-primary {
+                font-size: 18px !important;
+                padding: 18px 28px !important;
             }
         }
     </style>
+</head>
 <body>
-<div class="container">
-    <table role="presentation" width="100%" style="margin-bottom:40px;">
-        <tr>
-            <td align="right">
-                <img src="{{ asset('build/images/logo-tm.png') }}" alt="Terra Mare Hotel" width="108" height="76"
-                     style="display: inline-block; border: 0;">
-            </td>
-        </tr>
-    </table>
 
-    <p>
-        Hello,
-    </p>
-    <p>
-        We are delighted to assist you with the first step of your booking. Below you’ll find a summary of your
-        quote that can
-        be easily accepted or denied.
-    </p>
-    <p>
-        Should you have any questions, dietary preferences, or additional requests, our concierge team will be happy
-        to assist you.
-        We look forward to arranging an unforgettable escape for you.
-    </p>
-    <p>
-        Warm regards,
-        Terra Mare Concierge
-    </p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center" class="wrapper" style="padding:24px 12px;">
 
-    <h2 style="font-size:38px; margin-top:24px; margin-bottom: 0 !important;  color:#19332c; font-weight:500;">{{ $hotelName }}</h2>
-    <p style="margin:4px 0 0 0; color:#4b635c;">{{ $hotelAddress }}</p>
-    <div style="margin:8px 0 0 0;">{!! \App\Helpers\StarRatingHelper::generateStarRating($rating) !!}</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;">
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
-        <tr>
-            <td align="center" style="padding:0;">
-                <img src="{{ Storage::url($hotel->product?->hero_image) }}" class="hotel-img"
-                     style="width:55%; border-radius:30px; height:380px; max-height:380px; object-fit:cover; display:block;">
-            </td>
-        </tr>
-    </table>
-
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"
-           class="check-table">
-        <tr>
-            <td align="center" style="padding: 0 15px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                        <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:20px; margin-bottom: 5px;">Check-in</div>
-                            <div style="font-size:31px;  color:#19332C;">{{ $checkin }}</div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td align="center" style="padding: 0 15px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                        <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:20px; margin-bottom: 5px;">Check-out</div>
-                            <div style="font-size:31px;  color:#19332C;">{{ $checkout }}</div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td align="center" style="padding: 0 15px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                        <td align="center" style="border-radius:30px; background:#c7d5c7; padding:25px;">
-                            <div style="font-size:20px; margin-bottom: 5px;">Rooms & Guests</div>
-                            <div style="font-size:31px;  color:#19332C;">
-                                {{ $guestInfo }}
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-
-    @if(!empty($perks))
-        <h3 style="color:#19332c; font-size:31px; margin:34px 0 10px;">Terra Mare Exclusive Perks:</h3>
-        <ul style="color:#4b635c; line-height:1.8; margin-bottom:16px;">
-            @foreach($perks as $perk)
-                <li>{{ $perk }}</li>
-            @endforeach
-        </ul>
-    @endif
-
-    {{-- Room blocks with new styles, dynamic loop --}}
-    <h3 style="color:#19332c; font-size:31px; margin:33px 0 28px;">Rooms & Rates:</h3>
-
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%; margin-bottom: 38px">
-        <tr>
-            <td style="width:50%; vertical-align:top; padding-right: 7%;" class="heder-room-info">
-                <div style="color:#246155; font-size: 26px;margin-bottom: 15px;">Room Information</div>
-            </td>
-            <td style="width:41%; vertical-align:top; padding-left: 2%;">
-                <div style="color:#246155; font-size: 26px;margin-bottom: 15px;">Rate Information</div>
-            </td>
-        </tr>
-    </table>
-
-    @foreach($rooms as $k => $room)
-        @php
-            $occupancy = Illuminate\Support\Arr::get($searchRequest, "occupancy.$k");
-            $grandTotal += Illuminate\Support\Arr::get($room, 'total_price', 0);
-            $cancellationPolicies = Illuminate\Support\Arr::get($room, 'cancellation_policies', []);
-            $refundableUntil = '';
-            foreach ($cancellationPolicies as $policy) {
-                if (Illuminate\Support\Arr::get($policy, 'description') === 'General Cancellation Policy') {
-                    $penaltyStartDate = Illuminate\Support\Arr::get($policy, 'penalty_start_date');
-                    if ($penaltyStartDate) {
-                        $refundableUntil = 'Refundable until ' . \Carbon\Carbon::parse($penaltyStartDate)->format('m/d/Y');
-                        break;
-                    }
-                }
-            }
-            $rateCode = Illuminate\Support\Arr::get($room, 'rate_code', '');
-            $mealPlan = '';
-            if (!empty(Illuminate\Support\Arr::get($room, 'meal_plans_available'))) {
-                $mealPlan = Illuminate\Support\Arr::get($room, 'meal_plans_available');
-            } elseif (!empty($hotel->hotel_board_basis)) {
-                $mealPlan = is_array($hotel->hotel_board_basis) ? implode(', ', $hotel->hotel_board_basis) : $hotel->hotel_board_basis;
-            } else {
-                $mealPlan = 'All-Inclusive Meal Plan';
-            }
-            $netPrice = number_format(Illuminate\Support\Arr::get($room, 'total_net', 0), 2);
-            $taxesFees = number_format(Illuminate\Support\Arr::get($room, 'total_tax', 0) + Illuminate\Support\Arr::get($room, 'total_fees', 0), 2);
-            $agentCommission = number_format(Illuminate\Support\Arr::get($room, 'agent_commission', 0), 2);
-            $totalPrice = number_format(Illuminate\Support\Arr::get($room, 'total_price', 0), 2);
-            $currentCurrency = Illuminate\Support\Arr::get($room, 'currency', $currency);
-            $minHeight = '400px';
-            $imageHeight = '380px';
-            $roomImage = Illuminate\Support\Arr::get($room, 'room_image') ?? $hotel?->product?->hero_image;
-        @endphp
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-               style="margin-bottom: 88px;" class="main-table">
-            <tr>
-                <td style="width:50%; vertical-align:top; padding-right: 7%;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-                           style="height: 100%;">
-                        <tr>
-                            <td style="padding: 0; vertical-align: top;">
-                                <img src="{{ Storage::url($roomImage) }}"
-                                     style="width:100%; border-radius:30px; display:block; height: {{ $imageHeight }}; max-height: {{ $imageHeight }}; object-fit: cover;">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding-top:8px; vertical-align: top;">
-                                <div style="font-size:28px; color:#246155;">
-                                    Room
-                                    Type: {{ Illuminate\Support\Arr::get($room, 'room_name', Illuminate\Support\Arr::get($room, 'room_code', 'Terrace Grand Suite')) }}
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="width:41%; vertical-align:top; padding-left: 2%;">
-                    <div
-                        style="background:#c7d5c7; border-radius:30px; padding:25px; min-height: {{ $minHeight }}; height: 100%; box-sizing: border-box;">
-                        <span
-                            style="font-size:28px; display: block; margin-bottom: 5px;">Rate Type: {{ $rateCode }}</span>
-                        <span style="font-size:20px; display: block;">{{ $refundableUntil }}</span>
-                        <span style="font-size:20px; display: block; margin-bottom: 25px;">{{ $mealPlan }}</span>
-
-                        @if($occupancy)
-                            <span style="font-size:20px; display: block; margin-bottom: 20px;">
-                                    Guests: {{ Illuminate\Support\Arr::get($occupancy, 'adults', 0) }} Adults
-                                    @if(count(Illuminate\Support\Arr::get($occupancy, 'children_ages', [])) > 0)
-                                    , {{ count(Illuminate\Support\Arr::get($occupancy, 'children_ages', [])) }}
-                                    Children
-                                    (ages: {{ implode(', ', Illuminate\Support\Arr::get($occupancy, 'children_ages', [])) }}
-                                    )
-                                @endif
-                                </span>
-                        @endif
-
-                        <span
-                            style="font-size:28px; display: block; margin-top: 35px; margin-bottom: 15px;">Pricing:</span>
-
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-                               class="pricing-table" style="font-size:20px;">
+                {{-- TOP GREEN INTRO --}}
+                <tr>
+                    <td bgcolor="#C7D5C7"
+                        class="card-padding"
+                        style="
+                            padding:40px 32px 0 32px;
+                            font-family:'Playfair Display', Georgia, serif;
+                            color:#263A3A;
+                            font-size:16px;
+                            line-height:1.6;
+                        ">
+                        {{-- Logo --}}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:36px;">
                             <tr>
-                                <td style="padding-bottom: 5px; vertical-align: top; width: 60%;">Net Price:</td>
-                                <td align="right"
-                                    style="padding-bottom: 5px; vertical-align: top; width: 40%;">
-                                    ${{ $netPrice }}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding-bottom: 5px; vertical-align: top;">Taxes & Fees:</td>
-                                <td align="right"
-                                    style="padding-bottom: 5px; vertical-align: top;">
-                                    ${{ $taxesFees }}</td>
-                            </tr>
-                            @if ($agentCommission > 0)
-                                <tr>
-                                    <td style="padding-bottom: 5px; vertical-align: top;">
-                                        Advisor Commission:
-                                    </td>
-                                    <td align="right"
-                                        style="padding-bottom: 5px; vertical-align: top;">
-                                        ${{ $agentCommission }}</td>
-                                </tr>
-                            @endif
-                            <tr>
-                                <td style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 23px; vertical-align: top; border-top: 1px solid #777;">
-                                    Total Price:
+                                <td align="right">
+                                    <img src="{{ asset('images/terra-mare-logo.png') }}"
+                                         alt="Terra Mare"
+                                         width="238"
+                                         style="height:auto;">
                                 </td>
-                                <td align="right"
-                                    style="padding-top: 15px; font-weight:bold; color:#194c39; font-size: 23px; vertical-align: top;  border-top: 1px solid #777;">
-                                    ${{ $totalPrice }}</td>
                             </tr>
                         </table>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    @endforeach
 
-    <div style="text-align:center; margin-top:30px;">
-        <a href="{{ $verificationUrl }}"
-           style="background: #263a3a;
-                    border-radius: 30px;
-                    color: #fff;
-                    font-size: 33px;
-                    padding: 35px 45px;
-                    text-decoration: none;
-                    display: inline-block;">
-            Confirm Quote
-        </a>
-    </div>
-    <div style="text-align:center; font-size:18px; margin:32px 0 0;">
-        Thank you for your request!<br>Terra Mare
-    </div>
-</div>
+                        <p>Hello,</p>
+
+                        <p>
+                            We’re delighted to assist you with the first step of your booking. Below, you’ll find
+                            an advisor-friendly summary of your quote that can be easily accepted or declined.
+                            A client-ready presentation is also attached for effortless sharing with your traveler.
+                        </p>
+
+                        <p>
+                            Should you have any questions, dietary preferences, or additional requests, our
+                            concierge team will be happy to assist you. We look forward to arranging an
+                            unforgettable escape for your client.
+                        </p>
+
+                        <p style="margin-top:32px;">
+                            Warm regards,<br>
+                            Terra Mare Concierge
+                        </p>
+                    </td>
+                </tr>
+
+                {{-- MAIN SECTION WITH WAVE BG --}}
+                <tr>
+                    <td bgcolor="#E9EDE7"
+                        background="{{ asset('images/email-backgrounds/wave-bg.png') }}"
+                        style="
+                            font-family:'Playfair Display', Georgia, serif;
+                            color:#263A3A;
+                            font-size:16px;
+                            line-height:1.6;
+                            background-image:url('{{ asset('images/email-backgrounds/wave-bg.png') }}');
+                            background-repeat:no-repeat;
+                            background-position:center top;
+                            background-size:cover;
+                        ">
+                        {{-- Wave divider --}}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="line-height:0; padding:0;">
+                                    <img src="{{ asset('images/email-backgrounds/wave-divider.png') }}"
+                                         alt=""
+                                         width="680"
+                                         style="width:100%; height:auto; display:block;">
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="inner-pad"
+                               style="padding:0 32px 40px 32px;">
+                            <tr>
+                                <td style="padding: 0 10px">
+
+                                    {{-- BOOKING DETAILS BELOW --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+                                        <tr>
+                                            <td align="center"
+                                                style="font-size:12px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase;">
+                                                Booking Details Below
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    {{-- Hotel name + address --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                                        <tr>
+                                            <td align="center" style="font-size:32px; line-height:1.4;">
+                                                {{ $hotelName }}
+                                            </td>
+                                        </tr>
+                                        @if($hotelAddress)
+                                            <tr>
+                                                <td align="center"
+                                                    style="font-size:16px; margin-top:4px; color:#4b635c;">
+                                                    {{ $hotelAddress }}
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    </table>
+
+                                    {{-- Hero image --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                                        <tr>
+                                            <td align="center">
+                                                <img src="{{ $heroImage }}"
+                                                     alt="{{ $hotelName }}"
+                                                     style="width:100%; max-width:616px; height:auto; border-radius:28px; object-fit:cover;">
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    {{-- Check-in / Check-out / Guests (без зелёных блоков) --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                           style="margin-bottom:40px;">
+                                        <tr>
+                                            <td align="center" style="padding:0 8px;">
+                                                <div style="font-size:17px; margin-bottom:4px;">
+                                                    Check-In
+                                                </div>
+                                                <div style="font-size:20px;">
+                                                    {{ $checkin }}
+                                                </div>
+                                            </td>
+                                            <td align="center" style="padding:0 8px;">
+                                                <div style="font-size:17px; margin-bottom:4px;">
+                                                    Check-Out
+                                                </div>
+                                                <div style="font-size:20px;">
+                                                    {{ $checkout }}
+                                                </div>
+                                            </td>
+                                            <td align="center" style="padding:0 8px;">
+                                                <div style="font-size:17px; margin-bottom:4px;">
+                                                    Rooms &amp; Guests
+                                                </div>
+                                                <div style="font-size:18px;">
+                                                    {{ $guestInfo }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    {{-- Perks pills --}}
+                                    @if(!empty($perks))
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                               style="margin-bottom:32px;">
+                                            <tr>
+                                                <td align="center" style="padding-bottom:16px;">
+                                                    <div style="font-size:22px;">
+                                                        Terra Mare Exclusive Perks:
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center">
+                                                    @foreach($perks as $perk)
+                                                        <span style="
+                                                            display:inline-block;
+                                                            margin:4px 4px;
+                                                            padding:6px 10px;
+                                                            border-radius:999px;
+                                                            border:1px solid #263A3A;
+                                                            font-size:12px;
+                                                            white-space:nowrap;
+                                                        ">
+                                                            {{ $perk }}
+                                                        </span>
+                                                    @endforeach
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    @endif
+
+                                    {{-- Rate Type + Pricing card --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                           style="margin-bottom:40px;">
+                                        <tr>
+                                            <td align="center">
+                                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%"
+                                                       style="max-width:540px;">
+                                                    <tr>
+                                                        <td class="pricing-card"
+                                                            style="
+                                                                background:#C7D5C7;
+                                                                border-radius:30px;
+                                                                padding:28px 32px;
+                                                            ">
+
+                                                            {{-- Rate Type --}}
+                                                            <div style="font-size:24px; text-align:center; margin-bottom:8px;">
+                                                                Rate Type:
+                                                            </div>
+                                                            @if($refundableUntil)
+                                                                <div style="font-size:20px; text-align:center;">
+                                                                    {{ $refundableUntil }}
+                                                                </div>
+                                                            @endif
+                                                            @if($mealPlanSummary)
+                                                                <div style="font-size:20px; text-align:center; margin-bottom:20px;">
+                                                                    {{ $mealPlanSummary }}
+                                                                </div>
+                                                            @endif
+
+                                                            {{-- Pricing --}}
+                                                            <div style="font-size:24px; text-align:center; margin:8px 0 16px;">
+                                                                Pricing:
+                                                            </div>
+
+                                                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                                                   style="font-size:20px;">
+                                                                <tr>
+                                                                    <td style="padding:4px 0;">Subtotal:</td>
+                                                                    <td align="right" style="padding:4px 0;">
+                                                                        {{ $currency }} {{ number_format($subtotal, 2) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="padding:4px 0;">Taxes &amp; Fees:</td>
+                                                                    <td align="right" style="padding:4px 0;">
+                                                                        {{ $currency }} {{ number_format($taxes + $fees, 2) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="2"
+                                                                        style="padding-top:8px; border-top:1px solid #263A3A;"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="padding:8px 0; font-size:24px;">
+                                                                        Total Price:
+                                                                    </td>
+                                                                    <td align="right" style="padding:8px 0; font-size:22px; font-weight:500;">
+                                                                        {{ $currency }} {{ number_format($totalPrice, 2) }}
+                                                                    </td>
+                                                                </tr>
+                                                                @if($advisorCommission > 0)
+                                                                    <tr>
+                                                                        <td style="padding-top:20px; font-size:18px;">
+                                                                            Advisor Commission:
+                                                                        </td>
+                                                                        <td align="right" style="padding-top:20px; font-size:18px;">
+                                                                            {{ $currency }} {{ number_format($advisorCommission, 2) }}
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    {{-- Confirm button --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                           style="margin: 60px 0;">
+                                        <tr>
+                                            <td align="center">
+                                                <a href="{{ $verificationUrl }}"
+                                                   class="button-primary"
+                                                   style="
+                                                        background:#263A3A;
+                                                        border-radius:14px;
+                                                        color:#FFFFFF;
+                                                        font-size:20px;
+                                                        padding:10px 20px;
+                                                        text-decoration:none;
+                                                        display:inline-block;
+                                                   ">
+                                                    Confirm Quote
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    {{-- Bottom text --}}
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
+                                        <tr>
+                                            <td align="center" style="font-size:26px; padding-bottom:16px;">
+                                                Thank you for your request!
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" style="font-size:16px; max-width:540px; padding: 0 50px">
+                                                Should you wish to decline this quote, please reply to this message – we’ll be
+                                                happy to prepare a new proposal that better suits your client’s needs.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" style="font-size:20px; padding-top:18px;">
+                                                Terra Mare
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>

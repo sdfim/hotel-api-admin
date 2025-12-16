@@ -5,6 +5,7 @@
             'related' => [
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Advisor Commission', 'component' => 'commissions.travel-agency-commission-table'],
+                ['title' => 'Meal Plan Mapping', 'component' => 'meal-plan-mapping.table'],
             ],
         ],
         'Location' => [
@@ -51,7 +52,7 @@
         ],
     ];
 
-    $hotelTitle = ['Rooms', 'Rates', 'Website Search Generation'];
+    $hotelTitle = ['Rooms', 'Rates', 'Website Search Generation', 'Meal Plan Mapping'];
     $createTabs = ['Product', 'Location', 'Gallery',];
 @endphp
 @extends('layouts.master')

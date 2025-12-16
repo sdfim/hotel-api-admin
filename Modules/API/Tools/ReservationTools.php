@@ -98,7 +98,7 @@ class ReservationTools
             }
 
         } catch (Exception $e) {
-            Log::error('ExpediaTools | saveAddItemToReservations'.$e->getMessage());
+            Log::error('ReservationTools | saveAddItemToReservations'.$e->getMessage());
             Log::error($e->getTraceAsString());
         }
     }

@@ -385,7 +385,7 @@ class DepositResolver
         return match ($depositInfo['price_value_target']) {
             ProductApplyTypeEnum::PER_NIGHT->value => $nights,
             ProductApplyTypeEnum::PER_PERSON->value => $totalPersons,
-            ProductApplyTypeEnum::PER_ROOM->value => count($query['occupancy']),
+            ProductApplyTypeEnum::PER_ROOM->value => 1,
             ProductApplyTypeEnum::PER_NIGHT_PER_PERSON->value => $nights * $totalPersons,
             default => 1,
         };

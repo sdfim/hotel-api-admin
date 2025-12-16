@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\BookingEmailVerificationController;
 use App\Http\Controllers\HbsiPropertyController;
 use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
@@ -33,6 +34,7 @@ use Modules\AdministrationSuite\Http\Controllers\HiltonPropertyController;
 use Modules\AdministrationSuite\Http\Controllers\HotelTraderController;
 use Modules\AdministrationSuite\Http\Controllers\IcePortalController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
+use Modules\AdministrationSuite\Http\Controllers\PaymentInitController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertiesController;
@@ -43,6 +45,7 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
+use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageController;
@@ -50,8 +53,6 @@ use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
-use App\Http\Controllers\BookingEmailVerificationController;
-use Modules\AdministrationSuite\Http\Controllers\PaymentInitController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,7 +75,9 @@ Route::fallback(function () {
     }
 });
 
-Route::get('/admin/', fn () => Auth::check()
+Route::get(
+    '/admin/',
+    fn () => Auth::check()
     ? redirect()->route('reservations.index')
     : redirect()->route('login')
 )->name('root');

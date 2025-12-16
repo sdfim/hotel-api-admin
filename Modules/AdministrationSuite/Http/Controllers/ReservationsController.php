@@ -47,28 +47,11 @@ class ReservationsController extends BaseWithPolicyController
 
         // Get booking identifiers from the payload (fallback to columns)
         $bookingItem = $contains['booking_item'] ?? $reservation->booking_item;
-        $bookingId = $contains['booking_id'] ?? $reservation->booking_id;
 
         // Retrieve advisor email from add_item (complete) request
         [, , $advisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($bookingItem)
             ?? [null, null, null];
 
-        // Compute total paid amount(s) grouped by currency
-        // Reason: there might be mixed currencies in edge cases; grouping is safer.
-        $paidByCurrency = ApiBookingPaymentInit::query()
-            ->where('booking_id', $bookingId)
-            ->where('action', PaymentStatusEnum::CONFIRMED) // only confirmed payments
-            ->selectRaw('currency, SUM(amount) as total')
-            ->groupBy('currency')
-            ->get()
-            ->map(fn ($row) => ['currency' => (string) $row->currency, 'total' => (float) $row->total])
-            ->all();
-
-        return view('dashboard.reservations.show', compact(
-            'reservation',
-            'text',
-            'advisorEmail',
-            'paidByCurrency'
-        ));
+        return view('dashboard.reservations.show', compact('reservation', 'text', 'advisorEmail'));
     }
 }

@@ -252,4 +252,48 @@ class ApiBookingItemRepository
 
         return $detailItems;
     }
+
+    /**
+     * Get deposit data for a given booking ID.
+     *
+     * @param string $booking_id
+     * @return array<int, array{
+     *      booking_item: string,
+     *      due_date: string|null,
+     *      total_deposit: float|null,
+     *      base_price_amount: float|null
+     *  }>
+     */
+    public static function getDepositData(string $booking_id): array
+    {
+        $depositData = [];
+        $bookingIds = ApiBookingInspectorRepository::bookedItems($booking_id);
+        foreach ($bookingIds as $bookingId) {
+            $ChildrenBookingItems = self::getChildrenBookingItems($bookingId->booking_item) ?? [];
+            if (count($ChildrenBookingItems) > 0) {
+                foreach ($ChildrenBookingItems as $child) {
+                    $bookingItem = ApiBookingItem::with('supplier')->where('booking_item', $child)->first();
+                    $depositData[$bookingItem->booking_item] = json_decode($bookingItem->booking_pricing_data, true)['deposits'] ?? [];
+                }
+            } else {
+                $bookingItem = ApiBookingItem::with('supplier')->where('booking_item', $bookingId->booking_item)->first();
+                $depositData[$bookingItem->booking_item] = json_decode($bookingItem->booking_pricing_data, true)['deposits'] ?? [];
+            }
+        }
+
+        $filteredDeposits = collect($depositData)->flatMap(function ($deposits, $bookingItem) {
+            return collect($deposits)->filter(function ($deposit) {
+                return $deposit['type'] === 'balance_payment';
+            })->map(function ($deposit) use ($bookingItem) {
+                return [
+                    'booking_item' => $bookingItem,
+                    'due_date' => $deposit['due_date'] ?? null,
+                    'total_deposit' => $deposit['total_deposit'] ?? null,
+                    'base_price_amount' => $deposit['base_price_amount'] ?? null,
+                ];
+            });
+        });
+
+        return $filteredDeposits->values()->toArray();
+    }
 }

@@ -10,6 +10,12 @@ interface PaymentProviderInterface
     public function createPaymentIntent(array $data);
 
     /**
+     * @param $id
+     * @return mixed
+     */
+    public function retrievePaymentConsent($id);
+
+    /**
      * @param array $data
      * @return mixed
      */

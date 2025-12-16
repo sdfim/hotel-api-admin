@@ -16,6 +16,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -61,6 +62,23 @@ class UsersTable extends Component implements HasForms, HasTable
                     ->toggledHiddenByDefault(true)
                     ->getStateUsing(fn (User $record) => $record->currentTeam?->owner()->is($record)),
 
+            ])
+            ->filters([
+                SelectFilter::make(' role')
+                    ->label('User Role')
+                    ->options([
+                        RoleSlug::ADMIN->value => 'Admin',
+                        RoleSlug::API_USER->value => 'API User',
+                        RoleSlug::EXTERNAL_USER->value => 'External User',
+                    ])
+                    ->query(function (Builder $query, $data) {
+                        if (! $data['value']) {
+                            return;
+                        }
+                        $query->whereHas('roles', function (Builder $query) use ($data) {
+                            $query->where('slug', $data['value']);
+                        });
+                    }),
             ])
             ->actions([
                 ActionGroup::make([

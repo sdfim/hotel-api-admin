@@ -21,6 +21,9 @@ COPY ../../.. /var/www
 
 # Copy supervisord config for queue and cron management
 RUN cp infrastructure/docker/php-8.2/supervisord.conf /etc/supervisord.conf
+# Copy custom PHP configuration for memory limit
+RUN cp infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/99-memory-limit.ini
+
 # Copy cron.d and cronenv if system cron is used within the container
 RUN cp -r infrastructure/docker/php-8.2/cron.d /etc/
 RUN cp infrastructure/docker/php-8.2/cronenv /cronenv
