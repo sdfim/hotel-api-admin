@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HiltonHotelController;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\HotelTraderController;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\SupplierControllerInterface;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\ExpediaHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HiltonHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelSupplierInterface;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelTraderController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\IcePortalHotelController;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentTransformer;
@@ -25,7 +25,7 @@ class SupplierServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind(SupplierControllerInterface::class, function ($app, $params) {
+        $this->app->bind(HotelSupplierInterface::class, function ($app, $params) {
             return match ($params['supplier']) {
                 SupplierNameEnum::EXPEDIA->value => app(ExpediaHotelController::class),
                 SupplierNameEnum::ICE_PORTAL->value => app(IcePortalHotelController::class),

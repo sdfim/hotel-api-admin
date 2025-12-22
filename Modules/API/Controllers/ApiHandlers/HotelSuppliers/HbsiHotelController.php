@@ -1,17 +1,21 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\PricingSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
 
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
+use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
 use Modules\API\Tools\Geography;
+use Modules\Enums\SupplierNameEnum;
 use Throwable;
 
-class HbsiHotelController
+class HbsiHotelController implements HotelSupplierInterface
 {
     private const RESULT_PER_PAGE = 1000;
 
@@ -20,9 +24,10 @@ class HbsiHotelController
     public function __construct(
         private readonly HbsiClient $hbsiClient,
         private readonly Geography $geography,
+        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
     ) {}
 
-    public function preSearchData(array &$filters): ?array
+    public function preSearchData(array &$filters, string $initiator = 'price'): ?array
     {
         $timeStart = microtime(true);
 
@@ -61,9 +66,7 @@ class HbsiHotelController
         $endTime = microtime(true) - $timeStart;
         Log::info('HbsiHotelController | preSearchData | mysql query '.$endTime.' seconds');
 
-        $ids['rawGiataIds'] = array_column($ids['data'], 'giata', 'hbsi');
-
-        return $ids;
+        return array_column($ids['data'], 'giata', 'hbsi');
     }
 
     /**
@@ -190,5 +193,95 @@ class HbsiHotelController
     public function object2array($object): mixed
     {
         return json_decode(json_encode($object), 1);
+    }
+
+    public function search(array $filters): array
+    {
+        return [];
+    }
+
+    public function detail(Request $request): array|object
+    {
+        return [];
+    }
+
+    /**
+     * Обрабатывает сырой ответ от поставщика (полученный из price),
+     * трансформирует его в DTO и применяет логику комбинаций и подсчета.
+     */
+    public function processPriceResponse(
+        array $rawResponse,
+        array $filters,
+        string $searchId,
+        array $pricingRules,
+        array $pricingExclusionRules,
+        array $giataIds
+    ): array {
+        $supplierName = SupplierNameEnum::HBSI->value;
+
+        // Инициализация переменных, которые были в HotelApiHandler
+        $dataResponse = [];
+        $clientResponse = [];
+        $totalPages = [];
+        $bookingItems = [];
+        $countResponse = 0;
+        $countClientResponse = 0;
+        $dataOriginal = [];
+
+        // $supplierResponse в HotelApiHandler теперь $rawResponse здесь
+        $hbsiResponse = $rawResponse;
+
+        $dataResponse[$supplierName] = $hbsiResponse['array'];
+        $dataOriginal[$supplierName] = $hbsiResponse['original'];
+
+        $st = microtime(true);
+        // Вызов трансформера через инжектированную зависимость
+        $hotelGenerator = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse(
+            $hbsiResponse['array'],
+            $filters,
+            $searchId,
+            $pricingRules,
+            $pricingExclusionRules,
+            $giataIds
+        );
+
+        $clientResponse[$supplierName] = [];
+        $count = 0;
+        $hotels = [];
+        foreach ($hotelGenerator as $count => $hotel) {
+            $hotels[] = $hotel;
+        }
+
+        /** Enrichment Room Combinations (Логика Room Combination Service) */
+        $countRooms = count($filters['occupancy']);
+        if ($countRooms > 1) {
+            // Инстанцирование сервиса, как это было в handlePriceSupplier
+            $hotelService = new HotelCombinationService($supplierName);
+            $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
+        } else {
+            $clientResponse[$supplierName] = $hotels;
+        }
+
+        $bookingItems[$supplierName] = $this->HbsiHotelPricingTransformer->bookingItems ?? ($hotelGenerator['bookingItems'] ?? []);
+
+        // Подсчет и логирование
+        $countResponse += count($hbsiResponse['array']);
+        $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
+        $countClientResponse += count($clientResponse[$supplierName]);
+        Log::info('HbsiHotelController _ price _ Transformer HbsiToHotelResponse '.(microtime(true) - $st).' seconds');
+
+        unset($hbsiResponse, $hotelGenerator, $hotels);
+
+        // Формат возвращаемых данных соответствует тому, что ожидает HotelApiHandler
+        return [
+            'error' => Arr::get($rawResponse, 'error'),
+            'dataResponse' => $dataResponse,
+            'clientResponse' => $clientResponse,
+            'countResponse' => $countResponse,
+            'totalPages' => $totalPages,
+            'countClientResponse' => $countClientResponse,
+            'bookingItems' => $bookingItems,
+            'dataOriginal' => $dataOriginal,
+        ];
     }
 }

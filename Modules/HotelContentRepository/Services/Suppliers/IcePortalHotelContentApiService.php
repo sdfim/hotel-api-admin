@@ -5,7 +5,7 @@ namespace Modules\HotelContentRepository\Services\Suppliers;
 use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use Illuminate\Support\Arr;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\IcePortalHotelController;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Services\SupplierInterface;

@@ -3,7 +3,7 @@
 namespace Tests\Feature\API\BookingFlow;
 
 use Mockery;
-use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HbsiHotelController;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
 use Modules\API\Tools\PricingDtoTools;

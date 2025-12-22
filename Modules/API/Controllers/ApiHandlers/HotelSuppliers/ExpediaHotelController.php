@@ -1,20 +1,22 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
 
 use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Services\MappingCacheService;
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Tools\Geography;
+use Modules\Enums\SupplierNameEnum;
 
-class ExpediaHotelController implements SupplierControllerInterface
+class ExpediaHotelController implements HotelSupplierInterface
 {
     protected float|string $current_time;
 
@@ -24,7 +26,8 @@ class ExpediaHotelController implements SupplierControllerInterface
 
     public function __construct(
         private ExpediaService $expediaService,
-        private MappingCacheService $mappingCacheService
+        private MappingCacheService $mappingCacheService,
+        private readonly ExpediaHotelPricingTransformer $expediaHotelPricingTransformer,
     ) {}
 
     public function preSearchData(array &$filters, string $initiator): ?array
@@ -96,7 +99,7 @@ class ExpediaHotelController implements SupplierControllerInterface
                     }
                 }
 
-                return $result;
+                return array_flip($result);
             } else {
                 $selectFields = [
                     'expedia_content_main.*',
@@ -179,8 +182,10 @@ class ExpediaHotelController implements SupplierControllerInterface
     /**
      * @throws \Throwable
      */
-    public function price(array $filters, array $searchInspector, array $preSearchData): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
     {
+        $preSearchData = array_flip($preSearchData);
+
         try {
             if (empty($preSearchData)) {
                 return [
@@ -238,5 +243,66 @@ class ExpediaHotelController implements SupplierControllerInterface
         $results = ExpediaRepository::getDetailByGiataIds($propertyIds);
 
         return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());
+    }
+
+    public function processPriceResponse(
+        array $rawResponse,
+        array $filters,
+        string $searchId,
+        array $pricingRules,
+        array $pricingExclusionRules,
+        array $giataIds
+    ): array {
+        $supplierName = SupplierNameEnum::EXPEDIA->value;
+
+        $dataResponse = [];
+        $clientResponse = [];
+        $totalPages = [];
+        $bookingItems = [];
+        $countResponse = 0;
+        $countClientResponse = 0;
+        $dataOriginal = [];
+
+        $expediaResponse = $rawResponse;
+
+        $dataResponse[$supplierName] = $expediaResponse['array'];
+        $dataOriginal[$supplierName] = $expediaResponse['original'];
+
+        $countResponse += count($expediaResponse['array']);
+        $totalPages[$supplierName] = $expediaResponse['total_pages'] ?? 0;
+
+        $st = microtime(true);
+        // Используем инжектированный трансформер
+        $hotelGenerator = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse(
+            $expediaResponse['array'],
+            $filters,
+            $searchId,
+            $pricingRules,
+            $pricingExclusionRules,
+            $giataIds
+        );
+
+        $clientResponse[$supplierName] = [];
+        $count = 0;
+        foreach ($hotelGenerator as $count => $hotel) {
+            $clientResponse[$supplierName][] = $hotel;
+        }
+
+        $bookingItems[$supplierName] = $this->expediaHotelPricingTransformer->bookingItems ?? [];
+        $countClientResponse += $count;
+
+        Log::info('ExpediaHotelController _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
+        unset($expediaResponse, $hotelGenerator);
+
+        return [
+            'error' => Arr::get($rawResponse, 'error'),
+            'dataResponse' => $dataResponse,
+            'clientResponse' => $clientResponse,
+            'countResponse' => $countResponse,
+            'totalPages' => $totalPages,
+            'countClientResponse' => $countClientResponse,
+            'bookingItems' => $bookingItems,
+            'dataOriginal' => $dataOriginal,
+        ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
 
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
@@ -20,7 +20,7 @@ use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
 use Modules\API\Tools\Geography;
 
-class IcePortalHotelController implements SupplierControllerInterface
+class IcePortalHotelController implements HotelSupplierInterface
 {
     private const RESULT_PER_PAGE = 500;
 
@@ -33,10 +33,16 @@ class IcePortalHotelController implements SupplierControllerInterface
         private readonly IcePortalAssetTransformer $icePortalAssetTransformer,
     ) {}
 
+    public function preSearchData(array &$filters, string $initiator): ?array
+    {
+        return null;
+    }
+
     public function search(array $filters): array
     {
         if (isset($filters['giata_ids'])) {
             $giataIdsd = Arr::get($filters, 'giata_ids', [1]);
+
             return IcePortalAccetRepository::dataByGiataIds($giataIdsd);
         } elseif (isset($filters['session']) || isset($filters['latitude'])) {
             return [];
@@ -250,5 +256,15 @@ class IcePortalHotelController implements SupplierControllerInterface
         }
 
         return $existingRecordsArray;
+    }
+
+    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
+    {
+        return null;
+    }
+
+    public function processPriceResponse(array $rawResponse, array $filters, string $searchId, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
+    {
+        return [];
     }
 }

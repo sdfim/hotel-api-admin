@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\SupplierControllerInterface;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelSupplierInterface;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -43,8 +43,8 @@ class HotelContentApiService
         $results = $transformedResults = [];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            /** @var SupplierControllerInterface $service */
-            $service = app(SupplierControllerInterface::class, ['supplier' => $supplier]);
+            /** @var HotelSupplierInterface $service */
+            $service = app(HotelSupplierInterface::class, ['supplier' => $supplier]);
             /** @var SupplierContentTransformerInterface $transformer */
             $transformer = app(SupplierContentTransformerInterface::class, ['supplier' => $supplier]);
             $supplierResults = Arr::get($service->search($request->all()), 'results', []);

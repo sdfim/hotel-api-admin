@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
 
 use App\Models\HotelTraderProperty;
 use App\Models\Mapping;
@@ -14,11 +14,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\HotelTraderSupplier\HotelTraderClient;
+use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransformer;
 use Modules\API\Tools\Geography;
+use Modules\Enums\SupplierNameEnum;
 
-class HotelTraderController implements SupplierControllerInterface
+class HotelTraderController implements HotelSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
+
+    public function __construct(
+        private readonly HotelTraderHotelPricingTransformer $hTraderHotelPricingTransformer,
+    ) {}
 
     public function preSearchData(array &$filters, string $initiator = 'search'): ?array
     {
@@ -283,5 +289,71 @@ class HotelTraderController implements SupplierControllerInterface
                 'total_pages' => 0,
             ];
         }
+    }
+
+    /**
+     * Обрабатывает сырой ответ от поставщика (полученный из price),
+     * трансформирует его в DTO и применяет логику подсчета.
+     */
+    public function processPriceResponse(
+        array $rawResponse,
+        array $filters,
+        string $searchId,
+        array $pricingRules,
+        array $pricingExclusionRules,
+        array $giataIds
+    ): array {
+        $supplierName = SupplierNameEnum::HOTEL_TRADER->value;
+
+        $dataResponse = [];
+        $clientResponse = [];
+        $totalPages = [];
+        $bookingItems = [];
+        $countResponse = 0;
+        $countClientResponse = 0;
+        $dataOriginal = [];
+
+        $hTraderResponse = $rawResponse;
+
+        $dataResponse[$supplierName] = $hTraderResponse['array'];
+        $dataOriginal[$supplierName] = $hTraderResponse['original'];
+
+        $countResponse += count($hTraderResponse['array']);
+        $totalPages[$supplierName] = $hTraderResponse['total_pages'] ?? 0;
+
+        $st = microtime(true);
+        // Вызов трансформера через инжектированную зависимость
+        $hotelGenerator = $this->hTraderHotelPricingTransformer->HotelTraderToHotelResponse(
+            $hTraderResponse['array'],
+            $filters,
+            $searchId,
+            $pricingRules,
+            $pricingExclusionRules,
+            $giataIds
+        );
+
+        $clientResponse[$supplierName] = [];
+        $count = 0;
+        foreach ($hotelGenerator as $count => $hotel) {
+            $clientResponse[$supplierName][] = $hotel;
+        }
+
+        $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? [];
+        $countClientResponse += $count;
+
+        Log::info('HotelTraderController _ price _ Transformer hTraderToHotelResponse '.(microtime(true) - $st).' seconds');
+        unset($hTraderResponse, $hotelGenerator);
+
+        // Формат возвращаемых данных соответствует тому, что ожидает HotelApiHandler
+        return [
+            'error' => Arr::get($rawResponse, 'error'),
+            'dataResponse' => $dataResponse,
+            'clientResponse' => $clientResponse,
+            'countResponse' => $countResponse,
+            'totalPages' => $totalPages,
+            'countClientResponse' => $countClientResponse,
+            'bookingItems' => $bookingItems,
+            'dataOriginal' => $dataOriginal,
+        ];
     }
 }
