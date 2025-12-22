@@ -50,14 +50,13 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
     public function __construct(
         private readonly HbsiTaxAndFeeResolver $taxAndFeeResolver,
-        private readonly ServiceResolver       $serviceResolver,
-        private array                          $meal_plans_available = [],
-        private array                          $roomCombinations = [],
-        private string                         $rate_type = '',
-        private string                         $currency = '',
-        private int                            $supplier_id = 0,
-    ) {
-    }
+        private readonly ServiceResolver $serviceResolver,
+        private array $meal_plans_available = [],
+        private array $roomCombinations = [],
+        private string $rate_type = '',
+        private string $currency = '',
+        private int $supplier_id = 0,
+    ) {}
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): \Generator
     {
@@ -192,7 +191,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                 continue;
             }
 
-            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId, $query);
+            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $query);
             if (empty($roomData)) {
                 continue;
             }
@@ -292,7 +291,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
          * Adding $unknown causes room_combinations generation conflicts for multi-room search
          */
         //        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
-        $rateOccupancy = $adults . '-' . $children . '-' . $infants;
+        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
         $numberOfPassengers = $adults + $children + $infants;
 
@@ -310,7 +309,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                         || $item['supplier_name'] === ContentSourceEnum::HBSI->value;
                 })->all();
             })
-            ->filter(fn ($items) => !empty($items))
+            ->filter(fn ($items) => ! empty($items))
             ->all();
         $transformedRates = $this->taxAndFeeResolver->transformRates($supplierRateData, $repoTaxFees);
         $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $this->currency);
@@ -377,7 +376,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
                     $data['nights'] = $cancelPenalty['AmountPercent']['@attributes']['NmbrOfNights'];
                 }
 
-                if (!isset($data['currency'])) {
+                if (! isset($data['currency'])) {
                     $data['currency'] = $this->currency ?? 'USD';
                 }
 
@@ -494,7 +493,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
         // Try to resolve meal plan using DB mapping (pd_meal_plan_mappings)
         $mealPlanName = $this->resolveMealPlanName(
-            giataId:     $giataId,
+            giataId: $giataId,
             mealPlanRaw: $mealPlanRaw,
             ratePlanCode: (string) $ratePlanCode, // just in case, also force string here
         );
@@ -588,7 +587,7 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now()->toDateTimeString(),
-            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0) . ':' . $roomType,
+            'cache_checkpoint' => Arr::get($propertyGroup, 'giata_id', 0).':'.$roomType,
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
@@ -644,18 +643,18 @@ class HbsiHotelPricingTransformer extends BaseHotelPricingTransformer
 
                         if ($type !== 'fee') {
                             $taxesFeesRate[] = [
-                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'type' => $type ?? 'tax'.' '.$name,
                                 'amount' => $_tax['@attributes']['Amount'],
                                 'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
                                     : $_tax['@attributes']['Code']),
                             ];
                         } else {
                             $fees[] = [
-                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'type' => $type ?? 'tax'.' '.$name,
                                 'amount' => $_tax['@attributes']['Amount'],
                                 'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
                                     : $_tax['@attributes']['Code']),
                             ];
                         }
