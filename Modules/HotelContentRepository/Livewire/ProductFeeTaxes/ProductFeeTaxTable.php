@@ -462,6 +462,9 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 $data['apply_type'] = null;
                                 $data['net_value'] = null;
                             }
+                            if ($data['net_value']) {
+                                $data['rack_value'] = $data['net_value'];
+                            }
                             $record->update($data);
                         })
                         ->closeModalByClickingAway(false)
@@ -541,6 +544,9 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             $data['value_type'] = null;
                             $data['apply_type'] = null;
                             $data['net_value'] = null;
+                        }
+                        if ($data['net_value']) {
+                            $data['rack_value'] = $data['net_value'];
                         }
                         ProductFeeTax::create($data);
                     }),
