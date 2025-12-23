@@ -1,23 +1,23 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: Cloudformation template to create TerraMare resources
 Outputs:
   CodePipelineRoleArn:
     Export:
       Name: !Join
-        - '-'
-        - - !Ref 'AWS::StackName'
+        - "-"
+        - - !Ref "AWS::StackName"
           - CodePipelineRoleArn
-    Value: !GetAtt 'CodePipelineFrontendRole.Arn'
+    Value: !GetAtt "CodePipelineFrontendRole.Arn"
   S3CodePipelineBucket:
     Export:
       Name: !Join
-        - '-'
-        - - !Ref 'AWS::StackName'
+        - "-"
+        - - !Ref "AWS::StackName"
           - S3CodePipelineBucket
-    Value: !Ref 'S3CodePipelineBucket'
+    Value: !Ref "S3CodePipelineBucket"
 Parameters:
   APPNAME:
-    Default: 'fora-stage'
+    Default: "APPNAME-stage"
     Description: Name of the app, it is used to construct resources names
     Type: String
   DockerHubPassword:
@@ -34,11 +34,11 @@ Parameters:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
   GitHubBackendBranch:
-    Default: 'dev'
+    Default: "dev"
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
   GitHubBackendRepo:
-    Default: 'sdfim/fora'
+    Default: "TEN-Travel-Technologies/APPNAME"
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
     Type: String
   RabbitMqEngineVer:
@@ -47,54 +47,23 @@ Parameters:
     Type: String
   RdsDbAllocatedStorage:
     ConstraintDescription: must be between 5 and 1024Gb.
-    Default: '80'
+    Default: "80"
     Description: The size of the database (Gb)
-    MaxValue: '1024'
-    MinValue: '5'
+    MaxValue: "1024"
+    MinValue: "5"
     Type: Number
   RdsDbClass:
     AllowedValues:
+      - db.t3.micro
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
       - db.m5.large
       - db.m5.xlarge
       - db.m5.2xlarge
       - db.m5.4xlarge
       - db.m5.12xlarge
       - db.m5.24xlarge
-      - db.m4.large
-      - db.m4.xlarge
-      - db.m4.2xlarge
-      - db.m4.4xlarge
-      - db.m4.10xlarge
-      - db.m4.16xlarge
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r4.16xlarge
-      - db.x1e.xlarge
-      - db.x1e.2xlarge
-      - db.x1e.4xlarge
-      - db.x1e.8xlarge
-      - db.x1e.16xlarge
-      - db.x1e.32xlarge
-      - db.x1.16xlarge
-      - db.x1.32xlarge
-      - db.r3.large
-      - db.r3.xlarge
-      - db.r3.2xlarge
-      - db.r3.4xlarge
-      - db.r3.8xlarge
-      - db.t2.micro
-      - db.t2.small
-      - db.t2.medium
-      - db.t2.large
-      - db.t2.xlarge
-      - db.t2.2xlarge
-      - db.t3.micro # Added compatible t3 instance type
-      - db.t3.small
-      - db.t3.medium
-      - db.t3.large
     ConstraintDescription: must select a valid database instance type.
     Default: db.t3.medium
     Description: Database instance class
@@ -104,8 +73,8 @@ Parameters:
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
     Default: 10.10.0.0/16
     Description: IP Address range for the VPC
-    MaxLength: '18'
-    MinLength: '9'
+    MaxLength: "18"
+    MinLength: "9"
     Type: String
   DbDatabase:
     Description: Mysql database name (DB_DATABASE)
@@ -114,155 +83,155 @@ Parameters:
     Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
   LatestAmiId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64'
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 Resources:
   AppRunerSecurityGroup:
     DeletionPolicy: Delete
     Properties:
       GroupDescription: App runner SG
       GroupName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - apprunner-sg
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   AppRunnerAutoScalingConf:
     DeletionPolicy: Delete
     Properties:
       AutoScalingConfigurationName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - autoscale-config
-      MaxConcurrency: '100'
-      MaxSize: '2'
-      MinSize: '1'
+      MaxConcurrency: "100"
+      MaxSize: "2"
+      MinSize: "1"
     Type: AWS::AppRunner::AutoScalingConfiguration
   AppRunnerBookingAdminApiSvc:
     DeletionPolicy: Delete
     Properties:
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: DeploymentVersion
           Value: 2025062501
-      AutoScalingConfigurationArn: !GetAtt 'AppRunnerAutoScalingConf.AutoScalingConfigurationArn'
+      AutoScalingConfigurationArn: !GetAtt "AppRunnerAutoScalingConf.AutoScalingConfigurationArn"
       InstanceConfiguration:
         Cpu: 2 vCPU # Increased CPU
-        InstanceRoleArn: !GetAtt 'AppRunnerInstanceRole.Arn'
+        InstanceRoleArn: !GetAtt "AppRunnerInstanceRole.Arn"
         Memory: 4 GB # Increased Memory
       NetworkConfiguration:
         EgressConfiguration:
           EgressType: VPC
-          VpcConnectorArn: !GetAtt 'AppRunnerVpcConnector.VpcConnectorArn'
+          VpcConnectorArn: !GetAtt "AppRunnerVpcConnector.VpcConnectorArn"
         IngressConfiguration:
           IsPubliclyAccessible: true
       ServiceName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - booking-admin-api
       SourceConfiguration:
         AuthenticationConfiguration:
-          AccessRoleArn: !GetAtt 'AppRunnerEcrRole.Arn'
+          AccessRoleArn: !GetAtt "AppRunnerEcrRole.Arn"
         AutoDeploymentsEnabled: false
         ImageRepository:
           ImageConfiguration:
-            Port: '80'
+            Port: "80"
             RuntimeEnvironmentVariables:
               - Name: APPNAME_FROM_ENV
-                Value: !Ref 'APPNAME'
+                Value: !Ref "APPNAME"
               - Name: AWS_REGION
-                Value: !Ref 'AWS::Region'
+                Value: !Ref "AWS::Region"
               - Name: FILESYSTEM_DISK
                 Value: s3
               - Name: AWS_BUCKET
                 Value: !Join
-                  - '-'
-                  - - !Ref 'APPNAME'
+                  - "-"
+                  - - !Ref "APPNAME"
                     - storage-bucket
               - Name: CACHE_DRIVER
-                Value: 'redis'
+                Value: "redis"
               - Name: CACHE_STORE
-                Value: 'redis'
+                Value: "redis"
               - Name: QUEUE_CONNECTION
-                Value: 'rabbitmq'
+                Value: "rabbitmq"
               - Name: LOG_CHANNEL
-                Value: 'stderr'
+                Value: "stderr"
               - Name: DB_CONNECTION
-                Value: 'mysql'
+                Value: "mysql"
               - Name: DB_DATABASE
-                Value: !Ref 'DbDatabase'
+                Value: !Ref "DbDatabase"
               - Name: DB_HOST
-                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+                Value: !GetAtt "RdsMysql.Endpoint.Address"
               - Name: DB_PASSWORD
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretRdsMasterCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretRdsMasterCreds"
                     - :SecretString:password}}
               - Name: DB_PORT
-                Value: '3306'
+                Value: "3306"
               - Name: DB_USERNAME
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretRdsMasterCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretRdsMasterCreds"
                     - :SecretString:username}}
               - Name: RABBITMQ_HOST
                 Value: !Join
-                  - ''
+                  - ""
                   - !Split
                     - :5671
                     - !Join
-                      - ''
+                      - ""
                       - !Split
                         - amqps://
                         - !Select
                           - 0
-                          - !GetAtt 'RabbitMqBroker.AmqpEndpoints'
+                          - !GetAtt "RabbitMqBroker.AmqpEndpoints"
               - Name: RABBITMQ_USER
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretMqCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretMqCreds"
                     - :SecretString:username}}
               - Name: RABBITMQ_PASSWORD
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretMqCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretMqCreds"
                     - :SecretString:password}}
               - Name: RABBITMQ_PORT
-                Value: '5671'
+                Value: "5671"
               - Name: REDIS_HOST
-                Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
+                Value: !GetAtt "RedisCache.RedisEndpoint.Address"
               - Name: SUPPLIER_CONTENT_DB_DATABASE
-                Value: !Ref 'DbSupplierContentDatabase'
+                Value: !Ref "DbSupplierContentDatabase"
               - Name: SUPPLIER_CONTENT_DB_HOST
-                Value: !GetAtt 'RdsMysql.Endpoint.Address'
+                Value: !GetAtt "RdsMysql.Endpoint.Address"
               - Name: SUPPLIER_CONTENT_DB_PASSWORD
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretRdsMasterCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretRdsMasterCreds"
                     - :SecretString:password}}
               - Name: SUPPLIER_CONTENT_DB_PORT
-                Value: '3306'
+                Value: "3306"
               - Name: SUPPLIER_CONTENT_DB_USERNAME
                 Value: !Join
-                  - ''
-                  - - '{{resolve:secretsmanager:'
-                    - !Ref 'SecretRdsMasterCreds'
+                  - ""
+                  - - "{{resolve:secretsmanager:"
+                    - !Ref "SecretRdsMasterCreds"
                     - :SecretString:username}}
               - Name: PORT
-                Value: '80'
+                Value: "80"
           ImageIdentifier: !Join
-            - ''
-            - - !Ref 'AWS::AccountId'
+            - ""
+            - - !Ref "AWS::AccountId"
               - .dkr.ecr.
-              - !Ref 'AWS::Region'
+              - !Ref "AWS::Region"
               - .amazonaws.com/
-              - !Ref 'APPNAME'
+              - !Ref "APPNAME"
               - -api:latest
           ImageRepositoryType: ECR
     Type: AWS::AppRunner::Service
@@ -280,8 +249,8 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
       RoleName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - apprunner-ecr-role
     Type: AWS::IAM::Role
   AppRunnerInstanceRole:
@@ -305,7 +274,7 @@ Resources:
                   - s3:ListBucket
                 Effect: Allow
                 Resource:
-                  - !GetAtt 'S3StorageBucket.Arn'
+                  - !GetAtt "S3StorageBucket.Arn"
                 Sid: listBucket
               - Action:
                   - s3:PutObject
@@ -313,8 +282,8 @@ Resources:
                   - s3:DeleteObject
                 Effect: Allow
                 Resource: !Join
-                  - ''
-                  - - !GetAtt 'S3StorageBucket.Arn'
+                  - ""
+                  - - !GetAtt "S3StorageBucket.Arn"
                     - /*
                 Sid: s3access
               - Action:
@@ -333,20 +302,20 @@ Resources:
                 Sid: CloudWatchLogsAccess
           PolicyName: s3-and-secrets-access
       RoleName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - apprunner-role
     Type: AWS::IAM::Role
   AppRunnerVpcConnector:
     DeletionPolicy: Delete
     Properties:
       SecurityGroups:
-        - !Ref 'AppRunerSecurityGroup'
+        - !Ref "AppRunerSecurityGroup"
       Subnets:
-        - !Ref 'SubnetPrivate1'
+        - !Ref "SubnetPrivate1"
       VpcConnectorName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - vpc-connector
     Type: AWS::AppRunner::VpcConnector
   CodeBuildBackend:
@@ -354,7 +323,7 @@ Resources:
     Properties:
       Artifacts:
         Type: CODEPIPELINE
-      ConcurrentBuildLimit: '1'
+      ConcurrentBuildLimit: "1"
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
@@ -364,106 +333,106 @@ Resources:
         CloudWatchLogs:
           Status: ENABLED
       Name: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - backend
-      ServiceRole: !GetAtt 'CodeBuildBackendRole.Arn'
+      ServiceRole: !GetAtt "CodeBuildBackendRole.Arn"
       Source:
         BuildSpec: !Join
           - "\n"
-          - - 'version: 0.2'
-            - ''
-            - 'env:'
-            - '  secrets-manager:'
-            - '    DOCKERHUB_USERNAME: "/dockerhub/fora/creds:username"'
-            - '    DOCKERHUB_PASS: "/dockerhub/fora/creds:password"'
-            - '  parameter-store:'
+          - - "version: 0.2"
+            - ""
+            - "env:"
+            - "  secrets-manager:"
+            - !Sub '    DOCKERHUB_USERNAME: "/dockerhub/${APPNAME}/creds:username"'
+            - !Sub '    DOCKERHUB_PASS: "/dockerhub/${APPNAME}/creds:password"'
+            - "  parameter-store:"
             - !Join
-              - ''
+              - ""
               - - '    SSH_KEY: "/ec2/keypair/'
-                - !GetAtt 'EC2TasksKeyPair.KeyPairId'
+                - !GetAtt "EC2TasksKeyPair.KeyPairId"
                 - '"'
-            - '  variables:'
+            - "  variables:"
             - !Join
-              - ''
-              - - '    ECR_URL: '
-                - !Ref 'AWS::AccountId'
+              - ""
+              - - "    ECR_URL: "
+                - !Ref "AWS::AccountId"
                 - .dkr.ecr.
-                - !Ref 'AWS::Region'
+                - !Ref "AWS::Region"
                 - .amazonaws.com
             - !Join
-              - ''
-              - - '    TASKS_EC2_IP: '
-                - !GetAtt 'EC2Tasks.PrivateIp'
+              - ""
+              - - "    TASKS_EC2_IP: "
+                - !GetAtt "EC2Tasks.PrivateIp"
             - !Join
-              - ''
-              - - '    API_REPO_NAME: '
-                - !Ref 'APPNAME'
+              - ""
+              - - "    API_REPO_NAME: "
+                - !Ref "APPNAME"
                 - -api
             - !Join
-              - ''
-              - - '    TASKS_REPO_NAME: '
-                - !Ref 'APPNAME'
+              - ""
+              - - "    TASKS_REPO_NAME: "
+                - !Ref "APPNAME"
                 - -tasks
-            - ''
-            - 'phases:'
-            - '  pre_build:'
-            - '    commands:'
-            - '      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASS'
+            - ""
+            - "phases:"
+            - "  pre_build:"
+            - "    commands:"
+            - "      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASS"
             - !Join
-              - ''
-              - - '      - aws ecr get-login-password --region '
-                - !Ref 'AWS::Region'
-                - ' | docker login --username AWS --password-stdin ${ECR_URL}'
-            - '  build:'
-            - '    commands:'
+              - ""
+              - - "      - aws ecr get-login-password --region "
+                - !Ref "AWS::Region"
+                - " | docker login --username AWS --password-stdin ${ECR_URL}"
+            - "  build:"
+            - "    commands:"
             - '      - echo "Build Docker images"'
-            - '      - docker build -t ${API_REPO_NAME} -f infrastructure/docker/php-8.2/Dockerfile .'
-            - '      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
-            - '      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:latest'
-            - '      - docker push ${ECR_URL}/${API_REPO_NAME}:latest'
-            - '      - docker push ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
+            - "      - docker build -t ${API_REPO_NAME} -f infrastructure/docker/php-8.2/Dockerfile ."
+            - "      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}"
+            - "      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:latest"
+            - "      - docker push ${ECR_URL}/${API_REPO_NAME}:latest"
+            - "      - docker push ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}"
             - !Join
-              - ''
-              - - '      - aws apprunner start-deployment --service-arn '
-                - !GetAtt 'AppRunnerBookingAdminApiSvc.ServiceArn'
-            - '      - docker build -t ${TASKS_REPO_NAME} -f infrastructure/docker/php-8.2/tasks.Dockerfile .'
-            - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
-            - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:latest'
-            - '      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:latest'
-            - '      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
+              - ""
+              - - "      - aws apprunner start-deployment --service-arn "
+                - !GetAtt "AppRunnerBookingAdminApiSvc.ServiceArn"
+            - "      - docker build -t ${TASKS_REPO_NAME} -f infrastructure/docker/php-8.2/tasks.Dockerfile ."
+            - "      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}"
+            - "      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:latest"
+            - "      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:latest"
+            - "      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}"
             - '      - if [ $(echo $SSH_KEY | wc -l) -gt 1 ]; then echo $SSH_KEY > sshkey.pem; else echo $SSH_KEY | sed ''s/\(KEY----- \)/\1\n/'' | sed ''s/\(-----END\)/\n\1/'' > sshkey.pem; fi'
-            - '      - chmod 400 sshkey.pem'
-            - '      - ssh-keyscan $TASKS_EC2_IP >> ~/.ssh/known_hosts'
+            - "      - chmod 400 sshkey.pem"
+            - "      - ssh-keyscan $TASKS_EC2_IP >> ~/.ssh/known_hosts"
             - !Join
-              - ''
+              - ""
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "aws ecr get-login-password --region '
-                - !Ref 'AWS::Region'
+                - !Ref "AWS::Region"
                 - ' | docker login --username AWS --password-stdin ${ECR_URL}"'
             - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker pull ${ECR_URL}/${TASKS_REPO_NAME}:latest"'
             - !Join
-              - ''
+              - ""
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker rm -f '
-                - !Ref 'APPNAME'
+                - !Ref "APPNAME"
                 - -tasks"
             - !Join
-              - ''
+              - ""
               - - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker run --name='
-                - !Ref 'APPNAME'
+                - !Ref "APPNAME"
                 - -tasks --log-driver=awslogs --log-opt awslogs-region=
-                - !Ref 'AWS::Region'
-                - ' --log-opt awslogs-group='
-                - !Ref 'APPNAME'
+                - !Ref "AWS::Region"
+                - " --log-opt awslogs-group="
+                - !Ref "APPNAME"
                 - -tasks --log-opt awslogs-create-group=true -d --env-file /home/ec2-user/.tasks.env ${ECR_URL}/${TASKS_REPO_NAME}:latest"
             - '      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker image prune -f"'
         Type: CODEPIPELINE
       Visibility: PRIVATE
       VpcConfig:
         SecurityGroupIds:
-          - !Ref 'CodeBuildBackendSG'
+          - !Ref "CodeBuildBackendSG"
         Subnets:
-          - !Ref 'SubnetPrivate1'
-        VpcId: !Ref 'VPC'
+          - !Ref "SubnetPrivate1"
+        VpcId: !Ref "VPC"
     Type: AWS::CodeBuild::Project
   CodeBuildBackendRole:
     DeletionPolicy: Delete
@@ -487,37 +456,37 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Effect: Allow
                 Resource:
-                  - !Ref 'SecretDockerHubCreds'
+                  - !Ref "SecretDockerHubCreds"
                   - !Join # Dynamically build secret name
-                    - ':'
-                    - - 'arn:aws:secretsmanager'
-                      - !Ref 'AWS::Region'
-                      - !Ref 'AWS::AccountId'
-                      - 'secret:'
+                    - ":"
+                    - - "arn:aws:secretsmanager"
+                      - !Ref "AWS::Region"
+                      - !Ref "AWS::AccountId"
+                      - "secret:"
                       - !Join # Dynamically build secret name
-                        - '-'
-                        - - !Ref 'APPNAME'
+                        - "-"
+                        - - !Ref "APPNAME"
                           - envs
-                      - '*' # Wildcard for suffix
+                      - "*" # Wildcard for suffix
                 Sid: secretsread
               - Action:
                   - ssm:GetParameters
                 Effect: Allow
                 Resource:
                   - !Join
-                    - ''
-                    - - 'arn:aws:ssm:'
-                      - !Ref 'AWS::Region'
-                      - ':'
-                      - !Ref 'AWS::AccountId'
+                    - ""
+                    - - "arn:aws:ssm:"
+                      - !Ref "AWS::Region"
+                      - ":"
+                      - !Ref "AWS::AccountId"
                       - :parameter/ec2/keypair/
-                      - !GetAtt 'EC2TasksKeyPair.KeyPairId'
+                      - !GetAtt "EC2TasksKeyPair.KeyPairId"
                 Sid: parameterread
               - Action:
                   - apprunner:StartDeployment
                 Effect: Allow
                 Resource:
-                  - '*'
+                  - "*"
                 Sid: startapprunnerdeployment
               - Action:
                   - s3:PutObject
@@ -528,9 +497,9 @@ Resources:
                 Effect: Allow
                 Resource:
                   - !Join
-                    - ''
+                    - ""
                     - - arn:aws:s3:::codepipeline-
-                      - !Ref 'AWS::Region'
+                      - !Ref "AWS::Region"
                       - -*
               - Action:
                   - codebuild:CreateReportGroup
@@ -541,11 +510,11 @@ Resources:
                 Effect: Allow
                 Resource:
                   - !Join
-                    - ''
-                    - - 'arn:aws:codebuild:'
-                      - !Ref 'AWS::Region'
-                      - ':'
-                      - !Ref 'AWS::AccountId'
+                    - ""
+                    - - "arn:aws:codebuild:"
+                      - !Ref "AWS::Region"
+                      - ":"
+                      - !Ref "AWS::AccountId"
                       - :report-group/*
               - Action:
                   - ec2:CreateNetworkInterface
@@ -557,7 +526,7 @@ Resources:
                   - ec2:DescribeVpcs
                 Effect: Allow
                 Resource:
-                  - '*'
+                  - "*"
               - Action:
                   - ec2:CreateNetworkInterfacePermission
                 Condition:
@@ -565,74 +534,74 @@ Resources:
                     ec2:AuthorizedService: codebuild.amazonaws.com
                     ec2:Subnet:
                       - !Join
-                        - ''
-                        - - 'arn:aws:ec2:'
-                          - !Ref 'AWS::Region'
-                          - ':'
-                          - !Ref 'AWS::AccountId'
+                        - ""
+                        - - "arn:aws:ec2:"
+                          - !Ref "AWS::Region"
+                          - ":"
+                          - !Ref "AWS::AccountId"
                           - :subnet/
-                          - !GetAtt 'SubnetPrivate1.SubnetId'
+                          - !GetAtt "SubnetPrivate1.SubnetId"
                 Effect: Allow
                 Resource: !Join
-                  - ''
-                  - - 'arn:aws:ec2:'
-                    - !Ref 'AWS::Region'
-                    - ':'
-                    - !Ref 'AWS::AccountId'
+                  - ""
+                  - - "arn:aws:ec2:"
+                    - !Ref "AWS::Region"
+                    - ":"
+                    - !Ref "AWS::AccountId"
                     - :network-interface/*
           PolicyName: CodeBuild-backend
       RoleName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - codebuild-backend
     Type: AWS::IAM::Role
   CodeBuildBackendSG:
     DeletionPolicy: Delete
     Properties:
       GroupDescription: CodeBuild backend SG
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   CodePipelineBackend:
     DeletionPolicy: Delete
     Properties:
       ArtifactStore:
-        Location: !Ref 'S3CodePipelineBucket'
+        Location: !Ref "S3CodePipelineBucket"
         Type: S3
       Name: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - backend
       PipelineType: V1
-      RoleArn: !GetAtt 'CodePipelineFrontendRole.Arn'
+      RoleArn: !GetAtt "CodePipelineFrontendRole.Arn"
       Stages:
         - Actions:
             - ActionTypeId:
                 Category: Source
                 Owner: AWS
                 Provider: CodeStarSourceConnection
-                Version: '1'
+                Version: "1"
               Configuration:
-                BranchName: !Ref 'GitHubBackendBranch'
-                ConnectionArn: !Ref 'GhConnectionArn'
-                FullRepositoryId: !Ref 'GitHubBackendRepo'
+                BranchName: !Ref "GitHubBackendBranch"
+                ConnectionArn: !Ref "GhConnectionArn"
+                FullRepositoryId: !Ref "GitHubBackendRepo"
                 OutputArtifactFormat: CODE_ZIP
               Name: Source
               OutputArtifacts:
                 - Name: SourceArtifact
-              RunOrder: '1'
+              RunOrder: "1"
           Name: Source
         - Actions:
             - ActionTypeId:
                 Category: Build
                 Owner: AWS
                 Provider: CodeBuild
-                Version: '1'
+                Version: "1"
               Configuration:
-                ProjectName: !Ref 'CodeBuildBackend'
+                ProjectName: !Ref "CodeBuildBackend"
               InputArtifacts:
                 - Name: SourceArtifact
               Name: Build
-              RunOrder: '1'
+              RunOrder: "1"
           Name: Build
     Type: AWS::CodePipeline::Pipeline
   CodePipelineFrontendRole:
@@ -659,7 +628,7 @@ Resources:
                       - ec2.amazonaws.com
                       - ecs-tasks.amazonaws.com
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - codecommit:CancelUploadArchive
                   - codecommit:GetBranch
@@ -668,7 +637,7 @@ Resources:
                   - codecommit:GetUploadArchiveStatus
                   - codecommit:UploadArchive
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - codedeploy:CreateDeployment
                   - codedeploy:GetApplication
@@ -677,11 +646,11 @@ Resources:
                   - codedeploy:GetDeploymentConfig
                   - codedeploy:RegisterApplicationRevision
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - codestar-connections:UseConnection
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - elasticbeanstalk:*
                   - ec2:*
@@ -695,12 +664,12 @@ Resources:
                   - sqs:*
                   - ecs:*
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - lambda:InvokeFunction
                   - lambda:ListFunctions
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - opsworks:CreateDeployment
                   - opsworks:DescribeApps
@@ -711,7 +680,7 @@ Resources:
                   - opsworks:UpdateApp
                   - opsworks:UpdateStack
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - cloudformation:CreateStack
                   - cloudformation:DeleteStack
@@ -724,14 +693,14 @@ Resources:
                   - cloudformation:SetStackPolicy
                   - cloudformation:ValidateTemplate
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - codebuild:BatchGetBuilds
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuildBatches
                   - codebuild:StartBuildBatch
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - devicefarm:ListProjects
                   - devicefarm:ListDevicePools
@@ -740,7 +709,7 @@ Resources:
                   - devicefarm:CreateUpload
                   - devicefarm:ScheduleRun
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - servicecatalog:ListProvisioningArtifacts
                   - servicecatalog:CreateProvisioningArtifact
@@ -748,32 +717,32 @@ Resources:
                   - servicecatalog:DeleteProvisioningArtifact
                   - servicecatalog:UpdateProduct
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - cloudformation:ValidateTemplate
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - ecr:DescribeImages
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - states:DescribeExecution
                   - states:DescribeStateMachine
                   - states:StartExecution
                 Effect: Allow
-                Resource: '*'
+                Resource: "*"
               - Action:
                   - appconfig:StartDeployment
                   - appconfig:StopDeployment
                   - appconfig:GetDeployment
                 Effect: Allow
-                Resource: '*'
-            Version: '2012-10-17'
+                Resource: "*"
+            Version: "2012-10-17"
           PolicyName: CodeBuild-policy
       RoleName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - codepipeline-frontend
     Type: AWS::IAM::Role
   EC2TASKSROLE:
@@ -818,7 +787,7 @@ Resources:
                   - secretsmanager:GetRandomPassword
                 Effect: Allow
                 Resource:
-                  - '*'
+                  - "*"
                 Sid: GetRandomPass
           PolicyName: secrets-read
         - PolicyDocument:
@@ -831,7 +800,7 @@ Resources:
                   - ecr:BatchCheckLayerAvailability
                 Effect: Allow
                 Resource:
-                  - '*'
+                  - "*"
                 Sid: ecraccess
           PolicyName: ecr-access
         - PolicyDocument:
@@ -840,7 +809,7 @@ Resources:
                   - s3:ListBucket
                 Effect: Allow
                 Resource:
-                  - !GetAtt 'S3StorageBucket.Arn'
+                  - !GetAtt "S3StorageBucket.Arn"
                 Sid: listBucket
               - Action:
                   - s3:PutObject
@@ -848,14 +817,14 @@ Resources:
                   - s3:DeleteObject
                 Effect: Allow
                 Resource: !Join
-                  - ''
-                  - - !GetAtt 'S3StorageBucket.Arn'
+                  - ""
+                  - - !GetAtt "S3StorageBucket.Arn"
                     - /*
                 Sid: s3access
           PolicyName: s3-access
       RoleName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - ec2-tasks-role
     Type: AWS::IAM::Role
   EC2Tasks:
@@ -868,24 +837,24 @@ Resources:
             DeleteOnTermination: true
             VolumeSize: 60
             VolumeType: gp2
-      IamInstanceProfile: !Ref 'TasksInstanceProfile'
+      IamInstanceProfile: !Ref "TasksInstanceProfile"
       ImageId: !Ref LatestAmiId
-      InstanceType: !Ref 'EC2TasksInstanceType'
-      KeyName: !Ref 'EC2TasksKeyPair'
+      InstanceType: !Ref "EC2TasksInstanceType"
+      KeyName: !Ref "EC2TasksKeyPair"
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeleteOnTermination: true
-          DeviceIndex: '0'
+          DeviceIndex: "0"
           GroupSet:
-            - !Ref 'EC2TasksSecurityGroup'
-          SubnetId: !Ref 'SubnetPublic1'
+            - !Ref "EC2TasksSecurityGroup"
+          SubnetId: !Ref "SubnetPublic1"
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - tasks
         - Key: UserDataVersion
           Value: 202506131800
@@ -1001,8 +970,8 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       KeyName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - tasks-key
     Type: AWS::EC2::KeyPair
   EC2TasksSecurityGroup:
@@ -1010,15 +979,15 @@ Resources:
     Properties:
       GroupDescription: Tasks instance SG
       SecurityGroupIngress:
-        - FromPort: '22'
+        - FromPort: "22"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'CodeBuildBackendSG'
-          ToPort: '22'
-        - FromPort: '22'
+          SourceSecurityGroupId: !Ref "CodeBuildBackendSG"
+          ToPort: "22"
+        - FromPort: "22"
           IpProtocol: tcp
           CidrIp: 217.119.69.6/32
-          ToPort: '22'
-      VpcId: !Ref 'VPC'
+          ToPort: "22"
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   EcrTasksRepo:
     DeletionPolicy: Delete
@@ -1027,8 +996,8 @@ Resources:
         ScanOnPush: false
       ImageTagMutability: MUTABLE
       RepositoryName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - tasks
     Type: AWS::ECR::Repository
   InternetGateway:
@@ -1037,8 +1006,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Join
-            - ''
-            - - !Ref 'APPNAME'
+            - ""
+            - - !Ref "APPNAME"
               - igw
     Type: AWS::EC2::InternetGateway
   MQSecurityGroup:
@@ -1046,22 +1015,22 @@ Resources:
     Properties:
       GroupDescription: Security group for MQ broker.
       SecurityGroupIngress:
-        - FromPort: '5671'
+        - FromPort: "5671"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'EC2TasksSecurityGroup'
-          ToPort: '5671'
-        - FromPort: '5671'
+          SourceSecurityGroupId: !Ref "EC2TasksSecurityGroup"
+          ToPort: "5671"
+        - FromPort: "5671"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'AppRunerSecurityGroup'
-          ToPort: '5671'
-      VpcId: !Ref 'VPC'
+          SourceSecurityGroupId: !Ref "AppRunerSecurityGroup"
+          ToPort: "5671"
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   NatGw:
     DeletionPolicy: Delete
     DependsOn: VpcIgwAttachment
     Properties:
-      AllocationId: !GetAtt 'NatGwEip.AllocationId'
-      SubnetId: !Ref 'SubnetPublic1'
+      AllocationId: !GetAtt "NatGwEip.AllocationId"
+      SubnetId: !Ref "SubnetPublic1"
     Type: AWS::EC2::NatGateway
   NatGwEip:
     DeletionPolicy: Delete
@@ -1071,211 +1040,211 @@ Resources:
   PrivateRouteTableAssosiation:
     DeletionPolicy: Delete
     Properties:
-      RouteTableId: !Ref 'RouteTablePrivate'
-      SubnetId: !Ref 'SubnetPrivate1'
+      RouteTableId: !Ref "RouteTablePrivate"
+      SubnetId: !Ref "SubnetPrivate1"
     Type: AWS::EC2::SubnetRouteTableAssociation
   PublicRouteTableAssosiation:
     DeletionPolicy: Delete
     Properties:
-      RouteTableId: !Ref 'RouteTablePublic'
-      SubnetId: !Ref 'SubnetPublic1'
+      RouteTableId: !Ref "RouteTablePublic"
+      SubnetId: !Ref "SubnetPublic1"
     Type: AWS::EC2::SubnetRouteTableAssociation
   RabbitMqBroker:
     DeletionPolicy: Delete
     Properties:
       AutoMinorVersionUpgrade: true
       BrokerName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - rabbitmq
       DeploymentMode: SINGLE_INSTANCE
       EngineType: RABBITMQ
-      EngineVersion: !Ref 'RabbitMqEngineVer'
+      EngineVersion: !Ref "RabbitMqEngineVer"
       HostInstanceType: mq.t3.micro
       PubliclyAccessible: false
       SecurityGroups:
-        - !Ref 'MQSecurityGroup'
+        - !Ref "MQSecurityGroup"
       SubnetIds:
-        - !Ref 'SubnetPrivateNoNat1'
+        - !Ref "SubnetPrivateNoNat1"
       Users:
         - Password: !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretMqCreds'
+            - ""
+            - - "{{resolve:secretsmanager:"
+              - !Ref "SecretMqCreds"
               - :SecretString:password}}
           Username: !Join
-            - ''
-            - - '{{resolve:secretsmanager:'
-              - !Ref 'SecretMqCreds'
+            - ""
+            - - "{{resolve:secretsmanager:"
+              - !Ref "SecretMqCreds"
               - :SecretString:username}}
     Type: AWS::AmazonMQ::Broker
   RdsMysql:
     DeletionPolicy: Delete
     Properties:
-      AllocatedStorage: !Ref 'RdsDbAllocatedStorage'
-      DBInstanceClass: !Ref 'RdsDbClass'
+      AllocatedStorage: !Ref "RdsDbAllocatedStorage"
+      DBInstanceClass: !Ref "RdsDbClass"
       DBInstanceIdentifier: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - mysql
-      DBName: !Ref 'DbDatabase'
-      DBSubnetGroupName: !Ref 'RdsSubnetGroup'
+      DBName: !Ref "DbDatabase"
+      DBSubnetGroupName: !Ref "RdsSubnetGroup"
       Engine: mysql
       EngineVersion: 8.0.41
       MasterUserPassword: !Join
-        - ''
-        - - '{{resolve:secretsmanager:'
-          - !Ref 'SecretRdsMasterCreds'
+        - ""
+        - - "{{resolve:secretsmanager:"
+          - !Ref "SecretRdsMasterCreds"
           - :SecretString:password}}
       MasterUsername: !Join
-        - ''
-        - - '{{resolve:secretsmanager:'
-          - !Ref 'SecretRdsMasterCreds'
+        - ""
+        - - "{{resolve:secretsmanager:"
+          - !Ref "SecretRdsMasterCreds"
           - :SecretString:username}}
       VPCSecurityGroups:
-        - !Ref 'RdsSecurityGroup'
+        - !Ref "RdsSecurityGroup"
     Type: AWS::RDS::DBInstance
   RdsSecurityGroup:
     DeletionPolicy: Delete
     Properties:
       GroupDescription: Security group for RDS DB Instance.
       SecurityGroupIngress:
-        - FromPort: '3306'
+        - FromPort: "3306"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'EC2TasksSecurityGroup'
-          ToPort: '3306'
-        - FromPort: '3306'
+          SourceSecurityGroupId: !Ref "EC2TasksSecurityGroup"
+          ToPort: "3306"
+        - FromPort: "3306"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'AppRunerSecurityGroup'
-          ToPort: '3306'
-      VpcId: !Ref 'VPC'
+          SourceSecurityGroupId: !Ref "AppRunerSecurityGroup"
+          ToPort: "3306"
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   RdsSubnetGroup:
     DeletionPolicy: Delete
     Properties:
       DBSubnetGroupDescription: !Join
-        - ' '
+        - " "
         - - SubnetGroup for
           - !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - mysql
           - instance
       SubnetIds:
-        - !Ref 'SubnetPrivateNoNat1'
-        - !Ref 'SubnetPrivateNoNat2'
+        - !Ref "SubnetPrivateNoNat1"
+        - !Ref "SubnetPrivateNoNat2"
     Type: AWS::RDS::DBSubnetGroup
   RedisCache:
     DeletionPolicy: Delete
     Properties:
       AZMode: single-az
       CacheNodeType: cache.t4g.micro
-      CacheSubnetGroupName: !Ref 'RedisSubnetGroup'
+      CacheSubnetGroupName: !Ref "RedisSubnetGroup"
       ClusterName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - redis-cahe
       Engine: redis
-      EngineVersion: '7.0'
-      NumCacheNodes: '1'
+      EngineVersion: "7.0"
+      NumCacheNodes: "1"
       VpcSecurityGroupIds:
-        - !Ref 'RedisSecurityGroup'
+        - !Ref "RedisSecurityGroup"
     Type: AWS::ElastiCache::CacheCluster
   RedisSecurityGroup:
     DeletionPolicy: Delete
     Properties:
       GroupDescription: Security group for Redis cache.
       SecurityGroupIngress:
-        - FromPort: '6379'
+        - FromPort: "6379"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'EC2TasksSecurityGroup'
-          ToPort: '6379'
-        - FromPort: '6379'
+          SourceSecurityGroupId: !Ref "EC2TasksSecurityGroup"
+          ToPort: "6379"
+        - FromPort: "6379"
           IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'AppRunerSecurityGroup'
-          ToPort: '6379'
-      VpcId: !Ref 'VPC'
+          SourceSecurityGroupId: !Ref "AppRunerSecurityGroup"
+          ToPort: "6379"
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::SecurityGroup
   RedisSubnetGroup:
     DeletionPolicy: Delete
     Properties:
       CacheSubnetGroupName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - redis-subnet-group
       Description: Subnger group for redis cache cluster
       SubnetIds:
-        - !Ref 'SubnetPrivateNoNat1'
+        - !Ref "SubnetPrivateNoNat1"
     Type: AWS::ElastiCache::SubnetGroup
   RouteInternetGw:
     DeletionPolicy: Delete
     Properties:
-      DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId: !Ref 'InternetGateway'
-      RouteTableId: !Ref 'RouteTablePublic'
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref "InternetGateway"
+      RouteTableId: !Ref "RouteTablePublic"
     Type: AWS::EC2::Route
   RouteNatGw:
     DeletionPolicy: Delete
     Properties:
-      DestinationCidrBlock: '0.0.0.0/0'
-      NatGatewayId: !Ref 'NatGw'
-      RouteTableId: !Ref 'RouteTablePrivate'
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref "NatGw"
+      RouteTableId: !Ref "RouteTablePrivate"
     Type: AWS::EC2::Route
   RouteTablePrivate:
     DeletionPolicy: Delete
     Properties:
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - private-route-table
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::RouteTable
   RouteTablePublic:
     DeletionPolicy: Delete
     Properties:
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - public-route-table
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::RouteTable
   S3CodePipelineBucket:
     DeletionPolicy: Delete
     Properties:
       AccessControl: Private
       BucketName: !Join
-        - '-'
+        - "-"
         - - codepipeline
-          - !Ref 'AWS::Region'
-          - !Ref 'AWS::AccountId'
+          - !Ref "AWS::Region"
+          - !Ref "AWS::AccountId"
     Type: AWS::S3::Bucket
   S3StorageBucket:
     DeletionPolicy: Delete
     Properties:
       AccessControl: Private
       BucketName: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - storage-bucket
     Type: AWS::S3::Bucket
   SecretDockerHubCreds:
     Properties:
-      Name: /dockerhub/fora/creds
+      Name: !Sub /dockerhub/${APPNAME}/creds
       SecretString: !Join
-        - ''
+        - ""
         - - '{"username":"'
-          - !Ref 'DockerHubUsername'
+          - !Ref "DockerHubUsername"
           - '",'
           - '"password":"'
-          - !Ref 'DockerHubPassword'
+          - !Ref "DockerHubPassword"
           - '"}'
     Type: AWS::SecretsManager::Secret
   SecretMqCreds:
@@ -1289,15 +1258,15 @@ Resources:
         PasswordLength: 30
         SecretStringTemplate: '{"username":"rabbitmq"}'
       Name: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - rabbitmq-creds
     Type: AWS::SecretsManager::Secret
   SecretRdsInstanceAttachment:
     DeletionPolicy: Delete
     Properties:
-      SecretId: !Ref 'SecretRdsMasterCreds'
-      TargetId: !Ref 'RdsMysql'
+      SecretId: !Ref "SecretRdsMasterCreds"
+      TargetId: !Ref "RdsMysql"
       TargetType: AWS::RDS::DBInstance
     Type: AWS::SecretsManager::SecretTargetAttachment
   SecretRdsMasterCreds:
@@ -1311,8 +1280,8 @@ Resources:
         PasswordLength: 30
         SecretStringTemplate: '{"username":"admin"}'
       Name: !Join
-        - '-'
-        - - !Ref 'APPNAME'
+        - "-"
+        - - !Ref "APPNAME"
           - rds-creds
     Type: AWS::SecretsManager::Secret
   SubnetPrivate1:
@@ -1325,19 +1294,19 @@ Resources:
       CidrBlock: !Select
         - 0
         - !Cidr
-          - !GetAtt 'VPC.CidrBlock'
+          - !GetAtt "VPC.CidrBlock"
           - 4
           - 8
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - private-subnet1
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::Subnet
   SubnetPrivateNoNat1:
     DeletionPolicy: Delete
@@ -1349,19 +1318,19 @@ Resources:
       CidrBlock: !Select
         - 1
         - !Cidr
-          - !GetAtt 'VPC.CidrBlock'
+          - !GetAtt "VPC.CidrBlock"
           - 4
           - 8
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - private-no-nat-subnet1
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::Subnet
   SubnetPrivateNoNat2:
     DeletionPolicy: Delete
@@ -1373,19 +1342,19 @@ Resources:
       CidrBlock: !Select
         - 2
         - !Cidr
-          - !GetAtt 'VPC.CidrBlock'
+          - !GetAtt "VPC.CidrBlock"
           - 4
           - 8
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - private-no-nat-subnet2
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::Subnet
   SubnetPublic1:
     DeletionPolicy: Delete
@@ -1397,44 +1366,44 @@ Resources:
       CidrBlock: !Select
         - 3
         - !Cidr
-          - !GetAtt 'VPC.CidrBlock'
+          - !GetAtt "VPC.CidrBlock"
           - 4
           - 8
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - public-subnet1
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::Subnet
   TasksInstanceProfile:
     DeletionPolicy: Delete
     Properties:
       Roles:
-        - !Ref 'EC2TASKSROLE'
+        - !Ref "EC2TASKSROLE"
     Type: AWS::IAM::InstanceProfile
   VPC:
     DeletionPolicy: Delete
     Properties:
-      CidrBlock: !Ref 'VPCCIDR'
+      CidrBlock: !Ref "VPCCIDR"
       EnableDnsHostnames: true
       EnableDnsSupport: true
       Tags:
         - Key: Application
-          Value: !Ref 'AWS::StackName'
+          Value: !Ref "AWS::StackName"
         - Key: Name
           Value: !Join
-            - '-'
-            - - !Ref 'APPNAME'
+            - "-"
+            - - !Ref "APPNAME"
               - vpc
     Type: AWS::EC2::VPC
   VpcIgwAttachment:
     DeletionPolicy: Delete
     Properties:
-      InternetGatewayId: !Ref 'InternetGateway'
-      VpcId: !Ref 'VPC'
+      InternetGatewayId: !Ref "InternetGateway"
+      VpcId: !Ref "VPC"
     Type: AWS::EC2::VPCGatewayAttachment
