@@ -19,7 +19,7 @@
     $totalFees   = $total_fees  ?? 0;
     $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
 
-    $agencyName  = $agency['booking_agent']       ?? ' <?= env('APP_NAME'); ?> Tours';
+    $agencyName  = $agency['booking_agent']       ?? ' {{ env('APP_NAME') }}Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
 
     /** Optional fields */
@@ -297,7 +297,7 @@
             <tr valign="top">
                 {{-- Perks --}}
                 <td width="60%" style="padding-right:26px;">
-                    <div style="font-size: 24px; margin: 0 0 10px 0;"> <?= env('APP_NAME'); ?> Exclusive Perks:</div>
+                    <div style="font-size: 24px; margin: 0 0 10px 0;"> {{ env('APP_NAME') }}Exclusive Perks:</div>
 
                     @if(!empty($perks))
                         <ul>
@@ -329,7 +329,7 @@
                 {{-- Contacts --}}
                 <td width="50%" style="padding-right:26px;">
                     <div class="contact-block">
-                        <div class="contact-name"> <?= env('APP_NAME'); ?> Tours</div>
+                        <div class="contact-name"> {{ env('APP_NAME') }}Tours</div>
                         <div>225 Broadway, Fl. 23,</div>
                         <div>New York, NY, 10007, USA</div>
                         <div>+1 (332)-232-8351</div>

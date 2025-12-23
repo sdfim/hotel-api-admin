@@ -7,7 +7,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title> <?= env('APP_NAME'); ?> – Client Confirmation</title>
+    <title> {{ env('APP_NAME') }}– Client Confirmation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -93,7 +93,7 @@
 
                         <p style="margin-top: 40px;">
                             Warm regards,<br>
-                             <?= env('APP_NAME'); ?> Concierge
+                             {{ env('APP_NAME') }}Concierge
                         </p>
 
                         {{-- Bottom "Thank you" block --}}

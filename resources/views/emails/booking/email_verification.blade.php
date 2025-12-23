@@ -60,7 +60,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title> <?= env('APP_NAME'); ?> – Quote Confirmation</title>
+    <title> {{ env('APP_NAME') }}– Quote Confirmation</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -142,7 +142,7 @@
 
                         <p style="margin-top:32px;">
                             Warm regards,<br>
-                             <?= env('APP_NAME'); ?> Concierge
+                             {{ env('APP_NAME') }}Concierge
                         </p>
                     </td>
                 </tr>
@@ -254,7 +254,7 @@
                                             <tr>
                                                 <td align="center" style="padding-bottom:16px;">
                                                     <div style="font-size:22px;">
-                                                         <?= env('APP_NAME'); ?> Exclusive Perks:
+                                                         {{ env('APP_NAME') }}Exclusive Perks:
                                                     </div>
                                                 </td>
                                             </tr>

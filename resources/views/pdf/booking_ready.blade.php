@@ -203,7 +203,7 @@
                     {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}.</p>
                 <p>We look forward to welcoming you soon for an unforgettable
                     escape in Mexico.</p>
-                <p>Warm regards,  <?= env('APP_NAME'); ?> Concierge</p>
+                <p>Warm regards,  {{ env('APP_NAME') }}Concierge</p>
             </div>
         </div>
     </div>

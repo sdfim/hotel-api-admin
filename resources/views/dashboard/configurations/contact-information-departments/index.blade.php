@@ -4,7 +4,8 @@
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="<?= env('APP_NAME'); ?> Department" pagetitle="index"/>
+    <x-page-title title="{{ env('APP_NAME') }} Department" pagetitle="index"/>
+
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
