@@ -3,7 +3,7 @@
     <div class="topbar-brand flex items-center">
         <div class="navbar-brand flex h-[50px] shrink items-center justify-between border-r bg-slate-50 px-5 dark:border-zinc-700 dark:bg-zinc-800">
             <a href="#" class="flex items-center font-bold text-lg dark:text-white">
-                <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="logo" class="inline-block h-6 ltr:mr-2 rtl:ml-2 mt-1" />
+                <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="logo" class="inline-block h-6 ltr:mr-2 rtl:ml-2 mt-1" />
                 <span class="hidden align-middle xl:block"><?= env('APP_NAME'); ?></span>
             </a>
         </div>

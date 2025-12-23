@@ -1,10 +1,10 @@
 <button
     {{ $attributes->merge([
         'type' => 'submit',
-        'class' => 'btn py-2 px-10 font-bold text-white bg-mandarin-900 border-mandarin-900
-            hover:text-mandarin-900 hover:bg-mandarin-200 hover:border-mandarin-700
-            focus:text-mandarin-900 focus:bg-mandarin-700 focus:border-mandarin-700 focus:ring focus:ring-mandarin-500/30
-            active:text-mandarin-900 active:bg-mandarin-700 active:border-mandarin-700
+        'class' => 'btn py-2 px-10 font-bold text-white bg-maintheme-900 border-maintheme-900
+            hover:text-maintheme-900 hover:bg-maintheme-200 hover:border-maintheme-700
+            focus:text-maintheme-900 focus:bg-maintheme-700 focus:border-maintheme-700 focus:ring focus:ring-maintheme-500/30
+            active:text-maintheme-900 active:bg-maintheme-700 active:border-maintheme-700
             dark:border-transparent']) }}>
     {{ $slot }}
 </button>

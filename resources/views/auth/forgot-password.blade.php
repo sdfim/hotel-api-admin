@@ -12,7 +12,7 @@
                 <div class="card flex flex-col mx-5 mt-10 p-10">
                     <div class=" mx-auto mb-4">
                         <a href="{{ url('index') }}" class="">
-                            <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                            <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt=""
                                  class="h-8 inline"> <span
                                 class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                         </a>
@@ -49,7 +49,7 @@
 
                             <div class="mb-4">
                                 <button
-                                    class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-mandarin-200 dark:shadow-zinc-600"
+                                    class="btn border-transparent bg-maintheme-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-maintheme-200 dark:shadow-zinc-600"
                                     type="submit">Reset
                                 </button>
                             </div>
@@ -58,7 +58,7 @@
                         <div class="mt-12 text-center">
                             <p class="text-gray-500 dark:text-zinc-100">Remember It ? <a
                                     href="{{ route('login') }}"
-                                    class="text-mandarin-500 font-semibold"> Sign In </a></p>
+                                    class="text-maintheme-500 font-semibold"> Sign In </a></p>
                         </div>
                     </div>
 

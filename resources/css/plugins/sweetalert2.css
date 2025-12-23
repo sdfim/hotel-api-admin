@@ -7,7 +7,7 @@
 }
 
 .swal2-styled.swal2-default-outline:focus{
-    @apply shadow-none focus:ring focus:ring-mandarin-500/30;
+    @apply shadow-none focus:ring focus:ring-maintheme-500/30;
 }
 
 .swal2-input{

@@ -14,7 +14,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" class="h-8 inline">
                                     <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
@@ -73,7 +73,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <button
-                                            class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-mandarin-200 dark:shadow-zinc-600"
+                                            class="btn border-transparent bg-maintheme-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-maintheme-200 dark:shadow-zinc-600"
                                             type="submit">Log In
                                         </button>
                                     </div>
@@ -87,7 +87,7 @@
                                     </div>
 
                                     <div class="flex justify-center gap-3">
-                                        <a href="" class="h-9 w-9 bg-mandarin-500 leading-[2.9] rounded-full">
+                                        <a href="" class="h-9 w-9 bg-maintheme-500 leading-[2.9] rounded-full">
                                             <i class="mdi mdi-facebook text-lg text-white"></i>
                                         </a>
                                         <a href="" class="h-9 w-9 bg-sky-500 leading-[2.9] rounded-full">
@@ -106,7 +106,7 @@
                                     <script>
                                         document.write(new Date().getFullYear())
                                     </script>
-                                    <a href="https://www.cabinselect.com/" class="text-mandarin-500 underline">CabinSelect</a>
+                                    <a href="https://www.cabinselect.com/" class="text-maintheme-500 underline">CabinSelect</a>
                                 </p>
                             </div>
                         </div>
@@ -114,7 +114,7 @@
                 </div>
                 <div class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
                     <div class="h-screen bg-cover relative p-5">
-                        <div class="absolute inset-0 bg-mandarin-500/90"></div>
+                        <div class="absolute inset-0 bg-maintheme-500/90"></div>
 
                         <ul class="bg-bubbles absolute top-0 left-0 w-full h-full overflow-hidden animate-square">
                             <li class="h-10 w-10 rounded-3xl bg-white/10 absolute left-[10%] "></li>

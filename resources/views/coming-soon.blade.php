@@ -11,15 +11,15 @@
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
                     <img src="{{ URL::asset('build/images/bg-1.jpg') }}" alt="">
-                    <div class="bg-overlay bg-mandarin-500/60 inset-0 absolute"></div>
+                    <div class="bg-overlay bg-maintheme-500/60 inset-0 absolute"></div>
                 </div>
                 <div class="swiper-slide">
                     <img src="{{ URL::asset('build/images/bg-2.jpg') }}" alt="">
-                    <div class="bg-overlay bg-mandarin-500/60 inset-0 absolute"></div>
+                    <div class="bg-overlay bg-maintheme-500/60 inset-0 absolute"></div>
                 </div>
                 <div class="swiper-slide">
                     <img src="{{ URL::asset('build/images/bg-3.jpg') }}" alt="">
-                    <div class="bg-overlay bg-mandarin-500/60 inset-0 absolute"></div>
+                    <div class="bg-overlay bg-maintheme-500/60 inset-0 absolute"></div>
                 </div>
             </div>
             <div
@@ -35,7 +35,7 @@
                 <div class="col-span-8 col-start-3">
                     <div class="text-center mb-5">
                         <a href="{{ url('index') }}">
-                            <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                            <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt=""
                                  class="h-7 mx-auto inline-block"><span
                                 class="text-22 align-middle ml-2 font-semibold text-white"><?= env('APP_NAME'); ?></span>
                         </a>
@@ -111,7 +111,7 @@
                                            class="form-control w-full py-3 rounded-md placeholder:text-gray-400  placeholder:text-14 pr-14 dark:bg-zinc-800 dark:text-gray-100 dark:border-zinc-600"
                                            placeholder="Enter your email address">
                                     <button
-                                        class="py-[10px] px-3 top-1 right-1 text-white rounded-md bg-mandarin-500 absolute"
+                                        class="py-[10px] px-3 top-1 right-1 text-white rounded-md bg-maintheme-500 absolute"
                                         type="button"><i class="bx bx-paper-plane align-middle"></i></button>
                                 </form>
                             </div>

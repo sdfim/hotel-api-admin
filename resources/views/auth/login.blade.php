@@ -12,7 +12,7 @@
                 <div class="card flex flex-col mx-5 mt-10 p-10" style="min-width: 500px;">
                     <div class="mx-auto mb-4">
                         <a href="{{ url('index') }}" class="">
-                            <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                            <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt=""
                                  class="h-8 inline"> <span
                                 class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                         </a>
@@ -92,7 +92,7 @@
                             </div>
                             <div class="mb-3">
                                 <button
-                                    class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-mandarin-200 dark:shadow-zinc-600"
+                                    class="btn border-transparent bg-maintheme-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-maintheme-200 dark:shadow-zinc-600"
                                     type="submit">Log In
                                 </button>
                             </div>
@@ -105,7 +105,7 @@
                             <script>
                                 document.write(new Date().getFullYear())
                             </script>
-                            <a href="https://www.cabinselect.com/" class="text-mandarin-500 underline">CabinSelect</a>
+                            <a href="https://www.cabinselect.com/" class="text-maintheme-500 underline">CabinSelect</a>
                         </p>
                     </div>
                 </div>

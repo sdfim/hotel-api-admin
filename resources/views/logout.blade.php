@@ -15,7 +15,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" class="h-8 inline">
                                     <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
@@ -24,8 +24,8 @@
                             <div class="my-auto">
                                 <div>
                                     <div
-                                        class=" bg-mandarin-500/5 h-20 w-20 text-primary text-center mx-auto rounded-full dark:bg-zinc-700">
-                                        <i class="bx bxs-user text-4xl leading-[2.2] text-mandarin-500"></i>
+                                        class=" bg-maintheme-500/5 h-20 w-20 text-primary text-center mx-auto rounded-full dark:bg-zinc-700">
+                                        <i class="bx bxs-user text-4xl leading-[2.2] text-maintheme-500"></i>
                                     </div>
                                 </div>
 
@@ -37,13 +37,13 @@
 
                                 <div class="mt-5">
                                     <a href="{{ url('auth-login') }}"
-                                       class="btn border-transparent bg-mandarin-500 w-full py-2.5 text-white shadow-md shadow-mandarin-200 dark:shadow-zinc-600">Sign
+                                       class="btn border-transparent bg-maintheme-500 w-full py-2.5 text-white shadow-md shadow-maintheme-200 dark:shadow-zinc-600">Sign
                                         In</a>
                                 </div>
 
                                 <div class="mt-12 text-center">
                                     <p class="text-gray-500 dark:text-zinc-100/60">Don't have an account ? <a
-                                            href="{{ url('login') }}" class="text-mandarin-500 font-semibold"> Signup </a>
+                                            href="{{ url('login') }}" class="text-maintheme-500 font-semibold"> Signup </a>
                                     </p>
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
                     <div class="h-screen bg-cover relative p-5">
-                        <div class="absolute inset-0 bg-mandarin-500/90"></div>
+                        <div class="absolute inset-0 bg-maintheme-500/90"></div>
 
                         <ul class="bg-bubbles absolute top-0 left-0 w-full h-full overflow-hidden animate-square">
                             <li class="h-10 w-10 rounded-3xl bg-white/10 absolute left-[10%] "></li>

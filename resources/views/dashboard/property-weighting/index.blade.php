@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-12 margin-tb">
                 <div class="mb-6">
-                    <a class="btn text-mandarin-500 hover:text-white border-mandarin-500 hover:bg-mandarin-600 hover:border-mandarin-600 focus:bg-mandarin-600 focus:text-white focus:border-mandarin-600 focus:ring focus:ring-mandarin-500/30 active:bg-mandarin-600 active:border-mandarin-600"
+                    <a class="btn text-maintheme-500 hover:text-white border-maintheme-500 hover:bg-maintheme-600 hover:border-maintheme-600 focus:bg-maintheme-600 focus:text-white focus:border-maintheme-600 focus:ring focus:ring-maintheme-500/30 active:bg-maintheme-600 active:border-maintheme-600"
                        href="{{ route('property-weighting.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
                 </div>
 

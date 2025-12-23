@@ -14,9 +14,9 @@
                     <div class="justify-self-center">
                         <ul id="tabs" class="flex w-full gap-3">
                             <li class="font-medium text-14 active relative"><a id="default-tab" href="#monthly"
-                                                                               class=" text-mandarin-500 p-5">Monthly</a>
+                                                                               class=" text-maintheme-500 p-5">Monthly</a>
                                 <div
-                                    class="after:content-[''] after:absolute after:border-b after:block after:text-sm after:font-medium after:w-full after:border-mandarin-500 after:-bottom-5 translate-y-0.5 after:pt-2">
+                                    class="after:content-[''] after:absolute after:border-b after:block after:text-sm after:font-medium after:w-full after:border-maintheme-500 after:-bottom-5 translate-y-0.5 after:pt-2">
                                 </div>
                             </li>
                             <li class="font-medium text-14 dark:text-white px-3"><a href="#yearly">Yearly </a></li>
@@ -63,7 +63,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                   class="btn w-full order-2 border-mandarin-500 text-mandarin-500 hover:bg-mandarin-500 hover:text-white focus:bg-mandarin-500 focus:text-white focus:ring focus:ring-mandarin-200">Choose
+                                                   class="btn w-full order-2 border-maintheme-500 text-maintheme-500 hover:bg-maintheme-500 hover:text-white focus:bg-maintheme-500 focus:text-white focus:ring focus:ring-maintheme-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -106,7 +106,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                   class="btn w-full order-2 border-mandarin-500 text-mandarin-500 hover:bg-mandarin-500 hover:text-white focus:bg-mandarin-500 focus:text-white focus:ring focus:ring-mandarin-200">Choose
+                                                   class="btn w-full order-2 border-maintheme-500 text-maintheme-500 hover:bg-maintheme-500 hover:text-white focus:bg-maintheme-500 focus:text-white focus:ring focus:ring-maintheme-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -116,10 +116,10 @@
 
                             <div class="col-span-12 md:col-span-6 xl:col-span-3">
                                 <div class="card dark:bg-zinc-800 dark:border-zinc-600">
-                                    <div class="card-body bg-mandarin-500 overflow-hidden rounded">
+                                    <div class="card-body bg-maintheme-500 overflow-hidden rounded">
                                         <div class="p-2 relative">
                                             <div
-                                                class="w-48 text-center p-1 text-mandarin-500 font-medium bg-white ltr:rotate-45 rtl:-rotate-45 absolute ltr:-right-20 rtl:-left-20 top-0">
+                                                class="w-48 text-center p-1 text-maintheme-500 font-medium bg-white ltr:rotate-45 rtl:-rotate-45 absolute ltr:-right-20 rtl:-left-20 top-0">
                                                 <span>Featured</span>
                                             </div>
                                             <h5 class="text-base text-white">Enterprise</h5>
@@ -196,7 +196,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                   class="btn w-full order-2 border-mandarin-500 text-mandarin-500 hover:bg-mandarin-500 hover:text-white focus:bg-mandarin-500 focus:text-white focus:ring focus:ring-mandarin-200">Choose
+                                                   class="btn w-full order-2 border-maintheme-500 text-maintheme-500 hover:bg-maintheme-500 hover:text-white focus:bg-maintheme-500 focus:text-white focus:ring focus:ring-maintheme-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -228,14 +228,14 @@
                             <div class="grid grid-cols-12 gap-4 ">
                                 <div class="col-span-12 md:col-span-6 xl:col-span-3">
                                     <div class="card border-0 space-y-4 ">
-                                        <div class="p-4 px-5 border border-mandarin-500 rounded">
+                                        <div class="p-4 px-5 border border-maintheme-500 rounded">
                                             <div id="v-pills-tab" role="tablist">
                                                 <a class="mb-3 active" id="v-pills-tab-one" data-bs-toggle="pill"
                                                    href="#v-price-one" role="tab" aria-controls="v-price-one"
                                                    aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
-                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-mandarin-500"></i>
+                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-maintheme-500"></i>
                                                         <div class="flex-1">
                                                             <h2 class="text-gray-600 dark:text-gray-100">$29 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
@@ -256,7 +256,7 @@
                                                    aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
-                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-mandarin-500"></i>
+                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-maintheme-500"></i>
                                                         <div class="flex-1">
                                                             <h2 class="text-gray-600 dark:text-gray-100">$79 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
@@ -277,7 +277,7 @@
                                                    aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
-                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-mandarin-500"></i>
+                                                            class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-maintheme-500"></i>
                                                         <div class="flex-1">
                                                             <h2 class="text-gray-600 dark:text-gray-100">$99 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/

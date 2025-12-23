@@ -104,7 +104,7 @@
                                 @if($canView($link['model']))
                                     <li>
                                         <a href="{{ route($link['route']) }}"
-                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                             {{ $link['text'] }}
                                         </a>
                                     </li>
@@ -127,7 +127,7 @@
                                     <a href="{{ Route('users.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-mandarin-500
+                               duration-150 ease-linear hover:text-maintheme-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Users</a>
                                 </li>
@@ -137,7 +137,7 @@
                                     <a href="{{ Route('roles.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-mandarin-500
+                               duration-150 ease-linear hover:text-maintheme-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Roles</a>
                                 </li>
@@ -147,7 +147,7 @@
                                     <a href="{{ Route('permissions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all
-                               duration-150 ease-linear hover:text-mandarin-500
+                               duration-150 ease-linear hover:text-maintheme-500
                                dark:text-gray-300 dark:active:text-white
                                dark:hover:text-white">Permissions</a>
                                 </li>
@@ -195,28 +195,28 @@
                             @if($canView(ApiSearchInspector::class))
                                 <li>
                                     <a href="{{ Route('search-inspector.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
                                         Search Inspector</a>
                                 </li>
                             @endif
                             @if($canView(ApiBookingInspector::class))
                                 <li>
                                     <a href="{{ Route('booking-inspector.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
                                         Booking Inspector</a>
                                 </li>
                             @endif
                             @if($canView(ApiBookingItem::class))
                                 <li>
                                     <a href="{{ Route('booking-items.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">
                                         Booking Items</a>
                                 </li>
                             @endif
                             @if($canView(ApiBookingInspector::class))
                                 <li>
                                     <a href="{{ Route('payment-inspector.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                         Payment Intents</a>
                                 </li>
                             @endif
@@ -234,12 +234,12 @@
                         <ul>
                             <li>
                                 <a href="{{ Route('exceptions-report.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
                                     Data</a>
                             </li>
                             <li>
                                 <a href="{{ Route('exceptions-report-chart.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
                                     Chart</a>
                             </li>
                         </ul>
@@ -277,7 +277,7 @@
 
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-contract-2"></i>
                         <span data-key="t-property-mapping">Content Suppliers</span>
                     </a>
@@ -285,7 +285,7 @@
                         @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::EXPEDIA->value))
                             <li>
                                 <a href="{{ Route('expedia.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Expedia
                                 </a>
                             </li>
@@ -293,7 +293,7 @@
                         @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::ICE_PORTAL->value))
                             <li>
                                 <a href="{{ Route('ice-portal.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Ice Portal
                                 </a>
                             </li>
@@ -301,7 +301,7 @@
                         @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HOTEL_TRADER->value))
                             <li>
                                 <a href="{{ Route('hotel-trader.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Hotel Trader
                                 </a>
                             </li>
@@ -309,7 +309,7 @@
                         @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HBSI->value))
                             <li>
                                 <a href="{{ Route('hbsi-property.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     HBSI
                                 </a>
                                 @endif
@@ -317,7 +317,7 @@
                             </li>
                             <li>
                                 <a href="{{ Route('hilton.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-mandarin-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                     Hilton
                                 </a>
                             </li>

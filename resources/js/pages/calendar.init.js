@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var defaultEvents = [{
         title: 'All Day Event',
         start: new Date(y, m, 1),
-        className: 'bg-mandarin-500'
+        className: 'bg-maintheme-500'
     },
     {
         title: 'Long Event',
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title: 'Repeating Event',
         start: new Date(y, m, d + 4, 16, 0),
         allDay: false,
-        className: 'bg-mandarin-500'
+        className: 'bg-maintheme-500'
     },
     {
         title: 'Meeting',

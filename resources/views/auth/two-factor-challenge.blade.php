@@ -14,7 +14,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt=""
                                          class="h-8 inline"> <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
@@ -110,7 +110,7 @@
                 </div>
                 <div class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
                     <div class="h-screen bg-cover relative p-5">
-                        <div class="absolute inset-0 bg-mandarin-500/90"></div>
+                        <div class="absolute inset-0 bg-maintheme-500/90"></div>
 
                         <ul class="bg-bubbles absolute top-0 left-0 w-full h-full overflow-hidden animate-square">
                             <li class="h-10 w-10 rounded-3xl bg-white/10 absolute left-[10%] "></li>

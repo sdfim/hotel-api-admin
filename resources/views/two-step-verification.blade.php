@@ -14,7 +14,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" class="h-8 inline">
                                     <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
@@ -23,7 +23,7 @@
                             <div class="my-auto">
                                 <div>
                                     <div class="bg-gray-500/10 h-16 w-16 text-primary text-center mx-auto rounded-full">
-                                        <i class="bx bxs-envelope text-3xl leading-[2.2]  text-mandarin-500"></i>
+                                        <i class="bx bxs-envelope text-3xl leading-[2.2]  text-maintheme-500"></i>
                                     </div>
                                 </div>
 
@@ -40,25 +40,25 @@
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-mandarin-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-maintheme-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-mandarin-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-maintheme-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-mandarin-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-maintheme-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-mandarin-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-maintheme-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                 </div>
@@ -66,7 +66,7 @@
 
                                 <div class="mt-5 text-center">
                                     <a href="{{ url('auth-login') }}"
-                                       class="btn border-transparent bg-mandarin-500 py-2.5 text-white shadow-md shadow-mandarin-500/50 w-full dark:shadow-zinc-700">Confirm</a>
+                                       class="btn border-transparent bg-maintheme-500 py-2.5 text-white shadow-md shadow-maintheme-500/50 w-full dark:shadow-zinc-700">Confirm</a>
                                 </div>
 
                                 <div class="mt-10 text-center">
@@ -89,7 +89,7 @@
                 </div>
                 <div class="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9">
                     <div class="h-screen bg-cover relative p-5">
-                        <div class="absolute inset-0 bg-mandarin-500/90"></div>
+                        <div class="absolute inset-0 bg-maintheme-500/90"></div>
 
                         <ul class="bg-bubbles absolute top-0 left-0 w-full h-full overflow-hidden animate-square">
                             <li class="h-10 w-10 rounded-3xl bg-white/10 absolute left-[10%] "></li>

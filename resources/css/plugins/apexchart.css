@@ -67,7 +67,7 @@
 
 .apexcharts-tooltip-title,
 .apexcharts-tooltip-text{
-    @apply text-mandarin-500;
+    @apply text-maintheme-500;
 }
 
 .apexcharts-tooltip{

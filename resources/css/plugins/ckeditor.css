@@ -12,7 +12,7 @@
 }
 .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
     min-height: 250px;
-    @apply border-gray-50 dark:border-zinc-600 dark:focus:border-mandarin-500;
+    @apply border-gray-50 dark:border-zinc-600 dark:focus:border-maintheme-500;
 }
 .ck.ck-toolbar {
     @apply border-gray-100 dark:border-zinc-600 bg-gray-100;

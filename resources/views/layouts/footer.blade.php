@@ -9,7 +9,7 @@
             </script>
             CabinSelect
         </div>
-        <div class="hidden md:inline-block text-end">Design & Develop by <a href="https://www.cabinselect.com/" class="text-mandarin-500 underline">CabinSelect</a>
+        <div class="hidden md:inline-block text-end">Design & Develop by <a href="https://www.cabinselect.com/" class="text-maintheme-500 underline">CabinSelect</a>
         </div>
     </div>
 </footer>

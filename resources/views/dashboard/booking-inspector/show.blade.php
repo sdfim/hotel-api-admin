@@ -167,7 +167,7 @@
                                 id="collapse-original">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-maintheme-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-original" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-original" style="font-size:0.8em"></json-viewer>
@@ -190,7 +190,7 @@
                                 id="collapse-response">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-maintheme-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-response" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-response" style="font-size:0.8em"></json-viewer>
@@ -213,7 +213,7 @@
                                 id="collapse-client">Collapse All
                             </button>
                             <input
-                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-mandarin-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-maintheme-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
                                 id="search-client" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>

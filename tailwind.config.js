@@ -93,8 +93,19 @@ export default {
                     700: '#B7450A',
                     800: '#933606',
                     900: '#7A2C04',
-                }
-                ,
+                },
+                maintheme: {
+                    50: '#E0F7F4',
+                    100: '#B3EDE5',
+                    200: '#80E3D5',
+                    300: '#4DD9C6',
+                    400: '#26CDB5',
+                    500: '#00C1A5',
+                    600: '#00A58C',
+                    700: '#008A73',
+                    800: '#006F5A',
+                    900: '#005A47',
+                },
                 gray: {
                     50: '#E6E6EB',
                     100: '#D9DAE0',
@@ -221,10 +232,10 @@ export default {
                 },
                 '.card': {
                     borderStyle: 'solid',
-                    borderColor: '#FF7C1A',
+                    borderColor: '#00c1a5',
                     marginBottom: theme('margin.5'),
                     borderRadius: '25px',
-                    border: '1px solid #FF7C1A',
+                    border: '1px solid #00c1a5',
                     backgroundColor: '#ffffff',
                 },
                 '.card-body': {

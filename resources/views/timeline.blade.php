@@ -18,7 +18,7 @@
                         <div class="col-span-12 xl:col-span-10 xl:col-start-2 ">
                             <div class="reltive ">
                                 <div class="text-center">
-                                    <div class="h-20 w-20 bg-mandarin-500 md:mx-auto rounded-full items-center">
+                                    <div class="h-20 w-20 bg-maintheme-500 md:mx-auto rounded-full items-center">
                                         <p class="text-white uppercase py-[30px]">Start</p>
                                     </div>
                                 </div>
@@ -28,9 +28,9 @@
                                         <div class="col-span-1 md:col-span-6">
                                             <div class="ltr:text-right rtl:text-left relative mt-9">
                                                 <i
-                                                    class="bx bx-briefcase-alt-2 text-mandarin-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
+                                                    class="bx bx-briefcase-alt-2 text-maintheme-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2">
                                                 </div>
                                             </div>
                                         </div>
@@ -38,7 +38,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
@@ -67,7 +67,7 @@
                                     </div>
 
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
@@ -77,7 +77,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
@@ -114,16 +114,16 @@
                                         <div class="col-span-1 md:col-span-6 order-1 md:order-2">
                                             <div class="relative mt-9">
                                                 <i
-                                                    class="bx bx-user-pin text-mandarin-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 ltr:md:ml-5 rtl:md:mr-5"></i>
+                                                    class="bx bx-user-pin text-maintheme-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 ltr:md:ml-5 rtl:md:mr-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
@@ -132,9 +132,9 @@
                                         <div class="col-span-1 md:col-span-6">
                                             <div class="ltr:text-right rtl:text-left relative mt-9">
                                                 <i
-                                                    class="bx bx-bar-chart-square text-mandarin-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
+                                                    class="bx bx-bar-chart-square text-maintheme-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2 md:mr-5">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2 md:mr-5">
                                                 </div>
                                             </div>
                                         </div>
@@ -142,7 +142,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">28</h3>
@@ -173,7 +173,7 @@
                                     </div>
 
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
@@ -183,7 +183,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
@@ -201,7 +201,7 @@
                                                             industry'scrambled
                                                             it make a type specimen book.</p>
                                                         <button type="button"
-                                                                class="btn border-transparent bg-mandarin-500 rounded-full shadow-md shadow-mandarin-500/40 text-white mt-4">
+                                                                class="btn border-transparent bg-maintheme-500 rounded-full shadow-md shadow-maintheme-500/40 text-white mt-4">
                                                             See
                                                             more detail
                                                         </button>
@@ -218,16 +218,16 @@
                                         <div class="col-span-1 md:col-span-6 order-1 md:order-2">
                                             <div class="relative mt-9">
                                                 <i
-                                                    class="bx bx-camera text-mandarin-500 text-2xl md:text-3xl mr-10 md:ml-5"></i>
+                                                    class="bx bx-camera text-maintheme-500 text-2xl md:text-3xl mr-10 md:ml-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block ">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block ">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
@@ -236,9 +236,9 @@
                                         <div class="col-span-1 md:col-span-6">
                                             <div class="ltr:text-right rtl:text-left relative mt-9">
                                                 <i
-                                                    class="bx bx-pie-chart-alt text-mandarin-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
+                                                    class="bx bx-pie-chart-alt text-maintheme-500 text-2xl md:text-3xl ltr:mr-10 rtl:ml-10 md:mr-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 hidden md:block ltr:md:-right-2 rtl:md:-left-2">
                                                 </div>
                                             </div>
                                         </div>
@@ -246,7 +246,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">23</h3>
@@ -266,7 +266,7 @@
                                                             similique earum voluptatem
                                                             Odit, itaque, deserunt corporis vero ipsum nisi repellat ...
                                                             <a
-                                                                href="#" class="text-mandarin-500">Read more</a></p>
+                                                                href="#" class="text-maintheme-500">Read more</a></p>
                                                     </div>
                                                 </div>
                                                 <div
@@ -276,7 +276,7 @@
                                         </div>
                                     </div>
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
@@ -286,7 +286,7 @@
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
                                                 <div
-                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-mandarin-500 rounded-md text-center"
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-maintheme-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
@@ -319,20 +319,20 @@
                                         <div class="col-span-1 md:col-span-6 order-1 md:order-2">
                                             <div class="relative mt-9">
                                                 <i
-                                                    class="bx bx-home-alt text-mandarin-500 text-2xl md:text-3xl mr-10 md:ml-5"></i>
+                                                    class="bx bx-home-alt text-maintheme-500 text-2xl md:text-3xl mr-10 md:ml-5"></i>
                                                 <div
-                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-mandarin-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block ">
+                                                    class="after:content-[''] absolute h-4 w-4 rounded-full bg-maintheme-500 top-2 ltr:-left-2 rtl:-right-2 hidden md:block ">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="after:content-[''] absolute border-l border-mandarin-500 h-full top-0 left-10 md:left-[50%]">
+                                        class="after:content-[''] absolute border-l border-maintheme-500 h-full top-0 left-10 md:left-[50%]">
                                     </div>
                                 </div>
 
                                 <div class="text-center">
-                                    <div class="h-20 w-20 bg-mandarin-500 md:mx-auto rounded-full items-center">
+                                    <div class="h-20 w-20 bg-maintheme-500 md:mx-auto rounded-full items-center">
                                         <p class="text-white uppercase py-[30px]">End</p>
                                     </div>
                                 </div>

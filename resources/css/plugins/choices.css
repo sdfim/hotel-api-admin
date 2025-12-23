@@ -70,7 +70,7 @@
 }
 
 .choices__list--multiple .choices__item{
-    @apply bg-mandarin-500 border-mandarin-500 text-white;
+    @apply bg-maintheme-500 border-maintheme-500 text-white;
 }
 
 .choices.is-disabled .choices__inner{

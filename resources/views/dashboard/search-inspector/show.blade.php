@@ -50,15 +50,15 @@
                         </button>
 
                         <button type="button"
-                                class="text-white px-2 py-2 bg-mandarin-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                class="text-white px-2 py-2 bg-maintheme-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
                                 id="loadRQ"><i class="fas fa-download"></i> Original RQ and RS as JSON
                         </button>
                         <button type="button"
-                                class="text-white px-2 py-2 bg-mandarin-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                class="text-white px-2 py-2 bg-maintheme-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
                                 id="loadResponsePr"><i class="fas fa-download"></i> RS as JSON with <b>PricingRules</b> Applier
                         </button>
                         <button type="button"
-                                class="text-white px-2 py-2 bg-mandarin-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                class="text-white px-2 py-2 bg-maintheme-500  btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
                                 id="loadResponse"><i class="fas fa-download"></i> RS as JSON
                         </button>
 
