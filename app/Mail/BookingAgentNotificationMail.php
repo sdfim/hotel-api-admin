@@ -91,8 +91,8 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
 
         // ---- Room / rate info (based on the first room) ----
         $mainRoomName   = Arr::get($dataReservation, '0.room_name');
-        $rateRefundable = Arr::get($dataReservation, '0.rate_refundable_label')
-            ?? Arr::get($dataReservation, '0.cancellation_policy_text');
+        $rateRefundable = Arr::get($dataReservation, '0.cancellation_policies.0.penalty_start_date');
+        $rateRefundable = $rateRefundable ? 'Refundable until ' . $rateRefundable : 'Non-Refundable';
         $rateMealPlan   = Arr::get($dataReservation, '0.meal_plan_name')
             ?? Arr::get($dataReservation, '0.meal_plan');
 

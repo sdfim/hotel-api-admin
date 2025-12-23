@@ -100,10 +100,17 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 
         // 4.4) Room / rate info (null-safe if fields are missing)
         $mainRoomName   = Arr::get($dataReservation, '0.room_name');
-        $rateRefundable = Arr::get($dataReservation, '0.rate_refundable_label')
-            ?? Arr::get($dataReservation, '0.cancellation_policy_text');
+        $rateRefundable = Arr::get($dataReservation, '0.cancellation_policies.0.penalty_start_date');
+        $rateRefundable = $rateRefundable ? 'Refundable until ' . $rateRefundable : 'Non-Refundable';
         $rateMealPlan   = Arr::get($dataReservation, '0.meal_plan_name')
             ?? Arr::get($dataReservation, '0.meal_plan');
+
+        logger('Rate Info', [
+            'mainRoomName'   => $mainRoomName,
+            'rateRefundable' => $rateRefundable,
+            'rateMealPlan'   => $rateMealPlan,
+            'dataReservation' => $dataReservation,
+        ]);
 
         // 4.5) Hero photo with proper fallback
         $defaultHeroPath = Storage::url('hotel.webp');
