@@ -1,0 +1,67 @@
+// ==================================================
+// SCSS КОД ДЛЯ СНЕЖИНОК (современный синтаксис)
+// Сохраните в resources/css/snow.scss
+// ==================================================
+
+@use "sass:math";
+
+// Настройки
+$d: 70;      // плотность (количество снежинок)
+$w: 600;     // размер сетки
+$s: 5s;      // скорость падения
+
+// Генерация снежинок
+$grad: ();
+@for $i from 0 to $d {
+    $v: math.random(4) + 2;
+    $a: math.random(5) * 0.1 + 0.5;
+    $grad: $grad, radial-gradient(
+            #{$v}px #{$v}px at
+            #{math.random($w - $v * 2) + $v}px
+            #{math.random($w - $v * 2) + $v}px,
+            rgba(255,255,255,$a) 50%,
+            rgba(0,0,0,0)
+    ) !global;
+}
+
+// Основные стили снега
+.snow,
+.snow:before,
+.snow:after {
+    position: absolute;
+    top: -#{$w}px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: $grad;
+    background-size: #{$w}px #{$w}px;
+    animation: snow $s linear infinite;
+    content: "";
+    pointer-events: none;
+    z-index: 9999;
+}
+
+// Задний слой (медленный, размытый)
+.snow:after {
+    margin-left: #{math.div(-$w, 3)}px;
+    opacity: 0.4;
+    animation-duration: $s * 2;
+    animation-direction: reverse;
+    filter: blur(3px);
+}
+
+// Средний слой
+.snow:before {
+    animation-duration: $s * 3;
+    animation-direction: reverse;
+    margin-left: #{math.div(-$w, 2)}px;
+    opacity: 0.65;
+    filter: blur(1.5px);
+}
+
+// Анимация падения
+@keyframes snow {
+    to {
+        transform: translateY(#{$w}px);
+    }
+}

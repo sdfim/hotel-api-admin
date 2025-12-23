@@ -17,8 +17,10 @@
     <!-- css files -->
     <!-- Styles -->
     @filamentStyles
+    @vite(['resources/css/snow.scss'])
     @vite(['resources/css/app.css'])
     @vite(['resources/css/supplier-repository.css'])
+
     @include('layouts.head-css')
 
     <!-- JSONEditor styles -->
@@ -37,7 +39,8 @@
 
 
 <div class="main-content">
-    <div class="page-content dark:bg-zinc-800 min-h-screen">
+    <div class="page-content min-h-screen">
+        <div class="snow"></div>
         @if (session('success'))
             <x-flash-message :message="session('success')"/>
         @endif

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree&family=Open+Sans&display=swap');
 @import "tailwind.css";
-@import "supplier-repository.css";
+/*@import "supplier-repository.css";*/
 @import 'swiper/css/bundle';
 
 nav.main {

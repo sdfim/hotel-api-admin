@@ -94,13 +94,14 @@
 
 .page-content {
     --tw-bg-opacity: 1;
-    background-color: #e4e4e74f;
+    /*background-color: #e4e4e74f;*/
+    background-color: #f3f8fc
 }
 
 .vertical-menu {
     --tw-bg-opacity: 1;
     /*background-color: #e4e4e74f;*/
-    background-color: #ffffff;
+    background-color: #f3f5f8
 }
 
 .navbar-brand {

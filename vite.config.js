@@ -36,6 +36,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/css/supplier-repository.css',
+                'resources/css/snow.scss',
                 'resources/css/tailwind.css',
                 'resources/css/icons.css',
                 'resources/js/app.js',
