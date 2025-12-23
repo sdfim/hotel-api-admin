@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\ApiBookingItem;
-use App\Repositories\ApiSearchInspectorRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 class AdvisorCommissionService
 {
@@ -20,16 +20,9 @@ class AdvisorCommissionService
      */
     public function calculate(ApiBookingItem $bookingItem, float $totalAmount): float
     {
-        // Make sure relations are loaded
-        $bookingItem->loadMissing(['search', 'supplier']);
-
-        $searchId = $bookingItem->search_id;
-        if (! $searchId) {
-            return 0.0;
-        }
-
-        $response = ApiSearchInspectorRepository::getResponse($searchId);
-        if (empty($response) || empty($response['results'])) {
+        $response = Storage::get($bookingItem->search?->client_response_path);
+        $response = json_decode($response, true) ?? [];
+        if (empty($response['results']) || ! is_array($response['results'])) {
             return 0.0;
         }
 

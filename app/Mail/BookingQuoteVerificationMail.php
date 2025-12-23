@@ -79,9 +79,10 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         $taxesAndFees = $total_tax + $total_fees;
 
         // 4.2) Advisor commission
+        $subtotal = $total_price - $taxesAndFees;
         /** @var AdvisorCommissionService $advisorCommissionService */
         $advisorCommissionService = app(AdvisorCommissionService::class);
-        $advisorCommission        = $advisorCommissionService->calculate($bookingItem, $total_price);
+        $advisorCommission        = $advisorCommissionService->calculate($bookingItem, $subtotal);
 
         // 4.3) Dates / guests for pills
         $checkinRaw  = Arr::get($searchArray, 'checkin');
@@ -229,7 +230,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
                 'checkoutDate'       => $checkoutFormatted,
                 'guestInfo'          => $guestInfo,
                 'currency'           => $currency,
-                'subtotal'           => $total_price - $taxesAndFees,
+                'subtotal'           => $subtotal,
                 'taxes'              => $total_tax,
                 'fees'               => $total_fees,
                 'totalPrice'         => $total_price,

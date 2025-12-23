@@ -70,9 +70,10 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
         $taxesAndFees = $totalTax + $totalFees;
 
         // ---- Advisor commission (using helper/service) ----
+        $subtotal = $totalPrice - $taxesAndFees;
         /** @var AdvisorCommissionService $advisorCommissionService */
         $advisorCommissionService = app(AdvisorCommissionService::class);
-        $advisorCommission        = $advisorCommissionService->calculate($bookingItem, $totalPrice);
+        $advisorCommission        = $advisorCommissionService->calculate($bookingItem, $subtotal);
 
         // ---- Dates / guests ----
         $checkinRaw  = Arr::get($searchArray, 'checkin');
