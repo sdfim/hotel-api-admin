@@ -15,6 +15,7 @@
     $totalTax    = $total_tax   ?? 0;
     $totalFees   = $total_fees  ?? 0;
     $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
+    $subtotal    = $subtotal    ?? ($totalPrice - $totalTax - $totalFees);
 
     $agencyName  = $agency['booking_agent']       ?? 'Terra Mare Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
@@ -297,7 +298,7 @@
                             <tr>
                                 <td class="pricing-label">Reservation Subtotal:</td>
                                 <td class="pricing-value">
-                                    {{ $currency }} {{ number_format($totalNet, 2) }}
+                                    {{ $currency }} {{ number_format($subtotal, 2) }}
                                 </td>
                             </tr>
                             <tr>

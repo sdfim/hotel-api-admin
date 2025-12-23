@@ -229,7 +229,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
                 'checkoutDate'       => $checkoutFormatted,
                 'guestInfo'          => $guestInfo,
                 'currency'           => $currency,
-                'subtotal'           => $total_net,
+                'subtotal'           => $total_price - $taxesAndFees,
                 'taxes'              => $total_tax,
                 'fees'               => $total_fees,
                 'totalPrice'         => $total_price,
