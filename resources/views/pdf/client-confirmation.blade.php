@@ -19,7 +19,7 @@
     $totalFees   = $total_fees  ?? 0;
     $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
 
-    $agencyName  = $agency['booking_agent']       ?? 'Terra Mare Tours';
+    $agencyName  = $agency['booking_agent']       ?? ' <?= env('APP_NAME'); ?> Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
 
     /** Optional fields */
@@ -236,7 +236,7 @@
         <tr valign="middle">
             <td width="32%" style="padding-right: 30px;">
                 {{-- Logo --}}
-                <img style="margin-top: 350px;" src="{{ $logoTm }}" alt="Terra Mare" class="logo-tm-big">
+                <img style="margin-top: 350px;" src="{{ $logoTm }}" alt=" <?= env('APP_NAME'); ?>" class="logo-tm-big">
             </td>
 
             <td width="68%">
@@ -250,7 +250,7 @@
         <tr valign="top">
             <td width="32%" style="padding-right: 30px;">
                 <div style="margin-top: 400px; line-height: 1.6;">
-                    <div style="font-size: 20px;">Terra Mare Tours</div>
+                    <div style="font-size: 20px;"> <?= env('APP_NAME'); ?> Tours</div>
                     <div style="font-size: 14px;">225 Broadway, Fl. 23,</div>
                     <div style="font-size: 14px;">New York, NY, 10007, USA</div>
                     <div style="font-size: 14px;">+1 (332)-232-8351</div>
@@ -275,7 +275,7 @@
 
                     <p style="margin-top: 26px;">
                         Warm regards,<br>
-                        Terra Mare Concierge
+                         <?= env('APP_NAME'); ?> Concierge
                     </p>
                 </div>
             </td>
@@ -306,7 +306,7 @@
             <td width="36%" align="right">
                 <div class="sidebar-block">
                     <div style="text-align:right; margin-bottom: 24px;">
-                        <img src="{{ $logoTm }}" alt="Terra Mare" class="logo-tm">
+                        <img src="{{ $logoTm }}" alt=" <?= env('APP_NAME'); ?>" class="logo-tm">
                     </div>
 
                     @if($confirmationNumber)
@@ -369,7 +369,7 @@
     <table width="100%" cellspacing="0" cellpadding="0">
         <tr valign="top">
             <td width="60%" style="padding-right:26px;">
-                <div style="font-size: 24px; margin: 0 0 10px 0;">Terra Mare Exclusive Perks:</div>
+                <div style="font-size: 24px; margin: 0 0 10px 0;"> <?= env('APP_NAME'); ?> Exclusive Perks:</div>
 
                 @if(!empty($perks))
                     <ul>
@@ -399,7 +399,7 @@
         <tr valign="top">
             <td width="50%" style="padding-right:26px;">
                 <div class="contact-block">
-                    <div class="contact-name">Terra Mare Tours</div>
+                    <div class="contact-name"> <?= env('APP_NAME'); ?> Tours</div>
                     <div>225 Broadway, Fl. 23,</div>
                     <div>New York, NY, 10007, USA</div>
                     <div>+1 (332)-232-8351</div>

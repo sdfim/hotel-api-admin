@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title') - TerraMare</title>
+    <title>@yield('title') - <?= env('APP_NAME'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta content="TerraMare" name="description"/>
-    <meta content="" name="TerraMare"/>
+    <meta content="<?= env('APP_NAME'); ?>" name="description"/>
+    <meta content="" name="<?= env('APP_NAME'); ?>"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
     <!-- App favicon -->

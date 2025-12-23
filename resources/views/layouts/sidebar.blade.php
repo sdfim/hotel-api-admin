@@ -69,7 +69,7 @@
         ['route' => 'configurations.external-identifiers.index', 'text' => 'External Identifiers', 'model' => KeyMappingOwner::class],
         ['route' => 'configurations.commissions.index', 'text' => 'Commissions', 'model' => Commission::class],
         ['route' => 'configurations.room-bed-types.index', 'text' => 'Bed Types in Room', 'model' => ConfigRoomBedType::class],
-        ['route' => 'configurations.contact-information-departments.index', 'text' => 'TerraMare Departments', 'model' => ConfigContactInformationDepartment::class],
+        ['route' => 'configurations.contact-information-departments.index', 'text' => ''  . env('APP_NAME') .  ' Departments', 'model' => ConfigContactInformationDepartment::class],
     ]);
 
     $fixedLinks = $configurationLinks->filter(function ($link) {

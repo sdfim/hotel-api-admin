@@ -16,7 +16,7 @@
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                                          class="h-8 inline"> <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
                             </div>
 

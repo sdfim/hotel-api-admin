@@ -4,7 +4,7 @@
         <div class="navbar-brand flex h-[50px] shrink items-center justify-between border-r bg-slate-50 px-5 dark:border-zinc-700 dark:bg-zinc-800">
             <a href="#" class="flex items-center font-bold text-lg dark:text-white">
                 <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="logo" class="inline-block h-6 ltr:mr-2 rtl:ml-2 mt-1" />
-                <span class="hidden align-middle xl:block">TerraMare</span>
+                <span class="hidden align-middle xl:block"><?= env('APP_NAME'); ?></span>
             </a>
         </div>
         <button type="button" id="vertical-menu-btn" class="vertical-menu-btn h-[50px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 text-gray-600 dark:text-white">

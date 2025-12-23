@@ -123,12 +123,12 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             $hotelPhotoPath = $defaultHeroPath;
         }
 
-        // 5) Build perks (TerraMare Amenities) as a clean list of strings
+        // 5) Build perks ('  . env('APP_NAME') .  ' Amenities) as a clean list of strings
         $perks = collect($hotelData?->product?->descriptiveContentsSection ?? [])
             ->filter(function ($sec) {
                 $name = trim($sec->descriptiveType->name ?? '');
 
-                return $name === 'TerraMare Amenities';
+                return $name === ''  . env('APP_NAME') .  ' Amenities';
             })
             ->filter(function ($sec) {
                 $now    = now();
@@ -222,7 +222,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         Cache::put('booking_pdf_data_'.$this->bookingItem, $pdfData, now()->addDays(7));
 
         // 11) Build mail with attached PDF
-        return $this->subject('Your Quote from Terra Mare: Please Confirm')
+        return $this->subject('Your Quote from '  . env('APP_NAME') .  ': Please Confirm')
             ->view('emails.booking.email_verification')
             ->with([
                 'verificationUrl'    => $this->verificationUrl,

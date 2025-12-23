@@ -17,7 +17,7 @@
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
                                     <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
                             </div>
 
@@ -32,7 +32,7 @@
                                 <div class="text-center mt-6">
                                     <h5 class="text-gray-700 dark:text-gray-100">You are Logged Out</h5>
                                     <p class="text-15 text-gray-500 dark:text-zinc-100/60 mt-2">Thank you for using
-                                        <span class="text-gray-800 font-semibold dark:text-gray-100">TerraMare</span></p>
+                                        <span class="text-gray-800 font-semibold dark:text-gray-100"><?= env('APP_NAME'); ?></span></p>
                                 </div>
 
                                 <div class="mt-5">

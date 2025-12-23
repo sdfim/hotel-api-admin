@@ -16,14 +16,14 @@
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
                                     <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                                 </a>
                             </div>
 
                             <div class="my-auto">
                                 <div class="text-center mb-8">
                                     <h5 class="text-gray-600 dark:text-gray-100">Reset Password</h5>
-                                    <p class="text-gray-500 mt-1 dark:text-zinc-100/60">Reset Password with TerraMare.</p>
+                                    <p class="text-gray-500 mt-1 dark:text-zinc-100/60">Reset Password with <?= env('APP_NAME'); ?>.</p>
                                 </div>
 
                                 <div class="px-5 py-3 bg-green-500/10  border-2 border-green-500/30 rounded">

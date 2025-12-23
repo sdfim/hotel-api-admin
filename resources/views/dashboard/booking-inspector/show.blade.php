@@ -105,7 +105,7 @@
                     @if($inspector->client_response_path)
                         <button data-tw-toggle="tab" data-tw-target="#tab-pills-client-response"
                                 class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-600">
-                            TerraMare API RS
+                            <?= env('APP_NAME'); ?> API RS
                         </button>
                     @endif
                 </div>

@@ -1,9 +1,9 @@
 @extends('layouts.master')
 @section('title')
     @if($configContactInformationDepartment->exists)
-        {{ __('Edit TerraMare Department') }}
+        {{ __('Edit <?= env('APP_NAME'); ?> Department') }}
     @else
-        {{ __('Create TerraMare Department') }}
+        {{ __('Create <?= env('APP_NAME'); ?> Department') }}
     @endif
 @endsection
 @section('content')

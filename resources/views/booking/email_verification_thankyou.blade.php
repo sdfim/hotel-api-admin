@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quote Approved - Terra Mare</title>
+    <title>Quote Approved -  <?= env('APP_NAME'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{-- Load Meno Banner font --}}
@@ -43,7 +43,7 @@
 <header class="w-full flex justify-end items-center pt-4 pr-4 md:pt-6 md:pr-10">
     <img
         src="{{ asset('images/terra-mare-logo.png') }}"
-        alt="Terra Mare"
+        alt=" <?= env('APP_NAME'); ?>"
         class="h-8 sm:h-10 md:h-12 object-contain"
     >
 </header>

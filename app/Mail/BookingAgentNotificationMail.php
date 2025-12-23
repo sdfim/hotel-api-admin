@@ -107,12 +107,12 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             $hotelPhotoPath = $defaultHeroPath;
         }
 
-        // ---- Perks (Terra Mare amenities) ----
+        // ---- Perks ('  . env('APP_NAME') .  ' amenities) ----
         $perks = collect($hotel?->product?->descriptiveContentsSection ?? [])
             ->filter(function ($sec) {
                 $name = trim($sec->descriptiveType->name ?? '');
 
-                return $name === 'TerraMare Amenities';
+                return $name === ''  . env('APP_NAME') .  ' Amenities';
             })
             ->filter(function ($sec) {
                 $now    = now();
@@ -167,7 +167,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
 
             // Agency info (can be expanded later if needed)
             'agency' => [
-                'booking_agent'       => 'Terra Mare Tours',
+                'booking_agent'       => ''  . env('APP_NAME') .  ' Tours',
                 'booking_agent_email' => 'support@terramaretours.com',
             ],
 
@@ -195,7 +195,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
         $pdfContent = $pdfService->generateRaw('pdf.advisor-confirmation', $pdfData);
 
         // ---- Build mail ----
-        return $this->subject('Congratulations! Your Terra Mare Booking is Confirmed!')
+        return $this->subject('Congratulations! Your '  . env('APP_NAME') .  ' Booking is Confirmed!')
             ->view('emails.booking.advisor-confirmation')
             ->with([
                 // Basic hotel info for the HTML email

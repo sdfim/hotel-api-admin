@@ -7,7 +7,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terra Mare – Advisor Confirmation</title>
+    <title> <?= env('APP_NAME'); ?> – Advisor Confirmation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -70,7 +70,7 @@
                                 <td align="right">
                                     <img
                                         src="{{ asset('images/terra-mare-logo.png') }}"
-                                        alt="Terra Mare"
+                                        alt=" <?= env('APP_NAME'); ?>"
                                         width="238"
                                         style="height:auto;"
                                     >
@@ -103,7 +103,7 @@
 
                         <p style="margin-top: 40px;">
                             Warm regards,<br>
-                            Terra Mare Concierge
+                             <?= env('APP_NAME'); ?> Concierge
                         </p>
 
                         {{-- Bottom "Thank you" --}}
@@ -112,7 +112,7 @@
                                 Thank you so much!
                             </div>
                             <div style="font-size: 16px; margin-top: 4px;">
-                                Terra Mare
+                                 <?= env('APP_NAME'); ?>
                             </div>
                         </div>
 

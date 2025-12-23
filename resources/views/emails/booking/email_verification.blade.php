@@ -60,7 +60,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terra Mare – Quote Confirmation</title>
+    <title> <?= env('APP_NAME'); ?> – Quote Confirmation</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -119,7 +119,7 @@
                             <tr>
                                 <td align="right">
                                     <img src="{{ asset('images/terra-mare-logo.png') }}"
-                                         alt="Terra Mare"
+                                         alt=" <?= env('APP_NAME'); ?>"
                                          width="238"
                                          style="height:auto;">
                                 </td>
@@ -142,7 +142,7 @@
 
                         <p style="margin-top:32px;">
                             Warm regards,<br>
-                            Terra Mare Concierge
+                             <?= env('APP_NAME'); ?> Concierge
                         </p>
                     </td>
                 </tr>
@@ -254,7 +254,7 @@
                                             <tr>
                                                 <td align="center" style="padding-bottom:16px;">
                                                     <div style="font-size:22px;">
-                                                        Terra Mare Exclusive Perks:
+                                                         <?= env('APP_NAME'); ?> Exclusive Perks:
                                                     </div>
                                                 </td>
                                             </tr>
@@ -394,7 +394,7 @@
                                         </tr>
                                         <tr>
                                             <td align="center" style="font-size:20px; padding-top:18px;">
-                                                Terra Mare
+                                                 <?= env('APP_NAME'); ?>
                                             </td>
                                         </tr>
                                     </table>

@@ -14,14 +14,14 @@
                         <a href="{{ url('index') }}" class="">
                             <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                                  class="h-8 inline"> <span
-                                class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">TerraMare</span>
+                                class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
                         </a>
                     </div>
 
                     <div class="my-auto">
                         <div class="text-center">
                             <h5 class="text-gray-600 dark:text-gray-100">Welcome Back !</h5>
-                            <p class="text-gray-500 dark:text-gray-100/60 mt-1">Sign in to continue to TerraMare.</p>
+                            <p class="text-gray-500 dark:text-gray-100/60 mt-1">Sign in to continue to <?= env('APP_NAME'); ?>.</p>
                         </div>
                         @if (session('status'))
                             <div class="">

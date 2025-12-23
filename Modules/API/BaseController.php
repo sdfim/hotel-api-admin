@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 /**
  * @OA\Info(
- *    title="TerraMare Main API Documentation",
+ *    title="'  . env('APP_NAME') .  ' Main API Documentation",
  *    version="1.0.0"
  * )
  *

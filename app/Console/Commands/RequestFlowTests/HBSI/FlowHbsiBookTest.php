@@ -321,7 +321,7 @@ class FlowHbsiBookTest extends Command
                 [
                     'booking_item' => $bookingItems['search_1'],
                     'room' => 1,
-                    'special_request' => 'TerraMare Test Booking, please disregard.',
+                    'special_request' => ''  . env('APP_NAME') .  ' Test Booking, please disregard.',
                 ],
             ],
         ];

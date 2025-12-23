@@ -37,7 +37,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out TerraMare for an unlimited
+                                                trying out <?= env('APP_NAME'); ?> for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -80,7 +80,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out TerraMare for an unlimited
+                                                trying out <?= env('APP_NAME'); ?> for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -125,7 +125,7 @@
                                             <h5 class="text-base text-white">Enterprise</h5>
                                             <h1 class="mt-3 text-white ">$79 <span class="text-base ">/ Month</span>
                                             </h1>
-                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out TerraMare for
+                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out <?= env('APP_NAME'); ?> for
                                                 an
                                                 unlimited
                                                 period of time</p>
@@ -170,7 +170,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out TerraMare for an unlimited
+                                                trying out <?= env('APP_NAME'); ?> for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -242,7 +242,7 @@
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
                                                                 small
-                                                                teams trying out TerraMare for an unlimited period of time</p>
+                                                                teams trying out <?= env('APP_NAME'); ?> for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>
@@ -263,7 +263,7 @@
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
                                                                 small
-                                                                teams trying out TerraMare for an unlimited period of time</p>
+                                                                teams trying out <?= env('APP_NAME'); ?> for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>
@@ -284,7 +284,7 @@
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
                                                                 small
-                                                                teams trying out TerraMare for an unlimited period of time</p>
+                                                                teams trying out <?= env('APP_NAME'); ?> for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>

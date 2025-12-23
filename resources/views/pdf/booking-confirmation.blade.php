@@ -170,7 +170,7 @@
     <!-- Секция 1: Логотип и Фото -->
     <div class="row-header">
         <div class="col-1-cell">
-            <img src="{{ Storage::url('images/email-book-confirmation/logo-tm.png') }}" class="logo" alt="Terra Mare">
+            <img src="{{ Storage::url('images/email-book-confirmation/logo-tm.png') }}" class="logo" alt=" <?= env('APP_NAME'); ?>">
         </div>
         <div class="col-2-cell">
             <img src="{{ $hotelPhotoPath ?? Storage::url($hotel->product?->hero_image) }}" class="hotel-photo" alt="Hotel Photo">
@@ -205,7 +205,7 @@
                     {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}.</p>
                 <p>We look forward to welcoming you soon for an unforgettable
                     escape in Mexico.</p>
-                <p>Warm regards, Terra Mare Concierge</p>
+                <p>Warm regards,  <?= env('APP_NAME'); ?> Concierge</p>
             </div>
         </div>
     </div>
