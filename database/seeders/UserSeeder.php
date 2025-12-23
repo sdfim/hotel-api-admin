@@ -57,4 +57,3 @@ class UserSeeder extends Seeder
         $user->permissions()->sync([$createUserPermission->id]);
     }
 }
-
