@@ -19,11 +19,11 @@ class UserSeeder extends Seeder
         $createAdminPermission = Permission::where('slug', 'admin')->first();
 
         $admin = User::withTrashed()->updateOrCreate(
-            ['email' => 'admin@terramare.com'],
+            ['email' => 'admin@vidanta.com'],
             [
                 'name' => 'Admin',
                 'email_verified_at' => now(),
-                'password' => bcrypt('C5EV0gEU9OnlS5r'),
+                'password' => bcrypt('TDgg794eGd4A'),
                 'remember_token' => 'XQpE1re2gyD2s8QkEwJKqYalM0M6IEPnNx22cDUKbMTzkoTvwVjANlLDTv39',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -43,11 +43,11 @@ class UserSeeder extends Seeder
         $createUserPermission = Permission::where('slug', 'user')->first();
 
         $user = User::withTrashed()->updateOrCreate(
-            ['email' => 'user@terramare.com'],
+            ['email' => 'user@vidanta.com'],
             [
                 'name' => 'User',
                 'email_verified_at' => now(),
-                'password' => bcrypt('DStIXojk0DZqzNb'),
+                'password' => bcrypt('LtLUr7zaYcKW'),
                 'remember_token' => 'XPpE1re2gyD2s8QkEwJKqYalM0M6IEPnNx22cDUKbMTzkoTvwVjANlLDTv39',
                 'created_at' => now(),
                 'updated_at' => now(),
