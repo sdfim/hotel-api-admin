@@ -24,6 +24,7 @@ use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
@@ -203,10 +204,8 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->label('Room ID')
                     ->getStateUsing(fn ($record) => $record->id),
 
-                TextColumn::make('external_code')
+                TextInputColumn::make('external_code')
                     ->label('External Code')
-                    ->searchable()
-                    ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
                     ->disabled(fn () => ! Gate::allows('update', Hotel::class)),
 
@@ -322,30 +321,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->visible(function (HotelRoom $record) {
                             return Gate::allows('update', Hotel::class);
                         }),
-
-                    Action::make('rollback')
-                        ->label('Rollback Merge')
-                        ->icon('heroicon-o-arrow-uturn-left')
-                        ->action(function ($record) {
-                            /** @var MergeHotelRoom $mergeHotelRoom */
-                            $mergeHotelRoom = app(MergeHotelRoom::class);
-                            $success = $mergeHotelRoom->rollback($record);
-
-                            if ($success) {
-                                Notification::make()
-                                    ->title('Success')
-                                    ->body('Merge rollback successful.')
-                                    ->success()
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->title('Error')
-                                    ->body('Merge rollback failed.')
-                                    ->danger()
-                                    ->send();
-                            }
-                        })
-                        ->visible(fn ($record) => Gate::allows('update', Hotel::class) && $record->isMergedRoom),
 
                 ]),
             ])

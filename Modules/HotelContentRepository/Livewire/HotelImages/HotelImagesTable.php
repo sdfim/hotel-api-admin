@@ -3,13 +3,17 @@
 namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use App\Helpers\ClassHelper;
+use App\Models\ExpediaContentSlave;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -17,12 +21,15 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\ImageSourceEnum;
 use Modules\HotelContentRepository\Actions\Image\AddImage;
+use Modules\HotelContentRepository\Actions\Image\EditImage;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
@@ -128,7 +135,25 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->modalWidth('6xl')
                     ->form(HotelImagesForm::getFormComponents('', $this->roomId ? 'room' : '', true))
                     ->modalHeading('Edit Image')
-                    ->fillForm(fn (Image $record) => $record->attributesToArray())
+                    ->fillForm(function (Image $record) {
+                        $attributes = $record->attributesToArray();
+                        $attributes['tags'] = $record->tag ? explode(';', $record->tag) : [];
+
+                        return $attributes;
+                    })
+                    ->action(function ($data, \Filament\Forms\Form $form, Image $record) {
+                        // Convert tags array to string for tag field
+                        $data['tag'] = isset($data['tags']) ? implode(';', $data['tags']) : '';
+                        unset($data['tags']);
+                        $galleries = $form->getRawState()['galleries'] ?? [];
+                        /** @var EditImage $editImage */
+                        $editImage = app(EditImage::class);
+                        $editImage->execute($data, $record, $galleries);
+                        Notification::make()
+                            ->title('Updated successfully')
+                            ->success()
+                            ->send();
+                    })
                     ->visible(fn (Image $record) => Gate::allows('update', $record)),
                 DeleteAction::make()
                     ->iconButton()
@@ -138,7 +163,48 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->after(fn (Image $record) => Storage::delete($record->image_url)),
             ])
             ->headerActions([
+                Action::make('view esp gallery')
+                    ->tooltip('View Expedia Gallery')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->icon('heroicon-o-computer-desktop')
+                    ->modalWidth('7xl')
+                    ->modalHeading('Gallery')
+                    ->modalContent(function () use ($room) {
+                        if (! $room) {
+                            return view('livewire.image-galleries.swiper-gallery', ['images' => []]);
+                        }
+
+                        $roomCode = $room->getExpediaCode();
+                        $mapperExpediaGiata = $room->hotel->giataCode->mapperExpediaGiata;
+
+                        if (! $mapperExpediaGiata) {
+                            return view('livewire.image-galleries.swiper-gallery', ['images' => []]);
+                        }
+
+                        $hotelCode = $mapperExpediaGiata->supplier_id;
+                        $expediaData = ExpediaContentSlave::where('expedia_property_id', $hotelCode)
+                            ->select('rooms')
+                            ->first()
+                            ?->rooms;
+
+                        $images = Arr::get($expediaData, "$roomCode.images", []);
+                        $transformedImages = array_map(function ($image) {
+                            return [
+                                'full_url' => Arr::get($image, 'links.1000px.href'),
+                                'tag' => '1000px',
+                                'alt' => Arr::get($image, 'caption', ''),
+                                'source' => 'Expedia',
+                            ];
+                        }, $images);
+
+                        return view('livewire.image-galleries.swiper-gallery', ['images' => $transformedImages]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->visible(fn () => $this->roomId),
+
                 Action::make('view')
+                    ->tooltip('View Internal Gallery')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
                     ->icon('heroicon-o-eye')
@@ -161,9 +227,9 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                         ...array_filter(
                             HotelImagesForm::getFormComponents(),
                             fn ($component) => ! (
-                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'galleries') ||
-                                ($component instanceof \Filament\Forms\Components\Select && $component->getName() === 'source') ||
-                                ($component instanceof \Filament\Forms\Components\FileUpload && $component->getName() === 'image_url')
+                                ($component instanceof Select && $component->getName() === 'galleries') ||
+                                ($component instanceof Select && $component->getName() === 'source') ||
+                                ($component instanceof FileUpload && $component->getName() === 'image_url')
                             )
                         ),
                         FileUpload::make('image_url')
@@ -182,7 +248,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                         $galleries = $form->getRawState()['galleries'] ?? [];
                         /** @var AddImage $addImage */
                         $addImage = app(AddImage::class);
-                        $addImage->addImageToGallery($data, $product, $room, $galleryName, $description, $galleries);
+                        $addImage->addImagesToGallery($data, $product, $room, $galleryName, $description, $galleries);
 
                     })
                     ->visible(fn () => Gate::allows('create', Image::class)),
@@ -193,6 +259,9 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->action(fn () => $this->toggleViewMode())
                     ->icon($this->viewMode === 'list' ? 'heroicon-o-table-cells' : 'heroicon-o-cube-transparent')
                     ->iconButton(),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make(),
             ])
             ->filters([
                 SelectFilter::make('source')
@@ -206,6 +275,19 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 SelectFilter::make('section_id')
                     ->label('Section')
                     ->options(ImageSection::pluck('name', 'id')->toArray()),
+                SelectFilter::make('galleries')
+                    ->label('Has Gallery')
+                    ->options([
+                        '1' => 'With Gallery',
+                        '0' => 'Without Gallery',
+                    ])
+                    ->query(function (Builder $query, $data) {
+                        if ((string) $data['value'] === '1') {
+                            $query->whereHas('galleries');
+                        } elseif ((string) $data['value'] === '0') {
+                            $query->whereDoesntHave('galleries');
+                        }
+                    }),
             ]);
     }
 
@@ -221,9 +303,24 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 ->sortable()
                 ->searchable(),
             ImageColumn::make('image_url')
+                ->label('Image url')
                 ->size('100px')
                 ->getStateUsing(fn ($record) => $record->full_url),
             TextColumn::make('tag')
+                ->label('Tags')
+                ->formatStateUsing(function ($state) {
+                    if (! $state) {
+                        return '';
+                    }
+                    $tags = explode(';', $state);
+
+                    return collect($tags)
+                        ->filter()
+                        ->map(fn ($tag) => '<span class="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded mr-1">'.e($tag).'</span>')
+                        ->implode(' ');
+                })
+                ->html()
+                ->wrap()
                 ->searchable(),
             TextColumn::make('alt')
                 ->searchable(),
@@ -237,7 +334,9 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 ->searchable()
                 ->badge()
                 ->color('gray')
-                ->url(fn ($record) => route('image-galleries.edit', ['image_gallery' => $record->galleries->first()?->id]))
+                ->url(fn ($record) => $record->galleries->first()?->id
+                    ? route('image-galleries.edit', ['image_gallery' => $record->galleries->first()->id])
+                    : null)
                 ->openUrlInNewTab(),
         ];
     }
@@ -254,9 +353,27 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     TextColumn::make('source')
                         ->formatStateUsing(fn ($state) => ImageSourceEnum::tryFrom($state)?->label() ?? $state)
                         ->searchable(),
-                    TextColumn::make('galleries.gallery_name')
-                        ->searchable()
-                        ->wrap(),
+                    TextColumn::make('tag')
+                        ->label('Tags')
+                        ->formatStateUsing(function ($state) {
+                            if (! $state) {
+                                return '';
+                            }
+                            $tags = explode(';', $state);
+
+                            return collect($tags)
+                                ->filter()
+                                ->map(fn ($tag) => '<span class="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded mr-1">'.e($tag).'</span>')
+                                ->implode(' ');
+                        })
+                        ->html()
+                        ->wrap()
+                        ->searchable(),
+                    TextColumn::make('alt')
+                        ->searchable(),
+                    //                    TextColumn::make('galleries.gallery_name')
+                    //                        ->searchable()
+                    //                        ->wrap(),
                 ]),
         ];
     }

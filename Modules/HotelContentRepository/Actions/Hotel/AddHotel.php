@@ -20,6 +20,8 @@ use Modules\Enums\MealPlansEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\API\Requests\HotelRequest;
 use Modules\HotelContentRepository\Events\Hotel\HotelAdded;
+use Modules\HotelContentRepository\Jobs\UploadHotelImagesJob;
+use Modules\HotelContentRepository\Jobs\UploadRoomImagesJob;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -226,6 +228,219 @@ class AddHotel
             });
 
             ProductAttribute::upsert($filteredAttributesData, ['product_id', 'config_attribute_id']);
+
+            return $hotel;
+        });
+    }
+
+    public function updateWithGiataCode(Hotel $hotel): Hotel
+    {
+        $property = Property::find($hotel->giata_code);
+        $holdable = $hotel->holdable ?? true;
+        $offSaleBySource = $hotel->product->off_sale_by_sources ?? null;
+        $source_id = ContentSource::where('name', ContentSourceEnum::EXPEDIA->value)->first()->id ?? 1;
+
+        if (! $property) {
+            throw new \Exception('Property not found');
+        }
+
+        /** @var MappingCacheService $mappingCacheService */
+        $mappingCacheService = app(MappingCacheService::class);
+        $hashMapperExpedia = $mappingCacheService->getMappingsExpediaHashMap(null, true);
+        $reversedHashMap = array_flip($hashMapperExpedia);
+        $expediaCode = $reversedHashMap[$property->code] ?? null;
+
+        if (! $expediaCode) {
+            throw new \Exception('Expedia hotel not found in the mapper.');
+        }
+
+        $expediaData = ExpediaContentSlave::select('images', 'rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
+            ->where('expedia_property_id', $expediaCode)
+            ->first();
+        $expediaData = $expediaData ? $expediaData->toArray() : [];
+
+        $expediaMainData = ExpediaContent::select('rating')
+            ->where('property_id', $expediaCode)
+            ->first();
+        $expediaMainData = $expediaMainData ? $expediaMainData->toArray() : [];
+
+        $ratingExpedia = Arr::get($expediaMainData, 'rating', 0);
+        $imagesData = Arr::get($expediaData, 'images', []);
+        $roomsData = Arr::get($expediaData, 'rooms', []);
+        $attributes = collect(array_merge(
+            Arr::get($expediaData, 'amenities', []),
+            Arr::get(Arr::get($expediaData, 'attributes', []), 'general', []),
+            Arr::get($expediaData, 'themes', [])
+        ))
+            ->filter(fn ($value) => is_array($value) && !empty($value['name']) && !str_contains($value['name'], 'COVID-19'))
+            ->values()
+            ->all();
+
+        $numRooms = Arr::get($expediaData, 'statistics.52.value', 0);
+        $mealPlansRes = array_values(array_filter(
+            Arr::get($expediaData, 'all_inclusive', []),
+            fn ($value) => in_array($value, MealPlansEnum::values())
+        )) ?: [MealPlansEnum::NO_MEAL_PLAN->value];
+
+        if ($mealPlansRes[0] === true || $mealPlansRes[0] === 'true') {
+            $mealPlansRes = [MealPlansEnum::ALL_INCLUSIVE->value];
+        }
+
+        $address = $property->latitude && $property->longitude
+            ? app(HotelForm::class)->getGeocodingData($property->latitude, $property->longitude)
+            : [];
+
+        return DB::transaction(function () use (
+            $hotel,
+            $imagesData,
+            $property,
+            $roomsData,
+            $source_id,
+            $numRooms,
+            $mealPlansRes,
+            $attributes,
+            $address,
+            $ratingExpedia,
+            $holdable,
+            $offSaleBySource
+        ) {
+            $hotel->update([
+                'star_rating' => max($property->rating ?? 1, 1, $ratingExpedia),
+                'num_rooms' => $numRooms,
+                'hotel_board_basis' => $mealPlansRes,
+                'room_images_source_id' => $source_id,
+                'address' => [
+                    'line_1' => Arr::get($address, 'line_1', null) ?? $property->mapper_address ?? '',
+                    'city' => Arr::get($address, 'city', null) ?? $property->city ?? '',
+                    'country_code' => Arr::get($address, 'country_code', null) ?? $property->address->CountryName ?? '',
+                    'state_province_name' => Arr::get($address, 'state_province_name', null) ?? $property->address->AddressLine ?? '',
+                ],
+                'holdable' => $holdable,
+            ]);
+
+            $hotel->product->update([
+                'name' => $property->name,
+                'lat' => $property->latitude,
+                'lng' => $property->longitude,
+                'off_sale_by_sources' => $offSaleBySource,
+            ]);
+
+            $allRoomImages = [];
+            if (!empty($roomsData)) {
+                $updatedRoomIds = [];
+                foreach ($roomsData as $room) {
+                    $description = Arr::get($room, 'descriptions.overview');
+                    $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
+                    $descriptionAfterLayout = str_replace(['<p>', '</p>'], ["\n", ''], $descriptionAfterLayout);
+                    $descriptionAfterLayout = strip_tags($descriptionAfterLayout);
+                    $descriptionAfterLayout = ltrim($descriptionAfterLayout, "\n");
+
+                    $hotelRoom = $hotel->rooms()
+                        ->whereJsonContains(
+                            'supplier_codes',
+                            ['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']
+                        )
+                        ->first();
+
+                    $data = [
+                        'description' => $descriptionAfterLayout,
+                        'area' => Arr::get($room, 'area.square_feet', 0),
+                        'max_occupancy' => Arr::get($room, 'occupancy.max_allowed.total', 0),
+                        'room_views' => array_values(array_map(function ($view) {
+                            return $view['name'];
+                        }, Arr::get($room, 'views', []))),
+                        'bed_groups' => array_merge(...array_map(function ($group) {
+                            return array_map(function ($config) {
+                                return $config['quantity'].' '.$config['size'].' Beds';
+                            }, $group['configuration']);
+                        }, Arr::get($room, 'bed_groups', []))),
+                    ];
+
+                    if (!$hotelRoom) {
+                        $data = array_merge($data, [
+                            'name' => Arr::get($room, 'name'),
+                            'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']]),
+                        ]);
+                        $hotelRoom = $hotel->rooms()->create($data);
+                    } else {
+                        $hotelRoom->update($data);
+                    }
+
+                    $attributeIds = [];
+                    $amenities = Arr::get($room, 'amenities', []);
+                    foreach ($amenities as $amenity) {
+                        if (!is_array($amenity)) {
+                            continue;
+                        }
+                        $amenityName = Arr::get($amenity, 'name', '');
+                        $attribute = ConfigAttribute::firstOrCreate([
+                            'name' => $amenityName,
+                            'default_value' => $amenityName.' room',
+                        ]);
+                        $attributeIds[] = $attribute->id;
+                    }
+
+                    $hotelRoom->attributes()->sync($attributeIds);
+
+                    $updatedRoomIds[] = $hotelRoom->id;
+
+                    // Collect images for the room
+                    $roomImages = Arr::get($room, 'images', []);
+                    $allRoomImages[$hotelRoom->id] = $roomImages;
+                }
+
+                $hotel->rooms()
+                    ->whereNotIn('id', $updatedRoomIds)
+                    ->delete();
+            }
+
+            $product = $hotel->product;
+
+            $attributesData = [];
+            foreach ($attributes as $attribute) {
+                $attributeName = Arr::get($attribute, 'name', '');
+                $attributeCategory = Arr::get($attribute, 'categories.0', 'general');
+                $category = ConfigAttributeCategory::firstOrCreate([
+                    'name' => $attributeCategory,
+                ]);
+                $attribute = ConfigAttribute::firstOrCreate([
+                    'name' => $attributeName,
+                    'default_value' => $attributeName.' hotel',
+                ]);
+
+                $attribute->categories()->syncWithoutDetaching([$category->id]);
+
+                $attributesData[] = [
+                    'product_id' => $product->id,
+                    'config_attribute_id' => $attribute->id,
+                ];
+            }
+
+            $existingAttributes = ProductAttribute::whereIn('product_id', array_column($attributesData, 'product_id'))
+                ->whereIn('config_attribute_id', array_column($attributesData, 'config_attribute_id'))
+                ->get(['product_id', 'config_attribute_id'])
+                ->toArray();
+
+            $filteredAttributesData = array_filter($attributesData, function ($item) use ($existingAttributes) {
+                foreach ($existingAttributes as $existing) {
+                    if (
+                        $existing['product_id'] === $item['product_id'] &&
+                        $existing['config_attribute_id'] === $item['config_attribute_id']
+                    ) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            ProductAttribute::upsert($filteredAttributesData, ['product_id', 'config_attribute_id']);
+
+            /* Upload Hotel Images */
+            UploadHotelImagesJob::dispatch($product, $imagesData, auth()->user());
+
+            /* Upload all Room Images */
+            UploadRoomImagesJob::dispatch($hotel, $allRoomImages, auth()->user());
 
             return $hotel;
         });

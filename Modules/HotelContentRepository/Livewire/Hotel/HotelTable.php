@@ -166,6 +166,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->tooltip('View')
                     ->url(fn (Hotel $record): string => route('hotel-repository.edit', $record))
                     ->visible(fn (Hotel $record) => Gate::allows('update', $record)),
+
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
@@ -186,6 +187,56 @@ class HotelTable extends Component implements HasForms, HasTable
                             ->success()
                             ->send();
                     }),
+
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('updateWithGiataCode')
+                        ->label('Update with Expedia Data')
+                        ->icon('heroicon-o-arrow-path-rounded-square')
+                        ->requiresConfirmation(fn (
+                            Hotel $record
+                        ) => $record->rooms()->exists())
+                        ->modalHeading(function (Hotel $record) {
+                            return $record->rooms()
+                                ->exists()
+                                ? 'Warning: Hotel contains Expedia content'
+                                : null;
+                        })
+                        ->modalDescription(function (Hotel $record) {
+                            return $record->rooms()
+                                ->exists()
+                                ? 'This action will replace the existing content. If the EPS code has changed, the old room-primary content will be soft-deleted.'
+                                : null;
+                        })
+                        ->modalSubmitActionLabel(function (Hotel $record) {
+                            return $record->rooms()
+                                ->exists()
+                                ? 'Proceed'
+                                : 'Run';
+                        })
+                        ->action(function (Hotel $record) {
+                            try {
+                                /** @var AddHotel $hotelAction */
+                                $hotelAction = app(AddHotel::class);
+                                $hotelAction->updateWithGiataCode($record);
+
+                                Notification::make()
+                                    ->title('Hotel updated successfully. UploadHotelImages and UploadRoomImages tasks have been launched. A notification will be sent upon completion.')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->title('Error: '.$e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->visible(fn (Hotel $record) => Gate::allows('create', $record)),
+                ])
+                    ->label('Tools')
+                    ->icon('heroicon-o-cog')
+                    ->tooltip('Additional Tools')
+                    ->iconButton()
+                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make('addHotelWithGiataCode')
