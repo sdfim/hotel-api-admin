@@ -428,6 +428,15 @@
                                     </a>
                                 </li>
                             @endcan
+                            @can('log-viewer')
+                                <li>
+                                    <a href="{{ Route('notifications') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-mail"></i>
+                                        <span data-key="t-notifications">Notifications</span>
+                                    </a>
+                                </li>
+                            @endcan
                             @can('swagger-docs')
                                 <li>
                                     <a href="javascript: void(0);" aria-expanded="false"
