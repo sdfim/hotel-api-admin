@@ -6,6 +6,7 @@ use App\Observers\GeneralConfigurationObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 #[ObservedBy([GeneralConfigurationObserver::class])]
 class GeneralConfiguration extends Model
@@ -44,4 +45,16 @@ class GeneralConfiguration extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public static function getCached(): array
+    {
+        if (! Cache::has('general_configuration')) {
+            $generalConfiguration = self::first();
+            if ($generalConfiguration) {
+                Cache::put('general_configuration', $generalConfiguration->toArray());
+            }
+        }
+
+        return Cache::get('general_configuration', []);
+    }
 }

@@ -40,7 +40,12 @@
 
 <div class="main-content">
     <div class="page-content min-h-screen">
-        <div class="snow"></div>
+        @php
+            $generalConfigRating = (float) Arr::get(\App\Models\GeneralConfiguration::getCached(), 'star_ratings');
+        @endphp
+        @if ($generalConfigRating === 2.5)
+            <div class="snow"></div>
+        @endif
         @if (session('success'))
             <x-flash-message :message="session('success')"/>
         @endif
