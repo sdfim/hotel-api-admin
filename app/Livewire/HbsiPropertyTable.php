@@ -11,10 +11,12 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class HbsiPropertyTable extends Component implements HasForms, HasTable
 {
@@ -92,6 +94,65 @@ class HbsiPropertyTable extends Component implements HasForms, HasTable
                         ->modalDescription(fn ($record) => $record->name)
                         ->modalContent(fn ($record) => view('livewire.modal.property-view', ['record' => $record])),
                 ]),
+            ])
+            ->filters([
+                \Filament\Tables\Filters\Filter::make('giata_code')
+                    ->label('Exist in Supplier Repository')
+                    ->query(function (Builder $query) {
+                        $giataCodes = Hotel::pluck('giata_code');
+                        $query->whereHas('mapperHbsiGiata', function (Builder $subQuery) use ($giataCodes) {
+                            $subQuery->whereIn('giata_id', $giataCodes);
+                        });
+                    })
+                    ->default(true),
+                SelectFilter::make('hotel_code')
+                    ->label('Hotel Code')
+                    ->default(fn () => request()->get('supplierHotelCode'))
+                    ->searchable()
+                    ->options(
+                        fn () => HbsiProperty::query()
+                            ->orderBy('hotel_code')
+                            ->pluck('hotel_code', 'hotel_code')
+                            ->toArray()
+                    ),
+                SelectFilter::make('has_room_types')
+                    ->label('Has Room Types')
+                    ->options([
+                        '1' => 'Yes (more than 1)',
+                        '0' => 'No (0 or 1)',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if ($data['value'] === '1') {
+                            $query->whereRaw('
+                    JSON_LENGTH(
+                        JSON_EXTRACT(
+                            tpa_extensions,
+                            "$.InterfaceSetup"
+                        )
+                    ) > 0
+                ')->whereRaw('
+                    (
+                        SELECT COUNT(*)
+                        FROM JSON_TABLE(
+                            JSON_EXTRACT(tpa_extensions, "$.InterfaceSetup"),
+                            "$[*]" COLUMNS (key_path VARCHAR(100) PATH "$.key")
+                        ) AS jt
+                        WHERE jt.key_path = "Mapping_Roomtype"
+                    ) > 1
+                ');
+                        } elseif ($data['value'] === '0') {
+                            $query->whereRaw('
+                    (
+                        SELECT COUNT(*)
+                        FROM JSON_TABLE(
+                            JSON_EXTRACT(tpa_extensions, "$.InterfaceSetup"),
+                            "$[*]" COLUMNS (key_path VARCHAR(100) PATH "$.key")
+                        ) AS jt
+                        WHERE jt.key_path = "Mapping_Roomtype"
+                    ) <= 1
+                ');
+                        }
+                    }),
             ]);
     }
 

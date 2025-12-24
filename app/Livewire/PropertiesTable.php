@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\SupplierNameEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use stdClass;
@@ -83,28 +84,69 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 ->schema([
                     CustomRepeater::make('mappings')
                         ->label('Mappings')
-                        ->columns(2)
                         ->relationship('mappings')
                         ->schema([
+
                             Select::make('supplier')
                                 ->hiddenLabel()
                                 ->label('Supplier')
                                 ->placeholder('Select a supplier')
-                                ->options(fn () => array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                                ->options(function (callable $get): array {
+                                    $allOptions = SupplierNameEnum::options();
+                                    $currentSupplier = $get('supplier');
+                                    $currentMappings = $get('../../mappings') ?? [];
+                                    $usedSuppliers = collect($currentMappings)
+                                        ->pluck('supplier')
+                                        ->filter()
+                                        ->unique()
+                                        ->toArray();
+
+                                    return array_filter(
+                                        $allOptions,
+                                        fn ($key) => !in_array($key, $usedSuppliers) || $key === $currentSupplier,
+                                        ARRAY_FILTER_USE_KEY
+                                    );
+                                })
                                 ->default(fn ($record) => $record?->supplier)
                                 ->required()
-                                ->distinct(),
+                                ->disabled(fn ($get) => $get('is_locked'))
+                                ->dehydrated(true), // <-- ADD THIS LINE
 
                             TextInput::make('supplier_id')
                                 ->hiddenLabel()
                                 ->label('Supplier ID')
                                 ->placeholder('Enter supplier ID')
                                 ->default(fn ($record) => $record?->supplier_id)
-                                ->required(),
+                                ->required()
+                                ->disabled(fn ($get) => $get('is_locked'))
+                                ->dehydrated(true), // <-- ADD THIS LINE
 
-                            Hidden::make('match_percentage')
-                                ->default(fn ($record) => $record?->match_percentage ?? 100),
+                            Select::make('match_percentage')
+                                ->label('')
+                                ->options([
+                                    100 => 'Provided by Giata',
+                                    99 => 'Finalized by Admin',
+                                ])
+                                ->placeholder(null)
+                                ->default(fn ($record) => $record?->match_percentage ?? 98)
+                                ->disabled(fn ($get) => $get('is_locked'))
+                                ->dehydrated(true) // <-- ADD THIS LINE
+                                ->required()
+                                ->helperText(function ($get) {
+                                    $matchPercentage = $get('match_percentage');
+                                    return $matchPercentage < 90
+                                        ? 'Handled by automated tools'
+                                        : null;
+                                }),
+
+                            CustomToggle::make('is_locked')
+                                ->label('edit lock')
+                                ->tooltip('It is not recommended to edit the mappers provided by Giata.')
+                                ->dehydrated(false)
+                                ->reactive()
+                                ->default(fn ($get) => ($get('match_percentage') == 100 || $get('match_percentage') < 90)),
                         ])
+                        ->columns(4)
                         ->default(fn ($record) => $record->mappings->toArray())
                         ->addActionLabel('Add a Mapping'),
                 ]),
@@ -215,7 +257,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
         $data = PropertiesTable::preparePropertyData($data);
         // $data['source'] = PropertiesSourceEnum::Custom->value;
         $city = PropertiesTable::getCityById($data['city_id']);
-        $data['cross_references'] = new stdClass; // Empty Object
+        $data['cross_references'] = new stdClass(); // Empty Object
         $data['address'] = [
             'UseType' => '7',
             'CityName' => $city->city_name,
