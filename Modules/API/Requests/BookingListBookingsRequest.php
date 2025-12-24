@@ -189,7 +189,7 @@ class BookingListBookingsRequest extends ApiRequest
      * "search_id": "cb6a974a-7ba0-4559-8fe0-bb4f96d95342",
      * "amount_pay": "Deposit",
      * "api_client": {
-     * "email": "test-api-user@terramare.com"
+     * "email": "test-api-user@vidanta.com"
      * },
      * "booking_id": "c8c3d2b5-4233-4b2a-bdf3-fd233d80a38b",
      * "booking_item": "786430a0-9e2e-4617-ae98-d3aec8505660",

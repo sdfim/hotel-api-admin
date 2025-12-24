@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Cloudformation template to create TerraMare resources
+Description: Cloudformation template to create Vidanta resources
 Outputs:
   CodePipelineRoleArn:
     Export:

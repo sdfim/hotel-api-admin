@@ -157,7 +157,7 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
             // Agency info
             'agency' => [
                 'booking_agent'       => ''  . env('APP_NAME') .  ' Tours',
-                'booking_agent_email' => 'support@terramaretours.com',
+                'booking_agent_email' => 'support@vidanta.com',
             ],
 
             // Images

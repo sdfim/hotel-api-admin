@@ -18,7 +18,7 @@
     $subtotal    = $subtotal    ?? ($totalPrice - $totalTax - $totalFees);
 
     $agencyName  = $agency['booking_agent']       ?? ' {{ env('APP_NAME') }}Tours';
-    $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
+    $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
 
     $checkin        = $checkin         ?? null;
     $checkout       = $checkout        ?? null;

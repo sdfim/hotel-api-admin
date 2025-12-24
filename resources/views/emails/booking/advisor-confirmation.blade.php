@@ -90,9 +90,9 @@
                         <p>
                             Should you have any questions or additional requests, our concierge team will be happy
                             to assist. Simply reply to this email or contact us at
-                            <a href="mailto:support@terramaretours.com"
+                            <a href="mailto:support@vidanta.com"
                                style="color:#263A3A; text-decoration:underline;">
-                                support@terramaretours.com
+                                support@vidanta.com
                             </a>.
                         </p>
 

@@ -200,7 +200,7 @@
                 <p>Should you have any questions, dietary preferences, or
                     additional requests, our concierge team will be happy to
                     assist you. Simply reply to this email, or contact us at
-                    {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}.</p>
+                    {{ $agency['booking_agent_email'] ?? 'test-api-user@vidanta.com' }}.</p>
                 <p>We look forward to welcoming you soon for an unforgettable
                     escape in Mexico.</p>
                 <p>Warm regards,  {{ env('APP_NAME') }}Concierge</p>
@@ -226,7 +226,7 @@
                 <strong>Booking Agent</strong>
                 <p>
                     {{ $agency['booking_agent'] ?? 'test-api-user' }}<br>
-                    {{ $agency['booking_agent_email'] ?? 'test-api-user@terramare.com' }}
+                    {{ $agency['booking_agent_email'] ?? 'test-api-user@vidanta.com' }}
                 </p>
             </div>
         </div>

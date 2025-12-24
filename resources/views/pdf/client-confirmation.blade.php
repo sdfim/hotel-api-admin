@@ -20,7 +20,7 @@
     $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
 
     $agencyName  = $agency['booking_agent']       ?? ' {{ env('APP_NAME') }}Tours';
-    $agencyEmail = $agency['booking_agent_email'] ?? 'support@terramaretours.com';
+    $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
 
     /** Optional fields */
     $checkin            = $checkin            ?? null;
@@ -254,7 +254,7 @@
                     <div style="font-size: 14px;">225 Broadway, Fl. 23,</div>
                     <div style="font-size: 14px;">New York, NY, 10007, USA</div>
                     <div style="font-size: 14px;">+1 (332)-232-8351</div>
-                    <div style="font-size: 14px;">support@terramaretours.com</div>
+                    <div style="font-size: 14px;">support@vidanta.com</div>
                 </div>
             </td>
 

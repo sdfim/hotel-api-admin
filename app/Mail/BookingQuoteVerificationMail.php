@@ -193,7 +193,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
             // Agency info
             'agency' => [
                 'booking_agent'       => Arr::get($this->agentData, 'name')  ?? 'OLIVER SHACKNOW',
-                'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@terramare.com',
+                'booking_agent_email' => Arr::get($this->agentData, 'email') ?? 'kshacknow@vidanta.com',
             ],
 
             // Images

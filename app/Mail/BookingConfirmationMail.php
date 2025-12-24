@@ -84,7 +84,7 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
             'total_price' => $total_price,
             'agency' => [
                 'booking_agent' => $userAgent->name ?? 'OLIVER SHACKNOW',
-                'booking_agent_email' => $userAgent->email ?? 'kshacknow@terramare.com',
+                'booking_agent_email' => $userAgent->email ?? 'kshacknow@vidanta.com',
             ],
             'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
         ];

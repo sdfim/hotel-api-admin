@@ -168,7 +168,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             // Agency info (can be expanded later if needed)
             'agency' => [
                 'booking_agent'       => ''  . env('APP_NAME') .  ' Tours',
-                'booking_agent_email' => 'support@terramaretours.com',
+                'booking_agent_email' => 'support@vidanta.com',
             ],
 
             // Images
