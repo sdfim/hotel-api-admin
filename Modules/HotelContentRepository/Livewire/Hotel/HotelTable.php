@@ -32,7 +32,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
-use Modules\Enums\HotelSaleTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
 use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
@@ -314,6 +313,7 @@ class HotelTable extends Component implements HasForms, HasTable
                             ]),
                     ])
                     ->visible(! $this->vendor?->id),
+
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('exportDatabase')
                         ->label('Export Database')
@@ -372,80 +372,11 @@ class HotelTable extends Component implements HasForms, HasTable
                                     ->send();
                             }
                         }),
-                    Tables\Actions\Action::make('exportFiles')
-                        ->label('Export Files')
-                        ->icon('heroicon-o-chevron-double-down')
-                        ->action(function () {
-                            $res = Artisan::call('files:export');
-                            if ($res > 0) {
-                                $fileUrls = '';
-                                while ($res > 0) {
-                                    $fileUrls .= \URL::to('/storage/files_'.$res.'.zip').PHP_EOL;
-                                    $res--;
-                                }
-                                Notification::make()
-                                    ->title('Export Successful')
-                                    ->body('Download the file here '.$fileUrls)
-                                    ->success()
-                                    ->duration(5000)
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->title('Export Error')
-                                    ->body('Failed to create archive.')
-                                    ->danger()
-                                    ->send();
-                            }
-                        }),
-                    Tables\Actions\Action::make('importFiles')
-                        ->label('Import Files')
-                        ->icon('heroicon-o-chevron-double-up')
-                        ->form([
-                            FileUpload::make('zipFiles')
-                                ->label('Select Zip File')
-                                ->disk('public')
-                                ->directory('file-uploads')
-                                ->preserveFilenames()
-                                ->multiple()
-                                ->required(),
-                        ])
-                        ->action(function (array $data) {
-                            $files = $data['zipFiles'];
-                            $allSuccess = true;
-
-                            foreach ($files as $file) {
-                                $filePath = Storage::disk('public')->path($file);
-                                if (Storage::disk('public')->exists($file)) {
-                                    $res = Artisan::call('files:import', [
-                                        'file' => $filePath,
-                                    ]);
-                                    if (! $res) {
-                                        $allSuccess = false;
-                                        break;
-                                    }
-                                } else {
-                                    $allSuccess = false;
-                                    break;
-                                }
-                            }
-
-                            if ($allSuccess) {
-                                Notification::make()
-                                    ->title('Files imported successfully')
-                                    ->success()
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->title('Failed to extract archive')
-                                    ->danger()
-                                    ->send();
-                            }
-                        }),
                 ])
                     ->label('Database Actions')
                     ->icon('heroicon-o-circle-stack')
                     ->iconButton()
-                    ->visible(! $this->vendor?->id),
+                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
             ])
             ->filters([
 
@@ -658,7 +589,7 @@ class HotelTable extends Component implements HasForms, HasTable
     public function exportDatabase(): bool
     {
         $uuid = (string) \Str::uuid();
-        ExportDatabaseJob::dispatch('config_,pd_', 'activity_log,informational_services', $uuid);
+        ExportDatabaseJob::dispatch('config_,pd_', 'activity_log', $uuid);
 
         $timeout = 5;
         $startTime = time();
