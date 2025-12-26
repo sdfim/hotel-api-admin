@@ -90,7 +90,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                                 ->default(fn ($record) => $record?->supplier)
                                 ->required()
                                 ->disabled(fn ($get) => $get('is_locked'))
-                                ->dehydrated(true), // <-- ADD THIS LINE
+                                ->dehydrated(true),
 
                             TextInput::make('supplier_id')
                                 ->hiddenLabel()
@@ -99,7 +99,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                                 ->default(fn ($record) => $record?->supplier_id)
                                 ->required()
                                 ->disabled(fn ($get) => $get('is_locked'))
-                                ->dehydrated(true), // <-- ADD THIS LINE
+                                ->dehydrated(true),
 
                             Select::make('match_percentage')
                                 ->label('')
@@ -413,7 +413,10 @@ class PropertiesTable extends Component implements HasForms, HasTable
                                         'supplier' => $m->supplier,
                                         'supplier_id' => $m->supplier_id,
                                         'match_percentage' => $m->match_percentage,
-                                        'is_locked' => $m->is_locked,
+                                        'is_locked' => (
+                                            $m->match_percentage == 100 ||
+                                            $m->match_percentage < 90
+                                        ),
                                     ])
                                     ->values()
                                     ->toArray(),
@@ -423,27 +426,31 @@ class PropertiesTable extends Component implements HasForms, HasTable
                             $possibleSuppliers = explode(',', config('booking-suppliers.connected_suppliers', ''));
                             $submittedMappings = collect($data['mappings'] ?? []);
 
-                            // id, from form
                             $submittedIds = $submittedMappings
                                 ->pluck('id')
                                 ->filter()
                                 ->values()
                                 ->all();
 
-                            // ❌ Delete removed
+                            // delete removed
                             $record->mappings()
                                 ->whereIn('supplier', $possibleSuppliers)
                                 ->whereNotIn('id', $submittedIds)
                                 ->delete();
 
-                            // ✅ update / create
                             foreach ($submittedMappings as $mapping) {
+                                $isLocked = (
+                                    $mapping['match_percentage'] == 100 ||
+                                    $mapping['match_percentage'] < 90
+                                );
+
                                 $record->mappings()->updateOrCreate(
                                     ['id' => $mapping['id'] ?? null],
                                     [
                                         'supplier' => $mapping['supplier'],
                                         'supplier_id' => $mapping['supplier_id'],
                                         'match_percentage' => $mapping['match_percentage'],
+                                        'is_locked' => $isLocked,
                                     ]
                                 );
                             }
