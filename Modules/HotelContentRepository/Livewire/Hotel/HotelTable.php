@@ -98,6 +98,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->label('GIATA Code')
                     ->searchable()
                     ->toggleable()
+                    ->url(fn ($record) => route('properties.index', ['giata_id' => $record->giata_code]))
                     ->sortable(),
 
                 TextColumn::make('giataCode.mappings')
