@@ -76,9 +76,7 @@ Route::fallback(function () {
     }
 });
 
-Route::get(
-    '/admin/',
-    fn () => Auth::check()
+Route::get('/admin/', fn () => Auth::check()
     ? redirect()->route('reservations.index')
     : redirect()->route('login')
 )->name('root');
