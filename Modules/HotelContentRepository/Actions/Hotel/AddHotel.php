@@ -272,7 +272,7 @@ class AddHotel
             Arr::get(Arr::get($expediaData, 'attributes', []), 'general', []),
             Arr::get($expediaData, 'themes', [])
         ))
-            ->filter(fn ($value) => is_array($value) && !empty($value['name']) && !str_contains($value['name'], 'COVID-19'))
+            ->filter(fn ($value) => is_array($value) && ! empty($value['name']) && ! str_contains($value['name'], 'COVID-19'))
             ->values()
             ->all();
 
@@ -326,7 +326,7 @@ class AddHotel
             ]);
 
             $allRoomImages = [];
-            if (!empty($roomsData)) {
+            if (! empty($roomsData)) {
                 $updatedRoomIds = [];
                 foreach ($roomsData as $room) {
                     $description = Arr::get($room, 'descriptions.overview');
@@ -356,7 +356,7 @@ class AddHotel
                         }, Arr::get($room, 'bed_groups', []))),
                     ];
 
-                    if (!$hotelRoom) {
+                    if (! $hotelRoom) {
                         $data = array_merge($data, [
                             'name' => Arr::get($room, 'name'),
                             'supplier_codes' => json_encode([['code' => Arr::get($room, 'id'), 'supplier' => 'Expedia']]),
@@ -369,7 +369,7 @@ class AddHotel
                     $attributeIds = [];
                     $amenities = Arr::get($room, 'amenities', []);
                     foreach ($amenities as $amenity) {
-                        if (!is_array($amenity)) {
+                        if (! is_array($amenity)) {
                             continue;
                         }
                         $amenityName = Arr::get($amenity, 'name', '');
@@ -504,9 +504,11 @@ class AddHotel
             $data['onSale'] = false;
         }
 
-        $data['product']['off_sale_by_sources'] = array_keys(array_filter($data['off_save'], function ($value) {
-            return $value === true;
-        }));
+        if (isset($data['off_save'])) {
+            $data['product']['off_sale_by_sources'] = array_keys(array_filter($data['off_save'], function ($value) {
+                return $value === true;
+            }));
+        }
 
         $data['address'] = $data['addressArr'];
 
