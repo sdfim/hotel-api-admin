@@ -54,26 +54,6 @@ class PropertiesTable extends Component implements HasForms, HasTable
             });
         }
 
-        if (request()->has('polygon')) {
-            $coordinates = explode(';', request('polygon'));
-            $polygon = array_chunk($coordinates, 2);
-
-            if ($polygon[0] !== $polygon[count($polygon) - 1]) {
-                $polygon[] = $polygon[0];
-            }
-
-            //            $polygonWKT = 'POLYGON(('.implode(',', array_map(fn ($point) => implode(' ', $point), $polygon)).'))';
-            //            $query->whereRaw('ST_Contains(ST_GeomFromText(?), POINT(longitude, latitude))', [
-            //                $polygonWKT,
-            //            ]);
-
-            $polygonWKT = 'POLYGON(('.implode(',', array_map(fn ($point) => "{$point[1]} {$point[0]}", $polygon)).'))';
-            $query->whereHas('location', function ($query) use ($polygonWKT) {
-                $query->whereRaw('ST_Within(location, ST_GeomFromText(?, 4326))', [$polygonWKT]);
-            });
-
-        }
-
         return $query;
     }
 
@@ -84,7 +64,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 ->schema([
                     CustomRepeater::make('mappings')
                         ->label('Mappings')
-                        ->relationship('mappings')
+//                        ->relationship('mappings')
                         ->schema([
 
                             Select::make('supplier')
@@ -103,7 +83,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
 
                                     return array_filter(
                                         $allOptions,
-                                        fn ($key) => !in_array($key, $usedSuppliers) || $key === $currentSupplier,
+                                        fn ($key) => ! in_array($key, $usedSuppliers) || $key === $currentSupplier,
                                         ARRAY_FILTER_USE_KEY
                                     );
                                 })
@@ -134,6 +114,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                                 ->required()
                                 ->helperText(function ($get) {
                                     $matchPercentage = $get('match_percentage');
+
                                     return $matchPercentage < 90
                                         ? 'Handled by automated tools'
                                         : null;
@@ -257,7 +238,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
         $data = PropertiesTable::preparePropertyData($data);
         // $data['source'] = PropertiesSourceEnum::Custom->value;
         $city = PropertiesTable::getCityById($data['city_id']);
-        $data['cross_references'] = new stdClass(); // Empty Object
+        $data['cross_references'] = new stdClass; // Empty Object
         $data['address'] = [
             'UseType' => '7',
             'CityName' => $city->city_name,
@@ -421,6 +402,52 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         ->icon('heroicon-m-link')
                         ->modalHeading(fn (Property $record) => 'Property Mapping - '.$record->code.' '.$record->name)
                         ->form(fn () => PropertiesTable::getMapSchema())
+                        ->fillForm(function (Property $record): array {
+                            $possibleSuppliers = explode(',', config('booking-suppliers.connected_suppliers', ''));
+
+                            return [
+                                'mappings' => $record->mappings
+                                    ->whereIn('supplier', $possibleSuppliers)
+                                    ->map(fn ($m) => [
+                                        'id' => $m->id,
+                                        'supplier' => $m->supplier,
+                                        'supplier_id' => $m->supplier_id,
+                                        'match_percentage' => $m->match_percentage,
+                                        'is_locked' => $m->is_locked,
+                                    ])
+                                    ->values()
+                                    ->toArray(),
+                            ];
+                        })
+                        ->action(function (Property $record, array $data) {
+                            $possibleSuppliers = explode(',', config('booking-suppliers.connected_suppliers', ''));
+                            $submittedMappings = collect($data['mappings'] ?? []);
+
+                            // id, from form
+                            $submittedIds = $submittedMappings
+                                ->pluck('id')
+                                ->filter()
+                                ->values()
+                                ->all();
+
+                            // ❌ Delete removed
+                            $record->mappings()
+                                ->whereIn('supplier', $possibleSuppliers)
+                                ->whereNotIn('id', $submittedIds)
+                                ->delete();
+
+                            // ✅ update / create
+                            foreach ($submittedMappings as $mapping) {
+                                $record->mappings()->updateOrCreate(
+                                    ['id' => $mapping['id'] ?? null],
+                                    [
+                                        'supplier' => $mapping['supplier'],
+                                        'supplier_id' => $mapping['supplier_id'],
+                                        'match_percentage' => $mapping['match_percentage'],
+                                    ]
+                                );
+                            }
+                        })
                         ->visible(fn (Property $record) => Gate::allows('update', $record)),
                     EditAction::make('edit')
                         ->modalHeading('Property Details - Edit')
