@@ -1,0 +1,62 @@
+version: 0.2
+
+env:
+  secrets-manager:
+    DOCKERHUB_USERNAME: "/dockerhub/vidanta-prod/creds:username"
+    DOCKERHUB_PASS: "/dockerhub/vidanta-prod/creds:password"
+  parameter-store:
+    SSH_KEY: "/ec2/keypair/key-02408d975cfbd5842"
+  variables:
+    ECR_URL: 138743893819.dkr.ecr.us-east-1.amazonaws.com
+    TASKS_EC2_IP: 10.10.3.245
+    API_REPO_NAME: vidanta-prod-api
+    TASKS_REPO_NAME: vidanta-prod-tasks
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Docker Hub and ECR"
+      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASS
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_URL}
+      - export DOCKER_BUILDKIT=1
+      - export BUILDKIT_PROGRESS=plain
+
+  build:
+    commands:
+      - echo "Building API image with BuildKit cache"
+      - docker buildx create --use --name mybuilder --driver docker-container || docker buildx use mybuilder
+      - |
+        docker buildx build \
+          --file infrastructure/docker/php-8.2/Dockerfile \
+          --tag ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7} \
+          --tag ${ECR_URL}/${API_REPO_NAME}:latest \
+          --cache-from type=registry,ref=${ECR_URL}/${API_REPO_NAME}:buildcache \
+          --cache-to type=registry,ref=${ECR_URL}/${API_REPO_NAME}:buildcache,mode=max \
+          --push \
+          --build-arg BUILDKIT_INLINE_CACHE=1 \
+          .
+
+      - echo "Triggering AppRunner deployment"
+      - aws apprunner start-deployment --service-arn arn:aws:apprunner:us-east-1:138743893819:service/vidanta-prod-booking-admin-api/166ef63f1ed2465d9a6bb59f1bf1166e
+
+      - echo "Building TASKS image with BuildKit cache"
+      - |
+        docker buildx build \
+          --file infrastructure/docker/php-8.2/tasks.Dockerfile \
+          --tag ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7} \
+          --tag ${ECR_URL}/${TASKS_REPO_NAME}:latest \
+          --cache-from type=registry,ref=${ECR_URL}/${TASKS_REPO_NAME}:buildcache \
+          --cache-to type=registry,ref=${ECR_URL}/${TASKS_REPO_NAME}:buildcache,mode=max \
+          --push \
+          --build-arg BUILDKIT_INLINE_CACHE=1 \
+          .
+
+      - echo "Deploying to EC2"
+      - if [ $(echo $SSH_KEY | wc -l) -gt 1 ]; then echo $SSH_KEY > sshkey.pem; else echo $SSH_KEY | sed 's/\(KEY----- \)/\1\n/' | sed 's/\(-----END\)/\n\1/' > sshkey.pem; fi
+      - chmod 400 sshkey.pem
+      - ssh-keyscan $TASKS_EC2_IP >> ~/.ssh/known_hosts
+      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_URL}"
+      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker pull ${ECR_URL}/${TASKS_REPO_NAME}:latest"
+      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker rm -f vidanta-prod-tasks || true"
+      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker run --name=vidanta-prod-tasks --log-driver=awslogs --log-opt awslogs-region=us-east-1 --log-opt awslogs-group=vidanta-prod-tasks --log-opt awslogs-create-group=true -d --env-file /home/ec2-user/.tasks.env ${ECR_URL}/${TASKS_REPO_NAME}:latest"
+      - ssh -i sshkey.pem ec2-user@$TASKS_EC2_IP "docker image prune -f"
