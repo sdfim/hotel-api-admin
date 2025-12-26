@@ -69,12 +69,6 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                     ->stacked()
                     ->circular()
                     ->extraAttributes(['class' => 'rounded-full'])
-                    ->getStateUsing(function ($record) {
-                        return collect($record->images)
-                            ->shuffle()
-                            ->map(fn ($image) => $image['full_url'])
-                            ->toArray();
-                    })
                     ->limit(4)
                     ->limitedRemainingText(),
                 TextColumn::make('gallery_name')
