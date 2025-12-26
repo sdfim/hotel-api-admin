@@ -10,6 +10,7 @@ enum SupplierNameEnum: string
     case HILTON = 'Hilton';
     case GIATA = 'Giata';
     case HOTEL_TRADER = 'HotelTrader';
+    case ORACLE = 'Oracle';
 
     private static function connectedSuppliers(): array
     {
@@ -25,6 +26,7 @@ enum SupplierNameEnum: string
             self::ICE_PORTAL->value,
             self::HILTON->value,
             self::HOTEL_TRADER->value,
+            self::ORACLE->value,
         ];
         return array_values(array_intersect($all, self::connectedSuppliers()));
     }
@@ -48,6 +50,7 @@ enum SupplierNameEnum: string
             self::HBSI->value => self::HBSI->value,
             self::HILTON->value => self::HILTON->value,
             self::HOTEL_TRADER->value => self::HOTEL_TRADER->value,
+            self::ORACLE->value => self::ORACLE->value,
         ];
         $connected = self::connectedSuppliers();
         return array_intersect_key($all, array_flip($connected));
@@ -71,6 +74,7 @@ enum SupplierNameEnum: string
             self::EXPEDIA->value,
             self::HBSI->value,
             self::HOTEL_TRADER->value,
+            self::ORACLE->value,
         ];
         return array_values(array_intersect($all, self::connectedSuppliers()));
     }
@@ -81,6 +85,7 @@ enum SupplierNameEnum: string
             self::EXPEDIA->value => self::EXPEDIA->value,
             self::HBSI->value => self::HBSI->value,
             self::HOTEL_TRADER->value => self::HOTEL_TRADER->value,
+            self::ORACLE->value => self::ORACLE->value,
         ];
         $connected = self::connectedSuppliers();
         return array_intersect_key($all, array_flip($connected));
@@ -92,6 +97,7 @@ enum SupplierNameEnum: string
             self::EXPEDIA->value,
             self::HBSI->value,
             self::HOTEL_TRADER->value,
+            self::ORACLE->value,
         ];
         return array_values(array_intersect($all, self::connectedSuppliers()));
     }

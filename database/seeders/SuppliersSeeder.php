@@ -53,5 +53,13 @@ class SuppliersSeeder extends Seeder
                 'description' => 'IcePortal Supplier',
             ]
         );
+
+        Supplier::updateOrCreate(
+            ['name' => SupplierNameEnum::ORACLE->value],
+            [
+                'product_type' => [TypeRequestEnum::HOTEL->value],
+                'description' => 'Oracle Supplier',
+            ]
+        );
     }
 }
