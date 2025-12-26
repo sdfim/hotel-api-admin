@@ -304,8 +304,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 ->searchable(),
             ImageColumn::make('image_url')
                 ->label('Image url')
-                ->size('100px')
-                ->getStateUsing(fn ($record) => $record->full_url),
+                ->size('100px'),
             TextColumn::make('tag')
                 ->label('Tags')
                 ->formatStateUsing(function ($state) {
@@ -348,8 +347,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                 ->columns(1)
                 ->schema([
                     ImageColumn::make('image_url')
-                        ->size($this->viewMode === 'list' ? '200px' : '100%')
-                        ->getStateUsing(fn ($record) => $record->full_url),
+                        ->size($this->viewMode === 'list' ? '200px' : '100%'),
                     TextColumn::make('source')
                         ->formatStateUsing(fn ($state) => ImageSourceEnum::tryFrom($state)?->label() ?? $state)
                         ->searchable(),

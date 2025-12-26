@@ -212,8 +212,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                 ->columns(1)
                 ->schema([
                     ImageColumn::make('image_url')
-                        ->size('200px')
-                        ->getStateUsing(fn ($record) => $record->full_url),
+                        ->size('200px'),
                     TextColumn::make('tag')
                         ->searchable(),
                 ]),
@@ -226,13 +225,9 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             TextColumn::make('id')
                 ->sortable()
                 ->searchable(),
-            ImageColumn::make('image_preview')
+            ImageColumn::make('image_url')
                 ->label('Image')
-                ->size('100px')
-                ->getStateUsing(fn ($record) => $record->full_url),
-            TextColumn::make('image_url')
-                ->searchable()
-                ->toggleable(isToggledHiddenByDefault: true),
+                ->size('100px'),
             TextInputColumn::make('weight')
                 ->sortable(
                     query: function (Builder $query, string $direction): Builder {
