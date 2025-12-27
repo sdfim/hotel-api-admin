@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
 use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
@@ -16,7 +16,7 @@ use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 
-class ExpediaHotelController implements HotelSupplierInterface
+class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricingSupplierInterface
 {
     protected float|string $current_time;
 
@@ -179,9 +179,6 @@ class ExpediaHotelController implements HotelSupplierInterface
         ];
     }
 
-    /**
-     * @throws \Throwable
-     */
     public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
     {
         $preSearchData = array_flip($preSearchData);
@@ -291,7 +288,7 @@ class ExpediaHotelController implements HotelSupplierInterface
         $bookingItems[$supplierName] = $this->expediaHotelPricingTransformer->bookingItems ?? [];
         $countClientResponse += $count;
 
-        Log::info('ExpediaHotelController _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
+        Log::info('ExpediaHotelAdapter _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
         unset($expediaResponse, $hotelGenerator);
 
         return [

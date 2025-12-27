@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
 use App\Models\HotelTraderProperty;
 use App\Models\Mapping;
@@ -18,7 +18,7 @@ use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransf
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 
-class HotelTraderController implements HotelSupplierInterface
+class HotelTraderAdapter implements HotelContentSupplierInterface, HotelPricingSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
@@ -126,7 +126,7 @@ class HotelTraderController implements HotelSupplierInterface
 
             $results = Repository::dtoDbToResponse($results, $fields);
         } catch (Exception $e) {
-            Log::error('HotelTraderController | preSearchData'.$e->getMessage());
+            Log::error('HotelTraderAdapter | preSearchData'.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             return null;
@@ -136,7 +136,7 @@ class HotelTraderController implements HotelSupplierInterface
         $finalMemoryUsage = memory_get_usage();
         $finalMemoryUsageMB = $finalMemoryUsage / 1024 / 1024;
         Log::info('Final memory usage: '.$finalMemoryUsageMB.' MB');
-        Log::info('HotelTraderController | preSearchData | mysql query '.$endTime.' seconds');
+        Log::info('HotelTraderAdapter | preSearchData | mysql query '.$endTime.' seconds');
 
         return [
             'giata_ids' => array_values($giataCodes),
@@ -247,7 +247,7 @@ class HotelTraderController implements HotelSupplierInterface
                 }
             }
 
-            logger()->info('HotelTraderController _ price', [
+            logger()->info('HotelTraderAdapter _ price', [
                 'hotel_ids' => $hotelIds,
                 'filters' => $filters,
                 'result' => $result,
@@ -263,7 +263,7 @@ class HotelTraderController implements HotelSupplierInterface
             ];
 
         } catch (Exception $e) {
-            Log::error('HotelTraderController Exception '.$e);
+            Log::error('HotelTraderAdapter Exception '.$e);
             Log::error($e->getTraceAsString());
 
             return [
@@ -276,7 +276,7 @@ class HotelTraderController implements HotelSupplierInterface
                 'total_pages' => 0,
             ];
         } catch (GuzzleException $e) {
-            Log::error('HotelTraderController GuzzleException '.$e);
+            Log::error('HotelTraderAdapter GuzzleException '.$e);
             Log::error($e->getTraceAsString());
 
             return [
@@ -292,8 +292,8 @@ class HotelTraderController implements HotelSupplierInterface
     }
 
     /**
-     * Обрабатывает сырой ответ от поставщика (полученный из price),
-     * трансформирует его в DTO и применяет логику подсчета.
+     * Processes the raw response from the supplier (received from price),
+     * transforms it into a DTO, and applies calculation logic.
      */
     public function processPriceResponse(
         array $rawResponse,
@@ -341,7 +341,7 @@ class HotelTraderController implements HotelSupplierInterface
         $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? [];
         $countClientResponse += $count;
 
-        Log::info('HotelTraderController _ price _ Transformer hTraderToHotelResponse '.(microtime(true) - $st).' seconds');
+        Log::info('HotelTraderAdapter _ price _ Transformer hTraderToHotelResponse '.(microtime(true) - $st).' seconds');
         unset($hTraderResponse, $hotelGenerator);
 
         // Формат возвращаемых данных соответствует тому, что ожидает HotelApiHandler

@@ -3,7 +3,7 @@
 namespace Tests\Feature\API\BookingFlow;
 
 use Mockery;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HbsiHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HbsiHotelAdapter;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
 
@@ -11,10 +11,10 @@ trait BookFlowTrait
 {
     public function searchMock(): void
     {
-        $mock = Mockery::mock(HbsiHotelController::class, [new HbsiClient, new Geography])->makePartial();
+        $mock = Mockery::mock(HbsiHotelAdapter::class, [new HbsiClient, new Geography])->makePartial();
         $mock->shouldReceive('preSearchData')
             ->andReturn($this->preSearchData());
-        $this->app->instance(HbsiHotelController::class, $mock);
+        $this->app->instance(HbsiHotelAdapter::class, $mock);
     }
 
     private function preSearchData(): array

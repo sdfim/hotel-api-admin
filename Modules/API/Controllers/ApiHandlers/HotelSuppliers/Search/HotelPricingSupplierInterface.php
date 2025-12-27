@@ -1,17 +1,13 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
-use Illuminate\Http\Request;
-
-interface HotelSupplierInterface
+/**
+ * Interface for pricing suppliers
+ * HBSI, Expedia, HotelTrader
+ */
+interface HotelPricingSupplierInterface extends HotelSupplierInterface
 {
-    public function preSearchData(array &$filters, string $initiator): ?array;
-
-    public function search(array $filters): array;
-
-    public function detail(Request $request): array|object;
-
     public function price(array &$filters, array $searchInspector, array $preSearchData): ?array;
 
     public function processPriceResponse(

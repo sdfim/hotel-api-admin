@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelSupplierInterface;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HotelSupplierInterface;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;

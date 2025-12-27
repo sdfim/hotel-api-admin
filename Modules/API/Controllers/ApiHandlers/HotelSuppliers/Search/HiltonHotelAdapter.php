@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
 use App\Models\HiltonProperty;
 use App\Repositories\HiltonContentRepository as HiltonRepository;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Tools\Geography;
 
-class HiltonHotelController implements HotelSupplierInterface
+class HiltonHotelAdapter implements HotelContentSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
@@ -144,15 +144,5 @@ class HiltonHotelController implements HotelSupplierInterface
         $results = HiltonRepository::getDetailByGiataId($request->get('property_id'));
 
         return HiltonRepository::dtoDbToResponse($results, HiltonProperty::getFullListFields());
-    }
-
-    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
-    {
-        return null;
-    }
-
-    public function processPriceResponse(array $rawResponse, array $filters, string $searchId, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
-    {
-        return [];
     }
 }

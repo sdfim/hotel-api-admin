@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\ExpediaHotelController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HiltonHotelController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelSupplierInterface;
 use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelTraderController;
 use Modules\API\Controllers\ApiHandlers\HotelSuppliers\IcePortalHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\ExpediaHotelAdapter;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HiltonHotelAdapter;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HotelSupplierInterface;
 use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
 use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentTransformer;
@@ -27,9 +27,9 @@ class SupplierServiceProvider extends ServiceProvider
     {
         $this->app->bind(HotelSupplierInterface::class, function ($app, $params) {
             return match ($params['supplier']) {
-                SupplierNameEnum::EXPEDIA->value => app(ExpediaHotelController::class),
+                SupplierNameEnum::EXPEDIA->value => app(ExpediaHotelAdapter::class),
                 SupplierNameEnum::ICE_PORTAL->value => app(IcePortalHotelController::class),
-                SupplierNameEnum::HILTON->value => app(HiltonHotelController::class),
+                SupplierNameEnum::HILTON->value => app(HiltonHotelAdapter::class),
                 SupplierNameEnum::HOTEL_TRADER->value => app(HotelTraderController::class),
                 default => throw new \InvalidArgumentException("Unknown supplier: {$params['supplier']}"),
             };

@@ -1,11 +1,10 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Services\HotelCombinationService;
@@ -15,7 +14,7 @@ use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 use Throwable;
 
-class HbsiHotelController implements HotelSupplierInterface
+class HbsiHotelAdapter implements HotelPricingSupplierInterface
 {
     private const RESULT_PER_PAGE = 1000;
 
@@ -44,12 +43,12 @@ class HbsiHotelController implements HotelSupplierInterface
             $geoLocationTime = microtime(true);
             $geoLocation = $this->geography->getPlaceDetailById($filters['place'], $filters['session']);
             $endTime = microtime(true) - $geoLocationTime;
-            Log::info('HbsiHotelController | preSearchData | geoLocation '.$endTime.' seconds');
+            Log::info('HbsiHotelAdapter | preSearchData | geoLocation '.$endTime.' seconds');
 
             $coordinateTime = microtime(true);
             $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
             $endTime = microtime(true) - $coordinateTime;
-            Log::info('HbsiHotelController | preSearchData | minMaxCoordinate '.$endTime.' seconds');
+            Log::info('HbsiHotelAdapter | preSearchData | minMaxCoordinate '.$endTime.' seconds');
 
             $filters['latitude'] = $geoLocation['latitude'];
             $filters['longitude'] = $geoLocation['longitude'];
@@ -57,14 +56,14 @@ class HbsiHotelController implements HotelSupplierInterface
             $idsTime = microtime(true);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
             $endTime = microtime(true) - $idsTime;
-            Log::info('HbsiHotelController | preSearchData | ids '.$endTime.' seconds');
+            Log::info('HbsiHotelAdapter | preSearchData | ids '.$endTime.' seconds');
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
         }
 
         $endTime = microtime(true) - $timeStart;
-        Log::info('HbsiHotelController | preSearchData | mysql query '.$endTime.' seconds');
+        Log::info('HbsiHotelAdapter | preSearchData | mysql query '.$endTime.' seconds');
 
         return array_column($ids['data'], 'giata', 'hbsi');
     }
@@ -195,19 +194,9 @@ class HbsiHotelController implements HotelSupplierInterface
         return json_decode(json_encode($object), 1);
     }
 
-    public function search(array $filters): array
-    {
-        return [];
-    }
-
-    public function detail(Request $request): array|object
-    {
-        return [];
-    }
-
     /**
-     * Обрабатывает сырой ответ от поставщика (полученный из price),
-     * трансформирует его в DTO и применяет логику комбинаций и подсчета.
+     * Processes the raw response from the supplier (received from price),
+     * transforms it into a DTO, and applies calculation logic.
      */
     public function processPriceResponse(
         array $rawResponse,
@@ -268,7 +257,7 @@ class HbsiHotelController implements HotelSupplierInterface
         $countResponse += count($hbsiResponse['array']);
         $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
         $countClientResponse += count($clientResponse[$supplierName]);
-        Log::info('HbsiHotelController _ price _ Transformer HbsiToHotelResponse '.(microtime(true) - $st).' seconds');
+        Log::info('HbsiHotelAdapter _ price _ Transformer HbsiToHotelResponse '.(microtime(true) - $st).' seconds');
 
         unset($hbsiResponse, $hotelGenerator, $hotels);
 

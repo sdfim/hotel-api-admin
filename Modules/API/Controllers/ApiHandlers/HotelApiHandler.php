@@ -19,23 +19,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\ExpediaHotelController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HbsiHotelController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HiltonHotelController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelSupplierAdapter;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\HotelTraderController;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\IcePortalHotelController;
+use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HotelSupplierLocator;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransformer;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelPricingTransformer;
-use Modules\API\Suppliers\Transformers\HBSI\HbsiHotelPricingTransformer;
-use Modules\API\Suppliers\Transformers\Hilton\HiltonHotelContentTransformer;
-use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentDetailTransformer;
-use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderHotelPricingTransformer;
-use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
-use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
 use Modules\API\Tools\FiberManager;
 use Modules\API\Tools\MemoryLogger;
 use Modules\API\Tools\PricingDtoTools;
@@ -64,7 +50,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private const PAGINATION_TO_RESULT = true;
 
     public function __construct(
-        private readonly HotelSupplierAdapter $supplierAdapter,
+        private readonly HotelSupplierLocator $supplierLocator,
         private readonly BaseHotelPricingTransformer $baseHotelPricingTransformer,
         private readonly PricingDtoTools $pricingDtoTools,
         private readonly SearchInspectorController $apiInspector,
@@ -190,7 +176,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $optionsQueries = ['any'];
                     }
 
-                    $rawGiataIds = $this->supplierAdapter->preSearchData($supplier, $filters, 'price') ?? [];
+                    $rawGiataIds = $this->supplierLocator
+                        ->getController($supplier)
+                        ->preSearchData($filters, 'price') ?? [];
 
                     MemoryLogger::log('preSearchData_'.$supplier);
 
@@ -207,7 +195,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $currentFilters = [...$filters, 'query_package' => $optionsQuery];
 
                         $fiberManager->add($fiberKey, function () use ($supplier, $currentFilters, $searchInspector, $rawGiataIds) {
-                            return $this->supplierAdapter->price($supplier, $currentFilters, $searchInspector, $rawGiataIds);
+                            return $this->supplierLocator
+                                ->getController($supplier)
+                                ->price($currentFilters, $searchInspector, $rawGiataIds);
                         });
                     }
                 }
@@ -261,15 +251,16 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     [$supplierName, $queryPackage] = explode('_', $fiber_key);
                     $currentFilters = [...$filters, 'query_package' => $queryPackage];
 
-                    $result = $this->supplierAdapter->processPriceResponse(
-                        $supplierName,
-                        $supplierResponse,
-                        $currentFilters,
-                        $search_id,
-                        $pricingRules,
-                        $pricingExclusionRules,
-                        $suppliersGiataIds[$supplierName]
-                    );
+                    $result = $this->supplierLocator
+                        ->getController($supplierName)
+                        ->processPriceResponse(
+                            $supplierResponse,
+                            $currentFilters,
+                            $search_id,
+                            $pricingRules,
+                            $pricingExclusionRules,
+                            $suppliersGiataIds[$supplierName]
+                        );
 
                     if ($error = Arr::get($result, 'error')) {
                         return $this->sendError($error, 'failed');
@@ -346,12 +337,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                 }
 
-                if ($request->input('supplier_data') == 'true') {
-                    $res = $content;
-                } else {
-                    $res = $clientContent;
-                }
-
+                $res = $request->input('supplier_data') == 'true' ? $content : $clientContent;
                 $res['search_id'] = $search_id;
 
                 $taggedCache->put($keyPricingSearch.':result', $res, now()->addMinutes(self::TTL));

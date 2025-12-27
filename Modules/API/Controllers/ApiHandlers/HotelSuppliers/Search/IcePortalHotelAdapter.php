@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers;
+namespace Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search;
 
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
@@ -20,7 +20,7 @@ use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
 use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
 use Modules\API\Tools\Geography;
 
-class IcePortalHotelController implements HotelSupplierInterface
+class IcePortalHotelAdapter implements HotelContentSupplierInterface
 {
     private const RESULT_PER_PAGE = 500;
 
@@ -256,15 +256,5 @@ class IcePortalHotelController implements HotelSupplierInterface
         }
 
         return $existingRecordsArray;
-    }
-
-    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
-    {
-        return null;
-    }
-
-    public function processPriceResponse(array $rawResponse, array $filters, string $searchId, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
-    {
-        return [];
     }
 }
