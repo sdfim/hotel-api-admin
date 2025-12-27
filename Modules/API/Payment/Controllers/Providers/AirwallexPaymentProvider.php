@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
-use Modules\API\Suppliers\AirwallexSupplier\AirwallexClient;
+use Modules\API\Payment\Airwallex\Client\AirwallexClient;
 
 class AirwallexPaymentProvider extends BaseController implements PaymentProviderInterface
 {

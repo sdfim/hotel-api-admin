@@ -5,15 +5,15 @@ namespace Modules\HotelContentRepository\Services\Suppliers;
 use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use Illuminate\Support\Arr;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\IcePortalHotelController;
-use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
+use Modules\API\Suppliers\IcePortal\Adapters\IcePortalHotelAdapter;
+use Modules\API\Suppliers\IcePortal\Transformers\IcePortalHotelContentDetailTransformer;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 
 class IcePortalHotelContentApiService implements SupplierInterface
 {
     public function __construct(
-        protected readonly IcePortalHotelController $icePortal,
+        protected readonly IcePortalHotelAdapter $icePortal,
         protected readonly IcePortalHotelContentDetailTransformer $icePortalHotelContentDetailTransformer,
     ) {}
 

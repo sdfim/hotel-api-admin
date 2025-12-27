@@ -14,8 +14,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\Expedia\Client\PropertyPriceCall;
+use Modules\API\Suppliers\Expedia\Client\RapidClient;
 use Modules\Inspector\ExceptionReportController;
 
 class DownloadExpediaData extends Command

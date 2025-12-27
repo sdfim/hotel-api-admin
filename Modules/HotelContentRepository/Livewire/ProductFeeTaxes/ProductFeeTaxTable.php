@@ -38,7 +38,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Modules\API\Suppliers\Enums\HBSI\HbsiFeeTaxTypeEnum;
 use Modules\Enums\FeeTaxCollectedByEnum;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;

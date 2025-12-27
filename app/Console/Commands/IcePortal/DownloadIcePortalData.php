@@ -8,7 +8,7 @@ use App\Traits\ExceptionReportTrait;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
+use Modules\API\Suppliers\IcePortal\Client\IceHBSIClient;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Inspector\ExceptionReportController;
 

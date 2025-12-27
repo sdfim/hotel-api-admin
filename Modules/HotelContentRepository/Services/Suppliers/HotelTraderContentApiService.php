@@ -4,7 +4,7 @@ namespace Modules\HotelContentRepository\Services\Suppliers;
 
 use App\Models\HotelTraderProperty;
 use App\Models\Mapping;
-use Modules\API\Suppliers\Transformers\HotelTrader\HotelTraderContentDetailTransformer;
+use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderContentDetailTransformer;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 

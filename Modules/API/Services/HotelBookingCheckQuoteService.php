@@ -8,18 +8,14 @@ use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\BaseController;
-use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
-use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
-use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierLocator;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\HotelRoom;
 
 class HotelBookingCheckQuoteService extends BaseController
 {
     public function __construct(
-        private readonly ExpediaHotelBookingApiController $expedia,
-        private readonly HbsiHotelBookingApiController $hbsi,
-        private readonly HotelTraderHotelBookingApiController $hTrader,
+        private readonly HotelBookingSupplierLocator $supplierLocator,
     ) {}
 
     public function prepareFiltersForCheckQuote(&$filters, $request, $bookingItem, $firstSearch, $dataFirstSearch)
@@ -232,12 +228,7 @@ class HotelBookingCheckQuoteService extends BaseController
         $booking_id = ApiBookingInspectorRepository::getBookIdByBookingItem($request->booking_item);
         $filters = ['booking_item' => $booking_item, 'booking_id' => $booking_id];
 
-        match (SupplierNameEnum::from($supplier)) {
-            SupplierNameEnum::EXPEDIA => $this->expedia->addItem($filters, 'check_quote'),
-            SupplierNameEnum::HBSI => $this->hbsi->addItem($filters, 'check_quote'),
-            SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters, 'check_quote'),
-            default => [],
-        };
+        $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->addItem($filters, $supplier, 'check_quote');
 
         $apiBookingItemFirstSearch = ApiBookingItem::where('booking_item', $request->booking_item)->first();
         $apiBookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();

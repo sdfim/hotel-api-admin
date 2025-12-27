@@ -6,7 +6,7 @@ use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
 use Illuminate\Support\Arr;
 use Modules\API\Services\MappingCacheService;
-use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransformer;
+use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelContentDetailTransformer;
 use Modules\HotelContentRepository\Services\SupplierInterface;
 
 class ExpediaHotelContentApiService implements SupplierInterface

@@ -15,12 +15,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
-use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
-use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
-use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
-use Modules\API\BookingAPI\Controllers\HotelTraderHotelBookingApiController;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelCombinationService;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierLocator;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -33,9 +30,7 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
     public function __construct(
-        private readonly ExpediaHotelBookingApiController $expedia,
-        private readonly HbsiHotelBookingApiController $hbsi,
-        private readonly HotelTraderHotelBookingApiController $hTrader,
+        private readonly HotelBookingSupplierLocator $supplierLocator,
     ) {}
 
     public function addItem(Request $request, string $supplier): JsonResponse
@@ -64,8 +59,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $filters['booking_id'] = $request->booking_id;
             }
 
-            if (($supplier === SupplierNameEnum::HBSI->value || $supplier === SupplierNameEnum::HOTEL_TRADER->value)
-                && Cache::get('room_combinations:'.$request->booking_item)) {
+            if ($supplier != SupplierNameEnum::EXPEDIA->value && Cache::get('room_combinations:'.$request->booking_item)) {
                 $hotelService = new HotelCombinationService($supplier);
                 $hotelService->updateBookingItemsData($request->booking_item);
             }
@@ -83,12 +77,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
             app(HotelBookingApiHandlerService::class)->refreshFiltersByApiUser($filters, $request);
 
-            $data = match (SupplierNameEnum::from($supplier)) {
-                SupplierNameEnum::EXPEDIA => $this->expedia->addItem($filters),
-                SupplierNameEnum::HBSI => $this->hbsi->addItem($filters),
-                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->addItem($filters),
-                default => [],
-            };
+            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->addItem($filters, $supplier);
             // Отправка письма с подтверждением, если требуется
             $email_verification = $request->input('email_verification', false);
             if ($email_verification) {
@@ -130,13 +119,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
     {
         $filters = $request->all();
         try {
-            $data = match (SupplierNameEnum::from($supplier)) {
-                SupplierNameEnum::EXPEDIA => $this->expedia->removeItem($filters),
-                SupplierNameEnum::HBSI => $this->hbsi->removeItem($filters),
-                SupplierNameEnum::HOTEL_TRADER => $this->hTrader->removeItem($filters),
-                default => [],
-            };
-
+            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->removeItem($filters);
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem '.$e->getMessage());
             Log::error($e->getTraceAsString());

@@ -4,8 +4,8 @@ namespace App\Console\Commands\IcePortal;
 
 use App\Models\Mapping;
 use Illuminate\Console\Command;
-use Modules\API\Suppliers\IceSupplier\IceHBSIClient;
-use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
+use Modules\API\Suppliers\IcePortal\Client\IceHBSIClient;
+use Modules\API\Suppliers\IcePortal\Transformers\IcePortalAssetTransformer;
 
 class TestIceHBSIProcessListings extends Command
 {

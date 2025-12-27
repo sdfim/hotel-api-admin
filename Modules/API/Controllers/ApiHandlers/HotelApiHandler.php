@@ -19,9 +19,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
-use Modules\API\Controllers\ApiHandlers\HotelSuppliers\Search\HotelSupplierLocator;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
-use Modules\API\Suppliers\Transformers\BaseHotelPricingTransformer;
+use Modules\API\Suppliers\Base\Transformers\BaseHotelPricingTransformer;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierLocator;
 use Modules\API\Tools\FiberManager;
 use Modules\API\Tools\MemoryLogger;
 use Modules\API\Tools\PricingDtoTools;
@@ -177,7 +177,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
 
                     $rawGiataIds = $this->supplierLocator
-                        ->getController($supplier)
+                        ->getAdapter($supplier)
                         ->preSearchData($filters, 'price') ?? [];
 
                     MemoryLogger::log('preSearchData_'.$supplier);
@@ -196,7 +196,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                         $fiberManager->add($fiberKey, function () use ($supplier, $currentFilters, $searchInspector, $rawGiataIds) {
                             return $this->supplierLocator
-                                ->getController($supplier)
+                                ->getAdapter($supplier)
                                 ->price($currentFilters, $searchInspector, $rawGiataIds);
                         });
                     }
@@ -252,7 +252,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $currentFilters = [...$filters, 'query_package' => $queryPackage];
 
                     $result = $this->supplierLocator
-                        ->getController($supplierName)
+                        ->getAdapter($supplierName)
                         ->processPriceResponse(
                             $supplierResponse,
                             $currentFilters,

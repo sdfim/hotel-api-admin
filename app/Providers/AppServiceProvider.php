@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\Expedia\Client\ExpediaService;
+use Modules\API\Suppliers\Expedia\Client\PropertyCallFactory;
+use Modules\API\Suppliers\Expedia\Client\RapidClient;
+
 
 class AppServiceProvider extends ServiceProvider
 {

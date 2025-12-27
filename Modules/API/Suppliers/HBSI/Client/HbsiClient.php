@@ -1,0 +1,958 @@
+<?php
+
+namespace Modules\API\Suppliers\HBSI\Client;
+
+use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveSearchInspector;
+use App\Models\ApiBookingItem;
+use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
+use App\Repositories\ApiSearchInspectorRepository;
+use App\Repositories\ConfigRepository;
+use Exception;
+use Fiber;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Modules\API\Suppliers\HBSI\Enums\CreditCardType;
+use Psr\Http\Message\ResponseInterface;
+use SimpleXMLElement;
+use Throwable;
+
+class HbsiClient
+{
+    private const VERSION = '2006A';
+
+    private const INTERFACE = 'HBSI XML 4 OTA';
+
+    public const AGE_ADULTS = 30;
+
+    public const AGE_INFANT = 3;
+
+    public const AGE_CHILD = 18;
+
+    private string $requestId;
+
+    private string $timeStamp;
+
+    private array $mainGuest;
+
+    const ERRORS = [
+        '15' => 'Invalid date',
+        '61' => 'Invalid currency code',
+        '69' => 'Minimum stay criteria not fulfilled',
+        '70' => 'Maximum stay criteria not fulfilled',
+        '87' => 'Booking reference invalid',
+        '95' => 'Booking already cancelled',
+        '97' => 'Booking reference not found',
+        '111' => 'Booking invalid',
+        '127' => 'Reservation already exists',
+        '146' => 'Service requested incorrect',
+        '147' => 'Taxes incorrect',
+        '161' => 'Search criteria invalid',
+        '245' => 'Invalid confirmation number',
+        '249' => 'Invalid rate code',
+        '251' => 'Last name and customer number do not match',
+        '321' => 'Required field missing',
+        '364' => 'Error rate range',
+        '394' => 'Invalid item',
+        '397' => 'Invalid number of adults',
+        '400' => 'Invalid property code',
+        '402' => 'Invalid room type',
+        '450' => 'Unable to process',
+        '459' => 'Invalid request code',
+    ];
+
+    private Credentials $credentials;
+
+    public function __construct(
+        private readonly Client $client,
+        private readonly array $headers = [
+            'Content-Type' => 'text/xml; charset=UTF8',
+        ],
+    ) {
+        $this->requestId = time().'_foratravel';
+        $this->timeStamp = date('Y-m-d\TH:i:sP');
+        $this->credentials = CredentialsFactory::fromConfig();
+        $this->mainGuest = [];
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws Exception|Throwable
+     */
+    public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
+
+        $start = microtime(true);
+
+        $promise = $this->client->requestAsync('POST', $this->credentials->searchBookUrl, [
+            'headers' => $this->headers,
+            'body' => $bodyQuery,
+            'timeout' => ConfigRepository::getTimeout(),
+        ]);
+
+        $original = ['HBSI' => ['request' => $bodyQuery]];
+
+        try {
+            // Use an array to wrap the single chunk as a complex promise for FiberManager
+            $result = Fiber::suspend([$promise])[0];
+        } catch (ConnectException $e) {
+            // Timeout
+            Log::error('Connection timeout: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
+
+            return ['error' => 'Connection timeout'];
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('HBSI Server error: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
+
+            return ['error' => 'Server error'];
+        }
+
+        $end = microtime(true);
+        $duration = $end - $start;
+
+        if (! isset($result)) {
+            Log::error('HBSIHotelApiHandler Timeout Exception after '.$duration.' seconds');
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'HBSI  Timeout Exception after '.$duration.' seconds', 'parent_search_id' => $parent_search_id]);
+
+            return ['error' => 'Timeout Exception after '.$duration.' seconds'];
+        }
+
+        $body = $result->getBody()->getContents();
+
+        return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws Exception|Throwable
+     */
+    public function getSyncHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
+        $original = ['HBSI' => ['request' => $bodyQuery]];
+
+        try {
+            $result = $this->client->request('POST', $this->credentials->searchBookUrl, [
+                'headers' => $this->headers,
+                'body' => $bodyQuery,
+                'timeout' => ConfigRepository::getTimeout(),
+            ]);
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('HBSI Server error: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
+
+            return ['error' => 'Server error'];
+        } catch (TransferException $e) {
+            // Timeout
+            Log::error('Connection timeout: '.$e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
+                ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
+
+            return ['error' => 'Connection timeout'];
+        }
+
+        $body = $result->getBody()->getContents();
+
+        return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handleBook(array $filters, array $inspectorBook): ?array
+    {
+        $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
+
+        $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
+
+        return $this->executeApiRequest(function () use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspectorBook, $bodyQuery);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function modifyBook(array $filters, array $inspector): ?array
+    {
+        $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
+        $bodyQuery = $this->makeRequest($this->hotelResModifyRQ($filters), 'HotelResModifyRQ', $hotelId);
+
+        return $this->executeApiRequest(function () use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspector, $bodyQuery);
+    }
+
+    public function retrieveBooking(array $reservation, string $hotelId, array $inspector): ?array
+    {
+        $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ', $hotelId);
+
+        return $this->executeApiRequest(function () use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspector, $bodyQuery);
+    }
+
+    public function cancelBooking(array $reservation, string $hotelId, $inspectorCansel): ?array
+    {
+        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ', $hotelId);
+
+        return $this->executeApiRequest(function () use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspectorCansel, $bodyQuery);
+    }
+
+    private function executeApiRequest(callable $apiCall, array $inspector, string $bodyQuery): ?array
+    {
+        $content['original']['request'] = $bodyQuery;
+        $content['original']['response'] = '';
+
+        try {
+            /*
+                        // Imitation error 500
+                        throw new \GuzzleHttp\Exception\ServerException(
+                            "Server error",
+                            new \GuzzleHttp\Psr7\Request('POST', 'test'),
+                            new \GuzzleHttp\Psr7\Response(500)
+                        );
+            */
+            $response = $apiCall();
+            $body = $response->getBody()->getContents();
+
+            $content['original']['response'] = $body;
+
+            if (str_contains($body, 'Errors')) {
+                $return = $this->processXmlBody($body, $bodyQuery, true);
+                $response = $return['response']->children('soap-env', true)->Body->children()->children();
+                $code = (string) $response->children()->attributes()['Code'];
+                $message = Arr::get(self::ERRORS, $code, 'Unknown error');
+                $errorMessage = (string) $response?->Errors?->Error;
+                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => $message.($errorMessage ? ': '.$errorMessage : '')]);
+            }
+
+            return $this->processXmlBody($body, $bodyQuery, true);
+        } catch (ConnectException $e) {
+            // Timeout
+            Log::error('Connection timeout: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
+
+            return ['error' => 'HBSI Connection timeout'];
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('Server error: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
+
+            return ['error' => 'HBSI Server error'];
+        } catch (Exception $e) {
+            Log::error('Unexpected error: '.$e->getMessage());
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    private function sendRequest($body): ResponseInterface
+    {
+        return $this->client->request('POST', $this->credentials->searchBookUrl, [
+            'headers' => $this->headers,
+            'body' => $body,
+            'timeout' => ConfigRepository::getTimeout(),
+        ]);
+    }
+
+    private function processXmlBody(object|string $body, string $bodyQuery, bool $addGuest = false): ?array
+    {
+        if ($this->isErrorSoap($body)) {
+            return [
+                'request' => $bodyQuery,
+                'response' => $body,
+            ];
+        }
+        if ($this->isXml($body)) {
+            try {
+                $res = [
+                    'request' => $bodyQuery,
+                    'response' => new SimpleXMLElement(strval($body), LIBXML_NOCDATA),
+                ];
+
+                // TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+                Log::info('-------------------------------------------- REQUEST --------------------------------------------');
+                Log::info($res['request']);
+                Log::info('-------------------------------------------- RESPONSE --------------------------------------------');
+                Log::info($res['response']->asXML());
+                // TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+
+                if ($addGuest) {
+                    $res['main_guest'] = json_encode($this->mainGuest);
+                }
+
+                return $res;
+            } catch (Exception $e) {
+                Log::error('HbsiClient '.$e->getMessage());
+                Log::error($e->getTraceAsString());
+
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private function makeRequest(string $body, string $typeRequest, ?string $hotelId = ''): string
+    {
+        if ($hotelId === '') {
+            $hotelId = $this->credentials->componentInfoId;
+        }
+
+        return '<?xml version="1.0" encoding="utf-8"?>
+            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap-env:Header>
+                    <Interface ChannelIdentifierId="'.$this->credentials->channelIdentifierId.'" Version="'.self::VERSION.'" Interface="'.self::INTERFACE.'"
+                        xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
+                        <ComponentInfo Id="'.$hotelId.'" User="'.$this->credentials->username.'" Pwd="'.$this->credentials->password.'" ComponentType="Hotel"/>
+                    </Interface>
+                </soap-env:Header>
+                <soap-env:Body RequestId="'.$this->requestId.'" Transaction="'.$typeRequest.'">
+                    '.$body.'
+                </soap-env:Body>
+            </soap-env:Envelope>';
+    }
+
+    private function hotelAvailRQ(array $hotelIds, array $params = []): string
+    {
+        foreach ($hotelIds as $hotelId) {
+            $hotelRefs[] = '<HotelRef HotelCode="'.$hotelId.'" />';
+        }
+
+        $start = $params['checkin'] ?? '2024-02-10';
+        $end = $params['checkout'] ?? '2024-02-15';
+        $currency = $params['currency'] ?? '*';
+
+        $roomStayCandidates = $this->occupancyToXml($params['occupancy']);
+
+        return '<OTA_HotelAvailRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'"
+                xmlns="http://www.opentravel.org/OTA/2003/05" BestOnly="false" SummaryOnly="false" >
+                <POS>
+                    <Source>
+                        <RequestorID Type="18" ID="Partner"/>
+                        <BookingChannel Type="2" Primary="true">
+                            <CompanyName>HBSI</CompanyName>
+                        </BookingChannel>
+                    </Source>
+                </POS>
+                <AvailRequestSegments>
+                    <AvailRequestSegment>
+                        <HotelSearchCriteria>
+                            <Criterion>
+                                <StayDateRange Start="'.$start.'" Duration="Day" End="'.$end.'"></StayDateRange>
+                                <RateRange RateTimeUnit="Day" CurrencyCode="'.$currency.'" ></RateRange>
+                                <RatePlanCandidates>
+                                    <RatePlanCandidate RatePlanCode="*" RPH="1">
+                                        <HotelRefs>
+                                            '.implode('', $hotelRefs).'
+                                        </HotelRefs>
+                                        <MealsIncluded MealPlanCodes="*"></MealsIncluded>
+                                    </RatePlanCandidate>
+                                </RatePlanCandidates>
+                                '.$roomStayCandidates.'
+                            </Criterion>
+                        </HotelSearchCriteria>
+                    </AvailRequestSegment>
+                </AvailRequestSegments>
+            </OTA_HotelAvailRQ>';
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function hotelResRQ(array $filters): string
+    {
+        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
+        $resGuestsArr = $this->processResGuestsArrByAge($guests, $filters);
+        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
+
+        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
+        $roomStays = '';
+        foreach ($roomStaysArr as $roomStay) {
+            $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
+        }
+        $roomStays = str_replace('<Tax>', '', $roomStays);
+        $roomStays = str_replace('</Tax></Tax>', '</Tax>', $roomStays);
+        $roomStays = '<RoomStays>'.$roomStays.'</RoomStays>';
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $iata = '';
+        if (isset($filters['travel_agency_identifier'])) {
+            $iata = '<UniqueID Type="5" ID="'.$filters['travel_agency_identifier'].'"/>';
+        }
+
+        return '<OTA_HotelResRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                <POS>
+                    <Source>
+                        <RequestorID Type="18" ID="Partner"/>
+                        <BookingChannel Type="2" Primary="true">
+                            <CompanyName>HBSI</CompanyName>
+                        </BookingChannel>
+                    </Source>
+                </POS>
+                <HotelReservations>
+                <HotelReservation RoomStayReservation="true" CreateDateTime="'.date('Y-m-d\TH:i:sP').'" CreatorID="Partner">
+                    '.$iata.'
+                    <UniqueID Type="14" ID="'.$bookingItem->booking_item.'"/>
+                    '.$roomStays.'
+                    '.$resGuests.'
+                    '.$resGlobalInfo.'
+                </HotelReservation>
+            </HotelReservations>
+        </OTA_HotelResRQ>';
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function hotelResModifyRQ(array $filters): string
+    {
+        if (isset($filters['new_booking_item'])) {
+            $bookingItemData = ApiBookingItemRepository::getItemData($filters['new_booking_item']);
+            $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['new_booking_item']);
+        } else {
+            $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+            $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
+        }
+
+        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
+        $resGuestsArr = $this->processResGuestsArrByAge($guests, $filters);
+        $resGlobalInfoArr = isset($filters['credit_cards']) ? $this->processDepositPaymentsArr($filters, $roomStaysArr) : [];
+
+        // info about booking
+        $resID = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
+        $hotelReservationIDs['HotelReservationIDs'][]['HotelReservationID'] = [
+            '@attributes' => [
+                'ResID_Type' => '8',
+                'ResID_Value' => $resID->supplier_booking_item_id,
+                'ResID_Source' => 'HBSI',
+                'ResID_Date' => $resID->created_at->format('Y-m-d\TH:i:sP'),
+            ],
+        ];
+
+        $resGlobalInfoArr = array_merge($resGlobalInfoArr, $hotelReservationIDs);
+
+        $resGlobalInfo = $resGlobalInfoArr
+            ? str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'))
+            : '';
+
+        $roomStays = '';
+        foreach ($roomStaysArr as $roomStay) {
+            $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
+        }
+        $roomStays = '<RoomStays>'.$roomStays.'</RoomStays>';
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $iata = '';
+        if (isset($filters['travel_agency_identifier'])) {
+            $iata = '<UniqueID Type="5" ID="'.$filters['travel_agency_identifier'].'"/>';
+        }
+
+        return '<OTA_HotelResModifyRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                <POS>
+                    <Source>
+                        <RequestorID Type="18" ID="Partner"/>
+                        <BookingChannel Type="2" Primary="true">
+                            <CompanyName>HBSI</CompanyName>
+                        </BookingChannel>
+                    </Source>
+                </POS>
+                <HotelResModifies>
+                <HotelResModify RoomStayReservation="true" CreateDateTime="'.date('Y-m-d\TH:i:sP').'" CreatorID="Partner">
+                    '.$iata.'
+                    <UniqueID Type="14" ID="'.$bookingItem->booking_item.'"/>
+                    '.$roomStays.'
+                    '.$resGuests.'
+                    '.$resGlobalInfo.'
+                </HotelResModify>
+            </HotelResModifies>
+        </OTA_HotelResModifyRQ>';
+    }
+
+    private function readRQ(array $reservation): string
+    {
+        $type = Arr::get($reservation, 'type', 8);
+
+        return '<OTA_ReadRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                    <ReadRequests>
+                    <ReadRequest>
+                        <UniqueID Type="'.$type.'" ID="'.$reservation['booking_id'].'"/>
+                        <Verification>
+                            <PersonName>
+                                <GivenName>'.$reservation['name'].'</GivenName>
+                                <Surname>'.$reservation['surname'].'</Surname>
+                            </PersonName>
+                        </Verification>
+                    </ReadRequest>
+                </ReadRequests>
+            </OTA_ReadRQ>';
+    }
+
+    private function cancelRQ(array $reservation): string
+    {
+        $type = Arr::get($reservation, 'type', 8);
+
+        return '<OTA_CancelRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                    <POS>
+                        <Source>
+                            <RequestorID Type="18" ID="HBSI"/>
+                            <BookingChannel Type="2" Primary="true">
+                                <CompanyName>HBSI</CompanyName>
+                            </BookingChannel>
+                        </Source>
+                    </POS>
+                    <UniqueID Type="'.$type.'" ID="'.$reservation['bookingId'].'">
+                        <CompanyName>HBSI</CompanyName>
+                    </UniqueID>
+                    <Verification>
+                        <PersonName>
+                            <GivenName>'.$reservation['main_guest']['GivenName'].'</GivenName>
+                            <Surname>'.$reservation['main_guest']['Surname'].'</Surname>
+                        </PersonName>
+                    </Verification>
+            </OTA_CancelRQ>';
+    }
+
+    private function isXml(string $body): bool
+    {
+        if (str_contains($body, 'soap-env:Envelope')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isErrorSoap(string $body): bool
+    {
+        return str_contains($body, 'soap:Fault');
+    }
+
+    private function occupancyToXml(array $occupancies): string
+    {
+        $xml = new SimpleXMLElement('<RoomStayCandidates/>');
+
+        foreach ($occupancies as $occupancy) {
+            $roomStayCandidate = $xml->addChild('RoomStayCandidate');
+            $roomStayCandidate->addAttribute('RoomTypeCode', Arr::get($occupancy, 'room_code', '*'));
+            $roomStayCandidate->addAttribute('Quantity', '1');
+            $roomStayCandidate->addAttribute('RPH', '1');
+            $roomStayCandidate->addAttribute('RatePlanCandidateRPH', '1');
+
+            $guestCounts = $roomStayCandidate->addChild('GuestCounts');
+
+            // Add adults
+            $guestCount = $guestCounts->addChild('GuestCount');
+            //            $guestCount->addAttribute('AgeQualifyingCode', '10');
+            $guestCount->addAttribute('Age', self::AGE_ADULTS);
+            $guestCount->addAttribute('Count', $occupancy['adults']);
+
+            // Add children and infants
+            if (isset($occupancy['children_ages'])) {
+                foreach ($occupancy['children_ages'] as $age) {
+                    $guestCount = $guestCounts->addChild('GuestCount');
+                    //                    $guestCount->addAttribute('AgeQualifyingCode', $age > 2 ? '8' : '7');
+                    $guestCount->addAttribute('Age', $age);
+                    $guestCount->addAttribute('Count', '1');
+                }
+            }
+        }
+
+        return str_replace('<?xml version="1.0"?>', '', $xml->asXML());
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function arrayToXml(array $array, ?SimpleXMLElement $xml = null, string $parentName = 'root'): string
+    {
+        if ($xml === null) {
+            $xml = new SimpleXMLElement('<'.$parentName.'/>');
+        }
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                if ($key === '@attributes') {
+                    foreach ($value as $attributeKey => $attributeValue) {
+                        $xml->addAttribute($attributeKey, htmlspecialchars($attributeValue));
+                    }
+                } else {
+                    if (is_numeric($key)) {
+                        $key = rtrim($parentName, 's');
+                    }
+
+                    // If the value is an array of Scalars, we must create nodes with the key name.
+                    if (is_scalar(Arr::get($value, '0'))) {
+                        foreach ($value as $value2) {
+                            $xml->addChild($key, $value2);
+                        }
+                    }
+
+                    // If not a sacalar value, it's a probably a nested array.
+                    else {
+                        $subnode = $xml->addChild($key);
+                        $this->arrayToXml($value, $subnode, $key);
+                    }
+                }
+            } else {
+                $xml->addChild($key, htmlspecialchars($value));
+            }
+        }
+
+        return $xml->asXML();
+    }
+
+    private function processRoomStaysArr(array $response, array $bookingItemData, array $filters, array $guests): array
+    {
+        $roomStayUnit = [];
+        $RPH = 1;
+
+        $ratesBookingItemData = explode(';', $bookingItemData['rate_ordinal']);
+
+        foreach ($ratesBookingItemData as $keyRate => $numberRateBookingItemData) {
+            $roomByQuery = $keyRate + 1;
+
+            $roomType = explode(';', $bookingItemData['room_id']);
+            $ratesBaseResponse = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$roomType[$keyRate]]['rates'];
+            foreach ($ratesBaseResponse as $rate) {
+                if ($rate['rate_ordinal'] === intval($numberRateBookingItemData)) {
+                    $roomStaysArr = $rate;
+                    break;
+                }
+            }
+
+            if (! isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate']['@attributes'])) {
+                $newRates = $roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'];
+                unset($roomStaysArr['RoomRates']['RoomRate']['Rates']);
+                $roomStaysArr['RoomRates']['RoomRate']['Rates'] = $newRates;
+            }
+            unset($roomStaysArr['rate_ordinal'], $roomStaysArr['RoomRates']['RoomRate']['RoomRateDescription'], $roomStaysArr['RoomRates']['CancelPenalties']);
+            if (isset($filters['special_requests'])) {
+                foreach ($filters['special_requests'] as $specialRequest) {
+                    if ($specialRequest['booking_item'] === $filters['booking_item'] && $specialRequest['room'] === $roomByQuery) {
+                        $roomStaysArr['SpecialRequests'][]['Text'] = $specialRequest['special_request'];
+                    }
+                }
+            }
+            if (isset($filters['comments'])) {
+                foreach ($filters['comments'] as $commentRequest) {
+                    if ($commentRequest['booking_item'] === $filters['booking_item'] && $commentRequest['room'] === $roomByQuery) {
+                        $roomStaysArr['Comments'][]['Text'] = $commentRequest['comment'];
+                    }
+                }
+            }
+
+            if (isset($roomStaysArr['GuestCounts']['GuestCount']) && count($roomStaysArr['GuestCounts']['GuestCount']) > 1) {
+                $guestCounts = $roomStaysArr['GuestCounts']['GuestCount'];
+                unset($roomStaysArr['GuestCounts']);
+                $roomStaysArr['GuestCounts'] = $guestCounts;
+            }
+
+            foreach ($roomStaysArr['GuestCounts'] as $item) {
+                $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($RPH);
+                $RPH++;
+            }
+
+            if (isset($roomStaysArr['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'])) {
+                $roomStaysArr['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] = '1';
+            }
+
+            $roomStayUnit[$keyRate] = $roomStaysArr;
+        }
+
+        return $roomStayUnit;
+    }
+
+    private function processResGuestsArr(array $guests, array $filters): array
+    {
+        $resGuestsArr = [];
+        $index = 0;
+        foreach ($guests as $guestRoom) {
+            foreach ($guestRoom as $guest) {
+                $dob = Carbon::parse($guest['date_of_birth']);
+                $diff = $dob->diff(Carbon::now(), true);
+                $age = $diff->y;
+
+                $ageQualifyingCode = 10;
+                if ($age < self::AGE_INFANT) {
+                    $ageQualifyingCode = 7;
+                } elseif ($age < self::AGE_CHILD) {
+                    $ageQualifyingCode = 8;
+                }
+
+                $resGuestsArr[$index] = $this->createGuestArr($index, $ageQualifyingCode, $guest, $filters);
+                if ($index === 0) {
+                    $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
+                }
+                $index++;
+            }
+        }
+
+        return $resGuestsArr;
+    }
+
+    private function processResGuestsArrByAge(array $guests, array $filters): array
+    {
+        $apiBookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $pricingData = json_decode($apiBookingItem->booking_pricing_data, true);
+        $roomCapacity = Arr::get($pricingData, 'capacity', []);
+
+        $resGuestsArr = [];
+        $index = 0;
+        foreach ($guests as $guestRoom) {
+            foreach ($guestRoom as $guest) {
+                $dob = Carbon::parse($guest['date_of_birth']);
+                $diff = $dob->diff(Carbon::now(), true);
+                \Log::info($diff->y);
+                $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
+
+                $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters, $roomCapacity);
+                if ($index === 0) {
+                    $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
+                }
+                $index++;
+            }
+        }
+
+        return $resGuestsArr;
+    }
+
+    private function createGuestArr(int $index, int $age, array $guest, array $filters): array
+    {
+        $guestArr = [];
+        $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
+        $guestArr['@attributes']['Age'] = $age;
+        if ($index === 0) {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
+        } else {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['GivenName'] = $guest['given_name'];
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['Surname'] = $guest['family_name'];
+        }
+
+        return $guestArr;
+    }
+
+    private function createGuestArrByAge(int $index, int $age, array $guest, array $filters, array $roomCapacity): array
+    {
+        $guestArr = [];
+        $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
+        $guestArr['@attributes']['Age'] = $age;
+
+        // we translate the input age to the age expected by the hotel. Added also Arr::has for compatibility for old searches
+        if (Arr::get($roomCapacity, 'unknown', 0) > 0 && Arr::has($roomCapacity, 'children')) {
+            $adults = Arr::get($roomCapacity, 'adults', 0);
+            $children = Arr::get($roomCapacity, 'children', []);
+
+            if ($age === self::AGE_ADULTS && $adults === 0) {
+                $guestArr['@attributes']['Age'] = -1;
+            } elseif ($age !== self::AGE_ADULTS && ! in_array($age, $children)) {
+                $guestArr['@attributes']['Age'] = -1;
+            }
+        }
+
+        if ($index === 0) {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
+        } else {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['GivenName'] = $guest['given_name'];
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['Surname'] = $guest['family_name'];
+        }
+
+        return $guestArr;
+    }
+
+    private function createCustomerArr(array $guest, array $filters): array
+    {
+        $customer = [];
+        $customer['PersonName']['GivenName'] = $guest['given_name'];
+        $customer['PersonName']['Surname'] = $guest['family_name'];
+        if (isset($filters['booking_contact'])) {
+            $customer['Telephone']['@attributes']['PhoneNumber'] = $filters['booking_contact']['phone']['country_code'].$filters['booking_contact']['phone']['area_code'].$filters['booking_contact']['phone']['number'];
+            $customer['Email'] = $filters['booking_contact']['email'];
+            $customer['Address'] = $this->createAddressArr($filters);
+        }
+
+        return $customer;
+    }
+
+    private function createAddressArr(array $filters): array
+    {
+        $address = [];
+        $address['AddressLine'] = $filters['booking_contact']['address']['line_1'];
+        $address['CityName'] = $filters['booking_contact']['address']['city'];
+
+        $countryCode = $filters['booking_contact']['address']['country_code'];
+        $stateCode = $filters['booking_contact']['address']['state_province_code'];
+
+        // We uppercase the 2 digits just in case: Us => US
+        $countryCode = strlen($countryCode) === 2 ? strtoupper($countryCode) : $countryCode;
+        $stateCode = strlen($stateCode) === 2 ? strtoupper($stateCode) : $stateCode;
+
+        if (in_array($countryCode, config('codes.countries'))) {
+            $address['CountryName']['@attributes']['Code'] = $countryCode;
+        } else {
+            $address['CountryName'] = $countryCode;
+        }
+
+        if (in_array($stateCode, config('codes.states'))) {
+            $address['StateProv']['@attributes']['StateCode'] = $stateCode;
+        } else {
+            $address['StateProv'] = $stateCode;
+        }
+
+        $address['PostalCode'] = $filters['booking_contact']['address']['postal_code'];
+
+        return $address;
+    }
+
+    private function processDepositPaymentsArr(array $filters, array $roomStaysArr): array
+    {
+        $depositPaymentsArr = [];
+        foreach ($filters['credit_cards'] ?? [] as $creditCard) {
+            if ($creditCard['booking_item'] === $filters['booking_item']) {
+                $amount = 0;
+                foreach ($roomStaysArr as $roomStay) {
+                    $amount += $roomStay['Total']['@attributes']['AmountAfterTax'];
+                }
+                $depositPaymentsArr = $this->createDepositPaymentArr($creditCard, $amount);
+            }
+        }
+        $resGlobalInfo['DepositPayments'] = $depositPaymentsArr;
+
+        return $resGlobalInfo;
+    }
+
+    private function createDepositPaymentArr(array $creditCard, float $amount): array
+    {
+        $depositPaymentArr = [];
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardType'] = '1';
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] = CreditCardType::getFrom($creditCard['credit_card']['card_type'])->value;
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardNumber'] = $creditCard['credit_card']['number'];
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['SeriesCode'] = $creditCard['credit_card']['cvv'];
+
+        $expiryDate = $creditCard['credit_card']['expiry_date'];
+        $expiryDate = Carbon::createFromFormat('m/Y', $expiryDate);
+        $month = $expiryDate->format('m');
+        $year = $expiryDate->format('y');
+        $formattedExpiryDate = $month.$year;
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['ExpireDate'] = $formattedExpiryDate;
+        $depositPaymentArr['RequiredPayment']['AmountPercent']['@attributes']['Amount'] = $amount;
+        $depositPaymentArr['RequiredPayment']['Deadline']['@attributes']['AbsoluteDeadline'] = Carbon::createFromFormat('m/Y', $creditCard['credit_card']['expiry_date'])->format('Y-m-d');
+
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['CardHolderName'] = $creditCard['credit_card']['name_card'];
+
+        return $depositPaymentArr;
+    }
+
+    /**
+     * Fetch hotel descriptive content from HBSI API
+     *
+     * @throws Exception
+     */
+    public function fetchContent(string $hotelCode, string $hotelName = ''): ?array
+    {
+        $bodyQuery = $this->makeRequest(
+            $this->hotelDescriptiveInfoRQ($hotelCode, $hotelName),
+            'HotelDescriptiveInfoRQ'
+        );
+
+        $response = $this->sendRequest($bodyQuery);
+        $body = $response->getBody()->getContents();
+
+        return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    public function fetchContentAsync(array $hotelCodes): array
+    {
+        $promises = [];
+        foreach ($hotelCodes as $hotelCode) {
+            $bodyQuery = $this->makeRequest(
+                $this->hotelDescriptiveInfoRQ($hotelCode),
+                'HotelDescriptiveInfoRQ'
+            );
+            $promises[$hotelCode] = $this->client->requestAsync('POST', $this->credentials->searchBookUrl, [
+                'headers' => $this->headers,
+                'body' => $bodyQuery,
+                'timeout' => \App\Repositories\ConfigRepository::getTimeout(),
+            ]);
+        }
+
+        $results = [];
+        foreach (\GuzzleHttp\Promise\Utils::settle($promises)->wait() as $hotelCode => $result) {
+            if ($result['state'] === 'fulfilled') {
+                $body = $result['value']->getBody()->getContents();
+                $results[$hotelCode] = $this->processXmlBody($body, '');
+            } else {
+                $results[$hotelCode] = ['error' => $result['reason']->getMessage()];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Build HotelDescriptiveInfoRQ SOAP body
+     */
+    private function hotelDescriptiveInfoRQ(string $hotelCode, string $hotelName = ''): string
+    {
+        $timeStamp = date('Y-m-d\TH:i:s');
+
+        return <<<XML
+<OTA_HotelDescriptiveInfoRQ Version="1.01" TimeStamp="$timeStamp">
+    <HotelDescriptiveInfos>
+        <HotelDescriptiveInfo HotelCode="$hotelCode" HotelName="$hotelName">
+            <HotelInfo SendData="true"/>
+            <AreaInfo SendRefPoints="true"/>
+            <AffiliationInfo SendDistribSystems="true"/>
+            <ContactInfo SendData="true"/>
+        </HotelDescriptiveInfo>
+    </HotelDescriptiveInfos>
+</OTA_HotelDescriptiveInfoRQ>
+XML;
+    }
+}
