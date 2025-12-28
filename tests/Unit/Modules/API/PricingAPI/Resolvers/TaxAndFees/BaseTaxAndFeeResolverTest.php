@@ -3,7 +3,7 @@
 namespace Tests\Unit\Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
 use Carbon\Carbon;
-use Modules\API\PricingAPI\Resolvers\TaxAndFees\HbsiTaxAndFeeResolver;
+use Modules\API\Suppliers\HBSI\Resolvers\HbsiTaxAndFeeResolver;
 use PHPUnit\Framework\TestCase;
 
 /**

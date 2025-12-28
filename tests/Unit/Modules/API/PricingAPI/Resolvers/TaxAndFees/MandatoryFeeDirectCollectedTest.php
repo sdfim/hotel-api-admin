@@ -2,10 +2,6 @@
 
 namespace Tests\Unit\Modules\API\PricingAPI\Resolvers\TaxAndFees;
 
-use Carbon\Carbon;
-use Modules\API\PricingAPI\Resolvers\TaxAndFees\HbsiTaxAndFeeResolver;
-use PHPUnit\Framework\TestCase;
-
 /**
  * Test class for Mandatory Fees with Direct Collection
  *

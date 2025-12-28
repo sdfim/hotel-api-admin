@@ -1,13 +1,15 @@
 <?php
 
-namespace Modules\API\PricingAPI\Resolvers\TaxAndFees;
+namespace Modules\API\Suppliers\HBSI\Resolvers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\BaseTaxAndFeeResolver;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\RateItemTaxFee;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\TransformedRate;
+use Modules\API\Suppliers\Contracts\Hotel\Resolvers\HotelTaxAndFeeResolverInterface;
 
-class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
+class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver implements HotelTaxAndFeeResolverInterface
 {
     /**
      * @var string[]
@@ -62,7 +64,7 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
      * @param  array  $rates  The rates to transform.
      * @return array The transformed rates.
      */
-    public function transformRates(array $rates, array $repoTaxFees): array
+    public function transformRates(array $rates, array $repoTaxFees, string $checkin = '', string $checkout = ''): array
     {
         $transformedRates = [];
 
@@ -84,7 +86,7 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
                 $vatAmount = ($rate['amount_before_tax'] / (1 + $vatPercentage / 100)) * ($vatPercentage / 100);
 
                 // Add VAT to Taxes
-                $tax = new RateItemTaxFee;
+                $tax = new RateItemTaxFee();
                 $tax->setType('Inclusive');
                 $tax->setAmount($vatAmount);
                 $tax->setDescription('VAT');
@@ -171,7 +173,7 @@ class HbsiTaxAndFeeResolver extends BaseTaxAndFeeResolver
                 $taxes[] = $tax;
             }
         }
-        $transformedRate = new TransformedRate;
+        $transformedRate = new TransformedRate();
         $transformedRate->setCode($rate['@attributes']['Code'] ?? '');
         $transformedRate->setEffectiveDate(new Carbon($rate['@attributes']['EffectiveDate'] ?? ''));
         $transformedRate->setExpireDate(new Carbon($rate['@attributes']['ExpireDate'] ?? ''));

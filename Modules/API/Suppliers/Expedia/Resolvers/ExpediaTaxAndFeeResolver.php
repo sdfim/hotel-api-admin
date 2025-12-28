@@ -1,13 +1,15 @@
 <?php
 
-namespace Modules\API\PricingAPI\Resolvers\TaxAndFees;
+namespace Modules\API\Suppliers\Expedia\Resolvers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\BaseTaxAndFeeResolver;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\RateItemTaxFee;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\TransformedRate;
+use Modules\API\Suppliers\Contracts\Hotel\Resolvers\HotelTaxAndFeeResolverInterface;
 
-class ExpediaTaxAndFeeResolver extends BaseTaxAndFeeResolver
+class ExpediaTaxAndFeeResolver extends BaseTaxAndFeeResolver implements HotelTaxAndFeeResolverInterface
 {
     /**
      * @var RateItemTaxFee[] Taxes and fees applicable to the entire stay period (stay-level).
@@ -24,7 +26,7 @@ class ExpediaTaxAndFeeResolver extends BaseTaxAndFeeResolver
      * @param  string  $checkin  The check-in date.
      * @return array Transformed nightly rates.
      */
-    public function transformRates(array $rates, array $repoTaxFees, $checkin, $checkout): array
+    public function transformRates(array $rates, array $repoTaxFees, string $checkin = '', string $checkout = ''): array
     {
         $transformedRates = [];
         $this->stayLevelItems = []; // Reset for new processing

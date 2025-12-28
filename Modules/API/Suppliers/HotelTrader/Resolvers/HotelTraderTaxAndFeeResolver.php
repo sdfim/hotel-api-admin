@@ -1,14 +1,16 @@
 <?php
 
-namespace Modules\API\PricingAPI\Resolvers\TaxAndFees;
+namespace Modules\API\Suppliers\HotelTrader\Resolvers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Laravel\Octane\Exceptions\DdException;
+use Modules\API\PricingAPI\Resolvers\TaxAndFees\BaseTaxAndFeeResolver;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\RateItemTaxFee;
 use Modules\API\PricingAPI\ResponseModels\TaxFee\TransformedRate;
+use Modules\API\Suppliers\Contracts\Hotel\Resolvers\HotelTaxAndFeeResolverInterface;
 
-class HotelTraderTaxAndFeeResolver extends BaseTaxAndFeeResolver
+class HotelTraderTaxAndFeeResolver extends BaseTaxAndFeeResolver implements HotelTaxAndFeeResolverInterface
 {
     /**
      * Transform rates from the HotelTrader response.
@@ -21,7 +23,7 @@ class HotelTraderTaxAndFeeResolver extends BaseTaxAndFeeResolver
      *
      * @throws DdException
      */
-    public function transformRates(array $rates, array $repoTaxFees): array
+    public function transformRates(array $rates, array $repoTaxFees, string $checkin = '', string $checkout = ''): array
     {
         $transformedRates = [];
         $dailyPrices = Arr::get($rates, 'dailyPrice', []);
