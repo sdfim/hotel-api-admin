@@ -49,7 +49,7 @@ use Modules\API\Services\BookApiHandlerService;
 use Modules\API\Services\HotelBookingAddPassengersService;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelBookingCheckQuoteService;
-use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierLocator;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -61,7 +61,7 @@ use Modules\Enums\TypeRequestEnum;
 class BookApiHandler extends BaseController
 {
     public function __construct(
-        private readonly HotelBookingSupplierLocator $supplierLocator,
+        private readonly HotelBookingSupplierRegistry $supplierRegistry,
     ) {}
 
     /**
@@ -128,7 +128,7 @@ class BookApiHandler extends BaseController
                 $supplierName = SupplierNameEnum::from($supplier->name);
 
                 $data[] = match ($type) {
-                    TypeRequestEnum::HOTEL->value => $this->supplierLocator->getAdapter($supplierName)->book($filters, $item),
+                    TypeRequestEnum::HOTEL->value => $this->supplierRegistry->get($supplierName)->book($filters, $item),
                     default => [],
                 };
             } catch (Exception $e) {
@@ -300,7 +300,7 @@ class BookApiHandler extends BaseController
         $this->saveChangePassengers($filters, $supplierId);
 
         try {
-            $data = $this->supplierLocator->getAdapter($supplier)->changeBooking($filters);
+            $data = $this->supplierRegistry->get($supplier)->changeBooking($filters);
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -410,7 +410,7 @@ class BookApiHandler extends BaseController
         $this->saveChangePassengers($filters, $apiBookingItem->supplier_id);
 
         try {
-            $data = $this->supplierLocator->getAdapter($apiBookingItem->supplier->name)->changeBooking($filters, 'hard');
+            $data = $this->supplierRegistry->get($apiBookingItem->supplier->name)->changeBooking($filters, 'hard');
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -465,7 +465,7 @@ class BookApiHandler extends BaseController
         }
 
         try {
-            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters);
+            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters);
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -510,7 +510,7 @@ class BookApiHandler extends BaseController
             ->where('booking_item', $request->booking_item)->first();
 
         try {
-            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($bookingItem->supplier->name))->priceCheck($filters);
+            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->priceCheck($filters);
         } catch (Exception $e) {
             Log::error('BookApiHandler | priceCheck '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -651,7 +651,7 @@ class BookApiHandler extends BaseController
             }
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $data[] = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->retrieveBooking($filters, $item);
+                $data[] = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->retrieveBooking($filters, $item);
             } catch (Exception $e) {
                 Log::error('BookApiHandler | retrieveBooking '.$e->getMessage());
                 Log::error($e->getTraceAsString());
@@ -705,7 +705,7 @@ class BookApiHandler extends BaseController
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $response = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->cancelBooking($filters, $item);
+                $response = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->cancelBooking($filters, $item);
                 $data[] = $response;
 
                 // If cancellation is successful, update Reservation
@@ -769,7 +769,7 @@ class BookApiHandler extends BaseController
                 }
 
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $res[] = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->retrieveItem($item);
+                $res[] = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->retrieveItem($item);
             }
             if (empty($res)) {
                 return $this->sendError('Cart is empty or booked', 'failed');
@@ -826,7 +826,7 @@ class BookApiHandler extends BaseController
                 $filters = $request->all();
                 $filters['booking_item'] = $booking_item;
 
-                $response[] = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->addPassengers($filters, $filtersOutput[$booking_item], $supplier);
+                $response[] = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->addPassengers($filters, $filtersOutput[$booking_item], $supplier);
             }
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | addPassengers '.$e->getMessage());
@@ -898,7 +898,7 @@ class BookApiHandler extends BaseController
 
         // Second/new search. Check availability and price.
         try {
-            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters, 'check_quote');
+            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters, 'check_quote');
         } catch (Exception $e) {
             Log::error('BookApiHandler | checkQuote '.$e->getMessage());
             Log::error($e->getTraceAsString());

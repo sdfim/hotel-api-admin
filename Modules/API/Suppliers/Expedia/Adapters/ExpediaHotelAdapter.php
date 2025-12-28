@@ -32,6 +32,11 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricing
         private readonly ExpediaHotelPricingTransformer $expediaHotelPricingTransformer,
     ) {}
 
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::EXPEDIA;
+    }
+
     public function preSearchData(array &$filters, string $initiator): ?array
     {
         $timeStart = microtime(true);

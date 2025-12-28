@@ -65,6 +65,11 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HBSI;
+    }
+
     /**
      * @throws GuzzleException
      */

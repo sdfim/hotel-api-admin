@@ -28,6 +28,11 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelPricingS
         private readonly HotelTraderHotelPricingTransformer $hTraderHotelPricingTransformer,
     ) {}
 
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HOTEL_TRADER;
+    }
+
     public function preSearchData(array &$filters, string $initiator = 'search'): ?array
     {
         $timeStart = microtime(true);

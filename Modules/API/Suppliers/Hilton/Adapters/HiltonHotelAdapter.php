@@ -12,10 +12,16 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Tools\Geography;
+use Modules\Enums\SupplierNameEnum;
 
 class HiltonHotelAdapter implements HotelContentSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HILTON;
+    }
 
     public function preSearchData(array &$filters, string $initiator): ?array
     {

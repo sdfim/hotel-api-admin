@@ -2,12 +2,16 @@
 
 namespace Modules\API\Suppliers\Contracts\Hotel\Search;
 
+use Modules\Enums\SupplierNameEnum;
+
 /**
  * Base interface for all suppliers
  * Only common methods that are used everywhere
  */
 interface HotelSupplierInterface
 {
+    public function supplier(): SupplierNameEnum;
+
     /**
      * Used in both content and pricing
      */

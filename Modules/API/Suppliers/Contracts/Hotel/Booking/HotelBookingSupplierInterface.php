@@ -6,9 +6,12 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use Modules\API\BookingAPI\ResponseModels\HotelBookResponseModel;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel;
+use Modules\Enums\SupplierNameEnum;
 
 interface HotelBookingSupplierInterface extends BaseBookingSupplierInterface
 {
+    public function supplier(): SupplierNameEnum;
+
     // Booking Section
     /**
      * @return array<HotelBookResponseModel>|null

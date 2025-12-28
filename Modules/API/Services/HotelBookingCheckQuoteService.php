@@ -8,14 +8,14 @@ use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\BaseController;
-use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierLocator;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\HotelRoom;
 
 class HotelBookingCheckQuoteService extends BaseController
 {
     public function __construct(
-        private readonly HotelBookingSupplierLocator $supplierLocator,
+        private readonly HotelBookingSupplierRegistry $supplierRegistry,
     ) {}
 
     public function prepareFiltersForCheckQuote(&$filters, $request, $bookingItem, $firstSearch, $dataFirstSearch)
@@ -228,7 +228,7 @@ class HotelBookingCheckQuoteService extends BaseController
         $booking_id = ApiBookingInspectorRepository::getBookIdByBookingItem($request->booking_item);
         $filters = ['booking_item' => $booking_item, 'booking_id' => $booking_id];
 
-        $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->addItem($filters, $supplier, 'check_quote');
+        $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->addItem($filters, $supplier, 'check_quote');
 
         $apiBookingItemFirstSearch = ApiBookingItem::where('booking_item', $request->booking_item)->first();
         $apiBookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();

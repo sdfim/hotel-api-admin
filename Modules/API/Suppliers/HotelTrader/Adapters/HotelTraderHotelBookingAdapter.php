@@ -47,6 +47,11 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HOTEL_TRADER;
+    }
+
     public function book(array $filters, ApiBookingInspector $bookingInspector): ?array
     {
         $booking_id = $bookingInspector->booking_id;

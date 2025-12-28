@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Services\HotelBookingApiHandlerService;
 use Modules\API\Services\HotelCombinationService;
-use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierLocator;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -30,7 +30,7 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
     public function __construct(
-        private readonly HotelBookingSupplierLocator $supplierLocator,
+        private readonly HotelBookingSupplierRegistry $supplierRegistry,
     ) {}
 
     public function addItem(Request $request, string $supplier): JsonResponse
@@ -77,7 +77,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
             app(HotelBookingApiHandlerService::class)->refreshFiltersByApiUser($filters, $request);
 
-            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->addItem($filters, $supplier);
+            $data = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->addItem($filters, $supplier);
             // Отправка письма с подтверждением, если требуется
             $email_verification = $request->input('email_verification', false);
             if ($email_verification) {
@@ -119,7 +119,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
     {
         $filters = $request->all();
         try {
-            $data = $this->supplierLocator->getAdapter(SupplierNameEnum::from($supplier))->removeItem($filters);
+            $data = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->removeItem($filters);
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem '.$e->getMessage());
             Log::error($e->getTraceAsString());

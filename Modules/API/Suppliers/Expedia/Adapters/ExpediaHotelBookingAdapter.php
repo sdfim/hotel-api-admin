@@ -708,4 +708,9 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
             return $this->changeSoftBooking($filters);
         }
     }
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::EXPEDIA;
+    }
 }

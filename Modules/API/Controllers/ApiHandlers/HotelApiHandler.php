@@ -21,7 +21,7 @@ use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\Base\Transformers\BaseHotelPricingTransformer;
-use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierLocator;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
 use Modules\API\Tools\FiberManager;
 use Modules\API\Tools\MemoryLogger;
 use Modules\API\Tools\PricingDtoTools;
@@ -50,7 +50,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private const PAGINATION_TO_RESULT = true;
 
     public function __construct(
-        private readonly HotelSupplierLocator $supplierLocator,
+        private readonly HotelSupplierRegistry $supplierRegistry,
         private readonly BaseHotelPricingTransformer $baseHotelPricingTransformer,
         private readonly PricingDtoTools $pricingDtoTools,
         private readonly SearchInspectorController $apiInspector,
@@ -176,9 +176,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $optionsQueries = ['any'];
                     }
 
-                    $rawGiataIds = $this->supplierLocator
-                        ->getAdapter($supplier)
-                        ->preSearchData($filters, 'price') ?? [];
+                    $rawGiataIds = $this->supplierRegistry->get($supplier)->preSearchData($filters, 'price') ?? [];
 
                     MemoryLogger::log('preSearchData_'.$supplier);
 
@@ -195,9 +193,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $currentFilters = [...$filters, 'query_package' => $optionsQuery];
 
                         $fiberManager->add($fiberKey, function () use ($supplier, $currentFilters, $searchInspector, $rawGiataIds) {
-                            return $this->supplierLocator
-                                ->getAdapter($supplier)
-                                ->price($currentFilters, $searchInspector, $rawGiataIds);
+                            return $this->supplierRegistry->get($supplier)->price($currentFilters, $searchInspector, $rawGiataIds);
                         });
                     }
                 }
@@ -251,8 +247,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     [$supplierName, $queryPackage] = explode('_', $fiber_key);
                     $currentFilters = [...$filters, 'query_package' => $queryPackage];
 
-                    $result = $this->supplierLocator
-                        ->getAdapter($supplierName)
+                    $result = $this->supplierRegistry
+                        ->get($supplierName)
                         ->processPriceResponse(
                             $supplierResponse,
                             $currentFilters,

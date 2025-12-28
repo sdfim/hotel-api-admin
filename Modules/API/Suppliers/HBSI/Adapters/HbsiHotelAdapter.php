@@ -27,6 +27,11 @@ class HbsiHotelAdapter implements HotelPricingSupplierInterface
         private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
     ) {}
 
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HBSI;
+    }
+
     public function preSearchData(array &$filters, string $initiator = 'price'): ?array
     {
         $timeStart = microtime(true);
