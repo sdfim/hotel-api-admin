@@ -3,14 +3,18 @@
 namespace Modules\HotelContentRepository\Services;
 
 use Illuminate\Support\Arr;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierRegistry;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelService
 {
     public function __construct(
+        protected readonly HotelSupplierRegistry $supplierRegistry,
         protected readonly HotelContentApiService $hotelContentApiService,
         protected readonly HotelContentApiTransformerService $detailDataTransformer,
+        protected readonly HotelContentV1SupplierRegistry $contentRegistry,
     ) {}
 
     public function getHotelData($giataCode)
@@ -66,9 +70,8 @@ class HotelService
         $resultsSuppliers = [];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            /** @var SupplierInterface $supplierService */
-            $supplierService = app(SupplierInterface::class, ['supplier' => $supplier]);
-            $resultsSuppliers[$supplier] = Arr::get($supplierService->getResults([$giataCode]), 0, []);
+            $supplierResults = $this->contentRegistry->get(SupplierNameEnum::from($supplier))->getResults([$giataCode]);
+            $resultsSuppliers[$supplier] = Arr::get($supplierResults, 0, []);
             if ($clean) {
                 unset($resultsSuppliers[$supplier]['images']);
                 unset($resultsSuppliers[$supplier]['rooms']);

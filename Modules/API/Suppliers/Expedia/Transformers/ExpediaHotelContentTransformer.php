@@ -6,12 +6,18 @@ use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerInterface;
+use Modules\Enums\SupplierNameEnum;
 
 class ExpediaHotelContentTransformer implements SupplierContentTransformerInterface
 {
     public function __construct(
         private readonly ExpediaTranformerService $expediaTranformerService
     ) {}
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::EXPEDIA;
+    }
 
     /**
      * @return ContentSearchResponse[]

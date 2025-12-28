@@ -1,18 +1,23 @@
 <?php
 
-namespace Modules\HotelContentRepository\Services\Suppliers;
+namespace Modules\API\Suppliers\Hilton\Adapters;
 
 use App\Models\HiltonProperty;
 use App\Models\Mapping;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Hilton\Transformers\HiltonHotelContentDetailTransformer;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Services\SupplierInterface;
 
-class HiltonHotelContentApiService implements SupplierInterface
+class HiltonHotelContentV1Adapter implements HotelContentV1SupplierInterface
 {
     public function __construct(
         protected readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
     ) {}
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HILTON;
+    }
 
     public function getResults(array $giataCodes): array
     {

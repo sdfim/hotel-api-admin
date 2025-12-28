@@ -3,11 +3,16 @@
 namespace Modules\HotelContentRepository\Actions\Hotel;
 
 use Illuminate\Support\Facades\Artisan;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierRegistry;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Services\SupplierInterface;
 
 class MappingLevelRoom
 {
+    public function __construct(
+        protected readonly HotelContentV1SupplierRegistry $contentRegistry,
+    ) {}
+
     public function execute(Hotel $hotel): void
     {
         $mappings = $hotel->giataCode->mappings;
@@ -20,8 +25,7 @@ class MappingLevelRoom
         $supplierNames = array_unique($supplierNames);
         foreach ($supplierNames as $supplierName) {
             try {
-                $supplierService = app(SupplierInterface::class, ['supplier' => $supplierName]);
-                $results = $supplierService->getRoomsData($giataCode);
+                $results = $this->contentRegistry->get(SupplierNameEnum::from($supplierName))->getRoomsData($giataCode);
                 foreach ($results as $room) {
                     $supplierRoomData[$supplierName][] = [
                         'code' => $room['id'] ?? $room['code'] ?? '',

@@ -6,9 +6,15 @@ use App\Models\GiataGeography;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerInterface;
+use Modules\Enums\SupplierNameEnum;
 
 class HiltonHotelContentTransformer implements SupplierContentTransformerInterface
 {
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::HILTON;
+    }
+
     public function SupplierToContentSearchResponse(array $supplierResponse): array
     {
         /** @var HiltonTransformerService $service */

@@ -25,7 +25,7 @@ class HotelBookingSupplierRegistry
     public function get(SupplierNameEnum $name): HotelBookingSupplierInterface
     {
         return $this->suppliers[$name->value]
-            ?? throw new Exception("Supplier {$name->value} not registered");
+            ?? throw new Exception("Supplier {$name->value} not registered in HotelBookingSupplierRegistry");
     }
 
     public function has(SupplierNameEnum $name): bool

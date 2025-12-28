@@ -9,11 +9,12 @@ return [
     App\Providers\RolesServiceProvider::class,
     App\Providers\SupplierRepositoryServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
-    App\Providers\SupplierServiceProvider::class,
     BladeUIKit\BladeUIKitServiceProvider::class,
 
     Modules\API\Suppliers\Contracts\Hotel\Search\HotelSearchServiceProvider::class,
     Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingServiceProvider::class,
+    Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1ServiceProvider::class,
+    Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerServiceProvider::class,
 
     Modules\API\Suppliers\HBSI\HbsiServiceProvider::class,
     Modules\API\Suppliers\Expedia\ExpediaServiceProvider::class,

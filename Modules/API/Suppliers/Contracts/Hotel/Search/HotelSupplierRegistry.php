@@ -28,7 +28,7 @@ class HotelSupplierRegistry
         $key = $name instanceof SupplierNameEnum ? $name->value : $name;
 
         return $this->suppliers[$key]
-            ?? throw new Exception("Supplier {$key} not registered");
+            ?? throw new Exception("Supplier {$key} not registered in HotelSupplierRegistry");
     }
 
     public function has(string|SupplierNameEnum $name): bool

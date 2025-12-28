@@ -8,10 +8,16 @@ use Illuminate\Support\Facades\Cache;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerInterface;
+use Modules\Enums\SupplierNameEnum;
 
 class IcePortalHotelContentTransformer implements SupplierContentTransformerInterface
 {
     private IcePortalAssetTransformer $icePortalAssetTransformer;
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::ICE_PORTAL;
+    }
 
     public function __construct(IcePortalAssetTransformer $icePortalAssetTransformer)
     {

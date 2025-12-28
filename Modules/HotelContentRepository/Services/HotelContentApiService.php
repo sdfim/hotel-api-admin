@@ -9,8 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerInterface;
-use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierInterface;
+use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerRegistry;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierRegistry;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 
@@ -18,6 +19,9 @@ class HotelContentApiService
 {
     public function __construct(
         private readonly HotelContentApiTransformerService $dataTransformer,
+        private readonly SupplierContentTransformerRegistry $transformerRegistry,
+        private readonly HotelContentV1SupplierRegistry $contentRegistry,
+        private readonly HotelSupplierRegistry $supplierRegistry,
     ) {}
 
     public function sortAndPaginate(array $contentResults, int $page, int $resultsPerPage): array
@@ -43,18 +47,16 @@ class HotelContentApiService
         $results = $transformedResults = [];
 
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            /** @var HotelSupplierInterface $service */
-            $service = app(HotelSupplierInterface::class, ['supplier' => $supplier]);
-            /** @var SupplierContentTransformerInterface $transformer */
-            $transformer = app(SupplierContentTransformerInterface::class, ['supplier' => $supplier]);
-            $supplierResults = Arr::get($service->search($request->all()), 'results', []);
+            $searchResult = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->search($request->all());
+            $supplierResults = Arr::get($searchResult, 'results', []);
 
             logger()->debug('content search 0', [$supplier, $supplierResults]);
 
             $supplierResults = $this->applyFilters($supplierResults, $request->all());
 
             $results = array_merge($results, $supplierResults);
-            $transformedResults[$supplier] = $transformer->SupplierToContentSearchResponse($supplierResults);
+            $transformedResults[$supplier] = $this->transformerRegistry->get(SupplierNameEnum::from($supplier))
+                ->SupplierToContentSearchResponse($supplierResults);
         }
 
         $giataCodes = $request->input('giata_ids') ?? $this->getGiataCodesByContent($results);
@@ -83,9 +85,7 @@ class HotelContentApiService
 
         $resultsSuppliers = [];
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            /** @var SupplierInterface $service */
-            $service = app(SupplierInterface::class, ['supplier' => $supplier]);
-            $results = $service->getResults($giataCodes);
+            $results = $this->contentRegistry->get(SupplierNameEnum::from($supplier))->getResults($giataCodes);
             $resultsSuppliers[$supplier] = $results;
         }
 

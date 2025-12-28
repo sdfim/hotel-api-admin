@@ -1,20 +1,26 @@
 <?php
 
-namespace Modules\HotelContentRepository\Services\Suppliers;
+namespace Modules\API\Suppliers\Expedia\Adapters;
 
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
 use Illuminate\Support\Arr;
 use Modules\API\Services\MappingCacheService;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelContentDetailTransformer;
-use Modules\HotelContentRepository\Services\SupplierInterface;
+use Modules\Enums\SupplierNameEnum;
 
-class ExpediaHotelContentApiService implements SupplierInterface
+class ExpediaHotelContentV1Adapter implements HotelContentV1SupplierInterface
 {
     public function __construct(
         protected readonly MappingCacheService $mappingCacheService,
         protected readonly ExpediaHotelContentDetailTransformer $expediaHotelContentDetailTransformer,
     ) {}
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::EXPEDIA;
+    }
 
     public function getResults(array $giataCodes): array
     {

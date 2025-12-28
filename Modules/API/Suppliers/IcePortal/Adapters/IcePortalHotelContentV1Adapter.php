@@ -1,21 +1,25 @@
 <?php
 
-namespace Modules\HotelContentRepository\Services\Suppliers;
+namespace Modules\API\Suppliers\IcePortal\Adapters;
 
 use App\Models\IcePortalPropertyAsset;
 use App\Models\Mapping;
 use Illuminate\Support\Arr;
-use Modules\API\Suppliers\IcePortal\Adapters\IcePortalHotelAdapter;
+use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\IcePortal\Transformers\IcePortalHotelContentDetailTransformer;
 use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Services\SupplierInterface;
 
-class IcePortalHotelContentApiService implements SupplierInterface
+class IcePortalHotelContentV1Adapter implements HotelContentV1SupplierInterface
 {
     public function __construct(
         protected readonly IcePortalHotelAdapter $icePortal,
         protected readonly IcePortalHotelContentDetailTransformer $icePortalHotelContentDetailTransformer,
     ) {}
+
+    public function supplier(): SupplierNameEnum
+    {
+        return SupplierNameEnum::ICE_PORTAL;
+    }
 
     public function getResults(array $giataCodes): array
     {
