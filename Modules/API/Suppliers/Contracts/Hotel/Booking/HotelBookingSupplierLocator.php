@@ -33,9 +33,4 @@ class HotelBookingSupplierLocator
 
         return $this->controllers[$supplierName->value];
     }
-
-    public function preSearchData(string $supplierName, array &$filters, string $initiator): ?array
-    {
-        return $this->getAdapter($supplierName)->preSearchData($filters, $initiator);
-    }
 }
