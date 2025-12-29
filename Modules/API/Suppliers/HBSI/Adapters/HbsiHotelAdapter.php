@@ -4,7 +4,6 @@ namespace Modules\API\Suppliers\HBSI\Adapters;
 
 use App\Models\HbsiProperty;
 use App\Models\Mapping;
-use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
@@ -35,7 +34,10 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
     }
 
     // Content V1
-    public function getResults(array $giataCodes): array {}
+    public function getResults(array $giataCodes): array
+    {
+        return [];
+    }
 
     public function getRoomsData(int $giataCode): array
     {

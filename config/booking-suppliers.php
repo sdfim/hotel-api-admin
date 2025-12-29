@@ -56,4 +56,15 @@ return [
         ],
         'use_debug_tax_fee' => env('USE_DEBUG_TAX_FEE', false),
     ],
+
+    'Oracle' => [
+        'credentials' => [
+            'username' => env('ORACLE_CLIENT_USERNAME', ''),
+            'password' => env('ORACLE_CLIENT_PASSWORD', ''),
+            'basic_username' => env('ORACLE_BASIC_USERNAME', ''),
+            'basic_password' => env('ORACLE_BASIC_PASSWORD', ''),
+            'app_key' => env('ORACLE_CLIENT_APP_KEY', ''),
+            'base_url' => env('ORACLE_CLIENT_BASE_URL', ''),
+        ],
+    ],
 ];
