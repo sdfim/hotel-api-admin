@@ -10,15 +10,14 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Services\HotelCombinationService;
+use Modules\API\Suppliers\Base\Adapters\BaseHotelAdapter;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
 use Modules\API\Suppliers\HBSI\Client\HbsiClient;
 use Modules\API\Suppliers\HBSI\Transformers\HbsiHotelPricingTransformer;
-use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
-use Throwable;
 
-class HbsiHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingSupplierInterface
+class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingSupplierInterface
 {
     private const RESULT_PER_PAGE = 1000;
 
@@ -26,55 +25,12 @@ class HbsiHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingS
 
     public function __construct(
         private readonly HbsiClient $hbsiClient,
-        private readonly Geography $geography,
         private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
     ) {}
 
     public function supplier(): SupplierNameEnum
     {
         return SupplierNameEnum::HBSI;
-    }
-
-    public function preSearchData(array &$filters, string $initiator = 'price'): ?array
-    {
-        $timeStart = microtime(true);
-
-        $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
-        $offset = $filters['page'] ?? self::PAGE;
-
-        if (isset($filters['giata_ids'])) {
-            $ids = HbsiRepository::getIdsByGiataIds($filters['giata_ids'], $limit, $offset);
-        } elseif (isset($filters['place']) && ! isset($filters['session'])) {
-            $ids = HbsiRepository::getIdsByGiataPlace($filters['place'], $limit, $offset);
-        } elseif (isset($filters['destination'])) {
-            $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
-        } elseif (isset($filters['session'])) {
-            $geoLocationTime = microtime(true);
-            $geoLocation = $this->geography->getPlaceDetailById($filters['place'], $filters['session']);
-            $endTime = microtime(true) - $geoLocationTime;
-            Log::info('HbsiHotelAdapter | preSearchData | geoLocation '.$endTime.' seconds');
-
-            $coordinateTime = microtime(true);
-            $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
-            $endTime = microtime(true) - $coordinateTime;
-            Log::info('HbsiHotelAdapter | preSearchData | minMaxCoordinate '.$endTime.' seconds');
-
-            $filters['latitude'] = $geoLocation['latitude'];
-            $filters['longitude'] = $geoLocation['longitude'];
-
-            $idsTime = microtime(true);
-            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
-            $endTime = microtime(true) - $idsTime;
-            Log::info('HbsiHotelAdapter | preSearchData | ids '.$endTime.' seconds');
-        } else {
-            $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
-        }
-
-        $endTime = microtime(true) - $timeStart;
-        Log::info('HbsiHotelAdapter | preSearchData | mysql query '.$endTime.' seconds');
-
-        return array_column($ids['data'], 'giata', 'hbsi');
     }
 
     // Content V1

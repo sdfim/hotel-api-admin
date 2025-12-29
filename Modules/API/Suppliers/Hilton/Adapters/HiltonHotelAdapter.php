@@ -30,7 +30,7 @@ class HiltonHotelAdapter implements HotelContentV1SupplierInterface, HotelConten
         return SupplierNameEnum::HILTON;
     }
 
-    public function preSearchData(array &$filters, string $initiator): ?array
+    public function preSearchData(MappingSuppliersEnum $supplier, array &$filters, string $initiator): ?array
     {
         $timeStart = microtime(true);
         $mainDB = config('database.connections.mysql.database');

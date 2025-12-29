@@ -22,6 +22,7 @@ use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\Base\Transformers\BaseHotelPricingTransformer;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Tools\FiberManager;
 use Modules\API\Tools\MemoryLogger;
 use Modules\API\Tools\PricingDtoTools;
@@ -174,7 +175,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $optionsQueries = ['any'];
                     }
 
-                    $rawGiataIds = $this->supplierRegistry->get($supplier)->preSearchData($filters, 'price') ?? [];
+                    $rawGiataIds = $this->supplierRegistry
+                        ->get($supplier)
+                        ->preSearchData(MappingSuppliersEnum::from($supplier), $filters, 'price') ?? [];
 
                     MemoryLogger::log('preSearchData_'.$supplier);
 

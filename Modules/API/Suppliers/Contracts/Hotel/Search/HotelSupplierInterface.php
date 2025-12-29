@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Contracts\Hotel\Search;
 
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\Enums\SupplierNameEnum;
 
 /**
@@ -15,5 +16,5 @@ interface HotelSupplierInterface
     /**
      * Used in both content and pricing
      */
-    public function preSearchData(array &$filters, string $initiator): ?array;
+    public function preSearchData(MappingSuppliersEnum $supplier, array &$filters, string $initiator): ?array;
 }

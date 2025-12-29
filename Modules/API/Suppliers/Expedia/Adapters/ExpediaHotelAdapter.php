@@ -15,6 +15,7 @@ use Modules\API\Services\MappingCacheService;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Expedia\Client\ExpediaService;
 use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelContentDetailTransformer;
 use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelPricingTransformer;
@@ -41,7 +42,7 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelContent
         return SupplierNameEnum::EXPEDIA;
     }
 
-    public function preSearchData(array &$filters, string $initiator): ?array
+    public function preSearchData(MappingSuppliersEnum $supplier, &$filters, string $initiator): ?array
     {
         $timeStart = microtime(true);
         $mainDB = config('database.connections.mysql.database');
@@ -181,7 +182,7 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelContent
     // Content V0
     public function search(array $filters): array
     {
-        $preSearchData = $this->preSearchData($filters, 'search');
+        $preSearchData = $this->preSearchData(MappingSuppliersEnum::Expedia, $filters, 'search');
         $results = $preSearchData['results']->toArray() ?? [];
 
         return [

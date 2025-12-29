@@ -17,11 +17,10 @@ class HbsiRepository
         $results = DB::table($cacheDB.'.properties')
             ->join($mainDB.'.mappings', $cacheDB.'.properties.code', '=', $mainDB.'.mappings.giata_id')
             ->where(is_numeric($input) ? 'city_id' : 'city', $input)
-            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::HBSI->value)
+            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HBSI->value)
             ->select($cacheDB.'.properties.code as giata', $cacheDB.'.properties.name', $mainDB.'.mappings.supplier_id as hbsi');
 
-        if(isset($filters['hotel_name']))
-        {
+        if (isset($filters['hotel_name'])) {
             $results->where($cacheDB.'.properties.hotel_name', 'like', '%'.$filters['hotel_name'].'%');
         }
 
@@ -103,11 +102,10 @@ class HbsiRepository
             ->where($cacheDB.'.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where($cacheDB.'.properties.longitude', '<', $minMaxCoordinate['max_longitude'])
             ->join($mainDB.'.mappings', $cacheDB.'.properties.code', '=', $mainDB.'.mappings.giata_id')
-            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::HBSI->value)
+            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HBSI->value)
             ->select($cacheDB.'.properties.code as giata', $cacheDB.'.properties.name', $mainDB.'.mappings.supplier_id as hbsi');
 
-        if(isset($filters['hotel_name']))
-        {
+        if (isset($filters['hotel_name'])) {
             $results->where($cacheDB.'.properties.name', 'like', '%'.$filters['hotel_name'].'%');
         }
 
@@ -164,10 +162,5 @@ class HbsiRepository
             'data' => $associativeArray,
             'total_pages' => $totalPages,
         ];
-    }
-
-    public static function getByGiataId(string $giataId): ?array
-    {
-        return  Mapping::hBSI()->where('giata_id', $giataId)->first()?->toArray();
     }
 }

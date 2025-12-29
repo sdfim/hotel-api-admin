@@ -11,20 +11,23 @@ use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class HotelTraderContentRepository
 {
-    public static function dtoDbToResponse($results, $fields): Collection
+    public static function getIdsByDestinationGiata(string $input): array
     {
-        return collect($results)->map(function ($item) use ($fields) {
-            foreach ($fields as $key) {
-                if (! is_string($item->$key)) {
-                    continue;
-                }
-                if (str_contains($item->$key, '{')) {
-                    $item->$key = json_decode($item->$key);
-                }
-            }
+        if (is_numeric($input)) {
+            $query = Property::where('city_id', $input);
+        } else {
+            $query = Property::where('city', $input);
+        }
 
-            return $item;
-        });
+        $mainDB = config('database.connections.mysql.database');
+
+        return $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
+            ->select($mainDB.'.mappings.supplier_id')
+            ->whereNotNull($mainDB.'.mappings.supplier_id')
+            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HOTEL_TRADER->value)
+            ->get()
+            ->pluck('supplier_id')
+            ->toArray();
     }
 
     public static function getIdsByGiataPlace(string $place): array
@@ -43,6 +46,23 @@ class HotelTraderContentRepository
         return $hotel_trader_ids;
     }
 
+    public static function getIdsByCoordinate(array $minMaxCoordinate): array
+    {
+        $mainDB = config('database.connections.mysql.database');
+        $cacheDB = config('database.connections.mysql_cache.database');
+
+        return Property::where($cacheDB.'.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where($cacheDB.'.properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where($cacheDB.'.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where($cacheDB.'.properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', $cacheDB.'.properties.code')
+            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HOTEL_TRADER->value)
+            ->select($mainDB.'.mappings.supplier_id')
+            ->whereNotNull($mainDB.'.mappings.supplier_id')
+            ->pluck('supplier_id')
+            ->toArray();
+    }
+
     public static function getIdsByGiataIds(array $giataIds): array
     {
         $hotel_trader_ids = Mapping::hotelTrader()->whereIn('giata_id', $giataIds)
@@ -52,25 +72,6 @@ class HotelTraderContentRepository
             ->toArray();
 
         return $hotel_trader_ids;
-    }
-
-    public static function getIdsByDestinationGiata(string $input): array
-    {
-        if (is_numeric($input)) {
-            $query = Property::where('city_id', $input);
-        } else {
-            $query = Property::where('city', $input);
-        }
-
-        $mainDB = config('database.connections.mysql.database');
-
-        return $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
-            ->select($mainDB.'.mappings.supplier_id')
-            ->whereNotNull($mainDB.'.mappings.supplier_id')
-            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HOTEL_TRADER->value)
-            ->get()
-            ->pluck('supplier_id')
-            ->toArray();
     }
 
     /**
@@ -98,20 +99,19 @@ class HotelTraderContentRepository
             ->name;
     }
 
-    public static function getIdsByCoordinate(array $minMaxCoordinate): array
+    public static function dtoDbToResponse($results, $fields): Collection
     {
-        $mainDB = config('database.connections.mysql.database');
-        $cacheDB = config('database.connections.mysql_cache.database');
+        return collect($results)->map(function ($item) use ($fields) {
+            foreach ($fields as $key) {
+                if (! is_string($item->$key)) {
+                    continue;
+                }
+                if (str_contains($item->$key, '{')) {
+                    $item->$key = json_decode($item->$key);
+                }
+            }
 
-        return Property::where($cacheDB.'.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
-            ->where($cacheDB.'.properties.latitude', '<', $minMaxCoordinate['max_latitude'])
-            ->where($cacheDB.'.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
-            ->where($cacheDB.'.properties.longitude', '<', $minMaxCoordinate['max_longitude'])
-            ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', $cacheDB.'.properties.code')
-            ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::HOTEL_TRADER->value)
-            ->select($mainDB.'.mappings.supplier_id')
-            ->whereNotNull($mainDB.'.mappings.supplier_id')
-            ->pluck('supplier_id')
-            ->toArray();
+            return $item;
+        });
     }
 }

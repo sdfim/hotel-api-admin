@@ -23,6 +23,7 @@ use Modules\API\Suppliers\IcePortal\Transformers\IcePortalAssetTransformer;
 use Modules\API\Suppliers\IcePortal\Transformers\IcePortalHotelContentDetailTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class IcePortalHotelAdapter implements HotelContentSupplierInterface, HotelContentV1SupplierInterface
 {
@@ -43,7 +44,7 @@ class IcePortalHotelAdapter implements HotelContentSupplierInterface, HotelConte
         return SupplierNameEnum::ICE_PORTAL;
     }
 
-    public function preSearchData(array &$filters, string $initiator): ?array
+    public function preSearchData(MappingSuppliersEnum $supplier, array &$filters, string $initiator): ?array
     {
         return null;
     }

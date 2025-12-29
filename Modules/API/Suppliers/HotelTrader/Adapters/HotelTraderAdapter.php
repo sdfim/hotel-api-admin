@@ -36,7 +36,7 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
         return SupplierNameEnum::HOTEL_TRADER;
     }
 
-    public function preSearchData(array &$filters, string $initiator = 'search'): ?array
+    public function preSearchData(MappingSuppliersEnum $supplier, array &$filters, string $initiator = 'search'): ?array
     {
         $timeStart = microtime(true);
         $mainDB = config('database.connections.mysql.database');
@@ -160,7 +160,7 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
     // Content
     public function search(array $filters): array
     {
-        $preSearchData = $this->preSearchData($filters, 'search');
+        $preSearchData = $this->preSearchData(MappingSuppliersEnum::HOTEL_TRADER, $filters, 'search');
         $results = $preSearchData['results']->toArray() ?? [];
 
         return [
