@@ -13,19 +13,22 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\HotelTrader\Client\HotelTraderClient;
+use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderContentDetailTransformer;
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelPricingTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 
-class HotelTraderAdapter implements HotelContentSupplierInterface, HotelPricingSupplierInterface
+class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV1SupplierInterface, HotelPricingSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
     public function __construct(
         private readonly HotelTraderHotelPricingTransformer $hTraderHotelPricingTransformer,
+        private readonly HotelTraderContentDetailTransformer $hotelTraderContentDetailTransformer,
     ) {}
 
     public function supplier(): SupplierNameEnum
@@ -154,6 +157,7 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelPricingS
         ];
     }
 
+    // Content
     public function search(array $filters): array
     {
         $preSearchData = $this->preSearchData($filters, 'search');
@@ -173,6 +177,54 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelPricingS
         return Repository::dtoDbToResponse($results, HotelTraderProperty::getFullListFields());
     }
 
+    // Content V1
+    public function getResults(array $giataCodes): array
+    {
+        $hotelTraderCodes = Mapping::hotelTrader()->whereIn('giata_id', $giataCodes)->pluck('giata_id', 'supplier_id')->toArray();
+        $resultsHotelTrader = HotelTraderProperty::whereIn('propertyId', array_keys($hotelTraderCodes))->get();
+
+        $results = [];
+        foreach ($resultsHotelTrader as $item) {
+            $giataId = $hotelTraderCodes[$item->propertyId];
+            $contentDetailResponse = $this->hotelTraderContentDetailTransformer->HotelTraderToContentDetailResponse($item, $giataId);
+            $results = array_merge($results, $contentDetailResponse);
+        }
+
+        return $results;
+    }
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+
+        $hotelTraderCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HOTEL_TRADER->value)
+            ->first()?->supplier_id;
+        $hotelTraderData = HotelTraderProperty::where('propertyId', $hotelTraderCode)->first();
+
+        $hotelTraderData = $hotelTraderData ? $hotelTraderData->toArray() : [];
+        $rooms = $hotelTraderData['rooms'] ?? [];
+
+        foreach ($rooms as $room) {
+            $roomId = $room['roomCode'] ?? $room['displayName'] ?? null;
+            $roomsData[] = [
+                'id' => $roomId,
+                'name' => $room['displayName'] ?? '',
+                'descriptions' => [
+                    'overview' => $room['shortDesc'] ?? '',
+                ],
+                'area' => null, // Not provided
+                'views' => [], // Not provided
+                'bed_groups' => [], // Not provided
+                'amenities' => [], // Not provided
+                'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
+            ];
+        }
+
+        return $roomsData;
+    }
+
+    // Pricing
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         $hotelData = array_flip($hotelData);

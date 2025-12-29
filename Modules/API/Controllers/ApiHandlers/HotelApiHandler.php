@@ -21,7 +21,6 @@ use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\Base\Transformers\BaseHotelPricingTransformer;
-use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierRegistry;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
 use Modules\API\Tools\FiberManager;
 use Modules\API\Tools\MemoryLogger;
@@ -56,7 +55,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly SearchInspectorController $apiInspector,
         private readonly EnrichmentWeight $propsWeight,
         private readonly PricingRulesTools $pricingRulesService,
-        private readonly HotelContentV1SupplierRegistry $contentRegistry,
     ) {
         $this->start();
     }
@@ -86,7 +84,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         continue;
                     }
 
-                    $clientResponse[$supplierName] = $this->contentRegistry->get(SupplierNameEnum::from($supplierName))->getResults($giataCodes);
+                    $clientResponse[$supplierName] = $this->supplierRegistry->get(SupplierNameEnum::from($supplierName))->getResults($giataCodes);
                 }
 
                 Cache::put($keyDetail.':clientResponse', $clientResponse, now()->addMinutes(self::TTL));

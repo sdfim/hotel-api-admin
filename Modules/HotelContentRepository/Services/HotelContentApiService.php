@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerRegistry;
-use Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1SupplierRegistry;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelSupplierRegistry;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -20,7 +19,6 @@ class HotelContentApiService
     public function __construct(
         private readonly HotelContentApiTransformerService $dataTransformer,
         private readonly SupplierContentTransformerRegistry $transformerRegistry,
-        private readonly HotelContentV1SupplierRegistry $contentRegistry,
         private readonly HotelSupplierRegistry $supplierRegistry,
     ) {}
 
@@ -85,7 +83,7 @@ class HotelContentApiService
 
         $resultsSuppliers = [];
         foreach (SupplierNameEnum::getContentSupplierValues() as $supplier) {
-            $results = $this->contentRegistry->get(SupplierNameEnum::from($supplier))->getResults($giataCodes);
+            $results = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->getResults($giataCodes);
             $resultsSuppliers[$supplier] = $results;
         }
 

@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\Hilton\Adapters;
 
 use App\Models\HiltonProperty;
+use App\Models\Mapping;
 use App\Repositories\HiltonContentRepository as HiltonRepository;
 use Exception;
 use Illuminate\Http\Request;
@@ -10,13 +11,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+use Modules\API\Suppliers\Hilton\Transformers\HiltonHotelContentDetailTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 
-class HiltonHotelAdapter implements HotelContentSupplierInterface
+class HiltonHotelAdapter implements HotelContentV1SupplierInterface, HotelContentSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
+
+    public function __construct(
+        protected readonly HiltonHotelContentDetailTransformer $hiltonHotelContentDetailTransformer,
+    ) {}
 
     public function supplier(): SupplierNameEnum
     {
@@ -134,6 +141,7 @@ class HiltonHotelAdapter implements HotelContentSupplierInterface
         ];
     }
 
+    // Content
     public function search(array $filters): array
     {
         $preSearchData = $this->preSearchData($filters, 'search');
@@ -151,5 +159,51 @@ class HiltonHotelAdapter implements HotelContentSupplierInterface
         $results = HiltonRepository::getDetailByGiataId($request->get('property_id'));
 
         return HiltonRepository::dtoDbToResponse($results, HiltonProperty::getFullListFields());
+    }
+
+    // Content V1
+    public function getResults(array $giataCodes): array
+    {
+        $hiltonCodes = Mapping::hilton()->whereIn('giata_id', $giataCodes)->pluck('giata_id', 'supplier_id')->toArray();
+        $resultsHilton = HiltonProperty::whereIn('prop_code', array_keys($hiltonCodes))->get();
+
+        $results = [];
+        foreach ($resultsHilton as $item) {
+            $giataId = $hiltonCodes[$item->prop_code];
+            $contentDetailResponse = $this->hiltonHotelContentDetailTransformer->HiltonToContentDetailResponse($item, $giataId);
+            $results = array_merge($results, $contentDetailResponse);
+        }
+
+        return $results;
+    }
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+        $hiltonCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HILTON->value)
+            ->first()?->supplier_id;
+        $hiltonData = HiltonProperty::where('prop_code', $hiltonCode)->first();
+        $hiltonData = $hiltonData ? $hiltonData->toArray() : [];
+
+        // Example transformation, adjust according to your IcePortalPropertyAsset structure
+        $rooms = $hiltonData['guest_room_descriptions'] ?? [];
+
+        foreach ($rooms as $room) {
+            $roomId = $room['roomTypeCode'] ?? null;
+            $roomsData[] = [
+                'id' => $roomId,
+                'name' => $room['shortDescription'],
+                'descriptions' => $room['enhancedDescription'],
+                'area' => $room['area'] ?? null,
+                'views' => '',
+                'bed_groups' => $room['bedClass'] ?? [],
+                'amenities' => $room['roomAmenities'] ?? [],
+                'supplier' => SupplierNameEnum::HILTON->value,
+                'roomsOccupancy' => $room['maxOccupancy'],
+            ];
+        }
+
+        return $roomsData;
     }
 }

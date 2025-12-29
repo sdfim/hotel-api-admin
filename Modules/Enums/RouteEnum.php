@@ -4,11 +4,11 @@ namespace Modules\Enums;
 
 enum RouteEnum: string
 {
+    /** @deprecated Use ROUTE_SEARCH_V1 instead. */
     case ROUTE_SEARCH = 'search';
-    /**
-     * @deprecated Use ROUTE_DETAIL_V1 instead.
-     */
+    /** @deprecated Use ROUTE_DETAIL_V1 instead. */
     case ROUTE_DETAIL = 'detail';
+
     case ROUTE_PRICE = 'price';
 
     case ROUTE_SEARCH_V1 = 'v1.search';

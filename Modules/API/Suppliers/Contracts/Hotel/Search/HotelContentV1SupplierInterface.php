@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\Contracts\Hotel\ContentV1;
+namespace Modules\API\Suppliers\Contracts\Hotel\Search;
 
 use Modules\Enums\SupplierNameEnum;
 

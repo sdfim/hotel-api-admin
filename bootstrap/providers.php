@@ -13,7 +13,6 @@ return [
 
     Modules\API\Suppliers\Contracts\Hotel\Search\HotelSearchServiceProvider::class,
     Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingServiceProvider::class,
-    Modules\API\Suppliers\Contracts\Hotel\ContentV1\HotelContentV1ServiceProvider::class,
     Modules\API\Suppliers\Base\Transformers\SupplierContentTransformerServiceProvider::class,
 
     Modules\API\Suppliers\HBSI\HbsiServiceProvider::class,

@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\Expedia\Adapters;
 
 use App\Models\ExpediaContent;
+use App\Models\ExpediaContentSlave;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,13 +13,15 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Services\MappingCacheService;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
 use Modules\API\Suppliers\Expedia\Client\ExpediaService;
+use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelContentDetailTransformer;
 use Modules\API\Suppliers\Expedia\Transformers\ExpediaHotelPricingTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 
-class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricingSupplierInterface
+class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelContentV1SupplierInterface, HotelPricingSupplierInterface
 {
     protected float|string $current_time;
 
@@ -30,6 +33,7 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricing
         private ExpediaService $expediaService,
         private MappingCacheService $mappingCacheService,
         private readonly ExpediaHotelPricingTransformer $expediaHotelPricingTransformer,
+        protected readonly ExpediaHotelContentDetailTransformer $expediaHotelContentDetailTransformer,
     ) {}
 
     public function supplier(): SupplierNameEnum
@@ -174,6 +178,7 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricing
         ];
     }
 
+    // Content V0
     public function search(array $filters): array
     {
         $preSearchData = $this->preSearchData($filters, 'search');
@@ -186,6 +191,87 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricing
         ];
     }
 
+    public function detail(Request $request): object
+    {
+        if ($request->has('property_ids')) {
+            $propertyIds = explode(',', $request->get('property_ids'));
+        } else {
+            $propertyIds = [$request->get('property_id')];
+        }
+
+        $results = ExpediaRepository::getDetailByGiataIds($propertyIds);
+
+        return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());
+    }
+
+    // Content V1
+    public function getResults(array $giataCodes): array
+    {
+        $resultsExpedia = [];
+        $mappingsExpedia = $this->mappingCacheService->getMappingsExpediaHashMap();
+        $expediaCodes = $this->getExpediaCodes($giataCodes, $mappingsExpedia);
+        $expediaData = $this->getExpediaData($expediaCodes);
+
+        foreach ($expediaData as $item) {
+            if (! isset($item->expediaSlave)) {
+                continue;
+            }
+            foreach ($item->expediaSlave->getAttributes() as $key => $value) {
+                if (is_string($value)) {
+                    $value = json_decode($value, true);
+                }
+                $item->$key = $value;
+            }
+            $contentDetailResponse = $this->expediaHotelContentDetailTransformer->ExpediaToContentDetailResponse($item->toArray(), $mappingsExpedia[$item->property_id]);
+            $resultsExpedia = array_merge($resultsExpedia, $contentDetailResponse);
+        }
+
+        return $resultsExpedia;
+    }
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+
+        /** @var MappingCacheService $mappingCacheService */
+        $mappingCacheService = app(MappingCacheService::class);
+        $hashMapExpedia = $mappingCacheService->getMappingsExpediaHashMap();
+        $reversedHashMap = array_flip($hashMapExpedia);
+        $expediaCode = $reversedHashMap[$giataCode] ?? null;
+
+        $expediaData = ExpediaContentSlave::select('rooms', 'statistics', 'all_inclusive', 'amenities', 'attributes', 'themes', 'rooms_occupancy')
+            ->where('expedia_property_id', $expediaCode)
+            ->first();
+        $expediaData = $expediaData ? $expediaData->toArray() : [];
+
+        if (! empty($expediaData)) {
+            $roomsData = Arr::get($expediaData, 'rooms', []);
+        }
+
+        return $roomsData;
+    }
+
+    private function getExpediaCodes(array $giataCodes, array $mappingsExpedia): array
+    {
+        $expediaCodes = [];
+        foreach ($giataCodes as $giataCode) {
+            $expediaCode = array_search($giataCode, $mappingsExpedia);
+            if ($expediaCode !== false) {
+                $expediaCodes[] = $expediaCode;
+            }
+        }
+
+        return $expediaCodes;
+    }
+
+    private function getExpediaData(array $expediaCodes)
+    {
+        return ExpediaContent::with('expediaSlave')
+            ->whereIn('property_id', $expediaCodes)
+            ->get();
+    }
+
+    // Pricing
     public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
     {
         $preSearchData = array_flip($preSearchData);
@@ -234,19 +320,6 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelPricing
                 'error' => $e->getMessage(),
             ];
         }
-    }
-
-    public function detail(Request $request): object
-    {
-        if ($request->has('property_ids')) {
-            $propertyIds = explode(',', $request->get('property_ids'));
-        } else {
-            $propertyIds = [$request->get('property_id')];
-        }
-
-        $results = ExpediaRepository::getDetailByGiataIds($propertyIds);
-
-        return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());
     }
 
     public function processPriceResponse(

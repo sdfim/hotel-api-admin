@@ -4,7 +4,6 @@ namespace Modules\API\Suppliers\IcePortal;
 
 use Illuminate\Support\ServiceProvider;
 use Modules\API\Suppliers\IcePortal\Adapters\IcePortalHotelAdapter;
-use Modules\API\Suppliers\IcePortal\Adapters\IcePortalHotelContentV1Adapter;
 use Modules\API\Suppliers\IcePortal\Transformers\IcePortalHotelContentTransformer;
 
 class IcePortalServiceProvider extends ServiceProvider
@@ -14,11 +13,6 @@ class IcePortalServiceProvider extends ServiceProvider
         $this->app->tag(
             IcePortalHotelAdapter::class,
             'hotel.search.suppliers'
-        );
-
-        $this->app->tag(
-            IcePortalHotelContentV1Adapter::class,
-            'hotel.content.v1.suppliers'
         );
 
         $this->app->tag(

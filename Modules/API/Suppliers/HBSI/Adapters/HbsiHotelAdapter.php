@@ -2,12 +2,15 @@
 
 namespace Modules\API\Suppliers\HBSI\Adapters;
 
+use App\Models\HbsiProperty;
+use App\Models\Mapping;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Services\HotelCombinationService;
+use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
 use Modules\API\Suppliers\HBSI\Client\HbsiClient;
 use Modules\API\Suppliers\HBSI\Transformers\HbsiHotelPricingTransformer;
@@ -15,7 +18,7 @@ use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
 use Throwable;
 
-class HbsiHotelAdapter implements HotelPricingSupplierInterface
+class HbsiHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingSupplierInterface
 {
     private const RESULT_PER_PAGE = 1000;
 
@@ -74,9 +77,63 @@ class HbsiHotelAdapter implements HotelPricingSupplierInterface
         return array_column($ids['data'], 'giata', 'hbsi');
     }
 
-    /**
-     * @throws Throwable
-     */
+    // Content V1
+    public function getResults(array $giataCodes): array {}
+
+    public function getRoomsData(int $giataCode): array
+    {
+        $roomsData = [];
+        $hbsiCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HBSI->value)
+            ->first()?->supplier_id;
+
+        $hbsiData = HbsiProperty::where('hotel_code', $hbsiCode)->first();
+        $hbsiData = $hbsiData ? $hbsiData->toArray() : [];
+
+        $mappingRooms = Arr::get($hbsiData, 'tpa_extensions.InterfaceSetup', []);
+        $mapping = [];
+        foreach ($mappingRooms as $room) {
+            if (isset($room['key']) && $room['key'] === 'Mapping_Roomtype') {
+                $mapping[$room['value']] = $room['text'];
+            }
+        }
+        $roomTypes = Arr::get($hbsiData, 'roomtypes', []);
+
+        foreach ($roomTypes as $room) {
+            $description = '';
+            if (isset($room['details']) && is_array($room['details'])) {
+                foreach ($room['details'] as $detail) {
+                    if (isset($detail['key']) && $detail['key'] === 'Description_ENG') {
+                        $description = $detail['value'];
+                        break;
+                    }
+                }
+            }
+            $roomsData[] = [
+                'id' => $mapping[$room['key']] ?? '',
+                'name' => $description,
+                'descriptions' => $description,
+            ];
+        }
+
+        return $roomsData;
+    }
+
+    public function getTaxOptions(int $giataCode): array
+    {
+        $hbsiCode = Mapping::where('giata_id', $giataCode)
+            ->where('supplier', SupplierNameEnum::HBSI->value)
+            ->first()?->supplier_id;
+
+        $hbsiData = HbsiProperty::where('hotel_code', $hbsiCode)->first();
+        $hbsiData = $hbsiData ? $hbsiData->toArray() : [];
+
+        $taxOptions = Arr::get($hbsiData, 'tpa_extensions.Taxes', []);
+
+        return array_values(Arr::pluck($taxOptions, 'key'));
+    }
+
+    // Pricing
     public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {

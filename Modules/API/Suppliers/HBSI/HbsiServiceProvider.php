@@ -20,10 +20,5 @@ class HbsiServiceProvider extends ServiceProvider
             HbsiHotelBookingAdapter::class,
             'hotel.booking.suppliers'
         );
-
-        $this->app->tag(
-            HbsiHotelContentV1Apapter::class,
-            'hotel.content.v1.suppliers'
-        );
     }
 }

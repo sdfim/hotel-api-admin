@@ -10,7 +10,13 @@ use Illuminate\Http\Request;
  */
 interface HotelContentSupplierInterface extends HotelSupplierInterface
 {
+    /**
+     * @deprecated This method is deprecated. For new implementations, return an empty array.
+     */
     public function search(array $filters): array;
 
+    /**
+     * @deprecated This method is deprecated. For new implementations, return an empty array.
+     */
     public function detail(Request $request): array|object;
 }

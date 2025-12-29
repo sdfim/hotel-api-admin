@@ -4,7 +4,6 @@ namespace Modules\API\Suppliers\HotelTrader;
 
 use Illuminate\Support\ServiceProvider;
 use Modules\API\Suppliers\HotelTrader\Adapters\HotelTraderAdapter;
-use Modules\API\Suppliers\HotelTrader\Adapters\HotelTraderContentV1Adapter;
 use Modules\API\Suppliers\HotelTrader\Adapters\HotelTraderHotelBookingAdapter;
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderContentTransformer;
 
@@ -20,11 +19,6 @@ class HotelTraderServiceProvider extends ServiceProvider
         $this->app->tag(
             HotelTraderHotelBookingAdapter::class,
             'hotel.booking.suppliers'
-        );
-
-        $this->app->tag(
-            HotelTraderContentV1Adapter::class,
-            'hotel.content.v1.suppliers'
         );
 
         $this->app->tag(
