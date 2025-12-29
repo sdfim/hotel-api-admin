@@ -41,7 +41,7 @@ class JwtLoginController extends Controller
                 'email' => $claims['email'],
             ],
             [
-                'name' => $claims['first_name'].' '.$claims['last_name'].' '.$claims['sub'],
+                'name' => $claims['first_name'].' '.$claims['last_name'],
                 'password' => Hash::make(strtok($claims['email'], '@').'-'.$claims['sub']),
             ]
         );
@@ -72,7 +72,7 @@ class JwtLoginController extends Controller
 
             Notification::make()
                 ->title('JWT. New User Created')
-                ->body('A new user '.$user->email.' was created via JWT login.')
+                ->body('A new user '.$user->email.' was created via JWT login. sub='.' '.$claims['sub'])
                 ->success()
                 ->sendToDatabase($user);
         }
@@ -84,7 +84,7 @@ class JwtLoginController extends Controller
 
         Notification::make()
             ->title('JWT. Login')
-            ->body('User '.$user->email.' logged in via JWT.')
+            ->body('User '.$user->email.' logged in via JWT.sub='.' '.$claims['sub'])
             ->success()
             ->sendToDatabase($user);
 
