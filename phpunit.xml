@@ -43,8 +43,8 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_DATABASE" value="fora_test"/>
-        <env name="SUPPLIER_CONTENT_DB_DATABASE" value="fora_api_test"/>
+        <env name="DB_DATABASE" value="vidanta_test"/>
+        <env name="SUPPLIER_CONTENT_DB_DATABASE" value="vidanta_api_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
