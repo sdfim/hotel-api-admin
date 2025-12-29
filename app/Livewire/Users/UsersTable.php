@@ -12,16 +12,20 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\HotelRoom;
 
 class UsersTable extends Component implements HasForms, HasTable
 {
@@ -64,6 +68,8 @@ class UsersTable extends Component implements HasForms, HasTable
 
             ])
             ->filters([
+                TrashedFilter::make()
+                    ->label('Trashed Users'),
                 SelectFilter::make(' role')
                     ->label('User Role')
                     ->options([
@@ -110,6 +116,11 @@ class UsersTable extends Component implements HasForms, HasTable
                             $record->delete();
                         })
                         ->visible(fn (User $record) => Gate::allows('delete', $record)),
+
+                    RestoreAction::make()
+                        ->visible(fn (User $record): bool => $record->trashed()),
+                    ForceDeleteAction::make()
+                        ->visible(fn (User $record): bool => $record->trashed()),
                 ]),
             ])->headerActions([
                 CreateAction::make()

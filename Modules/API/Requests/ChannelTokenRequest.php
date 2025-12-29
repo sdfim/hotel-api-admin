@@ -8,7 +8,7 @@ class ChannelTokenRequest extends ApiRequest
 {
     /**
      * @OA\Post(
-     *   tags={"Auth API | Channel Clients"},
+     *   tags={"Auth API"},
      *   path="/api/auth/channel-token",
      *   summary="Issue a channel token for an API user bound to a channel",
      *   description="Authenticates by email/password, requires 'api-user' role and an active channel assignment. Returns channel token.",

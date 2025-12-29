@@ -8,7 +8,6 @@ use Modules\API\Payment\routes\PaymentApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\PushContent\routes\HotelTraderPushContent;
 use Modules\API\Report\routes\ReportApiRoutes;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,5 +35,3 @@ ChannelsApiRoutes::routes();
 AuthApiRoutes::routes();
 
 PaymentApiRoutes::routes();
-
-

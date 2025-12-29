@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "TerraMare Main API Documentation",
+        "title": "Main API Documentation",
         "version": "1.0.0"
     },
     "paths": {
@@ -355,6 +355,65 @@
                                     "errors": {
                                         "amount": [
                                             "The amount field is required."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/payment-consent/{consentId}": {
+            "get": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Retrieve Payment Consent",
+                "operationId": "d3a822a5637d68833d5a21c7df3e3cae",
+                "parameters": [
+                    {
+                        "name": "consentId",
+                        "in": "path",
+                        "description": "Payment Consent ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment consent retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "data": {
+                                        "consent_id": "pmt_cst_123456789",
+                                        "response": {
+                                            "id": "pmt_cst_123456789",
+                                            "status": "ACTIVE",
+                                            "customer_id": "cus_123456789",
+                                            "created_at": "2025-01-31T06:57:10+0000"
+                                        }
+                                    },
+                                    "message": "Payment consent retrieved successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "The given data was invalid.",
+                                    "errors": {
+                                        "consentId": [
+                                            "The consentId field is required."
                                         ]
                                     }
                                 }
@@ -2935,7 +2994,7 @@
                                                     "search_id": "cb6a974a-7ba0-4559-8fe0-bb4f96d95342",
                                                     "amount_pay": "Deposit",
                                                     "api_client": {
-                                                        "email": "test-api-user@terramare.com"
+                                                        "email": "test-api-user@vidanta.com"
                                                     },
                                                     "booking_id": "c8c3d2b5-4233-4b2a-bdf3-fd233d80a38b",
                                                     "booking_item": "786430a0-9e2e-4617-ae98-d3aec8505660",
@@ -4008,7 +4067,7 @@
         "/api/auth/channel-token": {
             "post": {
                 "tags": [
-                    "Auth API | Channel Clients"
+                    "Auth API"
                 ],
                 "summary": "Issue a channel token for an API user bound to a channel",
                 "description": "Authenticates by email/password, requires 'api-user' role and an active channel assignment. Returns channel token.",
@@ -4489,6 +4548,95 @@
                 "security": [
                     {
                         "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/jwt-login": {
+            "post": {
+                "tags": [
+                    "Auth API"
+                ],
+                "summary": "Authenticate using a JWT token",
+                "description": "Accepts a JWT token in the Authorization header, validates it, and returns user details along with a channel token.",
+                "operationId": "40abaf6951bc1e59225c3509e5bc4efb",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "user_id",
+                                        "name",
+                                        "token"
+                                    ],
+                                    "properties": {
+                                        "user_id": {
+                                            "type": "integer",
+                                            "example": 18
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "test-api-user"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "Rx1rkXk0S9MomMpssi5D9T4kfUI5MwHxRZDSwYoHecbb4ace"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "user_id": 18,
+                                    "name": "test-api-user",
+                                    "token": "Rx1rkXk0S9MomMpssi5D9T4kfUI5MwHxRZDSwYoHecbb4ace"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token not provided or invalid."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid token."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ssoJwtAuth": []
                     }
                 ]
             }
@@ -12986,9 +13134,15 @@
         "securitySchemes": {
             "apiAuth": {
                 "type": "http",
-                "description": "authentication token",
+                "description": "Main APP authentication token",
                 "name": "Token based Based",
                 "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            },
+            "ssoJwtAuth": {
+                "type": "http",
+                "description": "SSO JWT token",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }
@@ -13020,8 +13174,8 @@
             "description": "API Endpoints of Booking Changes (modification)"
         },
         {
-            "name": "Auth API | Channel Clients",
-            "description": "Issue channel tokens for API clients. Authenticates user by email/password, requires 'api-user' role and an active bound channel, returns channel token for subsequent requests."
+            "name": "Auth API",
+            "description": "API Endpoints of Authentication"
         },
         {
             "name": "Payment",

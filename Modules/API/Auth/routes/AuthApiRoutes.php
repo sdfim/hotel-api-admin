@@ -4,6 +4,7 @@ namespace Modules\API\Auth\routes;
 
 use Illuminate\Support\Facades\Route;
 use Modules\API\Auth\Controllers\ChannelAuthController;
+use Modules\API\Auth\Controllers\JwtLoginController;
 
 class AuthApiRoutes
 {
@@ -14,6 +15,7 @@ class AuthApiRoutes
             ->group(function () {
                 // Exchange user email+password -> channel token
                 Route::post('/channel-token', [ChannelAuthController::class, 'issueChannelToken']);
+                Route::post('/jwt-login', [JwtLoginController::class, 'login']);
             });
     }
 }

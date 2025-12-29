@@ -8,19 +8,27 @@ use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 /**
  * @OA\Info(
- *    title="'  . env('APP_NAME') .  ' Main API Documentation",
+ *    title="Main API Documentation",
  *    version="1.0.0"
  * )
  *
  * @OA\SecurityScheme(
  *     type="http",
- *     description="authentication token",
+ *     description="Main APP authentication token",
  *     name="Token based Based",
  *     in="header",
  *     scheme="bearer",
  *     bearerFormat="JWT",
  *     securityScheme="apiAuth",
  * )
+ *
+ * @OA\SecurityScheme(
+ *      securityScheme="ssoJwtAuth",
+ *      type="http",
+ *      scheme="bearer",
+ *      bearerFormat="JWT",
+ *      description="SSO JWT token"
+ *  )
  *
  * @OA\Tag(
  *   name="Content API",
@@ -47,8 +55,8 @@ use Symfony\Component\HttpFoundation\StreamedJsonResponse;
  *   description="API Endpoints of Booking Changes (modification)"
  * ),
  * @OA\Tag(
- *   name="Auth API | Channel Clients",
- *   description="Issue channel tokens for API clients. Authenticates user by email/password, requires 'api-user' role and an active bound channel, returns channel token for subsequent requests."
+ *   name="Auth API",
+ *   description="API Endpoints of Authentication"
  * )
  */
 class BaseController extends Controller

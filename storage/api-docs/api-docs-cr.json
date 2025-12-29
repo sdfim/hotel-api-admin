@@ -5480,6 +5480,561 @@
                 ]
             }
         },
+        "/api/repo/product-fee-taxes": {
+            "get": {
+                "tags": [
+                    "Product | Fees and Taxes"
+                ],
+                "summary": "Get all product fee taxes",
+                "description": "Retrieve all product fee tax records with optional filters.",
+                "operationId": "42d31364ef8f20cb588de6377e2fddaa",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "query",
+                        "description": "Filter by product ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Service Fee"
+                        }
+                    },
+                    {
+                        "name": "net_value",
+                        "in": "query",
+                        "description": "Filter by net value",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "rack_value",
+                        "in": "query",
+                        "description": "Filter by rack value",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 120
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter by type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Tax",
+                                "Fee"
+                            ],
+                            "example": "Tax"
+                        }
+                    },
+                    {
+                        "name": "value_type",
+                        "in": "query",
+                        "description": "Filter by value type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Percentage",
+                                "Amount"
+                            ],
+                            "example": "Percentage"
+                        }
+                    },
+                    {
+                        "name": "collected_by",
+                        "in": "query",
+                        "description": "Filter by collected by",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Direct",
+                                "Vendor"
+                            ],
+                            "example": "Direct"
+                        }
+                    },
+                    {
+                        "name": "fee_category",
+                        "in": "query",
+                        "description": "Filter by fee category",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "optional"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Product | Fees and Taxes"
+                ],
+                "summary": "Create a new product fee tax",
+                "description": "Create a new product fee tax entry.",
+                "operationId": "d211303625a03ace7802069da57335bc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "name",
+                                    "net_value",
+                                    "rack_value",
+                                    "type",
+                                    "value_type",
+                                    "collected_by",
+                                    "commissionable",
+                                    "fee_category",
+                                    "apply_type"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Service Fee"
+                                    },
+                                    "net_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "rack_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 120
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Tax",
+                                            "Fee"
+                                        ],
+                                        "example": "Tax"
+                                    },
+                                    "value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Percentage",
+                                            "Amount"
+                                        ],
+                                        "example": "Percentage"
+                                    },
+                                    "collected_by": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Direct",
+                                            "Vendor"
+                                        ],
+                                        "example": "Direct"
+                                    },
+                                    "commissionable": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "fee_category": {
+                                        "type": "string",
+                                        "example": "optional"
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Per Night",
+                                            "Per Person"
+                                        ],
+                                        "example": "Per Night"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/product-fee-taxes/{id}": {
+            "get": {
+                "tags": [
+                    "Product | Fees and Taxes"
+                ],
+                "summary": "Get product fee tax details",
+                "description": "Retrieve details of a specific product fee tax.",
+                "operationId": "be5d86a00e0c0e8374b89e08c30ad9b2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product fee tax",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Product | Fees and Taxes"
+                ],
+                "summary": "Update product fee tax details",
+                "description": "Update details of a specific product fee tax.",
+                "operationId": "5b99f8c2503f0d7b004314f0c04031fc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product fee tax",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "name",
+                                    "net_value",
+                                    "rack_value",
+                                    "type",
+                                    "value_type",
+                                    "collected_by",
+                                    "commissionable",
+                                    "fee_category",
+                                    "apply_type"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Service Fee"
+                                    },
+                                    "net_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "rack_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 120
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Tax",
+                                            "Fee"
+                                        ],
+                                        "example": "Tax"
+                                    },
+                                    "value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Percentage",
+                                            "Amount"
+                                        ],
+                                        "example": "Percentage"
+                                    },
+                                    "collected_by": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Direct",
+                                            "Vendor"
+                                        ],
+                                        "example": "Direct"
+                                    },
+                                    "commissionable": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "fee_category": {
+                                        "type": "string",
+                                        "example": "optional"
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Per Night",
+                                            "Per Person"
+                                        ],
+                                        "example": "Per Night"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Product | Fees and Taxes"
+                ],
+                "summary": "Delete a product fee tax",
+                "description": "Delete a specific product fee tax.",
+                "operationId": "1161381f157a1a712085d9ffc819964c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product fee tax",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/repo/products": {
             "get": {
                 "tags": [
@@ -7004,6 +7559,10 @@
         {
             "name": "Product | Affiliations",
             "description": "API Endpoints for Affiliations"
+        },
+        {
+            "name": "Product | Fees and Taxes",
+            "description": "API Endpoints for Fees and Taxes"
         },
         {
             "name": "Product | Descriptive Content",
