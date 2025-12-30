@@ -19,7 +19,7 @@
     $totalFees   = $total_fees  ?? 0;
     $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
 
-    $agencyName  = $agency['booking_agent']       ?? ' {{ env('APP_NAME') }}Tours';
+    $agencyName  = $agency['booking_agent']       ?? env('APP_NAME') . ' Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
 
     /** Optional fields */
