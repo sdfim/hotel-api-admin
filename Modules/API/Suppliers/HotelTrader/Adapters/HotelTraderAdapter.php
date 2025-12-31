@@ -397,8 +397,17 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
 
         $clientResponse[$supplierName] = [];
         $count = 0;
+        $hotels = [];
         foreach ($hotelGenerator as $count => $hotel) {
-            $clientResponse[$supplierName][] = $hotel;
+            $hotels[] = $hotel;
+        }
+
+        /** Enrichment Room Combinations (Логика Room Combination Service) */
+        $countRooms = count($filters['occupancy']);
+        if ($countRooms > 1) {
+            $clientResponse[$supplierName] = $this->enrichmentRoomCombinations($hotels, $filters);
+        } else {
+            $clientResponse[$supplierName] = $hotels;
         }
 
         $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? [];
