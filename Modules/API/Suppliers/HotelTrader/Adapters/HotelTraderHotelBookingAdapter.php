@@ -584,7 +584,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         if (count($filters['occupancy']) > 1) {
             /** @var HotelTraderAdapter $hotelTraderAdapter */
             $hotelTraderAdapter = app(HotelTraderAdapter::class);
-            $clientResponse[$supplierName] = $hotelTraderAdapter->enrichmentRoomCombinations($hotels, $filters);
+            $clientResponse[$supplierName] = $hotelTraderAdapter->enrichmentRoomCombinations($hotels, $filters, SupplierNameEnum::HOTEL_TRADER);
             logger()->debug('HotelTraderBookApiController _ enrichmentRoomCombinations');
         } else {
             $clientResponse[$supplierName] = $hotels;

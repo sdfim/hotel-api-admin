@@ -292,7 +292,7 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
         ];
     }
 
-    public function enrichmentRoomCombinations(array $input, array $filters): array
+    public function enrichmentRoomCombinations(array $input, array $filters, SupplierNameEnum $supplier = SupplierNameEnum::HBSI): array
     {
         $arrayOccupancy = $this->getArrOccupancy($filters);
         foreach ($input as $hk => $hotel) {
