@@ -732,8 +732,9 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         /** Enrichment Room Combinations */
         $countRooms = count($filters['occupancy']);
         if ($countRooms > 1) {
-            $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
-            $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
+            /** @var HbsiHotelAdapter $hbsiHotelAdapter */
+            $hbsiHotelAdapter = app(HbsiHotelAdapter::class);
+            $clientResponse[$supplierName] = $hbsiHotelAdapter->enrichmentRoomCombinations($hotels, $filters);
         } else {
             $clientResponse[$supplierName] = $hotels;
         }

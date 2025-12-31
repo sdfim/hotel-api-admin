@@ -8,20 +8,21 @@ use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelAdapter;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelServiceSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
 use Modules\API\Suppliers\HBSI\Client\HbsiClient;
 use Modules\API\Suppliers\HBSI\Transformers\HbsiHotelPricingTransformer;
 use Modules\Enums\SupplierNameEnum;
 
-class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingSupplierInterface
+class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1SupplierInterface, HotelPricingSupplierInterface, HotelServiceSupplierInterface
 {
-    private const RESULT_PER_PAGE = 1000;
-
-    private const PAGE = 1;
+    const TTL_CACHE_COMBINATION_ITEMS = 60 * 24;
 
     public function __construct(
         private readonly HbsiClient $hbsiClient,
@@ -263,9 +264,7 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
         /** Enrichment Room Combinations (Логика Room Combination Service) */
         $countRooms = count($filters['occupancy']);
         if ($countRooms > 1) {
-            // Инстанцирование сервиса, как это было в handlePriceSupplier
-            $hotelService = new HotelCombinationService($supplierName);
-            $clientResponse[$supplierName] = $hotelService->enrichmentRoomCombinations($hotels, $filters);
+            $clientResponse[$supplierName] = $this->enrichmentRoomCombinations($hotels, $filters);
         } else {
             $clientResponse[$supplierName] = $hotels;
         }
@@ -291,5 +290,86 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
             'bookingItems' => $bookingItems,
             'dataOriginal' => $dataOriginal,
         ];
+    }
+
+    public function enrichmentRoomCombinations(array $input, array $filters): array
+    {
+        $arrayOccupancy = $this->getArrOccupancy($filters);
+        foreach ($input as $hk => $hotel) {
+            $result = $arr2combine = [];
+            /** loop room type  (Suite, Double, etc)*/
+            foreach ($hotel['room_groups'] as $rgk => $room_groups) {
+                /** loop rate type  (Promo, BAR, etc)*/
+                foreach ($room_groups['rooms'] as $rk => $room) {
+                    if (in_array($room['supplier_room_id'], $arrayOccupancy)) {
+                        $result[$room['supplier_room_id']][] = $room['booking_item'];
+                    }
+                }
+            }
+            foreach ($arrayOccupancy as $occupancy) {
+                if (isset($result[$occupancy])) {
+                    $arr2combine[] = $result[$occupancy];
+                }
+            }
+            if (count($arr2combine) === count($arrayOccupancy)) {
+                $sets = $this->generateCombinations(array_values($arr2combine));
+                $finalResult = [];
+                foreach ($sets as $set) {
+                    $uuid = (string) Str::uuid();
+                    $finalResult[$uuid] = $set;
+                }
+                $input[$hk]['room_combinations'] = $finalResult;
+                foreach ($finalResult as $key => $value) {
+                    $keyCache = 'room_combinations:'.$key;
+                    Cache::put($keyCache, $value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
+                    Cache::put('supplier:'.$key, SupplierNameEnum::HBSI->value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
+                }
+            }
+        }
+
+        return $input;
+    }
+
+    private function generateCombinations($arrays, $i = 0)
+    {
+        if (! isset($arrays[$i])) {
+            return [];
+        }
+        if ($i == count($arrays) - 1) {
+            return $arrays[$i];
+        }
+        $tmp = $this->generateCombinations($arrays, $i + 1);
+        $result = [];
+        foreach ($arrays[$i] as $v) {
+            foreach ($tmp as $t) {
+                $result[] = is_array($t) ?
+                    array_merge([$v], $t) :
+                    [$v, $t];
+            }
+        }
+
+        return $result;
+    }
+
+    public function getArrOccupancy(array $filters): array
+    {
+        $arrayOccupancy = [];
+        foreach ($filters['occupancy'] as $key => $value) {
+            $adults = $value['adults'];
+            $child = 0;
+            $infant = 0;
+            if (isset($value['children_ages']) && ! empty($value['children_ages'])) {
+                foreach ($value['children_ages'] as $kid => $childAge) {
+                    if ($childAge <= 2) {
+                        $infant++;
+                    } else {
+                        $child++;
+                    }
+                }
+            }
+            $arrayOccupancy[] = "$adults-$child-$infant";
+        }
+
+        return $arrayOccupancy;
     }
 }
