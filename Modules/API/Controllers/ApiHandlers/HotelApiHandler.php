@@ -323,14 +323,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $cacheKeys[$variableName] = $key;
                     Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
                 }
-                // this approach is more memory-efficient.
-                SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
 
+                $isTestScenario = $request->input('is_test_scenario', false);
+                $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+
+                // this approach is more memory-efficient.
+                SaveSearchInspectorByCacheKey::{$dispatchMethod}($searchInspector, $cacheKeys);
                 MemoryLogger::log('SaveSearchInspectorByCacheKey');
 
                 if (! empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
-                        SaveBookingItems::dispatch($items);
+                        SaveBookingItems::{$dispatchMethod}($items);
                     }
                 }
 
