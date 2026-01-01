@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Oracle\Adapters;
 
+use App\Models\Mapping;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
@@ -10,7 +11,6 @@ use Modules\API\Suppliers\Base\Adapters\BaseHotelAdapter;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelServiceSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
-use Modules\API\Suppliers\HotelTrader\Adapters\HotelTraderAdapter;
 use Modules\API\Suppliers\Oracle\Client\OracleClient;
 use Modules\API\Suppliers\Oracle\Transformers\OracleHotelPricingTransformer;
 use Modules\Enums\SupplierNameEnum;
@@ -39,12 +39,12 @@ class OracleHotelAdapter extends BaseHotelAdapter implements HotelContentV1Suppl
     }
 
     // Pricing
-    public function price(array &$filters, array $searchInspector, array $hotelDataInput): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array
     {
         try {
-            $hotelIds = array_keys($hotelDataInput);
+            $hotelIds = array_keys($preSearchData);
 
-            if (empty($hotelIds)) {
+            if (! $hotelId && empty($hotelIds)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -56,7 +56,15 @@ class OracleHotelAdapter extends BaseHotelAdapter implements HotelContentV1Suppl
             }
 
             /** get PriceData from Oracle */
-            $clientPriceData = $this->client->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            if (! empty($hotelIds) && ! $hotelId) {
+                // async call for multiple hotels
+                $clientPriceData = $this->client->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            } else {
+                // sync call for single hotel
+                $clientPriceData = $this->client->getSyncPriceByPropertyIds([$hotelId], $filters, $searchInspector);
+                $giata_id = Mapping::oracle()->where('supplier_id', $hotelId)->first()->giata_id;
+                $preSearchData = [$hotelId => $giata_id];
+            }
 
             if (isset($clientPriceData['error'])) {
                 return [
@@ -78,9 +86,9 @@ class OracleHotelAdapter extends BaseHotelAdapter implements HotelContentV1Suppl
                 // 1. Initialize the hotel structure
                 $groupedPriceData[$hotelId] = [
                     'property_id' => $hotelId,
-                    'hotel_name' => Arr::get($hotelDataInput, 'hotel_name'),
-                    'hotel_name_giata' => Arr::get($hotelDataInput, $hotelId),
-                    'giata_id' => Arr::get($hotelDataInput, $hotelId),
+                    'hotel_name' => Arr::get($preSearchData, 'hotel_name'),
+                    'hotel_name_giata' => Arr::get($preSearchData, $hotelId),
+                    'giata_id' => Arr::get($preSearchData, $hotelId),
                     'rooms' => [],
                 ];
 

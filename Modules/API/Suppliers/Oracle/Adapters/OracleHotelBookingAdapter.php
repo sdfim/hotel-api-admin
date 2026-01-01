@@ -5,12 +5,20 @@ namespace Modules\API\Suppliers\Oracle\Adapters;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
+use Modules\API\Suppliers\Base\Traits\HotelBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
+use Modules\API\Suppliers\Oracle\Client\OracleClient;
+use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 
 class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
+    use HotelBookingTrait;
+
     public function __construct(
+        private readonly OracleClient $client,
+        private readonly OracleHotelAdapter $hotelAdapter,
+        private readonly PricingRulesTools $pricingRulesService,
     ) {}
 
     public function supplier(): SupplierNameEnum
@@ -39,11 +47,6 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
     }
 
     public function changeBooking(array $filters, string $mode = 'soft'): ?array
-    {
-        return [];
-    }
-
-    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
         return [];
     }

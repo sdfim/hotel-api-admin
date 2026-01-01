@@ -144,7 +144,6 @@ class OracleClient
         $checkin = Arr::get($filters, 'checkin');
         $checkout = Arr::get($filters, 'checkout');
         $occupancy = Arr::get($filters, 'occupancy');
-        $ratePlanCode = Arr::get($filters, 'ratePlanCode');
 
         // Валидация
         if (empty($hotelIds) || ! $checkin || ! $checkout || empty($occupancy)) {
@@ -181,10 +180,6 @@ class OracleClient
                     'roomType' => $guestDetails['roomType'],
                     'ratePlanCode' => $guestDetails['ratePlanCode'],
                 ];
-
-                if (! empty($ratePlanCode)) {
-                    $queryParams['ratePlanCode'] = $ratePlanCode;
-                }
 
                 //                if (! empty($guestDetails['childAge'])) {
                 //                    $queryParams['childAge'] = $guestDetails['childAge'];
@@ -317,6 +312,223 @@ class OracleClient
     }
 
     /**
+     * Searches for availability and prices by a list of property IDs synchronously (without Fiber).
+     * Executes a series of synchronous requests, one for each room/occupancy configuration.
+     *
+     * @param  array  $hotelIds  The property IDs (Hotels) to search.
+     * @param  array  $filters  Search criteria (checkin, checkout, occupancy).
+     * @param  array  $searchInspector  Inspector metadata.
+     * @return array|null Search results or error information.
+     */
+    public function getSyncPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        $allResults = [];
+        $errors = [];
+        $originalRequests = [];
+
+        $checkin = Arr::get($filters, 'checkin');
+        $checkout = Arr::get($filters, 'checkout');
+        $occupancy = Arr::get($filters, 'occupancy');
+
+        // Валидация
+        if (empty($hotelIds) || ! $checkin || ! $checkout || empty($occupancy)) {
+            Log::error('OracleClient: Missing required search parameters.');
+
+            return ['error' => 'Missing required search parameters (hotelIds, checkin, checkout, occupancy).'];
+        }
+
+        /**
+         * 1. Формирование и выполнение синхронных запросов
+         * Один availability = одна комната
+         */
+        foreach ($hotelIds as $hotelId) {
+            foreach ($occupancy as $roomIndex => $roomConfig) {
+
+                $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
+
+                $queryParams = [
+                    'roomStayStartDate' => $checkin,
+                    'roomStayEndDate' => $checkout,
+                    'roomStayQuantity' => 1,
+                    'adults' => $guestDetails['adults'],
+                    'children' => $guestDetails['children'],
+                    'ratePlanInfo' => 'true',
+                    'resGuaranteeInfo' => 'true',
+                    'roomTypeInfo' => 'true',
+                    'currencyCode' => 'USD',
+                    'roomType' => $guestDetails['roomType'],
+                    'ratePlanCode' => $guestDetails['ratePlanCode'],
+                ];
+
+                $url = $this->credentials->baseUrl
+                    ."/par/v1/hotels/{$hotelId}/availability?"
+                    .http_build_query($queryParams);
+
+                $headers = $this->headers;
+                $headers['x-hotelid'] = $hotelId;
+
+                $requestMeta = [
+                    'hotelId' => $hotelId,
+                    'roomIndex' => $roomIndex,
+                    'url' => $url,
+                    'headers' => $headers,
+                    'method' => 'GET',
+                    // Важно: для GET запросов нет тела, поэтому body: null
+                    'body' => null,
+                ];
+
+                $originalRequests[] = $requestMeta;
+                $requestBodyForInspector = null; // Для GET запроса
+
+                // 2. Определение колбэка API для запроса (GET)
+                $apiCall = function () use ($url, $headers) {
+                    return $this->client->get($url, [
+                        'headers' => $headers,
+                        'timeout' => config('services.oracle.timeout', 60),
+                    ]);
+                };
+
+                // 3. Выполнение синхронного запроса через общую обертку
+                $result = $this->executeSyncRequest(
+                    $apiCall,
+                    $searchInspector,
+                    $requestMeta,
+                    $requestBodyForInspector
+                );
+
+                if (isset($result['error'])) {
+                    $errors[] = [
+                        'hotelId' => $hotelId,
+                        'roomIndex' => $roomIndex,
+                        'error' => $result['error'],
+                    ];
+                    continue;
+                }
+
+                // Успешный результат
+                $responseData = $result['response'];
+                if (! isset($allResults[$hotelId])) {
+                    $allResults[$hotelId] = [];
+                }
+
+                $allResults[$hotelId]['room_'.$roomIndex] = $responseData;
+            }
+        }
+
+        return [
+            'request' => [
+                'hotelIds' => $hotelIds,
+                'filters' => $filters,
+                'original_requests' => $originalRequests,
+            ],
+            'response' => $allResults,
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Executes a single synchronous API request using a callable and handles common Guzzle exceptions.
+     * This method serves as the common error handling wrapper for all synchronous requests (GET, POST, etc.).
+     *
+     * @param  callable  $apiCall  A function that executes the Guzzle request and returns a Response object.
+     * @param  array  $inspector  Inspector metadata (either searchInspector or bookingInspector).
+     * @param  array  $requestMeta  Metadata about the request (e.g., hotelId, roomIndex, url, headers, method).
+     * @param  string|array|null  $bodyQuery  The request body/payload, used for logging in inspector.
+     * @return array|null Returns ['response' => data] on success, or ['error' => message] on failure.
+     */
+    protected function executeSyncRequest(callable $apiCall, array $inspector, array $requestMeta, string|array|null $bodyQuery): ?array
+    {
+        // 1. Подготовка данных для Inspector
+        $hotelId = Arr::get($requestMeta, 'hotelId');
+        $roomIndex = Arr::get($requestMeta, 'roomIndex');
+
+        $content['original']['request'] = $bodyQuery ?: $requestMeta; // Используем тело для POST, или метаданные для GET
+        $content['original']['response'] = '';
+
+        try {
+            /** @var GuzzleResponse $response */
+            $response = $apiCall();
+            $body = $response->getBody()->getContents();
+            $content['original']['response'] = $body;
+
+            $responseData = json_decode($body, true);
+
+            // 2. Проверка HTTP статуса (хотя Guzzle бросает ServerException для 5xx, лучше проверить)
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 400) {
+                // Если Guzzle не бросил исключение (например, при 4xx), обрабатываем это как ошибку API
+                Log::error('Oracle API HTTP Error: '.$response->getStatusCode().' for '.$requestMeta['url']);
+
+                $message = 'Oracle API HTTP Error: '.$response->getStatusCode().($responseData['errors'] ?? '');
+
+                $this->dispatchSearchError(
+                    $inspector,
+                    $message,
+                    $hotelId,
+                    ['request' => $requestMeta, 'response' => $responseData]
+                );
+
+                return ['error' => $message];
+            }
+
+
+            // 3. API Error check (business logic error returned in 200 response body)
+            if (isset($responseData['errors'])) {
+                $errorDetails = json_encode($responseData['errors']);
+                Log::error('Oracle API error (Sync): '.$errorDetails);
+
+                $this->dispatchSearchError(
+                    $inspector,
+                    'Oracle API error (Room '.$roomIndex.'): '.$errorDetails,
+                    $hotelId,
+                    ['request' => $requestMeta, 'response' => $responseData]
+                );
+
+                return ['error' => $responseData['errors']];
+            }
+
+            // Успех
+            return ['response' => $responseData];
+
+        } catch (ConnectException $e) {
+            // 4. Timeout or connection error
+            Log::error('Oracle Connection timeout (Sync): '.$e->getMessage());
+
+            $this->dispatchSearchError(
+                $inspector,
+                'Connection timeout',
+                $hotelId,
+                $content['original']
+            );
+
+            return ['error' => 'Connection timeout'];
+        } catch (ServerException $e) {
+            // 5. Server error (5xx HTTP status code)
+            Log::error('Oracle Server error (Sync): '.$e->getMessage());
+
+            $this->dispatchSearchError(
+                $inspector,
+                'Oracle Server error',
+                $hotelId,
+                $content['original']
+            );
+
+            return ['error' => 'Server error'];
+        } catch (Throwable $e) {
+            // 6. Unexpected error (other exceptions)
+            Log::error('Oracle Unexpected error (Sync): '.$e->getMessage());
+
+            $this->dispatchSearchError(
+                $inspector,
+                'Unexpected error: '.$e->getMessage(),
+                $hotelId,
+                $content['original']
+            );
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Вспомогательный метод для маппинга фильтров Occupancy ОДНОЙ комнаты в параметры запроса Oracle.
      * Заменяет mapOccupancyToOracleQuery.
      */
@@ -326,8 +538,8 @@ class OracleClient
         $childrenAges = Arr::get($roomConfig, 'children_ages', []);
         $totalChildren = count($childrenAges);
 
-        $roomType = Arr::get($roomConfig, 'room_type', null);
-        $ratePlanCode = Arr::get($roomConfig, 'rate_plan_code', null);
+        $roomType = Arr::get($roomConfig, 'room_type', null) ?? Arr::get($roomConfig, 'room_code', null);
+        $ratePlanCode = Arr::get($roomConfig, 'rate_plan_code', null) ?? Arr::get($roomConfig, 'rate_code', null);
 
         return [
             'adults' => $totalAdults,

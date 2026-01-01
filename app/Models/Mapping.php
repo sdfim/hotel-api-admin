@@ -54,6 +54,11 @@ class Mapping extends Model
         return $query->where('supplier', MappingSuppliersEnum::HOTEL_TRADER->value);
     }
 
+    public function scopeOracle($query)
+    {
+        return $query->where('supplier', MappingSuppliersEnum::ORACLE->value);
+    }
+
     public function property()
     {
         return $this->belongsTo(Property::class, 'giata_id', 'code');
