@@ -465,7 +465,9 @@ class BookApiHandler extends BaseController
         }
 
         try {
-            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters);
+            $data = $this->supplierRegistry
+                ->get(SupplierNameEnum::from($bookingItem->supplier->name))
+                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name));
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -898,7 +900,9 @@ class BookApiHandler extends BaseController
 
         // Second/new search. Check availability and price.
         try {
-            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters, 'check_quote');
+            $data = $this->supplierRegistry
+                ->get(SupplierNameEnum::from($bookingItem->supplier->name))
+                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name), 'check_quote');
         } catch (Exception $e) {
             Log::error('BookApiHandler | checkQuote '.$e->getMessage());
             Log::error($e->getTraceAsString());

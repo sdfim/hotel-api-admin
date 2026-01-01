@@ -4,10 +4,8 @@ namespace Modules\API\Suppliers\HotelTrader\Adapters;
 
 use App\Jobs\MoveBookingItemCache;
 use App\Jobs\SaveBookingInspector;
-use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
-use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
@@ -15,7 +13,6 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -23,13 +20,12 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
+use Modules\API\Suppliers\Base\Traits\HotelBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\HotelTrader\Client\HotelTraderClient;
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelBookTransformer;
-use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelPricingTransformer;
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
@@ -38,6 +34,8 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
+    use HotelBookingTrait;
+
     public function __construct(
         private readonly HotelTraderClient $hotelTraderClient,
         private readonly HotelTraderAdapter $hotelAdapter,
@@ -279,58 +277,6 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         }
 
         return $data;
-    }
-
-    public function availabilityChange(array $filters, $type = 'change'): ?array
-    {
-        $bookingItemCode = $filters['booking_item'] ?? null;
-        $bookingItem = ApiBookingItem::where('booking_item', $bookingItemCode)->first();
-        $searchId = (string) Str::uuid();
-        $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_supplier_id');
-        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], $type, 'hotel']);
-
-        $response = $this->hotelAdapter->price($filters, $searchInspector, [], $hotelId);
-
-        $giataIds = Arr::get($filters, 'giata_ids', []);
-
-        $handled = $this->hotelAdapter->processPriceResponse(
-            $response,
-            $filters,
-            $searchId,
-            $this->pricingRulesService->rules($filters, $giataIds),
-            $this->pricingRulesService->rules($filters, $giataIds, true),
-            $giataIds
-        );
-
-        $clientResponse = $handled['clientResponse'];
-
-        SaveSearchInspector::dispatchSync(
-            $searchInspector,
-            $handled['dataOriginal'] ?? [],
-            [
-                'count' => $handled['countResponse'],
-                'query' => $filters,
-                'results' => $handled['dataResponse'],
-            ],
-            [
-                'count' => $handled['countClientResponse'],
-                'total_pages' => max($handled['totalPages']),
-                'query' => $filters,
-                'results' => $clientResponse,
-            ]
-        );
-
-        if (! empty($handled['bookingItems'])) {
-            foreach ($handled['bookingItems'] as $items) {
-                SaveBookingItems::dispatch($items);
-            }
-        }
-
-        return [
-            'result' => $clientResponse[SupplierNameEnum::HOTEL_TRADER->value] ?? [],
-            $type.'_search_id' => $searchId,
-        ];
     }
 
     public function priceCheck(array $filters): ?array

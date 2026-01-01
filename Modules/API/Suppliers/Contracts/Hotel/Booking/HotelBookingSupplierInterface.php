@@ -31,7 +31,7 @@ interface HotelBookingSupplierInterface extends BaseBookingSupplierInterface
     public function listBookings(): ?array;
 
     // Change Booking Section
-    public function availabilityChange(array $filters, string $type = 'default'): ?array;
+    public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'default'): ?array;
 
     /**
      * @return array{

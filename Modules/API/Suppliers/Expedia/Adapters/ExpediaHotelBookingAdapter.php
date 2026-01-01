@@ -101,7 +101,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         return ['booking_id' => $booking_id];
     }
 
-    public function availabilityChange(array $filters, $type = 'change'): ?array
+    public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'change'): ?array
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
