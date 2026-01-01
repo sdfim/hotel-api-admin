@@ -115,6 +115,8 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
             } else {
                 // sync call for single hotel
                 $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds([$hotelId], $filters, $searchInspector);
+                $giata_id = Mapping::hbsi()->where('supplier_id', $hotelId)->first()->giata_id;
+                $preSearchData = [$hotelId => $giata_id];
             }
 
             if (isset($xmlPriceData['error'])) {
