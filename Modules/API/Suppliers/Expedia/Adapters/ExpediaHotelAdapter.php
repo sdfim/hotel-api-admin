@@ -273,7 +273,7 @@ class ExpediaHotelAdapter implements HotelContentSupplierInterface, HotelContent
     }
 
     // Pricing
-    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array
     {
         $preSearchData = array_flip($preSearchData);
 

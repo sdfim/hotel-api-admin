@@ -157,8 +157,15 @@ class HotelTraderClient
             $inspector
         );
 
+        $rq = [
+            'url' => $this->credentials->graphqlSearchUrl,
+            'method' => 'POST',
+            'headers' => $this->headers,
+            'payload' => $request,
+        ];
+
         return [
-            'request' => $request,
+            'request' => $rq,
             'response' => Arr::get($response, 'data.getPropertiesByIds.properties', []),
             'errors' => Arr::get($response, 'errors', []),
         ];

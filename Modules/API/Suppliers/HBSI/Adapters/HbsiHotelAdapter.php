@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelAdapter;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelServiceSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
@@ -93,12 +92,12 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
     }
 
     // Pricing
-    public function price(array &$filters, array $searchInspector, array $hotelData): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array
     {
         try {
-            $hotelIds = array_keys($hotelData);
+            $hotelIds = array_keys($preSearchData);
 
-            if (empty($hotelIds)) {
+            if (! $hotelId && empty($hotelIds)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -110,7 +109,13 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
             }
 
             /** get PriceData from HBSI */
-            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            if (! empty($hotelIds) && ! $hotelId) {
+                // async call for multiple hotels
+                $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            } else {
+                // sync call for single hotel
+                $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds([$hotelId], $filters, $searchInspector);
+            }
 
             if (isset($xmlPriceData['error'])) {
                 return [
@@ -150,15 +155,15 @@ class HbsiHotelAdapter extends BaseHotelAdapter implements HotelContentV1Supplie
                 : $arrayResponse['RoomStays']['RoomStay'];
 
             $i = 1;
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($preSearchData, &$i) {
                 $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
                 $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
                 $item['rate_ordinal'] = $i;
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
                     'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
-                    'hotel_name_giata' => $hotelData[$hotelCode] ?? '',
-                    'giata_id' => $hotelData[$hotelCode] ?? 0,
+                    'hotel_name_giata' => $preSearchData[$hotelCode] ?? '',
+                    'giata_id' => $preSearchData[$hotelCode] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
                 if (! isset($result[$hotelCode]['rooms'][$roomCode])) {

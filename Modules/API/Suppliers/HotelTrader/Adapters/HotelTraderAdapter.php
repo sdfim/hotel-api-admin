@@ -227,13 +227,13 @@ class HotelTraderAdapter extends BaseEnrichmentRoomCombinations implements Hotel
     }
 
     // Pricing
-    public function price(array &$filters, array $searchInspector, array $hotelData): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array
     {
-        $hotelData = array_flip($hotelData);
+        $hotelData = array_flip($preSearchData);
         try {
             $hotelIds = array_values($hotelData);
 
-            if (empty($hotelIds)) {
+            if (! $hotelId && empty($hotelIds)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -247,7 +247,16 @@ class HotelTraderAdapter extends BaseEnrichmentRoomCombinations implements Hotel
             /** get PriceData from HotelTrader */
             /* @var HotelTraderClient $hotelTraderClient */
             $hotelTraderClient = app(HotelTraderClient::class);
-            $priceDataRaw = $hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+
+            if (! empty($hotelIds) && ! $hotelId) {
+                // async call for multiple hotels
+                $priceDataRaw = $hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            } else {
+                // sync call for single hotel
+                $priceDataRaw = $hotelTraderClient->availability([$hotelId], $filters, $searchInspector);
+                $giata_id = Mapping::hotelTrader()->where('supplier_id', $hotelId)->first()->giata_id;
+                $hotelData = [$giata_id => $hotelId];
+            }
             $priceData = [];
 
             foreach (Arr::get($priceDataRaw, 'response', []) as $item) {
@@ -330,8 +339,8 @@ class HotelTraderAdapter extends BaseEnrichmentRoomCombinations implements Hotel
             return [
                 'error' => $e->getMessage(),
                 'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                    'request' => $priceDataRaw['request'] ?? '',
+                    'response' => isset($priceDataRaw['response']) ? $priceDataRaw['response']->asXML() : '',
                 ],
                 'array' => [],
                 'total_pages' => 0,
@@ -343,8 +352,8 @@ class HotelTraderAdapter extends BaseEnrichmentRoomCombinations implements Hotel
             return [
                 'error' => $e->getMessage(),
                 'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                    'request' => $priceDataRaw['request'] ?? '',
+                    'response' => isset($priceDataRaw['response']) ? $priceDataRaw['response']->asXML() : '',
                 ],
                 'array' => [],
                 'total_pages' => 0,
