@@ -298,6 +298,14 @@
                                 </a>
                             </li>
                         @endif
+                        @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::ORACLE->value))
+                            <li>
+                                <a href="{{ Route('oracle.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Oracle
+                                </a>
+                            </li>
+                        @endif
                         @if(str_contains(config('booking-suppliers.connected_suppliers'), \Modules\Enums\SupplierNameEnum::HOTEL_TRADER->value))
                             <li>
                                 <a href="{{ Route('hotel-trader.index') }}"
