@@ -28,7 +28,8 @@ RUN pecl install redis-6.0.2 && \
     docker-php-ext-enable redis
 
 # ✅ Шаг 4: Установка Composer - будет кэшироваться
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | \
+    php -- --install-dir=/usr/local/bin --filename=composer
 
 # ✅ Шаг 5: Копируем ТОЛЬКО composer файлы для кэширования зависимостей
 COPY composer.json composer.lock ./
@@ -47,12 +48,11 @@ COPY infrastructure/docker/php-8.2/start.sh /var/www/start.sh
 # ✅ Шаг 8: Копируем весь код ПОСЛЕ установки зависимостей
 COPY . /var/www
 
-# ✅ Шаг 9: Генерируем autoload после копирования кода
-RUN composer dump-autoload --optimize --no-dev
+# ✅ Шаг 9: Генерируем autoload после копирования кода (Добавлен --no-scripts)
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
-# ✅ Шаг 10: Финальные настройки
+# ✅ Шаг 10: Финальные настройки (php artisan key:generate удален)
 RUN cp .env.example .env && \
-    php artisan key:generate && \
     mkdir -p storage_fusemnt && \
     chown -R www-data:www-data /var/www && \
     chmod +x /var/www/start.sh
