@@ -21,7 +21,7 @@ class GenerateJwt extends Command
         $key = config('jwt.secret');
         $payload = [
             'email' => $email,
-            'sub' => $sub,
+            'externalCustomerId' => $sub,
             'firstName' => $firstName,
             'lastName' => $lastName,
             'exp' => time() + 3600, // Token expires in 1 hour
