@@ -28,6 +28,17 @@ class OracleContentTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(OracleContent::query())
             ->columns([
+                TextColumn::make('first_mapperHbsiGiata_code')
+                    ->label('Giata Code')
+                    ->getStateUsing(fn ($record) => optional($record->mapperOracleGiata->first())
+                        ->giata_id)
+                    ->url(fn ($record) => $record->mapperOracleGiata->first()
+                        ? route(
+                            'properties.index',
+                            ['giata_id' => optional($record->mapperOracleGiata->first())->giata_id]
+                        )
+                        : null)
+                    ->toggleable(),
                 TextColumn::make('code')
                     ->label('Code')
                     ->sortable()
