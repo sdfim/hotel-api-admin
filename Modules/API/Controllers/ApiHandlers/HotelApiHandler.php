@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
@@ -342,7 +343,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $jobs[] = new SaveBookingItems($items);
                         }
                     }
-                    Bus::chain($jobs)->dispatch();
+                    $pendingChain = Bus::chain($jobs);
+                    // If we are inside a transaction
+                    if (DB::transactionLevel() > 0) {
+                        // Run the chain only after a successful COMMIT
+                        DB::afterCommit(function () use ($pendingChain) {
+                            $pendingChain->dispatch();
+                        });
+                    } else {
+                        // No transaction, run immediately
+                        $pendingChain->dispatch();
+                    }
                 }
 
                 $res = $request->input('supplier_data') == 'true' ? $content : $clientContent;
