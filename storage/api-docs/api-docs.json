@@ -188,69 +188,62 @@
                 "tags": [
                     "Payment"
                 ],
-                "summary": "Confirm Airwallex payment intent",
+                "summary": "Confirm payment (Airwallex or Cybersource)",
                 "operationId": "bca4f6de2aabeb27663d2fd7d93fcd18",
                 "requestBody": {
-                    "description": "Confirmation of Airwallex payment intent",
+                    "description": "Confirm a payment by provider type",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "payment_intent_id",
-                                    "amount",
-                                    "currency"
-                                ],
-                                "properties": {
-                                    "payment_intent_id": {
-                                        "type": "string",
-                                        "example": "int_hkdmrjzd6hb1gge4rv0"
-                                    },
-                                    "amount": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 100.5
-                                    },
-                                    "currency": {
-                                        "type": "string",
-                                        "example": "USD"
-                                    },
-                                    "provider": {
-                                        "type": "string",
-                                        "example": "airwallex"
+                                "discriminator": {
+                                    "propertyName": "provider",
+                                    "mapping": {
+                                        "airwallex": "#/components/schemas/ConfirmPaymentAirwallex",
+                                        "cybersource": "#/components/schemas/ConfirmPaymentCybersource"
                                     }
                                 },
-                                "type": "object"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ConfirmPaymentAirwallex"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ConfirmPaymentCybersource"
+                                    }
+                                ]
                             },
-                            "example": {
-                                "provider": "airwallex",
-                                "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
-                                "amount": 100.5,
-                                "currency": "USD"
+                            "examples": {
+                                "Airwallex Confirmation": {
+                                    "summary": "Confirm Airwallex payment",
+                                    "value": {
+                                        "provider": "airwallex",
+                                        "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
+                                        "amount": 100.5,
+                                        "currency": "USD"
+                                    }
+                                },
+                                "Cybersource Confirmation": {
+                                    "summary": "Confirm Cybersource payment",
+                                    "value": {
+                                        "provider": "cybersource",
+                                        "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41",
+                                        "amount": 100.5,
+                                        "currency": "USD",
+                                        "transient_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    }
+                                }
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Payment intent confirmed",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "data": {
-                                        "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
-                                        "amount": 100.5,
-                                        "currency": "USD",
-                                        "booking_id": "13c2cf26-77b2-411f-a0a6-082da1d61b41"
-                                    },
-                                    "message": "Payment intent confirmed"
-                                }
-                            }
-                        }
+                        "description": "Payment confirmed"
                     },
                     "400": {
+                        "description": "Bad request"
+                    },
+                    "422": {
                         "description": "Validation error"
                     }
                 }
@@ -261,105 +254,74 @@
                 "tags": [
                     "Payment"
                 ],
-                "summary": "Proxy for Airwallex createPaymentIntent",
+                "summary": "Create payment (Airwallex or Cybersource)",
                 "operationId": "6ff801a6067d1759ec5a60e0f8c69354",
                 "requestBody": {
+                    "description": "Initialize a payment intent using Airwallex or Cybersource",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequest"
-                            },
-                            "example": {
-                                "pprovider": "airwallex",
-                                "order": {
-                                    "products": [
-                                        {
-                                            "name": "Signature Family Room",
-                                            "quantity": 1
-                                        }
-                                    ]
+                                "discriminator": {
+                                    "propertyName": "provider",
+                                    "mapping": {
+                                        "airwallex": "#/components/schemas/CreatePaymentIntentRequestAirwallex",
+                                        "cybersource": "#/components/schemas/CreatePaymentIntentRequestCybersource"
+                                    }
                                 },
-                                "amount": 622.46,
-                                "currency": "USD",
-                                "booking_id": "767390c7-f9b7-4e1b-ad4d-16866270926f",
-                                "descriptor": "Hotel Booking Payment",
-                                "return_url": "https://domen/search-results/767390c7-f9b7-4e1b-ad4d-16866270926f/booking-confirmed",
-                                "merchant_order_id": "BK-1759069790539"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CreatePaymentIntentRequestAirwallex"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/CreatePaymentIntentRequestCybersource"
+                                    }
+                                ]
+                            },
+                            "examples": {
+                                "Airwallex Example": {
+                                    "summary": "Example for Airwallex",
+                                    "value": {
+                                        "provider": "airwallex",
+                                        "amount": 100,
+                                        "currency": "USD",
+                                        "merchant_order_id": "D202503210001",
+                                        "booking_id": "123e4567-e89b-12d3-a456-426614174000",
+                                        "descriptor": "Hotel Booking Payment",
+                                        "return_url": "https://www.example.com/return",
+                                        "metadata": {
+                                            "foo": "bar"
+                                        },
+                                        "order": {
+                                            "products": [
+                                                {
+                                                    "name": "Room Night",
+                                                    "quantity": 2
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "Cybersource Example": {
+                                    "summary": "Example for Cybersource",
+                                    "value": {
+                                        "provider": "cybersource",
+                                        "amount": 100,
+                                        "currency": "USD",
+                                        "booking_id": "123e4567-e89b-12d3-a456-426614174000",
+                                        "origin": "https://checkout.example.com"
+                                    }
+                                }
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Airwallex API response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "example": {
-                                    "success": true,
-                                    "data": {
-                                        "request_id": "8329f85d-515d-4cee-a014-c3c2eb0edbc2",
-                                        "amount": 622.46,
-                                        "currency": "USD",
-                                        "merchant_order_id": "BK-1759069790539",
-                                        "order": {
-                                            "products": [
-                                                {
-                                                    "name": "Signature Family Room",
-                                                    "quantity": 1
-                                                }
-                                            ]
-                                        },
-                                        "descriptor": "Hotel Booking Payment",
-                                        "metadata": {
-                                            "foo": "bar"
-                                        },
-                                        "status": "REQUIRES_PAYMENT_METHOD",
-                                        "captured_amount": 0,
-                                        "created_at": "2025-10-02T14:51:56+0000",
-                                        "updated_at": "2025-10-02T14:51:56+0000",
-                                        "available_payment_method_types": [
-                                            "card",
-                                            "airwallex_pay",
-                                            "googlepay",
-                                            "applepay"
-                                        ],
-                                        "payment_method_options": {
-                                            "card": {
-                                                "card_input_via": "moto"
-                                            }
-                                        },
-                                        "client_secret": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTk0MTY3MTYsImV4cCI6MTc1OTQyMDMxNiwidHlwZSI6ImNsaWVudC1zZWNyZXQiLCJwYWRjIjoiSEsiLCJhY2NvdW50X2lkIjoiMTdhMDY0MzktNzJiYy00YWQyLWI3NjYtMTk0OWM3MTFiYTgwIiwiaW50ZW50X2lkIjoiaW50X2hrZG1tNnI2cmhibnN2cWMwM3giLCJidXNpbmVzc19uYW1lIjoiRm9yYSBUcmF2ZWwgRGVtbyJ9.eTc-QvGOwj0VWx6c5T7e8PMx9PNIRRvpgarjuWqz8WQ",
-                                        "return_url": "https://domen/search-results/767390c7-f9b7-4e1b-ad4d-16866270926f/booking-confirmed",
-                                        "base_amount": 622.46,
-                                        "base_currency": "USD",
-                                        "payment_intent_id": "int_hkdmm6r6rhbnsvqc03x"
-                                    },
-                                    "message": "success"
-                                }
-                            }
-                        }
+                        "description": "Payment created successfully"
                     },
                     "422": {
-                        "description": "Validation error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "example": {
-                                    "message": "The given data was invalid.",
-                                    "errors": {
-                                        "amount": [
-                                            "The amount field is required."
-                                        ]
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Validation error"
                     }
                 }
             }
@@ -4958,88 +4920,134 @@
     },
     "components": {
         "schemas": {
-            "CreatePaymentIntentRequest": {
+            "ConfirmPaymentAirwallex": {
+                "required": [
+                    "payment_intent_id",
+                    "amount",
+                    "currency"
+                ],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "example": "airwallex"
+                    },
+                    "payment_intent_id": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ConfirmPaymentCybersource": {
+                "required": [
+                    "booking_id",
+                    "amount",
+                    "currency",
+                    "transient_token"
+                ],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "example": "cybersource"
+                    },
+                    "booking_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "transient_token": {
+                        "type": "string"
+                    },
+                    "billing_first_name": {
+                        "type": "string"
+                    },
+                    "billing_last_name": {
+                        "type": "string"
+                    },
+                    "billing_email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "billing_address1": {
+                        "type": "string"
+                    },
+                    "billing_locality": {
+                        "type": "string"
+                    },
+                    "billing_administrative_area": {
+                        "type": "string"
+                    },
+                    "billing_postal_code": {
+                        "type": "string"
+                    },
+                    "billing_country": {
+                        "type": "string",
+                        "example": "US"
+                    }
+                },
+                "type": "object"
+            },
+            "CreatePaymentIntentRequestAirwallex": {
                 "required": [
                     "amount",
                     "currency",
                     "merchant_order_id",
-                    "request_id",
                     "descriptor",
                     "return_url",
-                    "order"
+                    "order",
+                    "booking_id"
                 ],
                 "properties": {
+                    "provider": {
+                        "type": "string",
+                        "example": "airwallex"
+                    },
                     "amount": {
                         "type": "number",
-                        "format": "float",
-                        "example": 100
+                        "format": "float"
                     },
                     "currency": {
-                        "type": "string",
-                        "example": "USD"
+                        "type": "string"
                     },
                     "merchant_order_id": {
-                        "type": "string",
-                        "example": "D202503210001"
-                    },
-                    "request_id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "b01737e5-c5ab-4765-8834-cbd92dfeaf81"
+                        "type": "string"
                     },
                     "booking_id": {
                         "type": "string",
-                        "format": "uuid",
-                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                        "format": "uuid"
                     },
                     "descriptor": {
-                        "type": "string",
-                        "example": "Airwallex - Test Descriptor"
+                        "type": "string"
                     },
                     "return_url": {
-                        "type": "string",
-                        "example": "https://www.airwallex.com"
+                        "type": "string"
                     },
                     "metadata": {
-                        "type": "object",
-                        "example": {
-                            "foo": "bar"
-                        }
-                    },
-                    "client_secret": {
-                        "type": "string",
-                        "example": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzgzMDY2MzAsImV4cCI6MTczODMxMDIzMCwidHlwZSI6ImNsaWVudC1zZWNyZXQiLCJwYWRjIjoiSEsiLCJhY2NvdW50X2lkIjoiN2EwYzQ3YzctNzM0Zi00NzdmLTk1OWItMzIxNTQyNzgxYTgyIiwiaW50ZW50X2lkIjoiaW50X2hrcGRza3o3dmcxeGM3dXNjZGoiLCJjdXN0b21lcl9pZCI6IjlmYWZjMmZiLTQyNjItNGZmOC1hMjA1LWQ2MGZiNDc4MWNiMCJ9.Rg1M2Vl0GDARU0rnTghenUVe9v1ix1IrSQOxQO7Zqyw"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-31T06:57:10+0000"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-01-31T06:57:10+0000"
+                        "type": "object"
                     },
                     "order": {
-                        "required": [
-                            "products"
-                        ],
                         "properties": {
                             "products": {
                                 "type": "array",
                                 "items": {
-                                    "required": [
-                                        "name",
-                                        "quantity"
-                                    ],
                                     "properties": {
                                         "name": {
-                                            "type": "string",
-                                            "example": "Product Name"
+                                            "type": "string"
                                         },
                                         "quantity": {
-                                            "type": "integer",
-                                            "example": 2
+                                            "type": "integer"
                                         }
                                     },
                                     "type": "object"
@@ -5047,6 +5055,34 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "CreatePaymentIntentRequestCybersource": {
+                "required": [
+                    "amount",
+                    "currency",
+                    "booking_id"
+                ],
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "example": "cybersource"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "booking_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "origin": {
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -13085,49 +13121,6 @@
                         "search_id": "d740b649-f583-48d3-91fd-cdf4c58b14dc"
                     },
                     "message": "success"
-                }
-            }
-        },
-        "requestBodies": {
-            "ConfirmationPaymentIntentRequest": {
-                "description": "Confirmation of Airwallex payment intent",
-                "required": true,
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "required": [
-                                "payment_intent_id",
-                                "amount",
-                                "currency"
-                            ],
-                            "properties": {
-                                "payment_intent_id": {
-                                    "type": "string",
-                                    "example": "int_hkdmrjzd6hb1gge4rv0"
-                                },
-                                "amount": {
-                                    "type": "number",
-                                    "format": "float",
-                                    "example": 100.5
-                                },
-                                "currency": {
-                                    "type": "string",
-                                    "example": "USD"
-                                },
-                                "provider": {
-                                    "type": "string",
-                                    "example": "airwallex"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        "example": {
-                            "provider": "airwallex",
-                            "payment_intent_id": "int_hkdmrjzd6hb1gge4rv0",
-                            "amount": 100.5,
-                            "currency": "USD"
-                        }
-                    }
                 }
             }
         },

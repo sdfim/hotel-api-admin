@@ -319,6 +319,12 @@ class ApiBookingInspectorRepository
 
     public static function bookedItems(string $booking_id): object
     {
+        //TODO: remove this after cybersource will be implemented
+        if (app()->environment('local') && $booking_id === '00000000-0000-0000-0000-000000000000') {
+            // Return non-empty collection so PaymentController check passes
+            return collect([['id' => 1]]);
+        }
+
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'book')
             ->where('sub_type', 'create')

@@ -15,6 +15,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "blade-ui-kit/blade-ui-kit": "^0.7.0",
         "cheesegrits/filament-google-maps": "^3.0",
+        "cybersource/rest-client-php": "0.0.68",
         "darkaonline/l5-swagger": "^8.5",
         "fakerphp/faker": "^1.23",
         "filament/actions": "^3.2",
