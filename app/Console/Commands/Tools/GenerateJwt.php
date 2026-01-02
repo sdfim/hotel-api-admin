@@ -22,8 +22,8 @@ class GenerateJwt extends Command
         $payload = [
             'email' => $email,
             'sub' => $sub,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
             'exp' => time() + 3600, // Token expires in 1 hour
             'iat' => time(), // Token issued at
         ];

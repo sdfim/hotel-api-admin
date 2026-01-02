@@ -32,7 +32,7 @@ class JwtLoginController extends Controller
 
         $claims = (array) $decoded;
 
-        if (! isset($claims['email'], $claims['sub'], $claims['first_name'], $claims['last_name'], $claims['exp'], $claims['iat'])) {
+        if (! isset($claims['email'], $claims['externalCustomerId'], $claims['firstName'], $claims['lastName'], $claims['exp'], $claims['iat'])) {
             return response()->json(['message' => 'Missing required claims.'], 400);
         }
 
@@ -41,8 +41,8 @@ class JwtLoginController extends Controller
                 'email' => $claims['email'],
             ],
             [
-                'name' => $claims['first_name'].' '.$claims['last_name'],
-                'password' => Hash::make(strtok($claims['email'], '@').'-'.$claims['sub']),
+                'name' => $claims['firstName'].' '.$claims['lastName'],
+                'password' => Hash::make(strtok($claims['email'], '@').'-'.$claims['externalCustomerId']),
             ]
         );
 
@@ -72,7 +72,7 @@ class JwtLoginController extends Controller
 
             Notification::make()
                 ->title('JWT. New User Created')
-                ->body('A new user '.$user->email.' was created via JWT login. sub='.' '.$claims['sub'])
+                ->body('A new user '.$user->email.' was created via JWT login. externalCustomerId='.' '.$claims['externalCustomerId'])
                 ->success()
                 ->sendToDatabase($user);
         }
@@ -84,7 +84,7 @@ class JwtLoginController extends Controller
 
         Notification::make()
             ->title('JWT. Login')
-            ->body('User '.$user->email.' logged in via JWT.sub='.' '.$claims['sub'])
+            ->body('User '.$user->email.' logged in via JWT.externalCustomerId='.' '.$claims['externalCustomerId'])
             ->success()
             ->sendToDatabase($user);
 
