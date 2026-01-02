@@ -54,9 +54,9 @@ class SearchInspectorController extends BaseInspectorController
                 $clientContent = gzuncompress($clientContent);
                 $clientContentWithPricingRules = gzuncompress($clientContentWithPricingRules);
 
-                foreach ($keys as $key) {
-                    Cache::forget($key);
-                }
+//                foreach ($keys as $key) {
+//                    Cache::forget($key);
+//                }
             }
 
             $original = is_array($original) ? json_encode($original) : $original;

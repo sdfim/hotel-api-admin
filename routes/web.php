@@ -55,7 +55,7 @@ use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
-
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -66,6 +66,68 @@ use Modules\HotelContentRepository\Http\Controllers\VendorController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Временный роут для диагностики кеша Watchdog и контента
+Route::get('/debug/cache-check', function (Request $request) {
+    // Получаем search_id из параметра запроса
+    $searchId = $request->query('id');
+
+    if (empty($searchId)) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Необходимо передать параметр "id" (search_id) в URL.',
+        ], 400);
+    }
+
+    $keysToCheck = [
+        'watchdog_key_for_inspector',
+        'dataOriginal',
+        'content',
+        'clientContent',
+        'clientContentWithPricingRules',
+    ];
+
+    $results = [];
+
+    foreach ($keysToCheck as $keyName) {
+        $key = $keyName.'_'.$searchId;
+        // Используем Cache::get() для проверки наличия и получения данных
+        $data = Cache::get($key);
+        $exists = ! is_null($data);
+
+        $results[$key] = [
+            'exists' => $exists,
+            'status' => $exists ? 'Присутствует' : 'ОТСУТСТВУЕТ (Истек TTL)',
+            'data_type' => $keyName === 'watchdog_key_for_inspector' ? 'Boolean (10 мин)' : 'GZ-Compressed JSON (10 мин)',
+        ];
+
+        // Попытка декомпрессии для ключей контента (ключи 2-5)
+        if ($exists && $keyName !== 'watchdog_key_for_inspector') {
+            try {
+                // Распаковка данных (gzuncompress)
+                $uncompressed = gzuncompress($data);
+                // Декодирование JSON
+                $content = json_decode($uncompressed, true);
+
+                $results[$key]['decompression_status'] = 'OK';
+                $results[$key]['data_summary'] = [
+                    'compressed_size_bytes' => strlen($data),
+                    'uncompressed_size_bytes' => strlen($uncompressed),
+                    'top_level_keys' => array_keys((array) $content),
+                ];
+            } catch (\Throwable $e) {
+                $results[$key]['decompression_status'] = 'FAILED: '.$e->getMessage();
+            }
+        }
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'search_id' => $searchId,
+        'check_time' => now()->toDateTimeString(),
+        'keys' => $results,
+    ]);
+});
 
 Route::get('/phpinfo', fn () => phpinfo());
 
