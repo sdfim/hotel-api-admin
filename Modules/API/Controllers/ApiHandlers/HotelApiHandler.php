@@ -15,7 +15,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
@@ -35,7 +34,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 use Throwable;
-use Illuminate\Support\Facades\Bus;
 
 /**
  * @OA\PathItem(
@@ -326,46 +324,19 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
                 }
 
+                $isTestScenario = $request->input('is_test_scenario', false);
+                $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+
                 // this approach is more memory-efficient.
-                SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
+                SaveSearchInspectorByCacheKey::$dispatchMethod($searchInspector, $cacheKeys);
 
                 MemoryLogger::log('SaveSearchInspectorByCacheKey');
 
                 if (! empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
-                        SaveBookingItems::dispatch($items);
+                        SaveBookingItems::$dispatchMethod($items);
                     }
                 }
-
-//                $isTestScenario = $request->input('is_test_scenario', false);
-//                if ($isTestScenario) {
-//                    SaveSearchInspectorByCacheKey::dispatchSync($searchInspector, $cacheKeys);
-//                    MemoryLogger::log('SaveSearchInspectorByCacheKey');
-//
-//                    if (! empty($bookingItems)) {
-//                        foreach ($bookingItems as $items) {
-//                            SaveBookingItems::dispatchSync($items);
-//                        }
-//                    }
-//                } else {
-//                    $jobs = [new SaveSearchInspectorByCacheKey($searchInspector, $cacheKeys)];
-//                    if (! empty($bookingItems)) {
-//                        foreach ($bookingItems as $items) {
-//                            $jobs[] = new SaveBookingItems($items);
-//                        }
-//                    }
-//                    $pendingChain = Bus::chain($jobs);
-//                    // If we are inside a transaction
-//                    if (DB::transactionLevel() > 0) {
-//                        // Run the chain only after a successful COMMIT
-//                        DB::afterCommit(function () use ($pendingChain) {
-//                            $pendingChain->dispatch();
-//                        });
-//                    } else {
-//                        // No transaction, run immediately
-//                        $pendingChain->dispatch();
-//                    }
-//                }
 
                 $res = $request->input('supplier_data') == 'true' ? $content : $clientContent;
                 $res['search_id'] = $search_id;

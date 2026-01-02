@@ -97,7 +97,7 @@ class SearchInspectorController extends BaseInspectorController
             Log::error('Error save ApiSearchInspector: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
             Log::error($e->getTraceAsString());
 
-            return false;
+            throw $e;
         }
     }
 }
