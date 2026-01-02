@@ -44,7 +44,7 @@ RUN --mount=type=cache,target=/root/.composer \
 # Копируем код после установки зависимостей
 COPY . ./
 
-RUN composer dump-autoload --optimize --no-dev --no-scripts
+RUN composer dump-autoload --optimize --no-dev
 
 RUN chown -R www-data:www-data /var/www/html && \
     cp .env.example .env && \
