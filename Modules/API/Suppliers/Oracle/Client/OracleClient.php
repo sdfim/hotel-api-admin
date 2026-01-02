@@ -588,4 +588,138 @@ class OracleClient
         SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
             ['side' => 'supplier', 'message' => $message, 'parent_search_id' => $parent_search_id]);
     }
+
+    /**
+     * Получает список классов комнат (Room Classes) для отеля.
+     *
+     * @param  string  $hotelId  Код отеля.
+     * @param  array  $inspector  Метаданные для логирования (Inspector).
+     * @return array|null Ответ API в виде массива или null при ошибке.
+     */
+    public function getRoomClasses(string $hotelId, array $inspector = []): ?array
+    {
+        $endpoint = "/rm/config/v1/hotels/{$hotelId}/roomClasses";
+
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId;
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'GET',
+            'body' => null,
+        ];
+
+        // 2. Определение колбэка API для запроса (GET)
+        $apiCall = function () use ($url, $headers) {
+            return $this->client->get($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+            ]);
+        };
+
+        // 3. Выполнение синхронного запроса
+        $result = $this->executeSyncRequest(
+            $apiCall,
+            $inspector,
+            $requestMeta,
+            null
+        );
+
+        return $result['response'] ?? null;
+    }
+
+    /**
+     * Получает список физических комнат (Rooms) для отеля.
+     *
+     * @param  string  $hotelId  Код отеля.
+     * @param  array  $inspector  Метаданные для логирования (Inspector).
+     * @return array|null Ответ API в виде массива или null при ошибке.
+     */
+    public function getRooms(string $hotelId, array $inspector = []): ?array
+    {
+        $endpoint = "/rm/config/v1/hotels/{$hotelId}/rooms";
+
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId;
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'GET',
+            'body' => null,
+        ];
+
+        // 2. Определение колбэка API для запроса (GET)
+        $apiCall = function () use ($url, $headers) {
+            return $this->client->get($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+            ]);
+        };
+
+        // 3. Выполнение синхронного запроса
+        $result = $this->executeSyncRequest(
+            $apiCall,
+            $inspector,
+            $requestMeta,
+            null
+        );
+
+        return $result['response'] ?? null;
+    }
+
+    /**
+     * Получает список типов комнат (Room Types) для отеля с фильтрами.
+     * Параметры запроса: physical=true&pseudo=true&summaryInfo=false
+     *
+     * @param  string  $hotelId  Код отеля.
+     * @param  array  $inspector  Метаданные для логирования (Inspector).
+     * @return array|null Ответ API в виде массива или null при ошибке.
+     */
+    public function getRoomTypes(string $hotelId, array $inspector = []): ?array
+    {
+        // Параметры, указанные в запросе
+        $queryParams = http_build_query([
+            'physical' => 'true',
+            'pseudo' => 'true',
+            'summaryInfo' => 'false',
+        ]);
+
+        $endpoint = "/rm/config/v1/hotels/{$hotelId}/roomTypes?".$queryParams;
+
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId;
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'GET',
+            'body' => null,
+        ];
+
+        // 2. Определение колбэка API для запроса (GET)
+        $apiCall = function () use ($url, $headers) {
+            return $this->client->get($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+            ]);
+        };
+
+        // 3. Выполнение синхронного запроса
+        $result = $this->executeSyncRequest(
+            $apiCall,
+            $inspector,
+            $requestMeta,
+            null
+        );
+
+        return $result['response'] ?? null;
+    }
 }
