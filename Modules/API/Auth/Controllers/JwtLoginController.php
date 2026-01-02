@@ -32,7 +32,7 @@ class JwtLoginController extends Controller
 
         $claims = (array) $decoded;
 
-        if (! isset($claims['email'], $claims['sub'], $claims['first_name'], $claims['last_name'], $claims['exp'])) {
+        if (! isset($claims['email'], $claims['sub'], $claims['first_name'], $claims['last_name'], $claims['exp'], $claims['iat'])) {
             return response()->json(['message' => 'Missing required claims.'], 400);
         }
 

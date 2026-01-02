@@ -25,6 +25,7 @@ class GenerateJwt extends Command
             'first_name' => $firstName,
             'last_name' => $lastName,
             'exp' => time() + 3600, // Token expires in 1 hour
+            'iat' => time(), // Token issued at
         ];
 
         $jwt = JWT::encode($payload, $key, 'HS256');
