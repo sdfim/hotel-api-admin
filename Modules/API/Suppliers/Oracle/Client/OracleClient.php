@@ -19,23 +19,27 @@ class OracleClient
 {
     private Credentials $credentials;
 
-    protected string $token;
+    protected ?string $token = null;
 
-    protected array $headers;
+    protected array $headers = [];
 
     public function __construct(
         private readonly Client $client,
     ) {
         $this->credentials = CredentialsFactory::fromConfig();
+    }
+
+    private function ensureToken(): void
+    {
+        if ($this->token !== null) {
+            return;
+        }
 
         try {
             $this->token = $this->fetchToken();
         } catch (Exception $e) {
             Log::error('OracleClient: Failed to fetch authentication token: '.$e->getMessage());
             throw new Exception('OracleClient: Initialization failed due to authentication token error.');
-        } catch (GuzzleException $e) {
-            Log::error('OracleClient: Guzzle error while fetching authentication token: '.$e->getMessage());
-            throw new Exception('OracleClient: Initialization failed due to Guzzle error during token fetching.');
         }
 
         $this->headers = [
@@ -43,7 +47,6 @@ class OracleClient
             'Accept' => 'application/json',
             'Authorization' => 'Bearer '.$this->token,
             'x-app-key' => $this->credentials->appKey,
-            // 'x-hotelid' будет устанавливаться динамически в методе getPropertiesByIds
         ];
     }
 
@@ -138,6 +141,8 @@ class OracleClient
      */
     public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
+        $this->ensureToken();
+
         $allResults = [];
         $errors = [];
 
@@ -322,6 +327,8 @@ class OracleClient
      */
     public function getSyncPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
+        $this->ensureToken();
+
         $allResults = [];
         $errors = [];
         $originalRequests = [];
@@ -402,6 +409,7 @@ class OracleClient
                         'roomIndex' => $roomIndex,
                         'error' => $result['error'],
                     ];
+
                     continue;
                 }
 
@@ -469,7 +477,6 @@ class OracleClient
 
                 return ['error' => $message];
             }
-
 
             // 3. API Error check (business logic error returned in 200 response body)
             if (isset($responseData['errors'])) {
@@ -598,6 +605,8 @@ class OracleClient
      */
     public function getRoomClasses(string $hotelId, array $inspector = []): ?array
     {
+        $this->ensureToken();
+
         $endpoint = "/rm/config/v1/hotels/{$hotelId}/roomClasses";
 
         $url = $this->credentials->baseUrl.$endpoint;
@@ -640,6 +649,8 @@ class OracleClient
      */
     public function getRooms(string $hotelId, array $inspector = []): ?array
     {
+        $this->ensureToken();
+
         $endpoint = "/rm/config/v1/hotels/{$hotelId}/rooms";
 
         $url = $this->credentials->baseUrl.$endpoint;
@@ -683,6 +694,8 @@ class OracleClient
      */
     public function getRoomTypes(string $hotelId, array $inspector = []): ?array
     {
+        $this->ensureToken();
+
         // Параметры, указанные в запросе
         $queryParams = http_build_query([
             'physical' => 'true',
