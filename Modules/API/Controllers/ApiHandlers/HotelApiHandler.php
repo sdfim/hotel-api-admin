@@ -34,6 +34,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 use Throwable;
+use Illuminate\Support\Facades\Bus;
 
 /**
  * @OA\PathItem(
@@ -325,16 +326,23 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $isTestScenario = $request->input('is_test_scenario', false);
-                $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+                if ($isTestScenario) {
+                    SaveSearchInspectorByCacheKey::dispatchSync($searchInspector, $cacheKeys);
+                    MemoryLogger::log('SaveSearchInspectorByCacheKey');
 
-                // this approach is more memory-efficient.
-                SaveSearchInspectorByCacheKey::{$dispatchMethod}($searchInspector, $cacheKeys);
-                MemoryLogger::log('SaveSearchInspectorByCacheKey');
-
-                if (! empty($bookingItems)) {
-                    foreach ($bookingItems as $items) {
-                        SaveBookingItems::{$dispatchMethod}($items);
+                    if (! empty($bookingItems)) {
+                        foreach ($bookingItems as $items) {
+                            SaveBookingItems::dispatchSync($items);
+                        }
                     }
+                } else {
+                    $jobs = [new SaveSearchInspectorByCacheKey($searchInspector, $cacheKeys)];
+                    if (! empty($bookingItems)) {
+                        foreach ($bookingItems as $items) {
+                            $jobs[] = new SaveBookingItems($items);
+                        }
+                    }
+                    Bus::chain($jobs)->dispatch();
                 }
 
                 $res = $request->input('supplier_data') == 'true' ? $content : $clientContent;
