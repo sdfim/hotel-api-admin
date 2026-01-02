@@ -319,10 +319,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 /** Save data to Inspector */
                 $cacheKeys = [];
                 foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
-                    $key = $variableName.'_'.uniqid();
+                    $key = $variableName.'_'.$search_id;
                     $cacheKeys[$variableName] = $key;
                     Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
                 }
+                $watchdogKey = 'watchdog_key_for_inspector_'.$search_id;
+                Cache::put($watchdogKey, true, 10);
 
                 $isTestScenario = $request->input('is_test_scenario', false);
                 $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';

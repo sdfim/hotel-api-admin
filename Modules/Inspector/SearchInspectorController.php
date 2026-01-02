@@ -25,11 +25,20 @@ class SearchInspectorController extends BaseInspectorController
         [$inspector, $original, $content, $clientContent] = $data;
 
         try {
+            $watchdogKey = 'watchdog_key_for_inspector_'.$inspector['search_id'];
+            if (! Cache::has($watchdogKey)) {
+                throw new Exception('Watchdog key is missing. Cache operation likely timed out or failed. '.$watchdogKey);
+            } else {
+                logger('Watchdog key found: '.$watchdogKey);
+            }
+
             $this->current_time = microtime(true);
 
             $clientContentWithPricingRules = '';
             if (isset($original['keyCache'])) {
                 $keys = $original['keyCache'];
+
+                logger('Fetching cached data with keys: '.json_encode($keys));
 
                 $original = Cache::get($keys['dataOriginal']);
                 $content = Cache::get($keys['content']);
