@@ -212,7 +212,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 BulkAction::make('delete')
-                    ->action(fn ($records) => ApiSearchInspector::destroy($records->pluck('id')->toArray()))
+                    ->action(fn ($records) => ApiSearchInspector::destroy($records->pluck('search_id')->toArray()))
                     ->requiresConfirmation()
                     ->visible(fn () => config('superuser.email') === auth()->user()->email),
             ]);
