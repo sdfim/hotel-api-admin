@@ -316,25 +316,63 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 MemoryLogger::log('price_end');
 
-                /** Save data to Inspector */
-                $cacheKeys = [];
-                foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
-                    $key = $variableName.'_'.$search_id;
-                    $cacheKeys[$variableName] = $key;
-                    Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
-                }
-                $watchdogKey = 'watchdog_key_for_inspector_'.$search_id;
-                Cache::put($watchdogKey, true, 10);
+                $ttl = now()->addMinutes(10);
 
-                $isTestScenario = $request->input('is_test_scenario', false);
+                // List of variables to cache
+                $variablesToCache = [
+                    'dataOriginal',
+                    'content',
+                    'clientContent',
+                    'clientContentWithPricingRules',
+                ];
+
+                $cacheKeys = [];
+
+                foreach ($variablesToCache as $variableName) {
+                    // Skip if the variable is not defined
+                    if (! isset($$variableName)) {
+                        continue;
+                    }
+
+                    try {
+                        // Encode variable to JSON safely
+                        $json = json_encode($$variableName, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException $e) {
+                        // Log serialization errors and skip
+                        \Log::error("Serialization error for {$variableName}: ".$e->getMessage());
+
+                        continue;
+                    }
+
+                    // Compress the JSON
+                    $compressed = gzcompress($json);
+                    if ($compressed === false) {
+                        \Log::error("Compression failed for {$variableName}");
+
+                        continue;
+                    }
+
+                    // Store in cache with a TTL
+                    $key = "{$variableName}_{$search_id}";
+                    $cacheKeys[$variableName] = $key;
+                    Cache::put($key, $compressed, $ttl);
+                }
+
+                // Watchdog key to signal the inspector is alive
+                $watchdogKey = "watchdog_key_for_inspector_{$search_id}";
+                Cache::put($watchdogKey, true, $ttl);
+
+                // Determine the dispatch method based on test scenario
+                $isTestScenario = $request->boolean('is_test_scenario', false);
                 $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
 
-                // this approach is more memory-efficient.
+                // Save the inspector using cache keys
                 SaveSearchInspectorByCacheKey::$dispatchMethod($searchInspector, $cacheKeys);
-
                 MemoryLogger::log('SaveSearchInspectorByCacheKey');
 
+                // Save booking items
                 if (! empty($bookingItems)) {
+                    // Synchronously in test scenarios
                     foreach ($bookingItems as $items) {
                         SaveBookingItems::$dispatchMethod($items);
                     }
