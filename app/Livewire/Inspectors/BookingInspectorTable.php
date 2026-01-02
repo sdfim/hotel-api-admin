@@ -159,10 +159,11 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                                     });
                                 }
                             });
-                        } elseif (!empty($data['category'])) {
+                        } elseif (! empty($data['category'])) {
                             [$subType, $type] = explode('|', $data['category']);
                             $query->where('sub_type', trim($subType))->where('type', trim($type));
                         }
+
                         return $query;
                     })
                     ->indicateUsing(function (array $data) {
@@ -179,12 +180,14 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             'change-soft|change_book' => 'change_book_soft',
                             'update_change|change_passengers' => 'change_passengers_update',
                         ];
-                        if (!empty($data['category']) && is_array($data['category'])) {
-                            $labels = array_map(fn($cat) => $map[$cat] ?? $cat, $data['category']);
-                            return 'Category: ' . implode(', ', $labels);
-                        } elseif (!empty($data['category'])) {
-                            return 'Category: ' . ($map[$data['category']] ?? $data['category']);
+                        if (! empty($data['category']) && is_array($data['category'])) {
+                            $labels = array_map(fn ($cat) => $map[$cat] ?? $cat, $data['category']);
+
+                            return 'Category: '.implode(', ', $labels);
+                        } elseif (! empty($data['category'])) {
+                            return 'Category: '.($map[$data['category']] ?? $data['category']);
                         }
+
                         return null;
                     }),
                 Filter::make('created_at')

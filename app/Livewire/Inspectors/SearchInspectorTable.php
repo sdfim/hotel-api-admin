@@ -23,6 +23,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -30,7 +31,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -208,6 +208,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                             ->success()
                             ->send();
                     })
+                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+            ])
+            ->bulkActions([
+                BulkAction::make('delete')
+                    ->action(fn ($records) => ApiSearchInspector::destroy($records->pluck('id')->toArray()))
+                    ->requiresConfirmation()
                     ->visible(fn () => config('superuser.email') === auth()->user()->email),
             ]);
     }
