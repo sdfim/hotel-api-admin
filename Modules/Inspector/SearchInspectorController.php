@@ -26,8 +26,12 @@ class SearchInspectorController extends BaseInspectorController
 
         try {
             $watchdogKey = 'watchdog_key_for_inspector_'.$inspector['search_id'];
+            $tries = 3;
+            while ($tries-- && ! Cache::has($watchdogKey)) {
+                usleep(50000); // 50ms
+            }
             if (! Cache::has($watchdogKey)) {
-                throw new Exception('Watchdog key is missing. Cache operation likely timed out or failed. '.$watchdogKey);
+                throw new Exception("Watchdog key is missing: $watchdogKey");
             } else {
                 logger('Watchdog key found: '.$watchdogKey);
             }
