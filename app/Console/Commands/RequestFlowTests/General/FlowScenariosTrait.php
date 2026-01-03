@@ -13,7 +13,7 @@ trait FlowScenariosTrait
 
     private function search(array $requestData): array
     {
-        $requestData['isTestScenario'] = true;
+        $requestData['is_test_scenario'] = true;
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
 

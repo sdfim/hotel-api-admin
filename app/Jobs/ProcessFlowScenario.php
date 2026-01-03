@@ -42,7 +42,6 @@ class ProcessFlowScenario implements ShouldQueue
     {
         $key_rs_cache = 'flow_scenario_result_'.md5(json_encode($this->data));
         $this->data['key_rs_cache'] = $key_rs_cache;
-        $this->data['is_test_scenario'] = true;
 
         Artisan::call('flow:book-diff-scenarios', ['data' => $this->data]);
 
