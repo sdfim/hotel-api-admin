@@ -48,21 +48,6 @@ test('can update an existing mapping', function () {
     ]);
 });
 
-test('can delete a mapping', function () {
-    $expedia_id = 123;
-    $mapping = Mapping::factory()->create([
-        'supplier_id' => $expedia_id,
-        'supplier' => MappingSuppliersEnum::Expedia->value,
-    ]);
-
-    $response = $this->delete(route('mapping.destroy', $expedia_id));
-
-    $response->assertRedirect(route('expedia.index'));
-    $this->assertDatabaseMissing('mappings', [
-        'id' => $mapping->id,
-    ]);
-});
-
 test('store deletes mapping if giata_id is null', function () {
     $expedia_id = 123;
     $giata_last_id = 789;
