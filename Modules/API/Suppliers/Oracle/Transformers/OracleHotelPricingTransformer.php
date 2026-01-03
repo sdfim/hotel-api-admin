@@ -252,6 +252,8 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
 
+        $currency = Arr::get($rate, 'total.currencyCode', 'USD');
+
         $repoTaxFees = collect(Arr::get($this->repoTaxFees, $giataId, []))
             ->map(function ($items) {
                 return collect($items)->filter(function ($item) {
@@ -262,8 +264,8 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
             ->filter(fn ($items) => ! empty($items))
             ->all();
         $transformedRates = $this->taxAndFeeResolver->transformRates($rate, $repoTaxFees);
-        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $this->currency);
-        $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $this->currency);
+        $this->taxAndFeeResolver->applyRepoTaxFees($transformedRates, $numberOfPassengers, $this->checkin, $this->checkout, $repoTaxFees, $this->occupancy, $currency);
+        $this->serviceResolver->applyRepoService($transformedRates, $giataId, $ratePlanCode, $unifiedRoomCode, $numberOfPassengers, $this->checkin, $this->checkout, $this->repoServices, $this->occupancy, $currency);
 
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply(
@@ -353,7 +355,7 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomResponse->setCommissionableAmount(
             max(0.0, $roomResponse->getTotalPrice() - $roomResponse->getTotalTax())
         );
-        $roomResponse->setCurrency($this->currency ?? 'USD');
+        $roomResponse->setCurrency($currency ?? 'USD');
 
         $roomResponse->setCancellationPolicies(array_values($cancellationPolicies));
         $roomResponse->setNonRefundable($nonRefundable);
@@ -395,7 +397,7 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
             checkout: $this->checkout ?? null
         ));
 
-        $breakdown = $this->taxAndFeeResolver->getBreakdown($transformedRates, Carbon::parse($this->checkin), Carbon::parse($this->checkout), $this->currency);
+        $breakdown = $this->taxAndFeeResolver->getBreakdown($transformedRates, Carbon::parse($this->checkin), Carbon::parse($this->checkout), $currency);
         $roomResponse->setBreakdown($breakdown);
 
         $bookingItem = Str::uuid()->toString();
