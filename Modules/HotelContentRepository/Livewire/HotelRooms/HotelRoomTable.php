@@ -28,9 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
@@ -195,12 +193,12 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 return $query;
             })
             ->columns([
-                TextColumn::make('id')
-                    ->label('Merge')
-                    ->searchable()
-                    ->icon('heroicon-o-arrows-up-down')
-                    ->formatStateUsing(fn ($state) => "<span class='hidden'>{$state}</span>")
-                    ->html(),
+//                TextColumn::make('id')
+//                    ->label('Merge')
+//                    ->searchable()
+//                    ->icon('heroicon-o-arrows-up-down')
+//                    ->formatStateUsing(fn ($state) => "<span class='hidden'>{$state}</span>")
+//                    ->html(),
 
                 TextColumn::make('id_display')
                     ->label('Room ID')
@@ -237,7 +235,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     })
                     ->html(),
 
-
                 TextColumn::make('galleries_count')
                     ->label('Images')
                     ->badge()
@@ -256,7 +253,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ])
                     ->getStateUsing(fn (?HotelRoom $record): int => $record ? $record->attributes->count() : 0),
 
-                TextColumn::make('created_at')->label('Created At')->date(),
+                TextColumn::make('created_at')->label('Created At')->date()->toggleable(),
             ])
             ->actions([
                 ActionGroup::make([
@@ -383,35 +380,14 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
                     ->visible(fn () => Gate::allows('create', Hotel::class)),
-                Action::make('mapping-level-room-assistant')
-                    ->label('AI Room Mapper for Supplier Codes')
-                    ->iconButton()
-                    ->tooltip('AI Room Mapper for Supplier Codes')
-                    ->icon('heroicon-o-sparkles')
-                    ->action(fn () => app(MappingLevelRoom::class)->execute($this->hotel))
-                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                //                Action::make('mapping-level-room-assistant')
+                //                    ->label('AI Room Mapper for Supplier Codes')
+                //                    ->iconButton()
+                //                    ->tooltip('AI Room Mapper for Supplier Codes')
+                //                    ->icon('heroicon-o-sparkles')
+                //                    ->action(fn () => app(MappingLevelRoom::class)->execute($this->hotel))
+                //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
 
-            ])
-            ->filters([
-                SelectFilter::make('room_type')
-                    ->label('Room Type')
-                    ->options([
-                        'merged' => 'Merged',
-                        'primary' => 'Primary',
-                        'secondary' => 'Secondary',
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['value'])) {
-                            return match ($data['value']) {
-                                'merged' => $query->whereHas('newMerge'),
-                                'secondary' => $query->whereHas('crm'),
-                                'primary' => $query->whereDoesntHave('newMerge')->whereDoesntHave('crm'),
-                                default => $query,
-                            };
-                        }
-
-                        return $query;
-                    }),
             ]);
     }
 

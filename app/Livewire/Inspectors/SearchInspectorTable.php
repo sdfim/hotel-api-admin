@@ -82,7 +82,9 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->modalHeading('Add Flow Scenario')
                     ->modalWidth('4xl')
                     ->form($this->getFormSchema())
-                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+
             ])
             ->paginated([5, 10, 25, 50])
             ->query(ApiSearchInspector::query())
@@ -208,7 +210,9 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+
             ])
             ->bulkActions([
                 BulkAction::make('delete')
