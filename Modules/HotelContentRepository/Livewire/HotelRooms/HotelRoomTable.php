@@ -20,6 +20,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -41,6 +42,7 @@ use Modules\HotelContentRepository\Actions\HotelRoom\CloneHotelRoom;
 use Modules\HotelContentRepository\Actions\HotelRoom\EditHotelRoom;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
+use Modules\HotelContentRepository\Models\ImageGallery;
 
 class HotelRoomTable extends Component implements HasForms, HasTable
 {
@@ -326,6 +328,31 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
+                    ->visible(fn () => Gate::allows('update', Hotel::class)),
+                BulkAction::make('attachGalleries')
+                    ->label('Attach Galleries')
+                    ->icon('heroicon-o-cog')
+                    ->form([
+                        Select::make('galleries')
+                            ->label('Galleries')
+                            ->multiple()
+                            ->searchable()
+                            ->options(
+                                ImageGallery::all()->pluck('gallery_name', 'id')
+                            )
+                            ->required(),
+                    ])
+                    ->action(function ($records, $data) {
+                        foreach ($records as $room) {
+                            $room->galleries()->syncWithoutDetaching($data['galleries']);
+                        }
+                        Notification::make()
+                            ->title('Galleries attached successfully')
+                            ->success()
+                            ->send();
+                    })
+                    ->modalHeading('Attach galleries to selected rooms')
+                    ->modalSubmitActionLabel('Attach')
                     ->visible(fn () => Gate::allows('update', Hotel::class)),
             ])
             ->headerActions([
