@@ -90,20 +90,39 @@
     </div>
 </nav>
 
-<!-- Feather & Alpine initialisation -->
+<!-- Theme Switching logic -->
 <script>
+    const STORAGE_KEY = 'data-layout-mode';
+
+    function syncTheme(mode) {
+        const root = document.documentElement;
+        const body = document.body;
+        
+        if (mode === 'dark') {
+            root.classList.add('dark');
+            body.setAttribute('data-mode', 'dark');
+        } else {
+            root.classList.remove('dark');
+            body.setAttribute('data-mode', 'light');
+        }
+        
+        localStorage.setItem('theme', mode);
+        sessionStorage.setItem(STORAGE_KEY, mode);
+    }
+
     document.addEventListener('alpine:init', () => {
         window.addEventListener('toggle-theme', () => {
-            const root = document.documentElement;
-            root.classList.toggle('dark');
-            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+            const currentMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+            syncTheme(newMode);
         });
     });
 
     window.addEventListener('load', () => {
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        }
+        // Sync from any existing storage
+        const savedMode = localStorage.getItem('theme') || sessionStorage.getItem(STORAGE_KEY) || 'light';
+        syncTheme(savedMode);
+        
         if (typeof feather !== 'undefined') {
             feather.replace();
         }

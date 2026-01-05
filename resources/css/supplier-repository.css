@@ -748,11 +748,11 @@ body[data-sidebar-size="sm"] .navbar-brand .logo-sm {
 
 /* Dark Mode Overrides for Vidanta */
 .dark body,
-[data-mode="dark"] body,
+body[data-mode="dark"],
 .dark .page-content,
-[data-mode="dark"] .page-content,
+body[data-mode="dark"] .page-content,
 .dark .vertical-menu,
-[data-mode="dark"] .vertical-menu {
+body[data-mode="dark"] .vertical-menu {
     background-color: #0c0c10 !important;
     color: #e5e7eb !important;
 }
@@ -766,15 +766,15 @@ body[data-sidebar-size="sm"] .navbar-brand .logo-sm {
 .dark .fi-ta-content,
 .dark .fi-ta-header,
 .dark .fi-ta-empty-state,
-[data-mode="dark"] .bg-white,
-[data-mode="dark"] .card,
-[data-mode="dark"] .fi-section,
-[data-mode="dark"] .fi-fieldset,
-[data-mode="dark"] .hotel-modal-header,
-[data-mode="dark"] .hotel-modal-header-simple,
-[data-mode="dark"] .fi-ta-content,
-[data-mode="dark"] .fi-ta-header,
-[data-mode="dark"] .fi-ta-empty-state {
+body[data-mode="dark"] .bg-white,
+body[data-mode="dark"] .card,
+body[data-mode="dark"] .fi-section,
+body[data-mode="dark"] .fi-fieldset,
+body[data-mode="dark"] .hotel-modal-header,
+body[data-mode="dark"] .hotel-modal-header-simple,
+body[data-mode="dark"] .fi-ta-content,
+body[data-mode="dark"] .fi-ta-header,
+body[data-mode="dark"] .fi-ta-empty-state {
     background-color: #1c1c24 !important;
     color: #e5e7eb !important;
     border-color: #2d2d39 !important;
@@ -786,28 +786,28 @@ body[data-sidebar-size="sm"] .navbar-brand .logo-sm {
 .dark .fi-input,
 .dark .fi-input-wrp,
 .dark .choices__inner,
-[data-mode="dark"] input, 
-[data-mode="dark"] select, 
-[data-mode="dark"] textarea,
-[data-mode="dark"] .fi-input,
-[data-mode="dark"] .fi-input-wrp,
-[data-mode="dark"] .choices__inner {
+body[data-mode="dark"] input, 
+body[data-mode="dark"] select, 
+body[data-mode="dark"] textarea,
+body[data-mode="dark"] .fi-input,
+body[data-mode="dark"] .fi-input-wrp,
+body[data-mode="dark"] .choices__inner {
     background-color: #1c1c24 !important;
     color: #e5e7eb !important;
     border-color: #2d2d39 !important;
 }
 
 .dark .hotel-modal,
-[data-mode="dark"] .hotel-modal {
+body[data-mode="dark"] .hotel-modal {
     background: rgba(0, 0, 0, 0.85) !important;
 }
 
 .dark .hotel-modal-header h4,
 .dark .fi-section-header-heading,
 .dark .fi-ta-header-heading,
-[data-mode="dark"] .hotel-modal-header h4,
-[data-mode="dark"] .fi-section-header-heading,
-[data-mode="dark"] .fi-ta-header-heading {
+body[data-mode="dark"] .hotel-modal-header h4,
+body[data-mode="dark"] .fi-section-header-heading,
+body[data-mode="dark"] .fi-ta-header-heading {
     color: #ffffff !important;
 }
 
@@ -815,38 +815,38 @@ body[data-sidebar-size="sm"] .navbar-brand .logo-sm {
 .dark .fi-input-label,
 .dark .fi-section-header-description,
 .dark label,
-[data-mode="dark"] .fi-ta-header-cell-label, 
-[data-mode="dark"] .fi-input-label,
-[data-mode="dark"] .fi-section-header-description,
-[data-mode="dark"] label {
+body[data-mode="dark"] .fi-ta-header-cell-label, 
+body[data-mode="dark"] .fi-input-label,
+body[data-mode="dark"] .fi-section-header-description,
+body[data-mode="dark"] label {
     color: #9ca3af !important;
 }
 
 .dark .fi-ta-cell-content,
 .dark .fi-ta-text-item,
 .dark .fi-ta-text-item-label,
-[data-mode="dark"] .fi-ta-cell-content,
-[data-mode="dark"] .fi-ta-text-item,
-[data-mode="dark"] .fi-ta-text-item-label {
+body[data-mode="dark"] .fi-ta-cell-content,
+body[data-mode="dark"] .fi-ta-text-item,
+body[data-mode="dark"] .fi-ta-text-item-label {
     color: #e5e7eb !important;
 }
 
 /* Sidebar Dropdown Fix for Dark Mode (when collapsed) */
-[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a,
-[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul {
     background-color: #1c1c24 !important;
 }
 
-[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a span,
-[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a span,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a span,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a {
     color: #e5e7eb !important;
 }
 
-[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover {
     color: var(--theme-color) !important;
 }
