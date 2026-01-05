@@ -92,6 +92,11 @@ class UsersForm extends Component implements HasForms, HasTable
                     ->visible(fn ($get) => (int) $get('role') === (int) $apiUserRoleId)
                     ->optionsLimit(20)
                     ->preload(),
+                TextInput::make('external_customer_id')
+                    ->label('External Customer ID')
+                    ->placeholder('Enter external customer ID')
+                    ->helperText('Used to identify the user in external systems.')
+                    ->visible(fn ($get) => (int) $get('role') === (int) $apiUserRoleId),
                 TagsInput::make('notification_emails')
                     ->label('Notification Emails')
                     ->placeholder('Enter email')
@@ -158,7 +163,7 @@ class UsersForm extends Component implements HasForms, HasTable
         $data = $this->form->getState();
 
         // Fill basic fields
-        $this->record->fill(Arr::only($data, ['name', 'email']));
+        $this->record->fill(Arr::only($data, ['name', 'email', 'external_customer_id']));
         if (isset($data['notification_emails'])) {
             $this->record->notification_emails = $data['notification_emails'];
         }

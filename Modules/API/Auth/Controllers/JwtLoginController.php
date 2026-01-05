@@ -11,7 +11,9 @@ use Filament\Notifications\Notification;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Modules\API\Requests\JwtGenerateExternalRequest;
 use Modules\API\Requests\JwtLoginRequest;
 
 class JwtLoginController extends Controller
@@ -42,6 +44,7 @@ class JwtLoginController extends Controller
             ],
             [
                 'name' => $claims['firstName'].' '.$claims['lastName'],
+                'external_customer_id' => $claims['externalCustomerId'],
                 'password' => Hash::make(strtok($claims['email'], '@').'-'.$claims['externalCustomerId']),
             ]
         );
@@ -93,6 +96,63 @@ class JwtLoginController extends Controller
             'email' => $user->email,
             'name' => $user->name,
             'token' => $channel->plain_access_token,
+        ]);
+    }
+
+    /**
+     * Generate external JWT for a user and return token and link.
+     * POST /api/jwt/generate-external
+     * Body: { "user_id": int }
+     * Header: Authorization: Bearer {token}
+     */
+    public function generateExternalJwt(JwtGenerateExternalRequest $request): JsonResponse
+    {
+        $userId = $request->getUserId();
+        $token = $request->getBearerToken();
+
+        $user = User::find($userId);
+        if (! $user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        if (! $user->hasRole(RoleSlug::API_USER->value)) {
+            return response()->json(['message' => 'User is not allowed to access API.'], 403);
+        }
+
+        $channel = $user->channel; // belongsTo(Channel::class)
+        if (! $channel || (method_exists($channel, 'trashed') && $channel->trashed())) {
+            return response()->json(['message' => 'No active channel assigned.'], 403);
+        }
+
+        $key = config('jwt.secret_external');
+
+        // Call artisan command to generate JWT
+        $email = $user->email;
+        $name = explode(' ', $user->name);
+        $externalId = $user->external_customer_id;
+        $firstName = $name[0];
+        $lastName = $name[1] ?? '';
+
+        Artisan::call('jwt:generate', [
+            'email' => $email,
+            'sub' => $externalId,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'key' => $key,
+        ]);
+
+        $output = Artisan::output();
+
+        if (empty($output)) {
+            return response()->json(['message' => 'Failed to generate JWT.'], 500);
+        }
+
+        $jwt = trim($output);
+        $link = 'https://vidanta.thoughtindustries.com/access/jwt/?jwt='.urlencode($jwt);
+
+        return response()->json([
+            'jwt' => $jwt,
+            'link' => $link,
         ]);
     }
 }

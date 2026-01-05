@@ -36,6 +36,7 @@ class User extends Authenticatable
         'current_team_id',
         'channel_id',
         'notification_emails',
+        'external_customer_id',
     ];
 
     /** Hidden attributes for arrays. */
@@ -58,6 +59,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'notification_emails' => 'array',
+            'external_customer_id' => 'string', // cast as string
         ];
     }
 
