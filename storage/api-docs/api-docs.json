@@ -4552,14 +4552,14 @@
                 ]
             }
         },
-        "/api/jwt/generate-external": {
+        "/api/auth/generate-external-jwt": {
             "post": {
                 "tags": [
                     "Auth API"
                 ],
                 "summary": "Generate external JWT for a user",
                 "description": "Accepts a Bearer token in the Authorization header and a user_id in the body, validates them, and returns a JWT and link.",
-                "operationId": "4971ae0670cccc2325cdc8ee6cf35294",
+                "operationId": "2d0a6f61d22bb06508b38c4c3ba2a25d",
                 "requestBody": {
                     "required": true,
                     "content": {

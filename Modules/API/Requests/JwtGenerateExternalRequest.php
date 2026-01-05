@@ -7,7 +7,7 @@ use Modules\API\Validate\ApiRequest;
 /**
  * @OA\Post(
  *   tags={"Auth API"},
- *   path="/api/jwt/generate-external",
+ *   path="/api/auth/generate-external-jwt",
  *   summary="Generate external JWT for a user",
  *   description="Accepts a Bearer token in the Authorization header and a user_id in the body, validates them, and returns a JWT and link.",
  *   security={{"apiAuth":{}}},
