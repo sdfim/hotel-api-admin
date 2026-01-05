@@ -40,9 +40,7 @@
         <!-- User dropdown -->
         <div class="relative" x-data="{ open: false }" @click.away="open = false">
             <button id="user-dropdown-toggle" @click="open = !open"
-                class="flex h-[50px] items-center border-x border-gray-100 px-4 dark:border-zinc-600 dark:bg-zinc-800">
-{{--                <img class="mr-2 h-8 w-8 rounded-full border border-white" src="{{ Auth::user()->profile_photo_url }}"--}}
-{{--                    alt="{{ Auth::user()->name }}" />--}}
+                class="flex h-[50px] items-center border-gray-100 px-4 dark:border-zinc-600 dark:bg-zinc-800">
                 <span class="hidden text-gray-100 dark:text-white xl:block text-sm">{{ Auth::user()->name }}</span>
                 <svg class="ml-1 h-4 w-4 text-gray-500 dark:text-white" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
