@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -43,19 +44,27 @@ class FlowBookDiffScenarios extends Command
         $formData ?: $formData = [
             'type' => 'hotel',
             'supplier' => 'Oracle',
-            'checkin' => '2026-05-05',
-            'checkout' => '2026-05-13',
+            'checkin' => Carbon::now()->addMonths(3)->toDateString(),
+            'checkout' => Carbon::now()->addMonths(3)->addDays(2)->toDateString(),
             'giata_ids' => [38049404],
             'occupancy' => [
                 [
                     'adults' => 1,
                     'children_ages' => [],
-                    'room_type' => null,
-                    'rate_plan_code' => null,
+                    'room_type' => 'LCOST',
+                    'rate_plan_code' => 'CLIENTGL',
+                    'meal_plan_code' => null,
+                ],
+                [
+                    'adults' => 1,
+                    'children_ages' => [],
+                    'room_type' => 'GMAMR',
+                    'rate_plan_code' => 'CLIENTGM',
                     'meal_plan_code' => null,
                 ],
             ],
             'blueprint_exist' => false,
+            'run_booking_flow' => true,
         ];
 
         $formData = $this->removeEmptyValues($formData);
@@ -77,9 +86,9 @@ class FlowBookDiffScenarios extends Command
         $searchResponse = $this->search($formData);
 
         // Find booking item
-        $bookingItem = $this->fetchBookingItem($searchResponse);
+        $bookingItem = $this->fetchBookingItem($searchResponse, $formData['occupancy']);
 
-        if (! $bookingItem) {
+        if (!$bookingItem) {
             $this->error('Booking item not found by given room params');
             exit(1);
         }
@@ -99,11 +108,15 @@ class FlowBookDiffScenarios extends Command
         $this->handleSleep();
 
         // Book
-        $run_booking_flow ?? $this->book($bookingId, $bookingItem);
+        if ($run_booking_flow) {
+            $this->book($bookingId, [$bookingItem]);
+        }
         sleep(5);
 
         // Cancel
-        $run_cancellation_flow && $run_booking_flow ?? $this->cancel($bookingId, $bookingItem);
+        if ($run_cancellation_flow && $run_booking_flow) {
+            $this->cancel($bookingId, $bookingItem);
+        }
 
         // Store result in cache
         if ($key_rs_cache) {

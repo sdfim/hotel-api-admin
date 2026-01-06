@@ -15,15 +15,15 @@ trait FlowScenariosTrait
     {
         $requestData['is_test_scenario'] = true;
 
-        $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
+        $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
 
         $this->search_id = Arr::get($response->json(), 'data.search_id');
-        $this->info('Search ID: '.$this->search_id);
+        $this->info('Search ID: ' . $this->search_id);
 
         return $response->json();
     }
 
-    private function fetchBookingItem(array $searchResponse): ?string
+    private function fetchBookingItem(array $searchResponse, array $roomsData): ?string
     {
         $results = Arr::get($searchResponse, 'data.results');
 
@@ -31,28 +31,59 @@ trait FlowScenariosTrait
             $roomCombinations = Arr::get($hotel, 'room_combinations');
             $roomGroups = Arr::get($hotel, 'room_groups');
 
-            $bookingItemNonRefundableMap = [];
+            $bookingItemMap = [];
 
             foreach ($roomGroups as $group) {
                 foreach ($group['rooms'] as $room) {
-                    $bookingItem = $room['booking_item'];
-                    $nonRefundable = $room['non_refundable'];
-                    $bookingItemNonRefundableMap[$bookingItem] = $nonRefundable;
+                    $bookingItemMap[$room['booking_item']] = $room;
                 }
             }
 
-            foreach ($roomCombinations as $parentId => $childIds) {
-                $allNonRefundable = true;
+            // dd($bookingItemMap);
 
-                foreach ($childIds as $childId) {
-                    if ($bookingItemNonRefundableMap[$childId] !== false) {
-                        $allNonRefundable = false;
+            foreach ($roomCombinations as $parentId => $childIds) {
+                $isMatch = true;
+
+                foreach ($childIds as $index => $childId) {
+                    $room = $bookingItemMap[$childId] ?? null;
+                    if (!$room) {
+                        $isMatch = false;
+                        break;
+                    }
+
+                    // 1) Must be refundable
+                    if ($room['non_refundable'] !== false) {
+                        $isMatch = false;
+                        break;
+                    }
+
+                    $req = $roomsData[$index] ?? null;
+                    if (!$req) {
+                        $isMatch = false;
+                        break;
+                    }
+
+                    // 2) Room type match (if not empty)
+                    if (!empty($req['room_code']) && $room['room_type'] !== $req['room_code']) {
+                        $isMatch = false;
+                        break;
+                    }
+
+                    // 3) Rate code match (if not empty)
+                    if (!empty($req['rate_code']) && $room['rate_plan_code'] !== $req['rate_code']) {
+                        $isMatch = false;
+                        break;
+                    }
+
+                    // 4) Meal plan match (if not empty)
+                    if (!empty($req['meal_plan_code']) && ($room['meal_plan'] ?? '') !== $req['meal_plan_code']) {
+                        $isMatch = false;
                         break;
                     }
                 }
 
-                if ($allNonRefundable) {
-                    $this->info('Booking ITEM: '.$bookingItem);
+                if ($isMatch) {
+                    $this->info('Booking ITEM found: ' . $parentId);
 
                     return $parentId;
                 }
@@ -76,25 +107,25 @@ trait FlowScenariosTrait
             $requestData['booking_id'] = $bookingId;
         }
 
-        logger('FlowScenarios Add Booking Item Request Data: '.json_encode($requestData));
+        logger('FlowScenarios Add Booking Item Request Data: ' . json_encode($requestData));
 
-        $responseAddItem = $this->client->post($this->url.'/api/booking/add-item', $requestData);
+        $responseAddItem = $this->client->post($this->url . '/api/booking/add-item', $requestData);
         if (Arr::get($responseAddItem, 'error')) {
-            logger('FlowScenarios Add Booking Item Response Error: '.json_encode($responseAddItem->json()));
+            logger('FlowScenarios Add Booking Item Response Error: ' . json_encode($responseAddItem->json()));
             $this->error('Adding item failed');
         }
 
         if ($responseAddItem->ok() && Arr::has($responseAddItem->json(), 'data.booking_id')) {
             $bookingId = $responseAddItem->json()['data']['booking_id'];
-            $this->info('Booking ID retrieved successfully: '.$bookingId);
+            $this->info('Booking ID retrieved successfully: ' . $bookingId);
         } else {
-            logger('FlowScenarios Add Booking Item Response Failed: '.json_encode($responseAddItem->json()));
-            $this->error('Failed to retrieve Booking ID. Response: '.json_encode($responseAddItem->json()));
+            logger('FlowScenarios Add Booking Item Response Failed: ' . json_encode($responseAddItem->json()));
+            $this->error('Failed to retrieve Booking ID. Response: ' . json_encode($responseAddItem->json()));
 
             return false;
         }
 
-        $this->info('Booking ID: '.$bookingId);
+        $this->info('Booking ID: ' . $bookingId);
 
         return $bookingId;
     }
@@ -115,7 +146,7 @@ trait FlowScenariosTrait
                         'title' => 'mr',
                         'given_name' => $faker->firstName(),
                         'family_name' => $faker->lastName(),
-                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.$age.' years')),
+                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . $age . ' years')),
                         'booking_items' => [
                             [
                                 'booking_item' => $bookingItem,
@@ -152,9 +183,9 @@ trait FlowScenariosTrait
 
         $requestData['booking_id'] = $bookingId;
 
-        $response = $this->client->post($this->url.'/api/booking/add-passengers', $requestData);
+        $response = $this->client->post($this->url . '/api/booking/add-passengers', $requestData);
 
-        $this->info('addPassengers: '.json_encode($response->json()));
+        $this->info('addPassengers: ' . json_encode($response->json()));
         $response->json() ? $this->info('addPassengers success') : $this->error('addPassengers failed');
     }
 
@@ -164,8 +195,8 @@ trait FlowScenariosTrait
             'booking_id' => $bookingId,
         ];
 
-        $response = $this->client->get($this->url.'/api/booking/retrieve-items', $requestData);
-        $this->info('retrieveItems: '.json_encode($response->json()));
+        $response = $this->client->get($this->url . '/api/booking/retrieve-items', $requestData);
+        $this->info('retrieveItems: ' . json_encode($response->json()));
     }
 
     private function book(string $bookingId, array $bookingItems): void
@@ -174,7 +205,7 @@ trait FlowScenariosTrait
 
         $requestData = [
             'api_client' => [
-                'id' => env('TEST_API_USER_ID', 19),
+                'id' => $this->api_client_id,
             ],
             'booking_id' => $bookingId,
             'amount_pay' => 'Deposit',
@@ -204,19 +235,9 @@ trait FlowScenariosTrait
             ],
         ];
 
-        if ($this->argument('scenarios') === '4') {
-            $requestData['comments'] = [
-                [
-                    'booking_item' => $bookingItems[0],
-                    'room' => 1,
-                    'comment' => 'Test Comment, please disregard.',
-                ],
-            ];
-        }
-
-        $response = $this->client->post($this->url.'/api/booking/book', $requestData);
+        $response = $this->client->post($this->url . '/api/booking/book', $requestData);
         $this->info('------------------------------------');
-        $this->info('book: '.json_encode($response->json()));
+        $this->info('book: ' . json_encode($response->json()));
     }
 
     private function cancel(string $bookingId, ?string $bookingItem = null): void
@@ -228,12 +249,12 @@ trait FlowScenariosTrait
             $requestData['booking_item'] = $bookingItem;
         }
 
-        $response = $this->client->delete($this->url.'/api/booking/cancel-booking', $requestData);
+        $response = $this->client->delete($this->url . '/api/booking/cancel-booking', $requestData);
         $this->info('------------------------------------');
         if ($response->ok()) {
-            $this->info('Cancelled booking: '.$bookingId);
+            $this->info('Cancelled booking: ' . $bookingId);
         } else {
-            $this->error('Failed to cancel booking: '.$bookingId);
+            $this->error('Failed to cancel booking: ' . $bookingId);
         }
     }
 
@@ -245,26 +266,27 @@ trait FlowScenariosTrait
         if (Arr::get($responseAvailability, 'error') || is_null(Arr::get($responseAvailability, 'success'))) {
             $this->error('Availability failed');
         }
-        $this->info('softChange result : '.json_encode([
-            'success' => Arr::get($responseAvailability, 'success'),
-            'message' => Arr::get($responseAvailability, 'message'),
-            'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
-        ]
+        $this->info('softChange result : ' . json_encode(
+            [
+                'success' => Arr::get($responseAvailability, 'success'),
+                'message' => Arr::get($responseAvailability, 'message'),
+                'change_search_id' => Arr::get($responseAvailability, 'data.change_search_id'),
+            ]
         ));
 
         $this->info('------------------------------------');
         $this->handleSleep();
         $newBookingItem = Arr::get($responseAvailability, 'data.change_search_id', false)
-            ? (! $roomType
+            ? (!$roomType
                 ? $this->getBookingItem($responseAvailability)
                 : $this->getBookingItemWithRoomType($responseAvailability, $roomType))
             : Uuid::uuid4()->toString();
-        $this->info('$new_booking_item: '.$newBookingItem);
+        $this->info('$new_booking_item: ' . $newBookingItem);
 
         $this->info('------------------------------------');
         $this->handleSleep();
         $responsePriceCheck = $this->priceCheck($bookingId, $bookingItem, $newBookingItem);
-        $this->info('priceCheck: '.json_encode($responsePriceCheck));
+        $this->info('priceCheck: ' . json_encode($responsePriceCheck));
         if (Arr::get($responsePriceCheck, 'error')) {
             $this->error('Price check failed');
         }
@@ -272,17 +294,17 @@ trait FlowScenariosTrait
         $this->info('------------------------------------');
         $this->handleSleep();
         $responseHardChange = $this->hardChange($bookingId, $bookingItem, $newBookingItem, $occupancy);
-        $this->info('hardChange: '.json_encode($responseHardChange));
+        $this->info('hardChange: ' . json_encode($responseHardChange));
 
         $this->info('------------------------------------');
         $this->handleSleep();
         $responseRetrieveItems = $this->retrieveBooking($bookingId);
-        $this->info('retrieveBooking: '.json_encode($responseRetrieveItems));
+        $this->info('retrieveBooking: ' . json_encode($responseRetrieveItems));
     }
 
     private function availableEndpoints($bookingItem)
     {
-        $response = $this->client->get($this->url.'/api/booking/change/available-endpoints/?booking_item='.$bookingItem);
+        $response = $this->client->get($this->url . '/api/booking/change/available-endpoints/?booking_item=' . $bookingItem);
 
         $listEndpoints = $response->json()['data']['endpoints'];
 
@@ -319,19 +341,19 @@ trait FlowScenariosTrait
             'passengers' => $passengers,
         ];
 
-        if (! empty($specialRequests)) {
+        if (!empty($specialRequests)) {
             $params['special_requests'] = $specialRequests;
         }
 
-        if (! empty($comments)) {
+        if (!empty($comments)) {
             $params['comments'] = $comments;
         }
 
-        $this->warn('softChange params : '.json_encode($params));
+        $this->warn('softChange params : ' . json_encode($params));
 
-        $response = $this->client->put($this->url.'/api/booking/change/soft-change', $params);
+        $response = $this->client->put($this->url . '/api/booking/change/soft-change', $params);
 
-        $this->info('softChange: '.json_encode($response->json()));
+        $this->info('softChange: ' . json_encode($response->json()));
 
         return $response->json();
     }
@@ -347,9 +369,9 @@ trait FlowScenariosTrait
             'occupancy' => $occupancy,
         ];
 
-        $this->warn('availability params : '.json_encode($params));
+        $this->warn('availability params : ' . json_encode($params));
 
-        $response = $this->client->post($this->url.'/api/booking/change/availability', $params);
+        $response = $this->client->post($this->url . '/api/booking/change/availability', $params);
 
         return $response->json();
     }
@@ -362,9 +384,9 @@ trait FlowScenariosTrait
             'booking_id' => $bookingId,
         ];
 
-        $this->warn('priceCheck params : '.json_encode($params));
+        $this->warn('priceCheck params : ' . json_encode($params));
 
-        $response = $this->client->get($this->url.'/api/booking/change/price-check', $params);
+        $response = $this->client->get($this->url . '/api/booking/change/price-check', $params);
 
         return $response->json();
     }
@@ -385,7 +407,7 @@ trait FlowScenariosTrait
                     'title' => 'mr',
                     'given_name' => $faker->firstName(),
                     'family_name' => $faker->lastName(),
-                    'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
+                    'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
                     'room' => $k + 1,
                 ];
             }
@@ -430,9 +452,9 @@ trait FlowScenariosTrait
             'special_requests' => $special_requests,
         ];
 
-        $this->warn('hardChange params : '.json_encode($params));
+        $this->warn('hardChange params : ' . json_encode($params));
 
-        $response = $this->client->put($this->url.'/api/booking/change/hard-change', $params);
+        $response = $this->client->put($this->url . '/api/booking/change/hard-change', $params);
 
         return $response->json();
     }
@@ -443,7 +465,7 @@ trait FlowScenariosTrait
             'booking_id' => $bookingId,
         ];
 
-        $response = $this->client->get($this->url.'/api/booking/retrieve-booking', $params);
+        $response = $this->client->get($this->url . '/api/booking/retrieve-booking', $params);
 
         return $response->json();
     }
@@ -507,7 +529,7 @@ trait FlowScenariosTrait
                 }
 
                 if ($allMatchRoomType) {
-                    $this->info('Booking ITEM: '.$parentId);
+                    $this->info('Booking ITEM: ' . $parentId);
 
                     return $parentId;
                 }
@@ -519,7 +541,7 @@ trait FlowScenariosTrait
 
     private function handleSleep(): void
     {
-        if (! $this->isQueueSync) {
+        if (!$this->isQueueSync) {
             sleep(5);
         }
     }

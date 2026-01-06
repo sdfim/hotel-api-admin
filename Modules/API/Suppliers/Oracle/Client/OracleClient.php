@@ -2,7 +2,11 @@
 
 namespace Modules\API\Suppliers\Oracle\Client;
 
+use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveSearchInspector;
+use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
+use App\Repositories\ApiBookingInspectorRepository;
 use Exception;
 use Fiber;
 use GuzzleHttp\Client;
@@ -12,7 +16,9 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Modules\Enums\SupplierNameEnum;
 use Throwable;
 
 class OracleClient
@@ -434,6 +440,449 @@ class OracleClient
         ];
     }
 
+    public function book($filters, $inspectorBook): array
+    {
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        if (! $passengersData) {
+            return [
+                'error' => 'Passengers not found.',
+                'request' => [],
+                'response' => [],
+                'main_guest' => [],
+            ];
+        }
+
+        $guests = json_decode($passengersData->request, true)['rooms'] ?? [];
+        $commentsByFilter = Arr::get($filters, 'comments');
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+
+        if (! $bookingItem || ! $bookingItem->search) {
+            return [
+                'error' => 'Booking item or search record not found.',
+                'request' => [],
+                'response' => [],
+                'main_guest' => [],
+            ];
+        }
+
+        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
+        $supplierHotelId = Arr::get($bookingItemData, 'hotel_supplier_id');
+
+        $request = json_decode($bookingItem->search->request, true);
+
+        // Извлечение обязательных дат
+        $startDate = Arr::get($request, 'checkin');
+        $endDate = Arr::get($request, 'checkout');
+
+        $mappedGuests = [];
+        $bodyQuery = [];
+        $roomIndex = -1;
+
+        // make request reservations for each room
+        foreach ($guests as $roomIndex => $roomGuests) {
+            if ($roomIndex === 0) {
+                $mappedGuests = $roomGuests;
+            }
+
+            $reservationGuests = $this->mapGuests($roomGuests);
+
+            $roomStay = $this->getRoomStay($supplierHotelId, $bookingItem, $roomIndex, $roomGuests);
+
+            if (empty($roomStay) || ! isset($roomStay['guarantee'])) {
+                Log::error("OracleClient: Failed to retrieve room stay data or guarantee info for booking item {$filters['booking_item']}");
+
+                return ['error' => 'Failed to prepare reservation data.'];
+            }
+
+            $guaranteeInfo = $roomStay['guarantee'];
+            unset($roomStay['guarantee']);
+
+            $comments = $commentsByFilter
+                ? $this->mapComments($commentsByFilter, $bookingItem->booking_item, $roomIndex + 1)
+                : [];
+
+            $bodyQuery['reservations']['reservation'][] = $this->makeBookRequestBody(
+                $supplierHotelId,
+                $roomStay,
+                $reservationGuests,
+                $comments,
+                $startDate,
+                $endDate,
+                $guaranteeInfo
+            );
+        }
+
+        // Проверка, что хотя бы одна комната обработана
+        if (empty($bodyQuery)) {
+            return [
+                'error' => 'No rooms processed for booking request.',
+                'request' => [],
+                'response' => [],
+                'main_guest' => [],
+            ];
+        }
+
+        $url = $this->credentials->baseUrl.'/rsv/v1/hotels/'.$supplierHotelId.'/reservations';
+
+        $this->ensureToken();
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $supplierHotelId;
+
+        $apiCall = function () use ($url, $headers, $bodyQuery) {
+            return $this->client->post($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+                'json' => $bodyQuery,
+            ]);
+        };
+
+        $requestMeta = [
+            'hotelId' => $supplierHotelId,
+            'roomIndex' => $roomIndex,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'POST',
+            'body' => $bodyQuery,
+        ];
+
+        $response = $this->executeBookingSyncRequest(
+            $apiCall,
+            $inspectorBook,
+            $requestMeta,
+            $bodyQuery
+        );
+
+        return [
+            'request' => $requestMeta,
+            'response' => Arr::get($response, 'response.links', []),
+            'main_guest' => $mappedGuests,
+            'errors' => Arr::get($response, 'response.errors', []) ?: Arr::get($response, 'error', []),
+        ];
+    }
+
+    /**
+     * Извлекает одну резервацию по ее ID (operationId: getReservation).
+     *
+     * Соответствует запросу:
+     * href: "https://.../rsv/v1/hotels/VIRM/reservations/22780628"
+     * method: "GET"
+     *
+     * @param  array  $inspector  Метаданные для логирования (Inspector).
+     * @return array|null Ответ API в виде массива (секция 'response') или null при ошибке.
+     *
+     * @throws Exception
+     */
+    public function retrieve(ApiBookingsMetadata $apiBookingsMetadata, array $inspector): ?array
+    {
+        $booking_id = $apiBookingsMetadata->booking_id;
+        $booking_item = $apiBookingsMetadata->booking_item;
+        $hotelId = $apiBookingsMetadata->hotel_supplier_id;
+        $path = ApiBookingInspectorRepository::bookedItem($booking_id, $booking_item)->client_response_path;
+        $reservationId = json_decode(Storage::get($path), true)['confirmation_numbers_list']['reservationNumber'] ?? '';
+
+        $this->ensureToken();
+
+        $endpoint = "/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}";
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId;
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'GET',
+            'body' => null,
+        ];
+
+        $apiCall = function () use ($url, $headers) {
+            return $this->client->get($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+            ]);
+        };
+
+        $result = $this->executeBookingSyncRequest(
+            $apiCall,
+            $inspector,
+            $requestMeta,
+            null // Для GET запроса нет тела
+        );
+
+        return [
+            'request' => $requestMeta,
+            'response' => Arr::get($result, 'response'),
+        ];
+    }
+
+    /**
+     * Извлекает список резерваций для отеля по списку номеров подтверждения (operationId: getHotelReservations).
+     *
+     * Соответствует запросу:
+     * href: "https://.../rsv/v1/hotels/VIRM/reservations?confirmationNumberList=588936260"
+     * method: "GET"
+     *
+     * @param  string  $hotelId  Код отеля (например, 'VIRM').
+     * @param  array  $confirmationNumbers  Список номеров подтверждения (например, ['588936260', '...']).
+     * @param  array  $inspector  Метаданные для логирования (Inspector).
+     * @return array|null Ответ API в виде массива (секция 'response') или null при ошибке.
+     */
+    public function getReservationsByConfirmationNumbers(string $hotelId, array $confirmationNumbers, array $inspector): ?array
+    {
+        $this->ensureToken();
+
+        // Преобразование массива номеров подтверждения в строку через запятую для query параметра
+        $confirmationNumberList = implode(',', $confirmationNumbers);
+
+        // Параметры для URL
+        $queryParams = http_build_query([
+            'confirmationNumberList' => $confirmationNumberList,
+        ]);
+
+        $endpoint = "/rsv/v1/hotels/{$hotelId}/reservations?".$queryParams;
+
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId; // Добавление заголовка x-hotelid
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'GET',
+            'body' => null,
+            'query_params' => $queryParams,
+        ];
+
+        // 2. Определение колбэка API для запроса (GET)
+        $apiCall = function () use ($url, $headers) {
+            return $this->client->get($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+            ]);
+        };
+
+        // 3. Выполнение синхронного запроса
+        $result = $this->executeSyncRequest(
+            $apiCall,
+            $inspector,
+            $requestMeta,
+            null // Для GET запроса нет тела
+        );
+
+        return Arr::get($result, 'response');
+    }
+
+    public function countAdultsAndChildren(array $peopleArray, int $adultAgeThreshold = 18): array
+    {
+        $peopleCollection = collect($peopleArray);
+
+        $adultsCount = $peopleCollection->filter(function ($person) use ($adultAgeThreshold) {
+            $age = (int) ($person['age'] ?? 0);
+
+            return $age >= $adultAgeThreshold;
+        })->count();
+
+        $totalPeople = $peopleCollection->count();
+        $childrenCount = $totalPeople - $adultsCount;
+
+        return [
+            'adults' => (string) $adultsCount,
+            'children' => (string) $childrenCount,
+        ];
+    }
+
+    protected function getRoomStay(string $supplierHotelId, ApiBookingItem $bookingItem, int $roomIndex, array $roomGuests): array
+    {
+        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
+        $rateCodes = explode(';', Arr::get($bookingItemData, 'rate_code')) ?? [];
+        $roomCodes = explode(';', Arr::get($bookingItemData, 'room_code')) ?? [];
+        $roomKey = 'room_'.$roomIndex;
+        $targetRatePlanCode = $rateCodes[$roomIndex] ?? '';
+        $targetRoomType = $roomCodes[$roomIndex] ?? '';
+        $pathRS = $bookingItem->search->original_path;
+        $responseData = json_decode(Storage::get($pathRS), true);
+        $supplierName = SupplierNameEnum::ORACLE->value;
+
+        $roomData = data_get($responseData, "{$supplierName}.response.{$supplierHotelId}.{$roomKey}");
+
+        if (empty($roomData) || ! isset($roomData['hotelAvailability'])) {
+            Log::warning("OracleClient: Room data or hotelAvailability not found for booking item {$bookingItem->booking_item}");
+
+            return [];
+        }
+
+        $roomRatesAdditionalFields = [
+            'marketCode' => 'LEISURE',
+            'marketCodeDescription' => 'Leisure',
+            'sourceCode' => 'PHONE',
+            'sourceCodeDescription' => 'Phone',
+            'pseudoRoom' => false,
+            'roomTypeCharged' => 'SUP',
+            'houseUseOnly' => false,
+            'complimentary' => false,
+            'fixedRate' => true,
+            'discountAllowed' => false,
+            'bogoDiscount' => false,
+        ];
+
+        $foundRoomStay = null;
+        $guaranteeInfo = null;
+
+        foreach ($roomData['hotelAvailability'] as $availability) {
+            if (! isset($availability['roomStays'][0]['roomRates'])) {
+                continue;
+            }
+
+            // 1. Поиск единственной подходящей ставки и игнорирование null-элементов
+            $matchedRate = collect(Arr::get($availability['roomStays'][0], 'roomRates', []))
+                ->filter() // Игнорируем null элементы, как в вашем примере
+                ->first(function ($rate) use ($targetRoomType, $targetRatePlanCode) {
+                    // Ищем ставку, соответствующую roomType и ratePlanCode
+                    return ($rate['roomType'] ?? null) === $targetRoomType &&
+                        ($rate['ratePlanCode'] ?? null) === $targetRatePlanCode;
+                });
+
+            if ($matchedRate) {
+                // Ставка найдена. Обновляем ее дополнительными полями.
+                $updatedRate = array_merge($matchedRate, $roomRatesAdditionalFields);
+
+                // Готовим структуру roomStay
+                $foundRoomStay = $availability['roomStays'][0];
+
+                // КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ: roomRates теперь содержит ТОЛЬКО найденную ставку
+                $foundRoomStay['roomRates'] = [$updatedRate];
+
+                // 2. Поиск информации о гарантии (остается без изменений)
+                $ratePlans = Arr::get($availability, 'masterInfo.ratePlans.ratePlan', []);
+                $ratePlanInfo = collect($ratePlans)->firstWhere('ratePlanCode', $targetRatePlanCode);
+
+                if ($ratePlanInfo) {
+                    $defaultGuarantee = collect(Arr::get($ratePlanInfo, 'resGuarantees', []))
+                        ->firstWhere('defaultGuarantee', true);
+
+                    if ($defaultGuarantee) {
+                        $guaranteeInfo = [
+                            'guaranteeCode' => $defaultGuarantee['guaranteeCode'],
+                            'shortDescription' => Arr::get($defaultGuarantee, 'shortDescription.defaultText', $defaultGuarantee['guaranteeCode']),
+                        ];
+                    }
+                }
+
+                $roomStay = $foundRoomStay;
+                $roomStay['guestCounts'] = $this->countAdultsAndChildren($roomGuests);
+                $roomStay['guarantee'] = $guaranteeInfo;
+
+                return $roomStay;
+            }
+        }
+
+        Log::warning("OracleClient: Matching roomStay (RoomType: {$targetRoomType}, RateCode: {$targetRatePlanCode}) not found.");
+
+        return [];
+    }
+
+    protected function makeBookRequestBody(
+        string $supplierHotelId,
+        array $roomStay,
+        array $reservationGuests,
+        array $comments,
+        string $arrivalDate,
+        string $departureDate,
+        array $guaranteeInfo
+    ): array {
+        $roomStay['arrivalDate'] = $arrivalDate;
+        $roomStay['departureDate'] = $departureDate;
+        $roomStay['guarantee'] = $guaranteeInfo;
+        $roomStay['roomNumberLocked'] = false;
+        $roomStay['printRate'] = false;
+
+        return [
+            'sourceOfSale' => [
+                'sourceType' => 'PMS',
+                'sourceCode' => $supplierHotelId,
+            ],
+            'roomStay' => $roomStay,
+            'reservationGuests' => $reservationGuests,
+            'reservationPaymentMethods' => [
+                'paymentMethod' => 'EFCMXN',
+                'folioView' => '1',
+            ],
+            'comments' => $comments,
+            'hotelId' => $supplierHotelId,
+            'roomStayReservation' => true,
+            'reservationStatus' => 'Reserved',
+            'computedReservationStatus' => 'DueIn',
+            'walkIn' => false,
+            'printRate' => false,
+            'preRegistered' => false,
+            'upgradeEligible' => false,
+            'allowAutoCheckin' => false,
+            'hasOpenFolio' => false,
+            'allowMobileCheckout' => false,
+            'allowMobileViewFolio' => false,
+            'allowPreRegistration' => false,
+            'optedForCommunication' => false,
+        ];
+    }
+
+    public function mapComments($commentsArray, string $bookingItemUuid, int $roomNumber): array
+    {
+        $commentsCollection = collect($commentsArray);
+
+        $relevantComments = $commentsCollection->filter(function ($comment) use ($bookingItemUuid, $roomNumber) {
+            return
+                ($comment['booking_item'] ?? null) === $bookingItemUuid &&
+                ($comment['room'] ?? null) === $roomNumber;
+        });
+
+        $formattedComments = $relevantComments->map(function ($comment) {
+            return [
+                'comment' => [
+                    'text' => [
+                        'value' => $comment['comment'] ?? 'No comment text provided',
+                    ],
+                    // Эти поля не меняются и взяты из вашего примера требуемого формата
+                    'commentTitle' => 'General Notes',
+                    'notificationLocation' => 'RESERVATION',
+                    'type' => 'GEN',
+                    'internal' => false,
+                ],
+            ];
+        })->values()->toArray();
+
+        return $formattedComments;
+    }
+
+    protected function mapGuests(array $inputArray): array
+    {
+        $profilesCollection = collect($inputArray);
+        $formattedProfiles = $profilesCollection->map(function ($profileData) {
+            $profileType = 'Guest';
+            $personName = [
+                'givenName' => $profileData['given_name'] ?? '',
+                // Поле middleName не предоставлено, оставляем пустым
+                'middleName' => '',
+                'surname' => $profileData['family_name'] ?? '',
+                'nameType' => 'Primary',
+            ];
+
+            return [
+                'profileInfo' => [
+                    'profile' => [
+                        'customer' => [
+                            'personName' => [$personName],
+                            'language' => 'E',
+                        ],
+                        'profileType' => $profileType,
+                    ],
+                ],
+            ];
+        })->toArray();
+
+        return $formattedProfiles;
+    }
+
     /**
      * Executes a single synchronous API request using a callable and handles common Guzzle exceptions.
      * This method serves as the common error handling wrapper for all synchronous requests (GET, POST, etc.).
@@ -536,9 +985,107 @@ class OracleClient
     }
 
     /**
-     * Вспомогательный метод для маппинга фильтров Occupancy ОДНОЙ комнаты в параметры запроса Oracle.
-     * Заменяет mapOccupancyToOracleQuery.
+     * Выполняет синхронный запрос API, специализированный для операций бронирования.
+     * Обрабатывает ошибки и диспетчеризирует их через Booking Inspector.
+     *
+     * @param  callable  $apiCall  Функция, выполняющая запрос (например, $client->request(...)).
+     * @param  mixed  $inspector  Объект Booking Inspector.
+     * @param  array  $requestMeta  Метаданные запроса.
+     * @param  string|array|null  $bodyQuery  Тело запроса.
      */
+    protected function executeBookingSyncRequest(callable $apiCall, array $inspector, array $requestMeta, string|array|null $bodyQuery): ?array
+    {
+        // 1. Подготовка данных
+        $hotelId = Arr::get($requestMeta, 'hotelId');
+        $roomIndex = Arr::get($requestMeta, 'roomIndex');
+
+        $content['original']['request'] = $bodyQuery ?: $requestMeta;
+        $content['original']['response'] = '';
+
+        try {
+            /** @var GuzzleResponse $response */
+            $response = $apiCall();
+            $body = $response->getBody()->getContents();
+            $content['original']['response'] = $body;
+            $responseData = json_decode($body, true);
+
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 400) {
+                $statusCode = $response->getStatusCode();
+                Log::error('Oracle API HTTP Error (Booking): '.$statusCode.' for '.$requestMeta['url']);
+
+                $message = 'Oracle API HTTP Error: '.$statusCode.' '.Arr::get($responseData, 'errors', '');
+
+                $content['original']['response'] = $message;
+                $this->dispatchBookingError(
+                    $inspector,
+                    $message,
+                    $content
+                );
+
+                return ['error' => $message];
+            }
+
+            if (isset($responseData['errors'])) {
+                $errorDetails = json_encode($responseData['errors']);
+                Log::error('Oracle API error (Booking Sync): '.$errorDetails);
+
+                $content['original']['response'] = $errorDetails;
+                $this->dispatchBookingError(
+                    $inspector,
+                    'Oracle API error (Room '.$roomIndex.'): '.$errorDetails,
+                    $content
+                );
+
+                return ['error' => $responseData['errors']];
+            }
+
+            return ['response' => $responseData];
+
+        } catch (ConnectException $e) {
+            Log::error('Oracle Connection timeout (Booking Sync): '.$e->getMessage());
+
+            $content['original']['response'] = $e->getMessage();
+            $this->dispatchBookingError(
+                $inspector,
+                'Connection timeout',
+                $content
+            );
+
+            return ['error' => 'Connection timeout'];
+        } catch (ServerException $e) {
+            Log::error('Oracle Server error (Booking Sync): '.$e->getMessage());
+
+            $this->handleExceptionResponse($e, $content);
+            $this->dispatchBookingError(
+                $inspector,
+                'Oracle Server error',
+                $content
+            );
+
+            return ['error' => 'Server error'];
+        } catch (Throwable $e) {
+            Log::error('Oracle Unexpected error (Booking Sync): '.$e->getMessage());
+
+            $this->handleExceptionResponse($e, $content);
+            $this->dispatchBookingError(
+                $inspector,
+                'Unexpected error: '.$e->getMessage(),
+                $content
+            );
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    protected function handleExceptionResponse(Throwable $e, array &$content): void
+    {
+        if (method_exists($e, 'hasResponse') && $e->hasResponse()) {
+            $content['original']['response'] = json_decode($e->getResponse()->getBody()->getContents(), true);
+        } else {
+            $content['original']['response'] = $e->getMessage();
+        }
+    }
+
     protected function mapSingleRoomToOracleQuery(array $roomConfig): array
     {
         $totalAdults = Arr::get($roomConfig, 'adults', 0);
@@ -592,8 +1139,31 @@ class OracleClient
         $searchInspector['search_id'] = Str::uuid();
         $original = array_merge($original, ['hotelId' => $hotelId]);
 
-        SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
-            ['side' => 'supplier', 'message' => $message, 'parent_search_id' => $parent_search_id]);
+        SaveSearchInspector::dispatch(
+            $searchInspector,
+            $original,
+            [],
+            [],
+            'error',
+            ['side' => 'supplier', 'message' => $message, 'parent_search_id' => $parent_search_id]
+        );
+    }
+
+    protected function dispatchBookingError($inspector, string $message, array $content): void
+    {
+        Log::warning('DISPATCHING Booking Error: '.$message);
+
+        $errorPayload = [
+            'side' => 'supplier',
+            'message' => $message,
+        ];
+
+        SaveBookingInspector::dispatch(
+            inspector: $inspector,
+            content : $content,
+            client_content : [],
+            status: 'error',
+            status_describe: $errorPayload);
     }
 
     /**

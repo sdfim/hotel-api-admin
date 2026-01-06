@@ -71,6 +71,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->createAnother(false)
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->action(function ($data) {
+                        $data['blueprint_exist'] = false;
                         ProcessFlowScenario::dispatch($data, auth()->user());
 
                         Notification::make()
@@ -195,6 +196,16 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         $token_id = Arr::get($input, 'token_id');
                         $channel = Channel::where('access_token', 'like', "%$token_id")->first();
                         $input['api_user'] = $channel?->apiUsers?->first()->email;
+                        foreach ($input['occupancy'] as $key => $occupancy) {
+                            if (isset($occupancy['room_type'])) {
+                                $input['occupancy'][$key]['room_code'] = $occupancy['room_type'];
+                                unset($input['occupancy'][$key]['room_type']);
+                            }
+                            if (isset($occupancy['rate_plan_code'])) {
+                                $input['occupancy'][$key]['rate_code'] = $occupancy['rate_plan_code'];
+                                unset($input['occupancy'][$key]['rate_plan_code']);
+                            }
+                        }
 
                         return $input;
                     })
@@ -202,6 +213,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->modalHeading('Edit and Repeat Flow Scenario')
                     ->modalWidth('4xl')
                     ->action(function ($data) {
+                        $data['blueprint_exist'] = false;
                         ProcessFlowScenario::dispatch($data, auth()->user());
 
                         Notification::make()
@@ -243,10 +255,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             Grid::make('')->schema([
                 DatePicker::make('checkin')
                     ->label('Check-in Date')
+                    ->native(false)
                     ->required()
                     ->default(now()->addMonths(5)->format('Y-m-d')),
                 DatePicker::make('checkout')
                     ->label('Check-out Date')
+                    ->native(false)
                     ->required()
                     ->default(now()->addMonths(5)->addDays(2)->format('Y-m-d')),
             ])->columns(2),
@@ -288,16 +302,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ])->columns(1),
                 ]),
             Grid::make('')->schema([
-                Toggle::make('blueprint_exist')
-                    ->label('Blueprint Exist')
-                    ->default(false),
                 Toggle::make('run_booking_flow')
                     ->label('Run Booking Flow')
                     ->default(true),
                 Toggle::make('run_cancellation_flow')
                     ->label('Run Cancellation Flow')
                     ->default(true),
-            ])->columns(3),
+            ])->columns(2),
         ];
     }
 
