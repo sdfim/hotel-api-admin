@@ -11,7 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Modules\Enums\SupplierNameEnum;
 
-trait HotelBookingTrait
+trait HotelBookingavAilabilityChangeTrait
 {
     public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'change'): ?array
     {
@@ -48,7 +48,7 @@ trait HotelBookingTrait
         SaveSearchInspector::dispatch($searchInspector, $handleResponse['dataOriginal'] ?? [], $content, $result);
 
         /** Save booking_items */
-        if (! empty($handleResponse['bookingItems'])) {
+        if (!empty($handleResponse['bookingItems'])) {
             foreach ($handleResponse['bookingItems'] as $items) {
                 SaveBookingItems::dispatch($items);
             }
@@ -56,7 +56,7 @@ trait HotelBookingTrait
 
         return [
             'result' => $clientResponse[$supplier->value],
-            $type.'_search_id' => $searchId,
+            $type . '_search_id' => $searchId,
         ];
     }
 }

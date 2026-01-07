@@ -16,7 +16,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
-use Modules\API\Suppliers\Base\Traits\HotelBookingTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\Oracle\Client\OracleClient;
 use Modules\API\Suppliers\Oracle\Transformers\OracleHotelBookingRetrieveBookingTransformer;
@@ -26,14 +26,15 @@ use Modules\Enums\SupplierNameEnum;
 
 class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
-    use HotelBookingTrait;
+    use HotelBookingavAilabilityChangeTrait;
 
     public function __construct(
         private readonly OracleClient $client,
         private readonly OracleHotelAdapter $hotelAdapter,
         private readonly OracleHotelBookTransformer $oracleHotelBookTransformer,
         private readonly PricingRulesTools $pricingRulesService,
-    ) {}
+    ) {
+    }
 
     public function supplier(): SupplierNameEnum
     {
@@ -50,7 +51,7 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
         $passengers = ApiBookingInspectorRepository::getPassengers($booking_id, $filters['booking_item']);
 
-        if (! $passengers) {
+        if (!$passengers) {
             Log::info("BOOK ACTION - ERROR - Oracle - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]);
 
             return [
@@ -64,16 +65,21 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
         $supplierId = Supplier::where('name', SupplierNameEnum::ORACLE->value)->first()->id;
         $inspectorBook = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'create', $bookingInspector->search_type,
+            $booking_id,
+            $filters,
+            $supplierId,
+            'book',
+            'create',
+            $bookingInspector->search_type,
         ]);
 
         $error = true;
         try {
-            Log::info('OracleHotelBookingAdapter | book | '.json_encode($filters));
+            Log::info('OracleHotelBookingAdapter | book | ' . json_encode($filters));
             Log::info("BOOK ACTION - REQUEST TO Oracle START - Oracle - $booking_id", ['filters' => $filters]);
             $sts = microtime(true);
             $bookingData = $this->client->book($filters, $inspectorBook);
-            Log::info("BOOK ACTION - REQUEST TO Oracle FINISH - Oracle - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]);
+            Log::info("BOOK ACTION - REQUEST TO Oracle FINISH - Oracle - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds', 'filters' => $filters]);
 
             $dataResponseToSave['original'] = [
                 'request' => $bookingData['request'],
@@ -85,7 +91,6 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
                 $this->saveBookingInfo($filters, $bookingData, $bookingData['main_guest']);
 
                 $clientResponse = $this->oracleHotelBookTransformer
-
                     ->toHotelBookResponseModel($filters, [
                         'confirmationNumber' => $this->getConfirmationNumber($bookingData),
                         'reservationNumber' => $this->getReservationNumber($bookingData),
@@ -100,39 +105,49 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
         } catch (RequestException $e) {
             Log::info("BOOK ACTION - ERROR - Oracle - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]);
-            Log::error('OracleHotelBookingAdapter | book | RequestException '.$e->getResponse()->getBody());
+            Log::error('OracleHotelBookingAdapter | book | RequestException ' . $e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
 
-            SaveBookingInspector::dispatch($inspectorBook, [], [], 'error',
-                ['side' => 'app', 'message' => $e->getResponse()->getBody()]);
+            SaveBookingInspector::dispatch(
+                $inspectorBook,
+                [],
+                [],
+                'error',
+                ['side' => 'app', 'message' => $e->getResponse()->getBody()]
+            );
 
             return [
-                'error' => 'Request Error. '.$e->getResponse()->getBody(),
+                'error' => 'Request Error. ' . $e->getResponse()->getBody(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::ORACLE->value,
             ];
         } catch (Exception $e) {
             Log::info("BOOK ACTION - ERROR - Oracle - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]);
-            Log::error('OracleHotelBookingAdapter | book | Exception '.$e->getMessage());
+            Log::error('OracleHotelBookingAdapter | book | Exception ' . $e->getMessage());
             Log::error($e->getTraceAsString());
 
-            SaveBookingInspector::dispatch($inspectorBook, [], [], 'error',
-                ['side' => 'app', 'message' => $e->getMessage()]);
+            SaveBookingInspector::dispatch(
+                $inspectorBook,
+                [],
+                [],
+                'error',
+                ['side' => 'app', 'message' => $e->getMessage()]
+            );
 
             return [
-                'error' => 'Unexpected Error. '.$e->getMessage(),
+                'error' => 'Unexpected Error. ' . $e->getMessage(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::ORACLE->value,
             ];
         }
 
-        if (! $error) {
+        if (!$error) {
             SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
             // Save Book data to Reservation
             SaveReservations::dispatch($booking_id, $filters, $dataPassengers, request()->bearerToken());
         }
 
-        if (! $bookingData) {
+        if (!$bookingData) {
             Log::info("BOOK ACTION - ERROR - Oracle - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]);
 
             return [];
@@ -158,7 +173,12 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
         $supplierId = Supplier::where('name', SupplierNameEnum::ORACLE->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
+            $booking_id,
+            $filters,
+            $supplierId,
+            'book',
+            'retrieve',
+            $apiBookingsMetadata->search_type,
         ]);
 
         $retrieveData = $this->client->retrieve(
@@ -166,7 +186,7 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
             $bookingInspector
         );
 
-        if (! empty($retrieveData['errors'])) {
+        if (!empty($retrieveData['errors'])) {
             return [];
         }
 
@@ -194,7 +214,12 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
         $supplierId = Supplier::where('name', SupplierNameEnum::ORACLE->value)->first()->id;
         $inspectorCansel = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
+            $booking_id,
+            $filters,
+            $supplierId,
+            'cancel_booking',
+            'true',
+            'hotel',
         ]);
 
         try {
@@ -228,8 +253,13 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
             $dataResponseToSave = is_array($message) ? $message : [];
 
-            SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
-                ['side' => 'app', 'message' => $message]);
+            SaveBookingInspector::dispatch(
+                $inspectorCansel,
+                $dataResponseToSave,
+                $res,
+                'error',
+                ['side' => 'app', 'message' => $message]
+            );
         }
 
         return $res;
