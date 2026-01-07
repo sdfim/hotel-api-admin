@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Reservation;
 use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
 use Illuminate\Bus\Queueable;
@@ -28,8 +29,12 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
         $dataService = app(BookingEmailDataService::class);
         $data = $dataService->getBookingData($this->bookingItem);
 
+        $guestName = Reservation::where('booking_item', $this->bookingItem)
+            ->value('passenger_surname') ?? '';
+
         // ---- PDF payload ----
         $pdfData = [
+            'guest_name' => $guestName,
             'hotel' => $data['hotel'],
             'hotelData' => [
                 'name' => $data['hotelName'],
