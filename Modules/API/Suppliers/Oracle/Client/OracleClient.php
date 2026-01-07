@@ -583,8 +583,7 @@ class OracleClient
 
         $this->ensureToken();
 
-        $endpoint = "/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}";
-        $url = $this->credentials->baseUrl.$endpoint;
+        $url = $this->credentials->baseUrl."/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}";
         $headers = $this->headers;
         $headers['x-hotelid'] = $hotelId;
 
