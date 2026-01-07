@@ -156,7 +156,7 @@ class OracleClient
         $checkout = Arr::get($filters, 'checkout');
         $occupancy = Arr::get($filters, 'occupancy');
 
-        // Валидация
+        // Validation
         if (empty($hotelIds) || ! $checkin || ! $checkout || empty($occupancy)) {
             Log::error('OracleClient: Missing required search parameters.');
 
@@ -166,12 +166,12 @@ class OracleClient
         /** @var PromiseInterface[] $promises */
         $promises = [];
 
-        // Для логирования оригинальных запросов
+        // For logging original requests
         $originalRequests = [];
 
         /**
-         * 1. Формирование асинхронных запросов
-         * Один availability = одна комната
+         * 1. Formation of asynchronous requests
+         * One availability = one room
          */
         foreach ($hotelIds as $hotelId) {
             foreach ($occupancy as $roomIndex => $roomConfig) {
@@ -237,12 +237,12 @@ class OracleClient
 
         try {
             /**
-             * 2. Ожидание всех запросов
+             * 2. Waiting for all requests
              */
             $results = Fiber::suspend($promises);
 
             /**
-             * 3. Обработка результатов
+             * 3. Processing the results
              */
             foreach ($results as $result) {
                 $meta = $result['meta'];
@@ -343,7 +343,7 @@ class OracleClient
         $checkout = Arr::get($filters, 'checkout');
         $occupancy = Arr::get($filters, 'occupancy');
 
-        // Валидация
+        // Validation
         if (empty($hotelIds) || ! $checkin || ! $checkout || empty($occupancy)) {
             Log::error('OracleClient: Missing required search parameters.');
 
@@ -351,8 +351,8 @@ class OracleClient
         }
 
         /**
-         * 1. Формирование и выполнение синхронных запросов
-         * Один availability = одна комната
+         * 1. Formation and execution of synchronous requests
+         * One availability = one room
          */
         foreach ($hotelIds as $hotelId) {
             foreach ($occupancy as $roomIndex => $roomConfig) {
@@ -386,14 +386,14 @@ class OracleClient
                     'url' => $url,
                     'headers' => $headers,
                     'method' => 'GET',
-                    // Важно: для GET запросов нет тела, поэтому body: null
+                    // Important: for GET requests there is no body, so body: null
                     'body' => null,
                 ];
 
                 $originalRequests[] = $requestMeta;
                 $requestBodyForInspector = null; // Для GET запроса
 
-                // 2. Определение колбэка API для запроса (GET)
+                // 2. Determining the API callback for the request (GET)
                 $apiCall = function () use ($url, $headers) {
                     return $this->client->get($url, [
                         'headers' => $headers,
@@ -401,7 +401,7 @@ class OracleClient
                     ]);
                 };
 
-                // 3. Выполнение синхронного запроса через общую обертку
+                // 3. Executing a synchronous request through a common wrapper
                 $result = $this->executeSyncRequest(
                     $apiCall,
                     $searchInspector,
@@ -470,7 +470,7 @@ class OracleClient
 
         $request = json_decode($bookingItem->search->request, true);
 
-        // Извлечение обязательных дат
+        // Extracting required dates
         $startDate = Arr::get($request, 'checkin');
         $endDate = Arr::get($request, 'checkout');
 
@@ -512,7 +512,7 @@ class OracleClient
             );
         }
 
-        // Проверка, что хотя бы одна комната обработана
+        // Checking that at least one room is processed
         if (empty($bodyQuery)) {
             return [
                 'error' => 'No rooms processed for booking request.',
@@ -561,14 +561,15 @@ class OracleClient
     }
 
     /**
-     * Извлекает одну резервацию по ее ID (operationId: getReservation).
+     * Retrieves a single reservation by its ID (operationId: getReservation).
      *
-     * Соответствует запросу:
+     * Corresponds to the request:
      * href: "https://.../rsv/v1/hotels/VIRM/reservations/22780628"
      * method: "GET"
      *
-     * @param  array  $inspector  Метаданные для логирования (Inspector).
-     * @return array|null Ответ API в виде массива (секция 'response') или null при ошибке.
+     * @param  ApiBookingsMetadata  $apiBookingsMetadata  Booking metadata for extracting the ID.
+     * @param  array  $inspector  Metadata for logging (Inspector).
+     * @return array|null API response as an array ('response' section) or null on error.
      *
      * @throws Exception
      */
@@ -606,7 +607,7 @@ class OracleClient
             $apiCall,
             $inspector,
             $requestMeta,
-            null // Для GET запроса нет тела
+            null // No body for GET request
         );
 
         return [
@@ -616,25 +617,112 @@ class OracleClient
     }
 
     /**
-     * Извлекает список резерваций для отеля по списку номеров подтверждения (operationId: getHotelReservations).
+     * Cancels a reservation by its ID (operationId: cancelReservation).
      *
-     * Соответствует запросу:
+     * Corresponds to the request:
+     * href: "https://.../rsv/v1/hotels/VIRM/reservations/22780628/cancellations"
+     * method: "POST"
+     *
+     * @param  ApiBookingsMetadata  $apiBookingsMetadata  Booking metadata for extracting the ID.
+     * @param  array  $inspectorCancel  Metadata for logging (Booking Inspector).
+     * @return array|null API response as an array ('response' section) or null on error.
+     *
+     * @throws Exception If ReservationId or token cannot be found.
+     */
+    public function cancel(ApiBookingsMetadata $apiBookingsMetadata, array $inspectorCancel): ?array
+    {
+        $booking_id = $apiBookingsMetadata->booking_id;
+        $booking_item = $apiBookingsMetadata->booking_item;
+        $hotelId = $apiBookingsMetadata->hotel_supplier_id;
+
+        $path = ApiBookingInspectorRepository::bookedItem($booking_id, $booking_item)->client_response_path;
+        $reservationId = json_decode(Storage::get($path), true)['confirmation_numbers_list']['reservationNumber'] ?? '';
+
+        if (empty($reservationId)) {
+            Log::error("OracleClient: Cannot cancel, ReservationId not found for booking item {$booking_item}");
+            $this->dispatchBookingError(
+                $inspectorCancel,
+                'Reservation ID not found in stored response.',
+                ['original' => ['request' => ['booking_id' => $booking_id, 'booking_item' => $booking_item, 'hotelId' => $hotelId], 'response' => 'Reservation ID missing.']]
+            );
+
+            return null;
+        }
+
+        $this->ensureToken();
+
+        $bodyQuery = [
+            'reason' => [
+                'code' => 'DUP',
+                'description' => 'Trip Cancelled',
+            ],
+            'reservations' => [
+                'reservationIdList' => [
+                    'id' => $reservationId,
+                    'type' => 'Reservation',
+                ],
+                'hotelId' => $hotelId,
+            ],
+        ];
+
+        $endpoint = "/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}/cancellations";
+        $url = $this->credentials->baseUrl.$endpoint;
+        $headers = $this->headers;
+        $headers['x-hotelid'] = $hotelId;
+
+        $requestMeta = [
+            'hotelId' => $hotelId,
+            'url' => $url,
+            'headers' => $headers,
+            'method' => 'POST',
+            'body' => $bodyQuery,
+        ];
+
+        $apiCall = function () use ($url, $headers, $bodyQuery) {
+            return $this->client->post($url, [
+                'headers' => $headers,
+                'timeout' => config('services.oracle.timeout', 60),
+                'json' => $bodyQuery,
+            ]);
+        };
+
+        $result = $this->executeBookingSyncRequest(
+            $apiCall,
+            $inspectorCancel,
+            $requestMeta,
+            $bodyQuery
+        );
+
+        if (isset($result['error'])) {
+            return ['error' => $result['error']];
+        }
+
+        return [
+            'request' => $requestMeta,
+            'response' => Arr::get($result, 'response'),
+        ];
+    }
+
+    /**
+     * Retrieves a list of reservations for a hotel by a list of confirmation numbers (operationId: getHotelReservations).
+     *
+     * Corresponds to the request:
      * href: "https://.../rsv/v1/hotels/VIRM/reservations?confirmationNumberList=588936260"
      * method: "GET"
      *
-     * @param  string  $hotelId  Код отеля (например, 'VIRM').
-     * @param  array  $confirmationNumbers  Список номеров подтверждения (например, ['588936260', '...']).
-     * @param  array  $inspector  Метаданные для логирования (Inspector).
-     * @return array|null Ответ API в виде массива (секция 'response') или null при ошибке.
+     * @param  string  $hotelId  Hotel code (e.g., 'VIRM').
+     * @param  array  $confirmationNumbers  List of confirmation numbers (e.g., ['588936260', '...']).
+     * @param  array  $inspector  Metadata for logging (Inspector).
+     * @return array|null API response as an array ('response' section) or null on error.
      */
     public function getReservationsByConfirmationNumbers(string $hotelId, array $confirmationNumbers, array $inspector): ?array
     {
         $this->ensureToken();
 
-        // Преобразование массива номеров подтверждения в строку через запятую для query параметра
+        // Converting an array of confirmation numbers to a comma-separated string for the query parameter
         $confirmationNumberList = implode(',', $confirmationNumbers);
 
-        // Параметры для URL
+        // URL Parameters
         $queryParams = http_build_query([
             'confirmationNumberList' => $confirmationNumberList,
         ]);
@@ -643,7 +731,7 @@ class OracleClient
 
         $url = $this->credentials->baseUrl.$endpoint;
         $headers = $this->headers;
-        $headers['x-hotelid'] = $hotelId; // Добавление заголовка x-hotelid
+        $headers['x-hotelid'] = $hotelId; // Adding the x-hotelid header
 
         $requestMeta = [
             'hotelId' => $hotelId,
@@ -654,7 +742,7 @@ class OracleClient
             'query_params' => $queryParams,
         ];
 
-        // 2. Определение колбэка API для запроса (GET)
+        // 2. Determining the API callback for the request (GET)
         $apiCall = function () use ($url, $headers) {
             return $this->client->get($url, [
                 'headers' => $headers,
@@ -662,12 +750,12 @@ class OracleClient
             ]);
         };
 
-        // 3. Выполнение синхронного запроса
+        // 3. Executing a synchronous request
         $result = $this->executeSyncRequest(
             $apiCall,
             $inspector,
             $requestMeta,
-            null // Для GET запроса нет тела
+            null // No body for GET request
         );
 
         return Arr::get($result, 'response');
@@ -726,7 +814,6 @@ class OracleClient
             'bogoDiscount' => false,
         ];
 
-        $foundRoomStay = null;
         $guaranteeInfo = null;
 
         foreach ($roomData['hotelAvailability'] as $availability) {
@@ -734,26 +821,26 @@ class OracleClient
                 continue;
             }
 
-            // 1. Поиск единственной подходящей ставки и игнорирование null-элементов
+            // 1. Finding a single matching rate and ignoring null elements
             $matchedRate = collect(Arr::get($availability['roomStays'][0], 'roomRates', []))
-                ->filter() // Игнорируем null элементы, как в вашем примере
+                ->filter() // Ignoring null elements, as in your example
                 ->first(function ($rate) use ($targetRoomType, $targetRatePlanCode) {
-                    // Ищем ставку, соответствующую roomType и ratePlanCode
+                    // Searching for a rate matching roomType and ratePlanCode
                     return ($rate['roomType'] ?? null) === $targetRoomType &&
                         ($rate['ratePlanCode'] ?? null) === $targetRatePlanCode;
                 });
 
             if ($matchedRate) {
-                // Ставка найдена. Обновляем ее дополнительными полями.
+                // Rate found. Updating it with additional fields.
                 $updatedRate = array_merge($matchedRate, $roomRatesAdditionalFields);
 
-                // Готовим структуру roomStay
+                // Preparing the roomStay structure
                 $foundRoomStay = $availability['roomStays'][0];
 
-                // КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ: roomRates теперь содержит ТОЛЬКО найденную ставку
+                // CRITICAL CHANGE: roomRates now contains ONLY the found rate
                 $foundRoomStay['roomRates'] = [$updatedRate];
 
-                // 2. Поиск информации о гарантии (остается без изменений)
+                // 2. Finding guarantee info (remains unchanged)
                 $ratePlans = Arr::get($availability, 'masterInfo.ratePlans.ratePlan', []);
                 $ratePlanInfo = collect($ratePlans)->firstWhere('ratePlanCode', $targetRatePlanCode);
 
@@ -842,7 +929,7 @@ class OracleClient
                     'text' => [
                         'value' => $comment['comment'] ?? 'No comment text provided',
                     ],
-                    // Эти поля не меняются и взяты из вашего примера требуемого формата
+                    // These fields do not change and are taken from your example of the required format
                     'commentTitle' => 'General Notes',
                     'notificationLocation' => 'RESERVATION',
                     'type' => 'GEN',
@@ -861,7 +948,7 @@ class OracleClient
             $profileType = 'Guest';
             $personName = [
                 'givenName' => $profileData['given_name'] ?? '',
-                // Поле middleName не предоставлено, оставляем пустым
+                // middleName field not provided, leaving empty
                 'middleName' => '',
                 'surname' => $profileData['family_name'] ?? '',
                 'nameType' => 'Primary',
@@ -895,11 +982,11 @@ class OracleClient
      */
     protected function executeSyncRequest(callable $apiCall, array $inspector, array $requestMeta, string|array|null $bodyQuery): ?array
     {
-        // 1. Подготовка данных для Inspector
+        // 1. Preparing data for Inspector
         $hotelId = Arr::get($requestMeta, 'hotelId');
         $roomIndex = Arr::get($requestMeta, 'roomIndex');
 
-        $content['original']['request'] = $bodyQuery ?: $requestMeta; // Используем тело для POST, или метаданные для GET
+        $content['original']['request'] = $bodyQuery ?: $requestMeta; // Using the body for POST, or metadata for GET
         $content['original']['response'] = '';
 
         try {
@@ -910,9 +997,9 @@ class OracleClient
 
             $responseData = json_decode($body, true);
 
-            // 2. Проверка HTTP статуса (хотя Guzzle бросает ServerException для 5xx, лучше проверить)
+            // 2. Checking HTTP status (although Guzzle throws ServerException for 5xx, it's better to check)
             if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 400) {
-                // Если Guzzle не бросил исключение (например, при 4xx), обрабатываем это как ошибку API
+                // If Guzzle didn't throw an exception (e.g., on 4xx), handle it as an API error
                 Log::error('Oracle API HTTP Error: '.$response->getStatusCode().' for '.$requestMeta['url']);
 
                 $message = 'Oracle API HTTP Error: '.$response->getStatusCode().($responseData['errors'] ?? '');
@@ -942,7 +1029,7 @@ class OracleClient
                 return ['error' => $responseData['errors']];
             }
 
-            // Успех
+            // Success
             return ['response' => $responseData];
 
         } catch (ConnectException $e) {
@@ -985,17 +1072,17 @@ class OracleClient
     }
 
     /**
-     * Выполняет синхронный запрос API, специализированный для операций бронирования.
-     * Обрабатывает ошибки и диспетчеризирует их через Booking Inspector.
+     * Executes a synchronous API request specialized for booking operations.
+     * Handles errors and dispatches them via Booking Inspector.
      *
-     * @param  callable  $apiCall  Функция, выполняющая запрос (например, $client->request(...)).
-     * @param  mixed  $inspector  Объект Booking Inspector.
-     * @param  array  $requestMeta  Метаданные запроса.
-     * @param  string|array|null  $bodyQuery  Тело запроса.
+     * @param  callable  $apiCall  Function executing the request (e.g., $client->request(...)).
+     * @param  array  $inspector  Booking Inspector object.
+     * @param  array  $requestMeta  Request metadata.
+     * @param  string|array|null  $bodyQuery  Request body.
      */
     protected function executeBookingSyncRequest(callable $apiCall, array $inspector, array $requestMeta, string|array|null $bodyQuery): ?array
     {
-        // 1. Подготовка данных
+        // 1. Preparing data
         $hotelId = Arr::get($requestMeta, 'hotelId');
         $roomIndex = Arr::get($requestMeta, 'roomIndex');
 
@@ -1105,8 +1192,8 @@ class OracleClient
     }
 
     /**
-     * Вспомогательный метод для маппинга фильтров Occupancy в параметры запроса Oracle.
-     * Oracle API в примере использует общие 'adults', 'children', 'roomStayQuantity'.
+     * Helper method for mapping Occupancy filters to Oracle query parameters.
+     * Oracle API in the example uses common 'adults', 'children', 'roomStayQuantity'.
      */
     protected function mapOccupancyToOracleQuery(array $occupancy): array
     {
@@ -1131,7 +1218,7 @@ class OracleClient
     }
 
     /**
-     * Вспомогательный метод для отправки SaveSearchInspector при ошибке.
+     * Helper method for sending SaveSearchInspector on error.
      */
     protected function dispatchSearchError(array $searchInspector, string $message, string $hotelId, array $original = []): void
     {
@@ -1160,18 +1247,19 @@ class OracleClient
 
         SaveBookingInspector::dispatch(
             inspector: $inspector,
-            content : $content,
-            client_content : [],
+            content: $content,
+            client_content: [],
             status: 'error',
-            status_describe: $errorPayload);
+            status_describe: $errorPayload
+        );
     }
 
     /**
-     * Получает список классов комнат (Room Classes) для отеля.
+     * Retrieves a list of room classes for the hotel.
      *
-     * @param  string  $hotelId  Код отеля.
-     * @param  array  $inspector  Метаданные для логирования (Inspector).
-     * @return array|null Ответ API в виде массива или null при ошибке.
+     * @param  string  $hotelId  Hotel code.
+     * @param  array  $inspector  Metadata for logging (Inspector).
+     * @return array|null API response as an array or null on error.
      */
     public function getRoomClasses(string $hotelId, array $inspector = []): ?array
     {
@@ -1191,7 +1279,7 @@ class OracleClient
             'body' => null,
         ];
 
-        // 2. Определение колбэка API для запроса (GET)
+        // 2. Determining the API callback for the request (GET)
         $apiCall = function () use ($url, $headers) {
             return $this->client->get($url, [
                 'headers' => $headers,
@@ -1211,11 +1299,11 @@ class OracleClient
     }
 
     /**
-     * Получает список физических комнат (Rooms) для отеля.
+     * Retrieves a list of physical rooms for the hotel.
      *
-     * @param  string  $hotelId  Код отеля.
-     * @param  array  $inspector  Метаданные для логирования (Inspector).
-     * @return array|null Ответ API в виде массива или null при ошибке.
+     * @param  string  $hotelId  Hotel code.
+     * @param  array  $inspector  Metadata for logging (Inspector).
+     * @return array|null API response as an array or null on error.
      */
     public function getRooms(string $hotelId, array $inspector = []): ?array
     {
@@ -1235,7 +1323,7 @@ class OracleClient
             'body' => null,
         ];
 
-        // 2. Определение колбэка API для запроса (GET)
+        // 2. Determining the API callback for the request (GET)
         $apiCall = function () use ($url, $headers) {
             return $this->client->get($url, [
                 'headers' => $headers,
@@ -1255,18 +1343,18 @@ class OracleClient
     }
 
     /**
-     * Получает список типов комнат (Room Types) для отеля с фильтрами.
-     * Параметры запроса: physical=true&pseudo=true&summaryInfo=false
+     * Retrieves a list of room types for the hotel with filters.
+     * Request parameters: physical=true&pseudo=true&summaryInfo=false
      *
-     * @param  string  $hotelId  Код отеля.
-     * @param  array  $inspector  Метаданные для логирования (Inspector).
-     * @return array|null Ответ API в виде массива или null при ошибке.
+     * @param  string  $hotelId  Hotel code.
+     * @param  array  $inspector  Metadata for logging (Inspector).
+     * @return array|null API response as an array or null on error.
      */
     public function getRoomTypes(string $hotelId, array $inspector = []): ?array
     {
         $this->ensureToken();
 
-        // Параметры, указанные в запросе
+        // Parameters specified in the request
         $queryParams = http_build_query([
             'physical' => 'true',
             'pseudo' => 'true',
@@ -1287,7 +1375,7 @@ class OracleClient
             'body' => null,
         ];
 
-        // 2. Определение колбэка API для запроса (GET)
+        // 2. Determining the API callback for the request (GET)
         $apiCall = function () use ($url, $headers) {
             return $this->client->get($url, [
                 'headers' => $headers,

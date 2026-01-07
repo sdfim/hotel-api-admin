@@ -190,7 +190,49 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 
     public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
-        return [];
+        $booking_id = $filters['booking_id'];
+
+        $supplierId = Supplier::where('name', SupplierNameEnum::ORACLE->value)->first()->id;
+        $inspectorCansel = ApiBookingInspectorRepository::newBookingInspector([
+            $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
+        ]);
+
+        try {
+            $cancelData = $this->client->cancel(
+                $apiBookingsMetadata,
+                $inspectorCansel
+            );
+
+            $dataResponseToSave['original'] = [
+                'request' => $cancelData['request'],
+                'response' => $cancelData['response'],
+            ];
+
+            if (Arr::get($cancelData, 'errors')) {
+                $res = Arr::get($cancelData, 'errors');
+            } else {
+                $res = [
+                    'booking_item' => $apiBookingsMetadata->booking_item,
+                    'status' => 'Room canceled.',
+                ];
+
+                SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
+            }
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            $res = [
+                'booking_item' => $apiBookingsMetadata->booking_item,
+                'status' => $message,
+                'Error' => $message,
+            ];
+
+            $dataResponseToSave = is_array($message) ? $message : [];
+
+            SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
+                ['side' => 'app', 'message' => $message]);
+        }
+
+        return $res;
     }
 
     public function listBookings(): ?array
@@ -203,7 +245,6 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
         return [];
     }
 
-    // TODO: need to be refactored for multiple booking items
     public function priceCheck(array $filters): ?array
     {
         return [];

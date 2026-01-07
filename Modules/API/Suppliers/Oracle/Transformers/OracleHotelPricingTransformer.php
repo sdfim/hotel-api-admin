@@ -195,21 +195,21 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         }
 
         // return lowest priced room data
-        $roomGroupsResponse->setTotalPrice(round($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0, 2));
-        $roomGroupsResponse->setTotalTax(round($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0, 2));
-        $roomGroupsResponse->setTotalFees(round($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0, 2));
-        $roomGroupsResponse->setTotalNet(round($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0, 2));
+        $roomGroupsResponse->setTotalPrice(round(Arr::get($priceRoomData, "$keyLowestPricedRoom.total_price", 0.0), 2));
+        $roomGroupsResponse->setTotalTax(round(Arr::get($priceRoomData, "$keyLowestPricedRoom.total_tax", 0.0), 2));
+        $roomGroupsResponse->setTotalFees(round(Arr::get($priceRoomData, "$keyLowestPricedRoom.total_fees", 0.0), 2));
+        $roomGroupsResponse->setTotalNet(round(Arr::get($priceRoomData, "$keyLowestPricedRoom.total_net", 0.0), 2));
 
-        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
-        $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
-        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies'] ?? []);
+        $roomGroupsResponse->setNonRefundable(Arr::get($rooms, "$keyLowestPricedRoom.non_refundable", false));
+        $roomGroupsResponse->setRateId(Arr::get($rooms, "$keyLowestPricedRoom.rate_id", 0));
+        $roomGroupsResponse->setCancellationPolicies(Arr::get($rooms, "$keyLowestPricedRoom.cancellation_policies", []));
 
         /** @var RoomResponse $roomResponse */
         $roomResponse = app(RoomResponse::class);
-        $roomResponseLowestPrice = $roomResponse->fromArray($rooms[$keyLowestPricedRoom]);
+        $roomResponseLowestPrice = $roomResponse->fromArray(Arr::get($rooms, $keyLowestPricedRoom, []));
         $roomGroupsResponse->setDeposits($roomResponseLowestPrice->getDeposits());
 
-        $roomGroupsResponse->setMealPlan($rooms[$keyLowestPricedRoom]['meal_plan'] ?? '');
+        $roomGroupsResponse->setMealPlan(Arr::get($rooms, "$keyLowestPricedRoom.meal_plan", ''));
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -218,6 +218,10 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
     {
         $roomType = Arr::get($rate, 'room_code', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
+
+        if ($rate['rate_plan_code'] === 'CHAC MOL') {
+            return [];
+        }
 
         $oracleUnifiedRoomCodes = Arr::get($this->unifiedRoomCodes, ContentSourceEnum::ORACLE->value, []);
         $unifiedRoomCode = Arr::get($oracleUnifiedRoomCodes, "$giataCode.$roomType", '');
