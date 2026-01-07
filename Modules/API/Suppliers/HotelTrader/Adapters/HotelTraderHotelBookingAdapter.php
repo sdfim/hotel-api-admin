@@ -19,10 +19,10 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavCancelTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavRetrieveBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\HotelTrader\Client\HotelTraderClient;
@@ -36,10 +36,11 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
     use HotelBookingavAilabilityChangeTrait;
+    use HotelBookingavCancelTrait;
     use HotelBookingavRetrieveBookingTrait;
 
     public function __construct(
-        private readonly HotelTraderClient $hotelTraderClient,
+        private readonly HotelTraderClient $client,
         private readonly HotelTraderAdapter $hotelAdapter,
         private readonly HotelTraderHotelBookTransformer $hotelTraderHotelBookTransformer,
         private readonly HotelTraderiHotelBookingRetrieveBookingTransformer $retrieveTransformer,
@@ -88,7 +89,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             Log::info('HotelTraderBookApiController | book | '.json_encode($filters));
             Log::info("BOOK ACTION - REQUEST TO HotelTrader START - HotelTrader - $booking_id", ['filters' => $filters]); // $booking_id
             $sts = microtime(true);
-            $bookingData = $this->hotelTraderClient->book($filters, $inspectorBook);
+            $bookingData = $this->client->book($filters, $inspectorBook);
             Log::info("BOOK ACTION - REQUEST TO HotelTrader FINISH - HotelTrader - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
 
             $dataResponseToSave['original'] = [
@@ -167,63 +168,6 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             $res = $clientResponse;
         } else {
             $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
-        }
-
-        return $res;
-    }
-
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
-    {
-        $booking_id = $filters['booking_id'];
-
-        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-        $inspectorCansel = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id,
-            $filters,
-            $supplierId,
-            'cancel_booking',
-            'true',
-            'hotel',
-        ]);
-
-        try {
-            $cancelData = $this->hotelTraderClient->cancel(
-                $apiBookingsMetadata,
-                $inspectorCansel
-            );
-
-            $dataResponseToSave['original'] = [
-                'request' => $cancelData['request'],
-                'response' => $cancelData['response'],
-            ];
-
-            if (Arr::get($cancelData, 'errors')) {
-                $res = Arr::get($cancelData, 'errors');
-            } else {
-                $res = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'status' => 'Room canceled.',
-                ];
-
-                SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
-            }
-        } catch (Exception $e) {
-            $message = $e->getMessage();
-            $res = [
-                'booking_item' => $apiBookingsMetadata->booking_item,
-                'status' => $message,
-                'Error' => $message,
-            ];
-
-            $dataResponseToSave = is_array($message) ? $message : [];
-
-            SaveBookingInspector::dispatch(
-                $inspectorCansel,
-                $dataResponseToSave,
-                $res,
-                'error',
-                ['side' => 'app', 'message' => $message]
-            );
         }
 
         return $res;
@@ -321,7 +265,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         ]);
 
         try {
-            $result = $this->hotelTraderClient->modifyBooking($filters, $bookingInspector);
+            $result = $this->client->modifyBooking($filters, $bookingInspector);
 
             $response = $result['response'] ?? [];
             $errors = $result['errors'] ?? [];

@@ -21,7 +21,7 @@ interface HotelBookingSupplierInterface extends BaseBookingSupplierInterface
     /**
      * @return array<HotelBookResponseModel>|null
      */
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array;
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array;
 
     /**
      * @return array<HotelRetrieveBookingResponseModel>|null

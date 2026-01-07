@@ -6,7 +6,6 @@ use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
-use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use Exception;
@@ -14,9 +13,9 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavCancelTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavRetrieveBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\Oracle\Client\OracleClient;
@@ -28,6 +27,7 @@ use Modules\Enums\SupplierNameEnum;
 class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
     use HotelBookingavAilabilityChangeTrait;
+    use HotelBookingavCancelTrait;
     use HotelBookingavRetrieveBookingTrait;
 
     public function __construct(
@@ -162,63 +162,6 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
             $res = $clientResponse;
         } else {
             $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
-        }
-
-        return $res;
-    }
-
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
-    {
-        $booking_id = $filters['booking_id'];
-
-        $supplierId = Supplier::where('name', SupplierNameEnum::ORACLE->value)->first()->id;
-        $inspectorCansel = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id,
-            $filters,
-            $supplierId,
-            'cancel_booking',
-            'true',
-            'hotel',
-        ]);
-
-        try {
-            $cancelData = $this->client->cancel(
-                $apiBookingsMetadata,
-                $inspectorCansel
-            );
-
-            $dataResponseToSave['original'] = [
-                'request' => $cancelData['request'],
-                'response' => $cancelData['response'],
-            ];
-
-            if (Arr::get($cancelData, 'errors')) {
-                $res = Arr::get($cancelData, 'errors');
-            } else {
-                $res = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'status' => 'Room canceled.',
-                ];
-
-                SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
-            }
-        } catch (Exception $e) {
-            $message = $e->getMessage();
-            $res = [
-                'booking_item' => $apiBookingsMetadata->booking_item,
-                'status' => $message,
-                'Error' => $message,
-            ];
-
-            $dataResponseToSave = is_array($message) ? $message : [];
-
-            SaveBookingInspector::dispatch(
-                $inspectorCansel,
-                $dataResponseToSave,
-                $res,
-                'error',
-                ['side' => 'app', 'message' => $message]
-            );
         }
 
         return $res;

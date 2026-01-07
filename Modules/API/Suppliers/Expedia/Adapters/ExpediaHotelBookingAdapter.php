@@ -593,7 +593,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         }
     }
 
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array
     {
         $booking_id = $filters['booking_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;

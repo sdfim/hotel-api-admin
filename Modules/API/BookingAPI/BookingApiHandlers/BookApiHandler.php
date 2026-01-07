@@ -715,7 +715,8 @@ class BookApiHandler extends BaseController
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $response = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->cancelBooking($filters, $item);
+                $supplierEnum = SupplierNameEnum::from($supplier);
+                $response = $this->supplierRegistry->get($supplierEnum)->cancelBooking($filters, $item, $supplierEnum);
                 $data[] = $response;
 
                 // If cancellation is successful, update Reservation
