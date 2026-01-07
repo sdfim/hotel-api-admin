@@ -11,7 +11,6 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
-use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRepository;
 use Exception;
@@ -20,9 +19,11 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavRetrieveBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\HotelTrader\Client\HotelTraderClient;
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelBookTransformer;
@@ -35,14 +36,15 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
     use HotelBookingavAilabilityChangeTrait;
+    use HotelBookingavRetrieveBookingTrait;
 
     public function __construct(
         private readonly HotelTraderClient $hotelTraderClient,
         private readonly HotelTraderAdapter $hotelAdapter,
         private readonly HotelTraderHotelBookTransformer $hotelTraderHotelBookTransformer,
+        private readonly HotelTraderiHotelBookingRetrieveBookingTransformer $retrieveTransformer,
         private readonly PricingRulesTools $pricingRulesService,
-    ) {
-    }
+    ) {}
 
     public function supplier(): SupplierNameEnum
     {
@@ -59,7 +61,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
 
         $passengers = ApiBookingInspectorRepository::getPassengers($booking_id, $filters['booking_item']);
 
-        if (!$passengers) {
+        if (! $passengers) {
             Log::info("BOOK ACTION - ERROR - HotelTrader - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]); // $booking_id
 
             return [
@@ -83,11 +85,11 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
 
         $error = true;
         try {
-            Log::info('HotelTraderBookApiController | book | ' . json_encode($filters));
+            Log::info('HotelTraderBookApiController | book | '.json_encode($filters));
             Log::info("BOOK ACTION - REQUEST TO HotelTrader START - HotelTrader - $booking_id", ['filters' => $filters]); // $booking_id
             $sts = microtime(true);
             $bookingData = $this->hotelTraderClient->book($filters, $inspectorBook);
-            Log::info("BOOK ACTION - REQUEST TO HotelTrader FINISH - HotelTrader - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds', 'filters' => $filters]); // $booking_id
+            Log::info("BOOK ACTION - REQUEST TO HotelTrader FINISH - HotelTrader - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
 
             $dataResponseToSave['original'] = [
                 'request' => $bookingData['request'],
@@ -110,7 +112,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
 
         } catch (RequestException $e) {
             Log::info("BOOK ACTION - ERROR - HotelTrader - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
-            Log::error('HotelTraderBookApiController | book | RequestException ' . $e->getResponse()->getBody());
+            Log::error('HotelTraderBookApiController | book | RequestException '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch(
@@ -122,13 +124,13 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             );
 
             return [
-                'error' => 'Request Error. ' . $e->getResponse()->getBody(),
+                'error' => 'Request Error. '.$e->getResponse()->getBody(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
             ];
         } catch (Exception $e) {
             Log::info("BOOK ACTION - ERROR - HotelTrader - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
-            Log::error('HotelTraderBookApiController | book | Exception ' . $e->getMessage());
+            Log::error('HotelTraderBookApiController | book | Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch(
@@ -140,19 +142,19 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             );
 
             return [
-                'error' => 'Unexpected Error. ' . $e->getMessage(),
+                'error' => 'Unexpected Error. '.$e->getMessage(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HOTEL_TRADER->value,
             ];
         }
 
-        if (!$error) {
+        if (! $error) {
             SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
             // Save Book data to Reservation
             SaveReservations::dispatch($booking_id, $filters, $dataPassengers, request()->bearerToken());
         }
 
-        if (!$bookingData) {
+        if (! $bookingData) {
             Log::info("BOOK ACTION - ERROR - HotelTrader - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]); // $booking_id
 
             return [];
@@ -168,56 +170,6 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         }
 
         return $res;
-    }
-
-    /**
-     * @param array $filters
-     * @param ApiBookingsMetadata $apiBookingsMetadata
-     * @param bool $isSync
-     * @return array|null
-     * @throws GuzzleException
-     */
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
-    {
-        $booking_id = $filters['booking_id'];
-        $filters['booking_item'] = $apiBookingsMetadata->booking_item;
-        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
-
-        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-        $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id,
-            $filters,
-            $supplierId,
-            'book',
-            'retrieve',
-            $apiBookingsMetadata->search_type,
-        ]);
-
-        $retrieveData = $this->hotelTraderClient->retrieve(
-            $apiBookingsMetadata,
-            $bookingInspector
-        );
-
-        if (!empty($retrieveData['errors'])) {
-            return [];
-        }
-
-        $dataResponseToSave['original'] = [
-            'request' => $retrieveData['request'],
-            'response' => $retrieveData['response'],
-        ];
-
-        $clientDataResponse = Arr::get($retrieveData, 'response') ?
-            HotelTraderiHotelBookingRetrieveBookingTransformer::RetrieveBookingToHotelBookResponseModel($filters, Arr::get($retrieveData, 'response'))
-            : Arr::get($retrieveData, 'errors');
-
-        SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientDataResponse);
-
-        if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {
-            return Arr::get($retrieveData, 'response');
-        } else {
-            return $clientDataResponse;
-        }
     }
 
     public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
@@ -294,8 +246,8 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             ->where('supplier_id', $supplierId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
-            ->when(filled($apiClientId), fn($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
-            ->when(filled($apiClientEmail), fn($q) => $q->whereJsonContains('request->api_client->email', $apiClientEmail))
+            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
+            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', $apiClientEmail))
             ->has('metadata')
             ->orderBy('created_at', 'desc')
             ->limit(5)
@@ -304,7 +256,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         $data = [];
         foreach ($itemsBooked as $item) {
             $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item->metadata);
+            $data[] = $this->retrieveBooking($filters, $item->metadata, SupplierNameEnum::HOTEL_TRADER);
         }
 
         return $data;
@@ -312,7 +264,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
 
     public function priceCheck(array $filters): ?array
     {
-        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:' . $filters['new_booking_item'])) {
+        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
             $hotelService = new HotelCombinationService(SupplierNameEnum::HOTEL_TRADER->value);
             $hotelService->updateBookingItemsData($filters['new_booking_item'], true);
         } else {
@@ -364,7 +316,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             $filters,
             $supplierId,
             'change_book',
-            'change-' . $mode,
+            'change-'.$mode,
             'hotel',
         ]);
 
@@ -383,7 +335,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
                 ],
             ];
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 $clientResponse = $errors;
                 $clientResponse['booking_item'] = $filters['booking_item'];
                 $clientResponse['supplier'] = SupplierNameEnum::HOTEL_TRADER->value;
@@ -406,9 +358,9 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
 
             return ['status' => 'Booking changed.'];
 
-        } catch (RequestException | GuzzleException $e) {
+        } catch (RequestException|GuzzleException $e) {
             $message = $e->getResponse()?->getBody()?->getContents() ?? $e->getMessage();
-            Log::error('HotelTraderBookApiController | changeBooking ' . $message);
+            Log::error('HotelTraderBookApiController | changeBooking '.$message);
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', [
@@ -419,7 +371,7 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
             return ['Errors' => [$message]];
 
         } catch (Exception $e) {
-            Log::error('HotelTraderBookApiController | changeBooking ' . $e->getMessage());
+            Log::error('HotelTraderBookApiController | changeBooking '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', [

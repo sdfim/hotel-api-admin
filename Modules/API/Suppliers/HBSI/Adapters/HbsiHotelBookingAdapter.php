@@ -59,8 +59,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         private readonly HbsiHotelAdapter $hotelAdapter,
         private readonly HbsiHotelBookTransformer $hbsiHotelBookDto,
         private readonly PricingRulesTools $pricingRulesService,
-    ) {
-    }
+    ) {}
 
     public function supplier(): SupplierNameEnum
     {
@@ -80,7 +79,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
 
         $passengers = ApiBookingInspectorRepository::getPassengers($booking_id, $filters['booking_item']);
 
-        if (!$passengers) {
+        if (! $passengers) {
             Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]); // $booking_id
 
             return [
@@ -104,11 +103,11 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
 
         $error = true;
         try {
-            Log::info('HbsiBookApiController | book | ' . json_encode($filters));
+            Log::info('HbsiBookApiController | book | '.json_encode($filters));
             Log::info("BOOK ACTION - REQUEST TO HBSI START - HBSI - $booking_id", ['filters' => $filters]); // $booking_id
             $sts = microtime(true);
             $xmlPriceData = $this->hbsiClient->handleBook($filters, $inspectorBook);
-            Log::info("BOOK ACTION - REQUEST TO HBSI FINISH - HBSI - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds', 'filters' => $filters]); // $booking_id
+            Log::info("BOOK ACTION - REQUEST TO HBSI FINISH - HBSI - $booking_id", ['time' => (microtime(true) - $sts).' seconds', 'filters' => $filters]); // $booking_id
 
             if (isset($xmlPriceData['error'])) {
                 Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $xmlPriceData['error'], 'filters' => $filters]); // $booking_id
@@ -130,7 +129,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
                 'response' => $xmlPriceData['response']->asXML(),
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
-            if (!isset($dataResponse['Errors'])) {
+            if (! isset($dataResponse['Errors'])) {
                 // Save Booking Info
                 $this->saveBookingInfo($filters, $dataResponse, json_decode($xmlPriceData['main_guest'], true));
 
@@ -152,7 +151,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
 
         } catch (RequestException $e) {
             Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
-            Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | book | RequestException '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch(
@@ -164,13 +163,13 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             );
 
             return [
-                'error' => 'Request Error. ' . $e->getResponse()->getBody(),
+                'error' => 'Request Error. '.$e->getResponse()->getBody(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HBSI->value,
             ];
         } catch (\Exception $e) {
             Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); // $booking_id
-            Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
+            Log::error('HbsiBookApiController | book | Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch(
@@ -182,19 +181,19 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             );
 
             return [
-                'error' => 'Unexpected Error. ' . $e->getMessage(),
+                'error' => 'Unexpected Error. '.$e->getMessage(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HBSI->value,
             ];
         }
 
-        if (!$error) {
+        if (! $error) {
             SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
             // Save Book data to Reservation
             SaveReservations::dispatch($booking_id, $filters, $dataPassengers, request()->bearerToken());
         }
 
-        if (!$dataResponse) {
+        if (! $dataResponse) {
             Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]); // $booking_id
 
             return [];
@@ -212,13 +211,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         return $res;
     }
 
-    /**
-     * @param array $filters
-     * @param ApiBookingsMetadata $apiBookingsMetadata
-     * @param bool $isSync
-     * @return array|null
-     */
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -262,7 +255,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             $bookingInspector
         );
 
-        if (!$xmlPriceData['response'] instanceof SimpleXMLElement) {
+        if (! $xmlPriceData['response'] instanceof SimpleXMLElement) {
             return [];
         }
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
@@ -409,8 +402,8 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             ->where('supplier_id', $supplierId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
-            ->when(filled($apiClientId), fn($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
-            ->when(filled($apiClientEmail), fn($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
+            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
+            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
             ->has('metadata')
             ->orderBy('created_at', 'desc')
             ->limit(10)
@@ -419,7 +412,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         $data = [];
         foreach ($itemsBooked as $item) {
             $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item->metadata);
+            $data[] = $this->retrieveBooking($filters, $item->metadata, SupplierNameEnum::HBSI);
         }
 
         return $data;
@@ -436,7 +429,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             $filters,
             $supplierId,
             'change_book',
-            'change-' . $mode,
+            'change-'.$mode,
             'hotel',
         ]);
 
@@ -467,7 +460,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
                 );
 
                 return [$xmlPriceData['response']];
-            } elseif (!isset($dataResponse['Errors'])) {
+            } elseif (! isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
                 $clientResponse = $dataResponse['Errors'];
@@ -484,9 +477,9 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
 
         } catch (RequestException $e) {
-            Log::error('HbsiBookApiController | changeBooking ' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | changeBooking '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
-            $dataResponse = json_decode('' . $e->getResponse()->getBody());
+            $dataResponse = json_decode(''.$e->getResponse()->getBody());
 
             SaveBookingInspector::dispatch(
                 $bookingInspector,
@@ -499,9 +492,9 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             return (array) $dataResponse;
         } catch (Exception $e) {
             $dataResponse['Errors'] = [$e->getMessage()];
-            Log::error('HbsiBookApiController | changeBooking ' . $e->getMessage());
+            Log::error('HbsiBookApiController | changeBooking '.$e->getMessage());
             Log::error(
-                'HbsiBookApiController | changeBooking ' . $e->getMessage(),
+                'HbsiBookApiController | changeBooking '.$e->getMessage(),
                 [
                     'booking_id' => $filters['booking_id'],
                     'dataResponseToSave' => $dataResponseToSave ?? '',
@@ -520,7 +513,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
             return (array) $dataResponse;
         }
 
-        if (!$dataResponseToSave) {
+        if (! $dataResponseToSave) {
             return [];
         }
 
@@ -530,7 +523,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
     // TODO: need to be refactored for multiple booking items
     public function priceCheck(array $filters): ?array
     {
-        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:' . $filters['new_booking_item'])) {
+        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
             $hotelService = new HotelCombinationService(SupplierNameEnum::HBSI->value);
             $hotelService->updateBookingItemsData($filters['new_booking_item'], true);
         } else {
@@ -591,7 +584,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
                     $reservation['ReservationId'] = $attributes['ResID_Value'];
                 }
             }
-        } elseif (!empty($dataResponse)) {
+        } elseif (! empty($dataResponse)) {
             foreach ($dataResponse as $item) {
                 if ($item['type_id'] == '8') {
                     $reservation['bookingId'] = $item['confirmation_number'];

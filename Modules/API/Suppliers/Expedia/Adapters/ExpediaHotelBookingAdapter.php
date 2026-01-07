@@ -71,7 +71,12 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         }
         $supplierId = Supplier::where('name', $supplierName)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, $type, 'price_check', 'hotel',
+            $booking_id,
+            $filters,
+            $supplierId,
+            $type,
+            'price_check',
+            'hotel',
         ]);
 
         try {
@@ -246,7 +251,12 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'change_book', 'change-soft', 'hotel',
+            $booking_id,
+            $filters,
+            $supplierId,
+            'change_book',
+            'change-soft',
+            'hotel',
         ]);
 
         $given_name = Arr::get($filters, 'passengers.0.given_name', null);
@@ -307,7 +317,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
-        $this->retrieveBooking($filters, $item);
+        $this->retrieveBooking($filters, $item, SupplierNameEnum::EXPEDIA);
 
         return ['status' => 'Booking changed.'];
     }
@@ -380,8 +390,10 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         $special_requests = $filters['special_requests'] ?? [];
         foreach ($special_requests as $special_request) {
-            if ($special_request['booking_item'] == $filters['booking_item'] &&
-                isset($bodyArr['rooms'][$special_request['room'] - 1])) {
+            if (
+                $special_request['booking_item'] == $filters['booking_item'] &&
+                isset($bodyArr['rooms'][$special_request['room'] - 1])
+            ) {
                 $bodyArr['rooms'][$special_request['room'] - 1]['special_requests'] = $special_request['special_request'];
             }
         }
@@ -397,7 +409,12 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $inspectorBook = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'create'.($queryHold ? ':hold' : ''), $bookingInspector->search_type,
+            $booking_id,
+            $filters,
+            $supplierId,
+            'book',
+            'create'.($queryHold ? ':hold' : ''),
+            $bookingInspector->search_type,
         ]);
 
         try {
@@ -462,7 +479,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
-        $this->retrieveBooking($filters, $item, true);
+        $this->retrieveBooking($filters, $item, SupplierNameEnum::EXPEDIA, true);
 
         // after retrieveBooking, we need to update the ApiBookingsMetadata with the cancellation_paths
         $this->saveBookingInfo($filters, $content, $bookingInspector);
@@ -512,7 +529,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         return $responses;
     }
 
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -520,7 +537,12 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
+            $booking_id,
+            $filters,
+            $supplierId,
+            'book',
+            'retrieve',
+            $apiBookingsMetadata->search_type,
         ]);
 
         $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_path']);
@@ -576,7 +598,12 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         $booking_id = $filters['booking_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $inspectorCancel = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
+            $booking_id,
+            $filters,
+            $supplierId,
+            'cancel_booking',
+            'true',
+            'hotel',
         ]);
 
         $room = $apiBookingsMetadata->supplier_booking_item_id;
@@ -628,8 +655,13 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
                 'room' => $room,
                 'status' => $message,
             ];
-            SaveBookingInspector::dispatch($inspectorCancel, $responseError, $res, 'error',
-                ['side' => 'app', 'message' => $message]);
+            SaveBookingInspector::dispatch(
+                $inspectorCancel,
+                $responseError,
+                $res,
+                'error',
+                ['side' => 'app', 'message' => $message]
+            );
         }
 
         return $res;
@@ -661,8 +693,14 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
     {
         Log::error($logMessage.': '.$e->getMessage());
         Log::error($e->getTraceAsString());
-        SaveSearchInspector::dispatch($searchInspector, ['request' => $originalRQ], [], [], 'error',
-            ['side' => 'supplier', 'message' => $errorMessage, 'parent_search_id' => $searchInspector['search_id']]);
+        SaveSearchInspector::dispatch(
+            $searchInspector,
+            ['request' => $originalRQ],
+            [],
+            [],
+            'error',
+            ['side' => 'supplier', 'message' => $errorMessage, 'parent_search_id' => $searchInspector['search_id']]
+        );
         Log::error($logMessage.': '.$e->getMessage());
 
         return ['error' => $errorMessage];
