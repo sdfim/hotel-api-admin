@@ -90,7 +90,7 @@ class BookingEmailDataService
             $rateRefundable = Arr::get($dataReservation, '0.cancellation_policies.0.penalty_start_date');
             $rateRefundable = $rateRefundable
                 ? 'Refundable until '.Carbon::parse($rateRefundable)->format('m/d/Y')
-                : 'Non-Refundable';
+                : 'Refundable';
             $rateMealPlan = Arr::get($dataReservation, '0.meal_plan_name')
                 ?? Arr::get($dataReservation, '0.meal_plan');
 

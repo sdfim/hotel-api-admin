@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Already Verified</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-        <div class="bg-white rounded-xl shadow-lg px-6 py-8 w-full max-w-xs sm:max-w-md">
-            <h1 class="text-blue-600 text-2xl font-bold mb-5 text-center">Already Verified</h1>
-            <p class="mb-0 text-center text-base">This booking has already been verified. No further action is required.</p>
-        </div>
+@extends('booking.vidanta_landing_layout')
+
+@section('title', 'Already Verified - ' . env('APP_NAME'))
+
+@section('content')
+    <h1 class="font-playfair italic text-5xl text-vidantaBlack mb-8">Already Verified</h1>
+
+    <div class="space-y-6 text-vidantaBlack/80 leading-relaxed font-light text-lg">
+        <p>
+            This booking has already been verified. No further action is required.
+        </p>
+        <p>
+            If you believe this is an error, please contact our support team.
+        </p>
     </div>
-</body>
-</html>
+
+    <div class="mt-12 flex justify-center">
+        <div class="w-12 h-[1px] bg-vidantaBronze"></div>
+    </div>
+@endsection

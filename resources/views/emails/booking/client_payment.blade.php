@@ -1,167 +1,42 @@
-@php
-    $payment_url = $payment_url ?? '#';
-    $hotelName   = $hotelName ?? '[Hotel Name]';
-@endphp
+@extends('emails.vidanta_layout')
 
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title> {{ env('APP_NAME') }}– Payment</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+@section('title', env('APP_NAME') . ' – Secure Payment Request')
 
-    {{-- Serif font for email --}}
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+@section('content')
+    <h1 style="font-size: 32px; line-height: 40px; margin-bottom: 25px; text-align: center; font-style: italic;">
+        Finalizing Your Stay
+    </h1>
 
-    <style>
-        /* Basic email reset */
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        table {
-            border-collapse: collapse;
-        }
-        img {
-            border: 0;
-            display: block;
-            line-height: 0;
-        }
-        p {
-            margin: 0 0 28px 0;
-        }
+    <p style="text-align: center; margin-bottom: 40px; font-size: 16px;">
+        Hello, we’re delighted to finalize the arrangements for your upcoming stay at <strong>{{ $hotelName }}</strong>.
+    </p>
 
-        @media only screen and (max-width: 480px) {
-            .tm-payment-bottom {
-                padding-top: 0 !important;
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-                background-size: 180% auto !important;
-            }
-        }
-    </style>
-</head>
-<body>
+    <div
+        style="margin-bottom: 50px; padding: 40px; background-color: #FBF9F6; border: 1px solid #EAEAEA; text-align: center;">
+        <p style="font-size: 15px; margin-bottom: 30px; line-height: 26px;">
+            To complete your booking and secure your reservation, please use the button below to access our secure payment
+            portal. We kindly request that you provide your details within 24 hours.
+        </p>
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-        <td align="center" style="padding: 24px 12px;">
+        <table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td align="center">
+                    <a href="{{ $payment_url }}"
+                        style="background-color: #1C1B1B; color: #FFFFFF; padding: 18px 45px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
+                        Secure Payment
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-            {{-- Main card --}}
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                   style="max-width: 680px; overflow: hidden; font-weight: 300;">
+    <p style="text-align: center; margin-bottom: 40px; line-height: 26px;">
+        Your security is our priority. All transactions are processed through encrypted channels. Should you encounter any
+        issues, our team is standing by to help.
+    </p>
 
-                {{-- Top green block --}}
-                <tr>
-                    <td bgcolor="#C7D5C7"
-                        style="padding: 40px 48px 24px 48px;
-                               font-family: 'Playfair Display', Georgia, serif;
-                               color: #263A3A;
-                               font-size: 16px;
-                               line-height: 1.6;">
-
-                        {{-- Logo --}}
-                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                               style="margin-bottom: 40px;">
-                            <tr>
-                                <td align="right">
-                                    <img
-                                        src="{{ asset('images/terra-mare-logo.png') }}"
-                                        alt=" <?= env('APP_NAME'); ?>"
-                                        width="238"
-                                        style="height:auto;"
-                                    >
-                                </td>
-                            </tr>
-                        </table>
-
-                        <p>Hello,</p>
-
-                        <p>
-                            We’re delighted to finalize the arrangements for your upcoming stay at
-                            <strong>{{ $hotelName }}</strong>. Attached, you’ll find a summary of the proposed
-                            details for your review.
-                        </p>
-
-                        <p>
-                            To complete your booking, please use the button below to access our secure payments
-                            page and provide your payment details within 24 hours.
-                        </p>
-
-                        <p>
-                            We look forward to curating an unforgettable escape for you.
-                        </p>
-
-                        <p style="margin-top: 40px;">
-                            Warm regards,<br>
-                             {{ env('APP_NAME') }}Concierge
-                        </p>
-
-                    </td>
-                </tr>
-
-                {{-- Bottom light section with wave divider as background --}}
-                <tr>
-                    <td
-                        class="tm-payment-bottom"
-                        bgcolor="#E9EDE7"
-                        background="{{ asset('images/email-backgrounds/wave-divider.png') }}"
-                        style="
-                            font-family: 'Playfair Display', Georgia, serif;
-                            color:#263A3A;
-                            text-align:center;
-                            padding: 0 32px 48px 32px;
-                            background-image: url('{{ asset('images/email-backgrounds/wave-divider.png') }}');
-                            background-repeat: no-repeat;
-                            background-position: center top;
-                            background-size: 100% auto;
-                        "
-                    >
-
-                        {{-- Pay Now button --}}
-                        <table role="presentation" align="center" cellpadding="0" cellspacing="0"
-                               style="margin-bottom: 40px;">
-                            <tr>
-                                <td
-                                    align="center"
-                                    bgcolor="#263A3A"
-                                    style="
-                                        background-color:#263A3A;
-                                        border-radius: 18px;
-                                        padding: 16px 32px;
-                                    "
-                                >
-                                    <a href="{{ $payment_url }}"
-                                       style="
-                                           font-size: 20px;
-                                           color: #FFFFFF;
-                                           text-decoration: none;
-                                           display: inline-block;
-                                           font-family: 'Playfair Display', Georgia, serif;
-                                       ">
-                                        Pay Now
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-
-                        {{-- Bottom "Thank you" text --}}
-                        <div style="font-size: 26px; line-height: 1.4; padding-top: 40px;">
-                            Thank you so much!
-                        </div>
-                        <div style="font-size: 16px; margin-top: 4px;">
-                             <?= env('APP_NAME'); ?>
-                        </div>
-
-                    </td>
-                </tr>
-
-            </table>
-
-        </td>
-    </tr>
-</table>
-
-</body>
-</html>
+    <div style="text-align: center; padding-top: 30px; border-top: 1px solid #EAEAEA;">
+        <h3 style="font-size: 20px; margin-bottom: 10px; font-style: italic;">Thank you for your trust</h3>
+        <p style="font-size: 13px; color: #888;">{{ env('APP_NAME') }} Concierge</p>
+    </div>
+@endsection

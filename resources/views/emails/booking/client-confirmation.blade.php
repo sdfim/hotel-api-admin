@@ -1,119 +1,36 @@
-@php
-    // Dynamic hotel name (fallback for safety)
-    $hotelName = $hotelName ?? '[Hotel Name]';
-@endphp
+@extends('emails.vidanta_layout')
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title> {{ env('APP_NAME') }}– Client Confirmation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+@section('title', env('APP_NAME') . ' – Your Booking Confirmation')
 
-    {{-- Serif font fallback for emails --}}
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+@section('content')
+    <h1 style="font-size: 32px; line-height: 40px; margin-bottom: 25px; text-align: center; font-style: italic;">
+        Welcome to {{ env('APP_NAME') }}
+    </h1>
 
-    <style>
-        /* Basic email reset */
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        table {
-            border-collapse: collapse;
-        }
-        img {
-            border: 0;
-            display: block;
-            line-height: 0;
-        }
-        p {
-            margin: 0 0 28px 0;
-            font-weight: 300;
-        }
-    </style>
-</head>
-<body>
+    <p style="text-align: center; margin-bottom: 40px; font-size: 16px;">
+        Hello, we are delighted to confirm your upcoming stay at <strong>{{ $hotelName }}</strong>. Your reservation is now
+        finalized.
+    </p>
 
-{{-- Full width wrapper --}}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-        <td align="center" style="padding: 24px 12px;">
+    <div
+        style="margin-bottom: 40px; padding: 40px; background-color: #FBF9F6; border-top: 4px solid #C29C75; text-align: center;">
+        <p style="font-size: 15px; margin-bottom: 25px; line-height: 26px;">
+            We are preparing everything for your arrival to ensure your stay is truly exceptional. Please find your detailed
+            confirmation document attached to this email.
+        </p>
+        <div
+            style="display: inline-block; padding: 12px 25px; border: 1px solid #C29C75; color: #C29C75; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px;">
+            Booking Confirmed
+        </div>
+    </div>
 
-            {{-- Main card --}}
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                   style="max-width: 680px; overflow: hidden;">
+    <p style="text-align: center; margin-bottom: 40px; line-height: 26px;">
+        Should you wish to customize your stay with private transfers, dining reservations, or curated experiences, please
+        do not hesitate to reach out.
+    </p>
 
-                <tr>
-                    <td
-                        bgcolor="#E9EDE7"
-                        background="{{ asset('images/email-backgrounds/wave-bg.png') }}"
-                        style="
-                            padding: 40px 48px 72px 48px;
-                            font-family: 'Playfair Display', Georgia, serif;
-                            color: #263A3A;
-                            font-size: 16px;
-                            line-height: 1.6;
-                            background-image: url('{{ asset('images/email-backgrounds/wave-bg.png') }}');
-                            background-repeat: no-repeat;
-                            background-position: center top;
-                            background-size: cover;
-                        "
-                    >
-
-                        {{-- Logo row --}}
-                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                               style="margin-bottom: 48px;">
-                            <tr>
-                                <td align="right">
-                                    <img
-                                        src="{{ asset('images/terra-mare-logo.png') }}"
-                                        alt=" <?= env('APP_NAME'); ?>"
-                                        width="238"
-                                        style="height:auto;"
-                                    >
-                                </td>
-                            </tr>
-                        </table>
-
-                        {{-- Main text --}}
-                        <p>Hello,</p>
-
-                        <p>
-                            We’re delighted to confirm your upcoming stay at
-                            <strong>{{ $hotelName }}</strong>. Attached, you’ll find your booking confirmation
-                            with a summary of the stay details designed to make your experience effortless
-                            from the very start.
-                        </p>
-
-                        <p>
-                            We look forward to welcoming you soon for an unforgettable stay.
-                        </p>
-
-                        <p style="margin-top: 40px;">
-                            Warm regards,<br>
-                             {{ env('APP_NAME') }}Concierge
-                        </p>
-
-                        {{-- Bottom "Thank you" block --}}
-                        <div style="text-align:center; margin-top: 64px;">
-                            <div style="font-size: 26px; line-height: 1.4;">
-                                Thank you so much!
-                            </div>
-                            <div style="font-size: 16px; margin-top: 4px;">
-                                 <?= env('APP_NAME'); ?>
-                            </div>
-                        </div>
-
-                    </td>
-                </tr>
-
-            </table>
-
-        </td>
-    </tr>
-</table>
-
-</body>
-</html>
+    <div style="text-align: center; padding-top: 30px; border-top: 1px solid #EAEAEA;">
+        <h3 style="font-size: 20px; margin-bottom: 10px; font-style: italic;">Travel Touched by Tide and Time</h3>
+        <p style="font-size: 13px; color: #888;">{{ env('APP_NAME') }} Concierge Team</p>
+    </div>
+@endsection

@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification Denied</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-50">
-<div class="min-h-screen flex flex-col justify-center items-center">
-    <div class="bg-white rounded-xl shadow-lg px-6 py-8 w-full max-w-xs sm:max-w-md">
-        <h1 class="text-red-600 text-2xl font-bold mb-5 text-center">Verification Denied</h1>
-        <p class="mb-3 text-center text-base">Your booking email verification has been denied.</p>
-        <p class="mb-0 text-center text-base">If you believe this is a mistake, please contact support.</p>
+@extends('booking.vidanta_landing_layout')
+
+@section('title', 'Quote Declined - ' . env('APP_NAME'))
+
+@section('content')
+    <h1 class="font-playfair italic text-5xl text-vidantaBlack mb-8">Quote Declined</h1>
+
+    <div class="space-y-6 text-vidantaBlack/80 leading-relaxed font-light text-lg">
+        <p>
+            You have successfully declined the proposed quote.
+        </p>
+        <p>
+            Our concierge team has been notified. We will reach out to you shortly to discuss any changes or provide an
+            alternative proposal that better fits your needs.
+        </p>
     </div>
-</div>
-</body>
-</html>
+
+    <div class="mt-12 flex justify-center">
+        <div class="w-12 h-[1px] bg-vidantaBronze"></div>
+    </div>
+@endsection
