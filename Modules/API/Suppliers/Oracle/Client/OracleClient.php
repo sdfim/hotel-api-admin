@@ -581,9 +581,9 @@ class OracleClient
         $path = ApiBookingInspectorRepository::bookedItem($booking_id, $booking_item)->client_response_path;
         $reservationId = json_decode(Storage::get($path), true)['confirmation_numbers_list']['reservationNumber'] ?? '';
 
-        $this->ensureToken();
-
         $url = $this->credentials->baseUrl."/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}";
+
+        $this->ensureToken();
         $headers = $this->headers;
         $headers['x-hotelid'] = $hotelId;
 
