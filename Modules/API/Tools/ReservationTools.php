@@ -12,7 +12,6 @@ use App\Repositories\ChannelRepository;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Services\HotelService;
@@ -37,38 +36,29 @@ class ReservationTools
                 }
             }
 
-            $hotelId = null;
-            $hotelName = null;
-            $hotelImages = null;
-            $checkin = null;
-            $totalCost = null;
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
-                || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA
-                || SupplierNameEnum::from($supplier) === SupplierNameEnum::HOTEL_TRADER) {
-                $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
+            $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
 
-                $hotelId = $reservationsData['hotel_id'];
+            $hotelId = $reservationsData['hotel_id'];
 
-                $hotelName = Hotel::where('giata_code', $hotelId)->first()?->product->name ?? '';
-                $hotelData = app(HotelService::class)->getDetailRespose($hotelId);
-                $hotelImages = [];
-                $images = Arr::get($hotelData, 'images', []);
-                if (is_array($images)) {
-                    foreach ($images as $image) {
-                        if (is_string($image)) {
-                            $hotelImages[] = $image;
-                        } elseif (is_array($image)) {
-                            $hotelImages[] = Arr::get($image, 'url');
-                        }
-                        if (count($hotelImages) >= 5) {
-                            break;
-                        }
+            $hotelName = Hotel::where('giata_code', $hotelId)->first()?->product->name ?? '';
+            $hotelData = app(HotelService::class)->getDetailRespose($hotelId);
+            $hotelImages = [];
+            $images = Arr::get($hotelData, 'images', []);
+            if (is_array($images)) {
+                foreach ($images as $image) {
+                    if (is_string($image)) {
+                        $hotelImages[] = $image;
+                    } elseif (is_array($image)) {
+                        $hotelImages[] = Arr::get($image, 'url');
+                    }
+                    if (count($hotelImages) >= 5) {
+                        break;
                     }
                 }
-
-                $checkin = $reservationsData['query']['checkin'];
-                $totalCost = $reservationsData['price']['total_price'];
             }
+
+            $checkin = $reservationsData['query']['checkin'];
+            $totalCost = $reservationsData['price']['total_price'];
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
                 $reservation = new Reservation();
