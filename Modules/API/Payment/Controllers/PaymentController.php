@@ -8,6 +8,7 @@ use App\Models\ApiBookingPaymentInit;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Support\PaymentProviderResolver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Modules\API\BaseController;
 use Modules\API\Payment\Requests\ConfirmationPaymentIntentRequest;
@@ -82,7 +83,9 @@ class PaymentController extends BaseController
 
             // 4) Send confirmation email if we have all required data
             if ($email && $bookingItem) {
-                Mail::to($email)->queue(new BookingClientConfirmationMail($bookingItem));
+                if (! Cache::has('bookingItem_no_mail_'.$bookingItem)) {
+                    Mail::to($email)->queue(new BookingClientConfirmationMail($bookingItem));
+                }
             }
         }
 

@@ -88,7 +88,10 @@ class FlowBookDiffScenarios extends Command
         // Find booking item
         $bookingItem = $this->fetchBookingItem($searchResponse, $formData['occupancy']);
 
-        if (!$bookingItem) {
+        // Disable email sending for this booking item. Running test flow only
+        Cache::put('bookingItem_no_mail_'.$bookingItem, false, 600);
+
+        if (! $bookingItem) {
             $this->error('Booking item not found by given room params');
             exit(1);
         }
@@ -115,7 +118,7 @@ class FlowBookDiffScenarios extends Command
 
         // Cancel
         if ($run_cancellation_flow && $run_booking_flow) {
-            $this->cancel($bookingId, $bookingItem);
+            $this->cancel($bookingId);
         }
 
         // Store result in cache

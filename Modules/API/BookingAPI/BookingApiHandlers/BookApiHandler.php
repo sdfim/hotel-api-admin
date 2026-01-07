@@ -172,7 +172,9 @@ class BookApiHandler extends BaseController
                 $paymentUrl = $request->input('payment_url');
                 $paymentUrl = $paymentUrl ?: request()->getSchemeAndHttpHost().'/payment/'.$item->booking_id;
                 $email_client = $request->input('booking_contact.email');
-                Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $item->booking_id));
+                if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
+                    Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $item->booking_id));
+                }
             } catch (\Throwable $mailException) {
                 Log::error('Booking payment email queue error: '.$mailException->getMessage());
             }

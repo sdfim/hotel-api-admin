@@ -13,6 +13,7 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -480,7 +481,9 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
 
             if ($email_notification) {
                 try {
-                    Mail::to($email_notification)->queue(new BookingConfirmationMail($item->booking_item));
+                    if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
+                        Mail::to($email_notification)->queue(new BookingConfirmationMail($item->booking_item));
+                    }
                 } catch (\Throwable $mailException) {
                     Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
                 }
@@ -493,7 +496,9 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
                         continue;
                     }
                     try {
-                        Mail::to($email)->queue(new \App\Mail\BookingConfirmationForAgentMail($item->booking_item));
+                        if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
+                            Mail::to($email)->queue(new \App\Mail\BookingConfirmationForAgentMail($item->booking_item));
+                        }
                     } catch (\Exception $e) {
                         Log::error('Failed to send agent notification email for booking item '.$item->booking_item.': '.$e->getMessage(), ['email' => $email]);
                     }
