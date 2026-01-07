@@ -98,10 +98,10 @@
                             class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-orange-100 text-orange-600 active-tab">
                         Original Request and Response
                     </button>
-                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-response"
-                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-600">
-                        Supplier Response
-                    </button>
+{{--                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-response"--}}
+{{--                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-600">--}}
+{{--                        Supplier Response--}}
+{{--                    </button>--}}
                     @if($inspector->client_response_path)
                         <button data-tw-toggle="tab" data-tw-target="#tab-pills-client-response"
                                 class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-600">

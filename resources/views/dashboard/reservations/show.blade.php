@@ -39,8 +39,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <!-- Info Column -->
                     <div class="card p-3 rounded">
-                        <div class="border-b mb-3">
-                            <h5 class="text-17">Info</h5>
+                        <div class="bg-zinc-800 dark:bg-zinc-900 p-2 px-3 rounded-t -m-3 mb-3 border-b border-zinc-700">
+                            <h5 class="text-15 text-white mb-0">Info</h5>
                         </div>
 
                         <p><strong>ID:</strong> {{ $reservation->id }}</p>
@@ -54,8 +54,8 @@
 
                     <!-- Price Column -->
                     <div class="card p-3 rounded">
-                        <div class="border-b mb-3">
-                            <h5 class="text-17">Price</h5>
+                        <div class="bg-zinc-800 dark:bg-zinc-900 p-2 px-3 rounded-t -m-3 mb-3 border-b border-zinc-700">
+                            <h5 class="text-15 text-white mb-0">Price</h5>
                         </div>
 
                         <p><strong>Currency:</strong> {{ Arr::get($field, 'price.currency', 'USD') }}</p>
@@ -69,23 +69,49 @@
 
                     <!-- Reservation Contains Column -->
                     <div class="card p-3 rounded">
-                        <div class="border-b mb-3">
-                            <h5 class="text-17">Reservation Contains</h5>
+                        <div class="bg-zinc-800 dark:bg-zinc-900 p-2 px-3 rounded-t -m-3 mb-3 border-b border-zinc-700">
+                            <h5 class="text-15 text-white mb-0">Reservation Contains</h5>
                         </div>
+
 
                         <p><strong>Hotel id:</strong> {{ $field['hotel_id'] }}</p>
                         <p><strong>Hotel name:</strong> {{ $field['hotel_name'] }}</p>
-                        <p><strong>Supplier room name:</strong> {{ $field['price']['supplier_room_name'] }}</p>
-                        <p><strong>Supplier rate name:</strong> {{ $field['price']['rate_name'] ??  $field['price']['rate_code'] ?? ''}}</p>
                         <p><strong>Advisor email:</strong> {{ $advisorEmail ?? 'N/A' }}</p>
+                    </div>
+
+                    <!-- Rooms Column -->
+                    <div class="card p-3 rounded col-span-1 md:col-span-2 lg:col-span-3">
+                        <div class="bg-zinc-800 dark:bg-zinc-900 p-2 px-3 rounded-t -m-3 mb-3 border-b border-zinc-700">
+                            <h5 class="text-15 text-white mb-0">Rooms</h5>
+                        </div>
+
+                        @php
+                            $roomNames = array_filter(explode(';', $field['price']['supplier_room_name'] ?? ''));
+                            $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
+                            $rateDescriptions = explode(';', $field['price']['rate_description'] ?? '');
+                            $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
+                        @endphp
+
+                        <div class="flex flex-wrap gap-3">
+                            @foreach($roomNames as $index => $roomName)
+                                <div class="p-3 rounded bg-gray-50 dark:bg-zinc-700/30 border border-gray-200 dark:border-zinc-700 flex-1 min-w-[300px]">
+                                    <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room {{ $index + 1 }}:</strong> {{ trim($roomName) }}</p>
+                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate name:</strong> {{ trim($rateDescriptions[$index] ?? ($rateCodes[$index] ?? 'N/A')) }}</p>
+                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate Code:</strong> <span class="badge bg-zinc-100 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200">{{ trim($rateCodes[$index] ?? 'N/A') }}</span></p>
+                                    @if(!empty(trim($mealPlans[$index] ?? '')))
+                                        <p class="mb-0 text-zinc-700 dark:text-zinc-300"><strong>Meal Plan:</strong> {{ trim($mealPlans[$index]) }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
                 <!-- Hotel Images Column -->
                 <div class="grid grid-cols-1">
                     <div class="card p-3 rounded">
-                        <div class="border-b">
-                            <h5 class="text-17">Hotel Images</h5>
+                        <div class="bg-zinc-800 dark:bg-zinc-900 p-2 px-3 rounded-t -m-3 mb-3 border-b border-zinc-700">
+                            <h5 class="text-15 text-white mb-0">Hotel Images</h5>
                         </div>
                         <div class="pt-3">
                             @php
