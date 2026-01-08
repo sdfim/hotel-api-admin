@@ -13,7 +13,7 @@
                 class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                 <div class="bg-white dark:bg-zinc-700">
                     <div class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                        <h3 class="text-xl font-semibold text-gray-100 dark:text-gray-100 ">
                             {{ $getRecord()->search_id }}
                         </h3>
                         <button onClick="closeModalError('{{ $getRecord()->search_id }}','request')"
