@@ -86,7 +86,7 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
 
         foreach ($propertyGroup['rooms'] as $roomGroup) {
             $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $query, $supplierRateData);
-            if (empty($roomGroupsData)) {
+            if (empty($roomGroupsData) || Arr::get($roomGroupsData, 'roomGroupsResponse.total_price') == 0.0) {
                 continue;
             }
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
