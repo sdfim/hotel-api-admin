@@ -1,6 +1,6 @@
 @if($getRecord()->status === 'error')
     <button type="button" onClick="openModalError('{{ $getRecord()->id }}','request')"
-            class="text-white bg-red-500 border-red-500 btn hover:bg-red-600 focus:ring ring-red-200 focus:bg-red-600"
+            class="text-white bg-red-500 border-red-500 btn hover:bg-red-600 focus:ring ring-red-200 focus:bg-red-600 px-2 py-1"
             @php
                 $statusDescribe = json_decode($getRecord()->status_describe, true);
                 $side = isset($statusDescribe['side']) ? ucfirst($statusDescribe['side']) : '';
