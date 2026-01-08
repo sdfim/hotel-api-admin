@@ -195,7 +195,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         $input = json_decode($record->request, true);
                         $token_id = Arr::get($input, 'token_id');
                         $channel = Channel::where('access_token', 'like', "%$token_id")->first();
-                        $input['api_user'] = $channel?->apiUsers?->first()->email;
+                        $apiUser = $channel?->apiUsers?->first();
+                        if (! $apiUser) {
+                            $apiUser = User::whereHas('roles', function ($query) {
+                                $query->where('slug', RoleSlug::API_USER->value);
+                            })->first();
+                        }
+                        $input['api_user'] = $apiUser->email;
                         foreach ($input['occupancy'] as $key => $occupancy) {
                             if (isset($occupancy['room_type'])) {
                                 $input['occupancy'][$key]['room_code'] = $occupancy['room_type'];
