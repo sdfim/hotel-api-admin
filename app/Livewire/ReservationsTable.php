@@ -228,64 +228,61 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         ->icon('heroicon-o-banknotes')
                         ->color('success')
                         ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
-                ])->color('gray'),
-            ])
-            ->actions([
-                Action::make('change_booking')
-                    ->label('')
-                    ->tooltip('Change Booking')
-                    ->icon('heroicon-o-pencil-square')
-                    ->fillForm(function ($record) {
-                        $field = json_decode($record->reservation_contains, true);
-                        $passengers_by_room = ApiBookingInspectorRepository::getPassengersByRoom($record->booking_id, $record->booking_item);
-                        [$special_requests_by_room, $comments_by_room] = ApiBookingInspectorRepository::getSpecialRequestsAndComments($record->booking_id, $record->booking_item) ?? [];
-                        $roomCodes = array_filter(explode(';', $field['price']['room_type'] ?? ''));
-                        $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
-                        $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
+                    Action::make('change_booking')
+                        ->label('Change Booking')
+                        ->tooltip('Change Booking')
+                        ->icon('heroicon-o-pencil-square')
+                        ->fillForm(function ($record) {
+                            $field = json_decode($record->reservation_contains, true);
+                            $passengers_by_room = ApiBookingInspectorRepository::getPassengersByRoom($record->booking_id, $record->booking_item);
+                            [$special_requests_by_room, $comments_by_room] = ApiBookingInspectorRepository::getSpecialRequestsAndComments($record->booking_id, $record->booking_item) ?? [];
+                            $roomCodes = array_filter(explode(';', $field['price']['room_type'] ?? ''));
+                            $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
+                            $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
 
 //                        dd($passengers_by_room);
 
-                        $request = json_decode($record->apiBookingItem->search->request, true);
+                            $request = json_decode($record->apiBookingItem->search->request, true);
 
-                        $input = [
-                            'checkin' => $request['checkin'] ?? null,
-                            'checkout' => $request['checkout'] ?? null,
-                        ];
-                        $i = 0;
-                        foreach ($passengers_by_room as $occupancy) {
-                            $input['occupancy'][$i]['room_code'] = $roomCodes[$i];
-                            $input['occupancy'][$i]['rate_code'] = $rateCodes[$i] ?? null;
-                            $input['occupancy'][$i]['meal_plan_code'] = $mealPlans[$i] ?? null;
-                            $input['occupancy'][$i]['adults'] = $request['occupancy'][$i]['adults'] ?? 1;
-                            $input['occupancy'][$i]['children_ages'] = $request['occupancy'][$i]['children_ages'] ?? [];
-                            $input['occupancy'][$i]['special_request'] = $special_requests_by_room[$i + 1] ?? '';
-                            $input['occupancy'][$i]['comment'] = $comments_by_room[$i + 1] ?? '';
+                            $input = [
+                                'checkin' => $request['checkin'] ?? null,
+                                'checkout' => $request['checkout'] ?? null,
+                            ];
+                            $i = 0;
+                            foreach ($passengers_by_room as $occupancy) {
+                                $input['occupancy'][$i]['room_code'] = $roomCodes[$i];
+                                $input['occupancy'][$i]['rate_code'] = $rateCodes[$i] ?? null;
+                                $input['occupancy'][$i]['meal_plan_code'] = $mealPlans[$i] ?? null;
+                                $input['occupancy'][$i]['adults'] = $request['occupancy'][$i]['adults'] ?? 1;
+                                $input['occupancy'][$i]['children_ages'] = $request['occupancy'][$i]['children_ages'] ?? [];
+                                $input['occupancy'][$i]['special_request'] = $special_requests_by_room[$i + 1] ?? '';
+                                $input['occupancy'][$i]['comment'] = $comments_by_room[$i + 1] ?? '';
 
-                            $input['occupancy'][$i]['title'] = $occupancy[0]['title'] ?? '';
-                            $input['occupancy'][$i]['given_name'] = $occupancy[0]['given_name'] ?? '';
-                            $input['occupancy'][$i]['family_name'] = $occupancy[0]['family_name'] ?? '';
-                            $input['occupancy'][$i]['date_of_birth'] = $occupancy[0]['date_of_birth'] ?? null;
+                                $input['occupancy'][$i]['title'] = $occupancy[0]['title'] ?? '';
+                                $input['occupancy'][$i]['given_name'] = $occupancy[0]['given_name'] ?? '';
+                                $input['occupancy'][$i]['family_name'] = $occupancy[0]['family_name'] ?? '';
+                                $input['occupancy'][$i]['date_of_birth'] = $occupancy[0]['date_of_birth'] ?? null;
 
-                            $i++;
-                        }
+                                $i++;
+                            }
 
-                        return $input;
-                    })
-                    ->form($this->getFormSchema())
-                    ->modalHeading('Change Booking')
-                    ->modalWidth('4xl')
-                    ->action(function ($data) {
+                            return $input;
+                        })
+                        ->form($this->getFormSchema())
+                        ->modalHeading('Change Booking')
+                        ->modalWidth('4xl')
+                        ->action(function ($data) {
 
 
-                        Notification::make()
-                            ->title('Flow Scenario is being processed')
-                            ->body('The task has been added to the queue.')
-                            ->success()
-                            ->send();
-                    })
+                            Notification::make()
+                                ->title('Flow Scenario is being processed')
+                                ->body('The task has been added to the queue.')
+                                ->success()
+                                ->send();
+                        })
 //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
-                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
-
+                        ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+                ])->color('gray'),
             ])
             ->filters([
                 SelectFilter::make('cancellation')
