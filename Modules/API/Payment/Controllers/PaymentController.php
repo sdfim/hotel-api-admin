@@ -26,11 +26,11 @@ class PaymentController extends BaseController
 
     public function createPaymentIntent(CreatePaymentIntentRequest $request)
     {
-        $provider = $this->getProvider($request);
-
+        $provider   = $this->getProvider($request);
         $booking_id = $request->input('booking_id');
+
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id.' - booking_id not found or not booked';
+            $error = $booking_id . ' - booking_id not found or not booked';
 
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
@@ -43,7 +43,7 @@ class PaymentController extends BaseController
         $provider = $this->getProvider(null);
 
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id.' - booking_id not found or not booked';
+            $error = $booking_id . ' - booking_id not found or not booked';
 
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
@@ -60,36 +60,37 @@ class PaymentController extends BaseController
 
     public function confirmationPaymentIntent(ConfirmationPaymentIntentRequest $request)
     {
-        $provider = $this->getProvider($request);
+        $validated    = $request->validated();
+        $provider     = $this->getProvider($request);
+        $providerName = $validated['provider'] ?? config('payment.default_provider');
 
-        // 1) Confirm payment intent on provider side
-        $response = $provider->confirmationPaymentIntent($request->validated());
+        // 1) Confirm payment on provider side (Airwallex or Cybersource)
+        $response = $provider->confirmationPaymentIntent($validated);
 
-        // 2) Get booking_id from our DB by payment_intent_id (any row is fine)
-        $paymentIntentId = $request->input('payment_intent_id');
+        // 2) Resolve booking_id depending on provider
+        $bookingId = null;
 
-        /** @var ApiBookingPaymentInit|null $paymentInit */
-        $paymentInit = ApiBookingPaymentInit::query()
-            ->where('payment_intent_id', $paymentIntentId)
-            // we only need booking_id, so we can safely take the latest row
-            ->latest('id')
-            ->first();
+        if ($providerName === 'airwallex') {
+            $paymentIntentId = $validated['payment_intent_id'] ?? null;
 
-        if ($paymentInit && $paymentInit->booking_id) {
-            // 3) Fetch client email and booking_item from ApiBookingInspector
-            [$email, $bookingItem] = ApiBookingInspectorRepository::getBookingContactEmailAndItemByBookingId(
-                $paymentInit->booking_id
-            );
+            if ($paymentIntentId) {
+                /** @var ApiBookingPaymentInit|null $paymentInit */
+                $paymentInit = ApiBookingPaymentInit::query()
+                    ->where('payment_intent_id', $paymentIntentId)
+                    ->latest('id')
+                    ->first();
 
-            // 4) Send confirmation email if we have all required data
-            if ($email && $bookingItem) {
-                if (! Cache::has('bookingItem_no_mail_'.$bookingItem)) {
-                    Mail::to($email)->queue(new BookingClientConfirmationMail($bookingItem));
-                }
+                $bookingId = $paymentInit?->booking_id;
             }
+        } elseif ($providerName === 'cybersource') {
+            // For Cybersource we receive booking_id directly from the request
+            $bookingId = $validated['booking_id'] ?? null;
         }
 
-        // 5) Return provider response as-is
+        // 3) Send confirmation email (if booking_id was found)
+        $this->sendClientConfirmationMailForBookingId($bookingId);
+
+        // 4) Return provider response as-is
         return $response;
     }
 
@@ -105,5 +106,25 @@ class PaymentController extends BaseController
         $provider = $this->getProvider($request);
 
         return $provider->getTransactionByBookingId($bookingId);
+    }
+
+    /**
+     * Sends BookingClientConfirmationMail for a given booking ID.
+     */
+    private function sendClientConfirmationMailForBookingId(?string $bookingId): void
+    {
+        if (!$bookingId) {
+            return;
+        }
+
+        [$email, $bookingItem] = ApiBookingInspectorRepository::getBookingContactEmailAndItemByBookingId(
+            $bookingId
+        );
+
+        if ($email && $bookingItem) {
+            if (! Cache::has('bookingItem_no_mail_'.$bookingItem)) {
+                Mail::to($email)->queue(new BookingClientConfirmationMail($bookingItem));
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -20,11 +21,10 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\Action;
-use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
-use Modules\API\Requests\BookingCancelBooking;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
+use Modules\API\Requests\BookingCancelBooking;
 
 class BookingInspectorTable extends Component implements HasForms, HasTable
 {
@@ -65,7 +65,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('status')
                     ->searchable(isIndividual: true)
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'error' => 'danger',
                         'success' => 'success',
                         default => 'gray',
@@ -118,12 +118,13 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 Action::make('Cancel')
+                    ->iconButton()
+                    ->tooltip('Cancel')
                     ->requiresConfirmation()
                     ->action(function (ApiBookingInspector $record) {
                         $booking_id = $record->booking_id;
                         $booking_item = $record->booking_item;
 
-                        // Create BookingCancelBooking request
                         $request = new BookingCancelBooking([
                             'booking_id' => $booking_id,
                             'booking_item' => $booking_item,
@@ -137,11 +138,10 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-s-x-circle')
                     ->color('danger')
                     ->visible(
-                        fn(ApiBookingInspector $record): bool =>
-                        $record->type === 'book' &&
+                        fn (ApiBookingInspector $record): bool => $record->type === 'book' &&
                         $record->sub_type === 'create' &&
                         $record->status === 'success' &&
-                        !ApiBookingInspector::where('booking_id', $record->booking_id)
+                        ! ApiBookingInspector::where('booking_id', $record->booking_id)
                             ->where('type', 'cancel_booking')
                             ->where('status', 'success')
                             ->exists()
@@ -192,7 +192,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['category']) && is_array($data['category'])) {
+                        if (! empty($data['category']) && is_array($data['category'])) {
                             $query->where(function ($query) use ($data) {
                                 foreach ($data['category'] as $cat) {
                                     [$subType, $type] = explode('|', $cat);
@@ -201,7 +201,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                                     });
                                 }
                             });
-                        } elseif (!empty($data['category'])) {
+                        } elseif (! empty($data['category'])) {
                             [$subType, $type] = explode('|', $data['category']);
                             $query->where('sub_type', trim($subType))->where('type', trim($type));
                         }
@@ -222,12 +222,12 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             'change-soft|change_book' => 'change_book_soft',
                             'update_change|change_passengers' => 'change_passengers_update',
                         ];
-                        if (!empty($data['category']) && is_array($data['category'])) {
-                            $labels = array_map(fn($cat) => $map[$cat] ?? $cat, $data['category']);
+                        if (! empty($data['category']) && is_array($data['category'])) {
+                            $labels = array_map(fn ($cat) => $map[$cat] ?? $cat, $data['category']);
 
-                            return 'Category: ' . implode(', ', $labels);
-                        } elseif (!empty($data['category'])) {
-                            return 'Category: ' . ($map[$data['category']] ?? $data['category']);
+                            return 'Category: '.implode(', ', $labels);
+                        } elseif (! empty($data['category'])) {
+                            return 'Category: '.($map[$data['category']] ?? $data['category']);
                         }
 
                         return null;
@@ -241,11 +241,11 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
                 Filter::make('is_booked')
@@ -289,9 +289,9 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 BulkAction::make('delete')
-                    ->action(fn($records) => ApiBookingInspector::destroy($records->pluck('id')->toArray()))
+                    ->action(fn ($records) => ApiBookingInspector::destroy($records->pluck('id')->toArray()))
                     ->requiresConfirmation()
-                    ->visible(fn() => config('superuser.email') === auth()->user()->email),
+                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
             ]);
     }
 

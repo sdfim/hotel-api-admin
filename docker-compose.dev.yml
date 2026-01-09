@@ -1,9 +1,9 @@
 services:
-  fora:
+  vidanta:
     build:
       context: .
       dockerfile: dev.Dockerfile
-    container_name: fora
+    container_name: vidanta
     restart: unless-stopped
     environment:
       WEB_DOCUMENT_ROOT: /app/public
@@ -13,7 +13,7 @@ services:
       php.opcache.enable_cli: 1
       php.variables_order: EGPCS
       SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
-      PHP_IDE_CONFIG: 'serverName=fora.loc'
+      PHP_IDE_CONFIG: 'serverName=vidanta.loc'
       XDEBUG_MODE: develop,debug,coverage
       XDEBUG_START_WITH_REQUEST: yes
       XDEBUG_CLIENT_HOST: docker.for.mac.localhost
@@ -30,14 +30,14 @@ services:
     volumes:
       - ./:/app
     networks:
-      - fora-network
+      - vidanta-network
     depends_on:
       - mysql
       - redis
 
   mysql:
     image: mysql:8.0.33
-    container_name: fora-mysql
+    container_name: vidanta-mysql
     restart: unless-stopped
     command:
       - "mysqld"
@@ -50,9 +50,10 @@ services:
       MYSQL_USER: '${DB_USERNAME}'
       MYSQL_PASSWORD: '${DB_PASSWORD}'
     volumes:
-      - 'fora-mysql:/var/lib/mysql'
+      - 'vidanta-mysql:/var/lib/mysql'
+      - './infrastructure/docker/php-8.2/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
     networks:
-      - fora-network
+      - vidanta-network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-pmysqlpasswdroot" ]
       retries: 3
@@ -60,25 +61,25 @@ services:
 
   redis:
     image: redis
-    container_name: fora-redis
+    container_name: vidanta-redis
     restart: unless-stopped
     ports:
       - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
-      - fora-network
+      - vidanta-network
     volumes:
-      - 'fora-redis:/data'
+      - 'vidanta-redis:/data'
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       retries: 3
       timeout: 5s
 
 networks:
-  fora-network:
+  vidanta-network:
     driver: bridge
 
 volumes:
-  fora-mysql:
+  vidanta-mysql:
     driver: local
-  fora-redis:
+  vidanta-redis:
     driver: local

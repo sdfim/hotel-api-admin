@@ -239,6 +239,7 @@ trait FlowScenariosTrait
         $faker = Faker::create();
 
         $requestData = [
+            'is_test_scenario' => true,
             'api_client' => [
                 'id' => $this->api_client_id,
             ],
@@ -286,7 +287,10 @@ trait FlowScenariosTrait
             'booking_id' => $bookingId,
         ];
 
+        logger('FlowScenarios Cancel Booking Request Data: '.json_encode($requestData));
         $response = $this->client->delete($this->url.'/api/booking/cancel-booking', $requestData);
+        logger('FlowScenarios Cancel Booking Response Data: '.json_encode($response->json()));
+
         $this->info('------------------------------------');
         if ($response->ok()) {
             $this->info('Cancelled booking: '.$bookingId);
