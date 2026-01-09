@@ -234,10 +234,8 @@ class BookApiHandler extends BaseController
         ];
 
         $endpoints = match ($supplierMach) {
-            SupplierNameEnum::HBSI => ['soft-change', 'availability', 'price-check', 'hard-change'],
-            SupplierNameEnum::HOTEL_TRADER => ['soft-change', 'availability', 'price-check', 'hard-change'],
             SupplierNameEnum::EXPEDIA, 'NonRefundable' => ['soft-change'],
-            default => [],
+            default => ['soft-change', 'availability', 'price-check', 'hard-change'],
         };
 
         $result = [];

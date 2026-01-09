@@ -489,7 +489,6 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         return ['status' => 'Booking changed.'];
     }
 
-    // TODO: need to be refactored for multiple booking items
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
