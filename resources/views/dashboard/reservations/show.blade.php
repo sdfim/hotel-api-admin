@@ -99,8 +99,8 @@
                             @foreach($roomNames as $index => $roomName)
                                 <div class="p-3 rounded bg-gray-50 dark:bg-zinc-700/30 border border-gray-200 dark:border-zinc-700 flex-1 min-w-[300px]">
                                     <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room {{ $index + 1 }}:</strong> {{ trim($roomName) }}</p>
-                                    <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room Code:</strong> {{ trim($roomCodes[$index]) }}</p>
-                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate Code:</strong> <span class="badge bg-zinc-100 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200">{{ trim($rateCodes[$index] ?? 'N/A') }}</span></p>
+                                    <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room Code:</strong> {{ isset($roomCodes[$index]) ? trim($roomCodes[$index]) : 'N/A' }}</p>
+                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate Code:</strong> <span class="badge bg-zinc-100 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200">{{ isset($rateCodes[$index]) ? trim($rateCodes[$index]) : 'N/A' }}</span></p>
                                     @if(!empty(trim($mealPlans[$index] ?? '')))
                                         <p class="mb-0 text-zinc-700 dark:text-zinc-300"><strong>Meal Plan:</strong> {{ trim($mealPlans[$index]) }}</p>
                                     @endif

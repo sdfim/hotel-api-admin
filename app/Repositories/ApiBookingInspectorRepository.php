@@ -387,7 +387,7 @@ class ApiBookingInspectorRepository
             ->toArray();
     }
 
-    public static function bookedItem(string $booking_id, string $booking_item): object
+    public static function bookedItem(string $booking_id, string $booking_item): ?ApiBookingInspector
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
@@ -397,7 +397,7 @@ class ApiBookingInspectorRepository
             ->first();
     }
 
-    public static function getPassengers(string $booking_id, string $booking_item): ?object
+    public static function getPassengers(string $booking_id, string $booking_item): ?ApiBookingInspector
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
@@ -409,6 +409,11 @@ class ApiBookingInspectorRepository
     public static function getPassengersByRoom(string $booking_id, string $booking_item): ?SupportCollection
     {
         $passengersRepoData = self::getChangePassengers($booking_id, $booking_item);
+
+        if (! $passengersRepoData) {
+            return collect();
+        }
+
         $passengersArr = $passengersRepoData->toArray();
         $dataPassengers = json_decode($passengersArr['request'], true)['passengers'];
 
@@ -420,6 +425,11 @@ class ApiBookingInspectorRepository
     public static function getSpecialRequestsAndComments(string $booking_id, string $booking_item): ?array
     {
         $repoData = self::bookedItem($booking_id, $booking_item);
+
+        if (! $repoData) {
+            return [[], []];
+        }
+
         $repoDataRsArr = json_decode($repoData->toArray()['request'], true);
         $specialRequests = Arr::get($repoDataRsArr, 'special_requests', []);
         $comments = Arr::get($repoDataRsArr, 'comments', []);
@@ -446,10 +456,10 @@ class ApiBookingInspectorRepository
             })
             ->toArray();
 
-        return [$specialRequestsGrouped,  $commentsGrouped];
+        return [$specialRequestsGrouped, $commentsGrouped];
     }
 
-    public static function getChangePassengers(string $bookingId, string $bookingItem): ApiBookingInspector
+    public static function getChangePassengers(string $bookingId, string $bookingItem): ?ApiBookingInspector
     {
         $changeQb = ApiBookingInspector::where('booking_id', $bookingId)
             ->where('booking_item', $bookingItem)
@@ -467,7 +477,7 @@ class ApiBookingInspectorRepository
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-//            ->where('sub_type', 'like', 'price_check' . '%')
+            //            ->where('sub_type', 'like', 'price_check' . '%')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get();
     }
@@ -644,9 +654,9 @@ class ApiBookingInspectorRepository
         $booking_item = $query['booking_item'] ?? null;
         $search_id = $query['search_id'] ?? (
             $booking_item
-                ? (ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
+            ? (ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
                 ?? ApiBookingItemCache::where('booking_item', $booking_item)->first()?->search_id)
-                : null
+            : null
         );
 
         /** @var ApiBookingInspector $inspector */
