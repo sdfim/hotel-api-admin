@@ -59,19 +59,21 @@ class CybersourceClient
      * Generates capture context (JWT) for Microform initialization.
      *
      * @param string $origin Frontend origin where Microform is rendered.
-     * @return string JWT capture context.
-     * @throws Exception
+     * @return array JWT capture context.
+     * @throws ApiException
      */
-    public function generateCaptureContext(string $origin): string
+    public function generateCaptureContext(string $origin): array
     {
         // Minimal set according to docs:
         // clientVersion, targetOrigins, allowedCardNetworks.
-        $request = new GenerateCaptureContextRequest([
-            'clientVersion'       => config('cybersource.client_version'),
-            'targetOrigins'       => [$origin],
+        $payload = [
+            'clientVersion' => config('cybersource.client_version'),
+            'targetOrigins' => [$origin],
             'allowedCardNetworks' => config('cybersource.allowed_card_networks'),
             'allowedPaymentTypes' => config('cybersource.allowed_payment_types'),
-        ]);
+        ];
+
+        $request = new GenerateCaptureContextRequest($payload);
 
         $response = $this->microformApi->generateCaptureContext($request);
 
@@ -80,13 +82,14 @@ class CybersourceClient
         //  - ['captureContext' => jwt, ...]
         //  - plain string jwt
         //  - object with getCaptureContext()
+        $jwt = '';
         if (is_array($response)) {
             if (isset($response[0]) && is_string($response[0])) {
                 $jwt = $response[0];
             } elseif (isset($response['captureContext']) && is_string($response['captureContext'])) {
                 $jwt = $response['captureContext'];
             } else {
-                throw new Exception('Unexpected array response from Cybersource generateCaptureContext().');
+                return [['error' => 'Unexpected array response from Cybersource generateCaptureContext().'], $payload];
             }
         } elseif (is_string($response)) {
             $jwt = $response;
@@ -94,20 +97,18 @@ class CybersourceClient
             /** @var mixed $ctx */
             $ctx = $response->getCaptureContext();
             if (!is_string($ctx)) {
-                throw new Exception('Unexpected captureContext type on response object.');
+                return [['error' => 'Unexpected captureContext type on response object.'], $payload];
             }
             $jwt = $ctx;
         } else {
-            throw new Exception(
-                'Unexpected response type from Cybersource generateCaptureContext(): ' . gettype($response)
-            );
+            return [['error' => 'Unexpected response type from Cybersource generateCaptureContext(): ' . gettype($response)], $payload];
         }
 
         if ($jwt === '') {
-            throw new Exception('Empty capture context returned from Cybersource.');
+            return [['error' => 'Empty capture context returned from Cybersource.'], $payload];
         }
 
-        return $jwt;
+        return [['captureContext' => $jwt], $payload];
     }
 
     /**
@@ -238,6 +239,8 @@ class CybersourceClient
 
         $paymentsApi = new PaymentsApi($this->apiClient);
 
+        $payload = json_decode(json_encode($request), true);
+
         try {
             // IMPORTANT: use WithHttpInfo to get status code + headers
             [$result, $statusCode, $headers] = $paymentsApi->createPaymentWithHttpInfo($request);
@@ -266,11 +269,10 @@ class CybersourceClient
                     'decoded'     => $decoded,
                 ]);
 
-                // You can throw here or return structured error
-                throw new Exception('Cybersource createPayment failed with HTTP ' . $statusCode);
+                return [['error' => 'Cybersource createPayment failed with HTTP ' . $statusCode], $payload];
             }
 
-            return $decoded;
+            return [$decoded, $payload];
         } catch (ApiException $e) {
             Log::error('Cybersource ApiException (createPayment)', [
                 'code'          => $e->getCode(),
@@ -279,7 +281,7 @@ class CybersourceClient
                 'headers'       => $e->getResponseHeaders(),
             ]);
 
-            throw $e;
+            return [['error' => $e->getMessage()], $payload];
         }
     }
 }

@@ -13,6 +13,8 @@
             </div>
             @php
                 $field = json_decode($reservation->reservation_contains, true);
+                $passengers_by_room = \App\Repositories\ApiBookingInspectorRepository::getPassengersByRoom($reservation->booking_id, $reservation->booking_item);
+                [$special_requests_by_room, $comments_by_room] = \App\Repositories\ApiBookingInspectorRepository::getSpecialRequestsAndComments($reservation->booking_id, $reservation->booking_item) ?? [];
             @endphp
             <div class="card-body">
                 <!-- Back Button -->
@@ -87,6 +89,7 @@
 
                         @php
                             $roomNames = array_filter(explode(';', $field['price']['supplier_room_name'] ?? ''));
+                            $roomCodes = array_filter(explode(';', $field['price']['room_type'] ?? ''));
                             $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
                             $rateDescriptions = explode(';', $field['price']['rate_description'] ?? '');
                             $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
@@ -96,10 +99,46 @@
                             @foreach($roomNames as $index => $roomName)
                                 <div class="p-3 rounded bg-gray-50 dark:bg-zinc-700/30 border border-gray-200 dark:border-zinc-700 flex-1 min-w-[300px]">
                                     <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room {{ $index + 1 }}:</strong> {{ trim($roomName) }}</p>
-                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate name:</strong> {{ trim($rateDescriptions[$index] ?? ($rateCodes[$index] ?? 'N/A')) }}</p>
-                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate Code:</strong> <span class="badge bg-zinc-100 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200">{{ trim($rateCodes[$index] ?? 'N/A') }}</span></p>
+                                    <p class="mb-1 text-zinc-900 dark:text-zinc-100"><strong>Room Code:</strong> {{ isset($roomCodes[$index]) ? trim($roomCodes[$index]) : 'N/A' }}</p>
+                                    <p class="mb-1 text-zinc-700 dark:text-zinc-300"><strong>Rate Code:</strong> <span class="badge bg-zinc-100 text-zinc-800 dark:bg-zinc-600 dark:text-zinc-200">{{ isset($rateCodes[$index]) ? trim($rateCodes[$index]) : 'N/A' }}</span></p>
                                     @if(!empty(trim($mealPlans[$index] ?? '')))
                                         <p class="mb-0 text-zinc-700 dark:text-zinc-300"><strong>Meal Plan:</strong> {{ trim($mealPlans[$index]) }}</p>
+                                    @endif
+
+                                    <!-- Passengers for this room -->
+                                    @if(isset($passengers_by_room[$index + 1]))
+                                        <div class="mt-3">
+                                            <h5 class="text-zinc-900 dark:text-zinc-100">Passengers:</h5>
+                                            <ul class="list-disc list-inside">
+                                                @foreach($passengers_by_room[$index + 1] as $passenger)
+                                                    <li class="text-zinc-800 dark:text-zinc-200">
+                                                        <strong>{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }} {{ $passenger['family_name'] }}</strong><br>
+                                                        Age: {{ $passenger['age'] }}<br>
+                                                        Date of Birth: {{ $passenger['date_of_birth'] }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
+
+                                    <!-- Special Requests for this room -->
+                                    @if(isset($special_requests_by_room[$index + 1]))
+                                        <div class="mt-3">
+                                            <h5 class="text-zinc-900 dark:text-zinc-100">Special Requests:</h5>
+                                            <ul class="list-disc list-inside">
+                                                <li class="text-zinc-800 dark:text-zinc-200">{{ $special_requests_by_room[$index + 1] }}</li>
+                                            </ul>
+                                        </div>
+                                    @endif
+
+                                    <!-- Comments for this room -->
+                                    @if(isset($comments_by_room[$index + 1]))
+                                        <div class="mt-3">
+                                            <h5 class="text-zinc-900 dark:text-zinc-100">Comments:</h5>
+                                            <ul class="list-disc list-inside">
+                                                <li class="text-zinc-800 dark:text-zinc-200">{{ $comments_by_room[$index + 1] }}</li>
+                                            </ul>
+                                        </div>
                                     @endif
                                 </div>
                             @endforeach

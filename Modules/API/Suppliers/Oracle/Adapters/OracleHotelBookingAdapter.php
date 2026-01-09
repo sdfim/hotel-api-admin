@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavCancelTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavListBookingsTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavRetrieveBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\Oracle\Client\OracleClient;
@@ -28,6 +29,7 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
 {
     use HotelBookingavAilabilityChangeTrait;
     use HotelBookingavCancelTrait;
+    use HotelBookingavListBookingsTrait;
     use HotelBookingavRetrieveBookingTrait;
 
     public function __construct(
@@ -167,11 +169,6 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
         }
 
         return $res;
-    }
-
-    public function listBookings(): ?array
-    {
-        return [];
     }
 
     public function changeBooking(array $filters, string $mode = 'soft'): ?array

@@ -9,12 +9,12 @@ use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Modules\Enums\SupplierNameEnum;
 
 trait HotelBookingavAilabilityChangeTrait
 {
-    public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'change'): ?array
+    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
+        $supplier = $this->supplier();
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $searchId = (string) Str::uuid();
@@ -48,7 +48,7 @@ trait HotelBookingavAilabilityChangeTrait
         SaveSearchInspector::dispatch($searchInspector, $handleResponse['dataOriginal'] ?? [], $content, $result);
 
         /** Save booking_items */
-        if (!empty($handleResponse['bookingItems'])) {
+        if (! empty($handleResponse['bookingItems'])) {
             foreach ($handleResponse['bookingItems'] as $items) {
                 SaveBookingItems::dispatch($items);
             }
@@ -56,7 +56,7 @@ trait HotelBookingavAilabilityChangeTrait
 
         return [
             'result' => $clientResponse[$supplier->value],
-            $type . '_search_id' => $searchId,
+            $type.'_search_id' => $searchId,
         ];
     }
 }

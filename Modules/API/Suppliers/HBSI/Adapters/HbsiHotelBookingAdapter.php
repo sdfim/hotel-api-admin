@@ -13,7 +13,6 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -23,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavListBookingsTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\HBSI\Client\HbsiClient;
 use Modules\API\Suppliers\HBSI\Transformers\HbsiHotelBookingRetrieveBookingTransformer;
@@ -34,6 +34,7 @@ use SimpleXMLElement;
 class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
     use HotelBookingavAilabilityChangeTrait;
+    use HotelBookingavListBookingsTrait;
 
     private const CONFIRMATION = [
         '8' => 'HBSI',
@@ -211,7 +212,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         return $res;
     }
 
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -286,7 +287,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
     /**
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
         $booking_id = $filters['booking_id'];
 
@@ -349,7 +350,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
                     $apiBookingsMetadata = ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
 
                     if ($iterations < static::MAX_CANCEL_BOOKING_RETRY_COUNT) {
-                        return $this->cancelBooking($filters, $apiBookingsMetadata, $supplier, $iterations + 1);
+                        return $this->cancelBooking($filters, $apiBookingsMetadata, $iterations + 1);
                     }
                 }
             } else {
@@ -384,38 +385,6 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         }
 
         return $res;
-    }
-
-    /**
-     * @throws GuzzleException
-     */
-    public function listBookings(): ?array
-    {
-        $tokenId = ChannelRepository::getTokenId(request()->bearerToken());
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->value('id');
-
-        $apiClientId = data_get(request()->all(), 'api_client.id');
-        $apiClientEmail = data_get(request()->all(), 'api_client.email');
-
-        $itemsBooked = ApiBookingInspector::query()
-            ->where('token_id', $tokenId)
-            ->where('supplier_id', $supplierId)
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
-            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
-            ->has('metadata')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        $data = [];
-        foreach ($itemsBooked as $item) {
-            $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item->metadata, SupplierNameEnum::HBSI);
-        }
-
-        return $data;
     }
 
     public function changeBooking(array $filters, string $mode = 'soft'): ?array
@@ -520,7 +489,6 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         return ['status' => 'Booking changed.'];
     }
 
-    // TODO: need to be refactored for multiple booking items
     public function priceCheck(array $filters): ?array
     {
         if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {

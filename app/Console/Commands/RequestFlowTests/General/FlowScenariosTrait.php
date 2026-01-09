@@ -13,8 +13,6 @@ trait FlowScenariosTrait
     protected $search_id;
 
     /**
-     * @param array $requestData
-     * @return array
      * @throws ConnectionException
      */
     private function search(array $requestData): array
@@ -29,11 +27,6 @@ trait FlowScenariosTrait
         return $response->json();
     }
 
-    /**
-     * @param array $searchResponse
-     * @param array $roomsData
-     * @return string|null
-     */
     private function fetchBookingItem(array $searchResponse, array $roomsData): ?string
     {
         $results = Arr::get($searchResponse, 'data.results');
@@ -105,9 +98,6 @@ trait FlowScenariosTrait
     }
 
     /**
-     * @param string $bookingItem
-     * @param string|null $bookingId
-     * @return string|bool
      * @throws ConnectionException
      */
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string|bool
@@ -148,10 +138,6 @@ trait FlowScenariosTrait
     }
 
     /**
-     * @param string $bookingId
-     * @param array $bookingItems
-     * @param array $occupancy
-     * @return void
      * @throws ConnectionException
      */
     private function addPassengers(string $bookingId, array $bookingItems, array $occupancy): void
@@ -214,8 +200,6 @@ trait FlowScenariosTrait
     }
 
     /**
-     * @param string $bookingId
-     * @return void
      * @throws ConnectionException
      */
     private function retrieveItems(string $bookingId): void
@@ -229,14 +213,47 @@ trait FlowScenariosTrait
     }
 
     /**
-     * @param string $bookingId
-     * @param array $bookingItems
-     * @return void
      * @throws ConnectionException
      */
-    private function book(string $bookingId, array $bookingItems): void
+    private function book(string $bookingId, array $bookingItems, array $formData = []): void
     {
         $faker = Faker::create();
+
+        $specialRequests = [];
+        $comments = [];
+
+        if (isset($formData['occupancy']) && is_array($formData['occupancy'])) {
+            foreach ($formData['occupancy'] as $index => $roomOccupancy) {
+                // Determine which booking item to use. If multiple rooms are in one booking item, they use the same item.
+                // In many cases $bookingItems has only 1 element which is the parent booking item ID.
+                $itemForRoom = $bookingItems[$index] ?? ($bookingItems[0] ?? null);
+
+                if ($itemForRoom) {
+                    if (! empty($roomOccupancy['special_request'])) {
+                        $specialRequests[] = [
+                            'booking_item' => $itemForRoom,
+                            'room' => $index + 1,
+                            'special_request' => $roomOccupancy['special_request'],
+                        ];
+                    }
+                    if (! empty($roomOccupancy['comment'])) {
+                        $comments[] = [
+                            'booking_item' => $itemForRoom,
+                            'room' => $index + 1,
+                            'comment' => $roomOccupancy['comment'],
+                        ];
+                    }
+                }
+            }
+        }
+
+        if (empty($specialRequests) && empty($comments)) {
+            $specialRequests[] = [
+                'booking_item' => $bookingItems[0] ?? 'DEFAULT_ITEM',
+                'room' => 1,
+                'special_request' => 'Test Booking (No Specific Requests Found), please disregard.',
+            ];
+        }
 
         $requestData = [
             'is_test_scenario' => true,
@@ -262,14 +279,24 @@ trait FlowScenariosTrait
                     'country_code' => 'US', // $faker->countryCode(),
                 ],
             ],
-            'special_requests' => [
-                [
-                    'booking_item' => $bookingItems[0],
-                    'room' => 1,
-                    'special_request' => 'Test Booking, please disregard.',
-                ],
-            ],
+            //            'special_requests' => [
+            //                [
+            //                    'booking_item' => $bookingItems[0],
+            //                    'room' => 1,
+            //                    'special_request' => 'Test Booking, please disregard.',
+            //                ],
+            //            ],
         ];
+
+        if (! empty($specialRequests)) {
+            $requestData['special_requests'] = $specialRequests;
+        }
+
+        if (! empty($comments)) {
+            $requestData['comments'] = $comments;
+        }
+
+        logger('FlowScenarios Book Request Data: '.json_encode($requestData));
 
         $response = $this->client->post($this->url.'/api/booking/book', $requestData);
         $this->info('------------------------------------');
@@ -277,8 +304,6 @@ trait FlowScenariosTrait
     }
 
     /**
-     * @param string $bookingId
-     * @return void
      * @throws ConnectionException
      */
     private function cancel(string $bookingId): void

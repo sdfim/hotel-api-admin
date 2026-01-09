@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reservations>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reservation>
  */
 class ReservationFactory extends Factory
 {
@@ -48,6 +48,9 @@ class ReservationFactory extends Factory
                     'giata_room_code' => '',
                     'giata_room_name' => '',
                     'supplier_room_name' => $this->faker->text(),
+                    'room_type' => $this->faker->word(),
+                    'rate_plan_code' => $this->faker->word(),
+                    'meal_plan' => $this->faker->word(),
                     'per_day_rate_breakdown' => '',
                     'markup' => $this->faker->numberBetween(1, 200),
                 ],
@@ -56,6 +59,8 @@ class ReservationFactory extends Factory
                     $this->faker->imageUrl(),
                 ]),
             ]),
+            'booking_id' => (string) Str::uuid(),
+            'booking_item' => (string) Str::uuid(),
             'channel_id' => 1,
             'total_cost' => $this->faker->randomFloat(2, 100, 3000),
             'canceled_at' => $now->copy(),
