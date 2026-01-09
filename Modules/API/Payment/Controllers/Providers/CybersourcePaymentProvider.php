@@ -3,6 +3,9 @@
 namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
+use App\Models\ApiBookingPaymentInit;
+use App\Models\CybersourceApiLog;
+use App\Models\Enums\PaymentStatusEnum;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
@@ -38,11 +41,14 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 );
             }
 
-            $captureContext = $this->client->generateCaptureContext($origin);
+            [$result, $payload] = $this->client->generateCaptureContext($origin);
 
-            if (!$this->validator->validate($captureContext)) {
-                return $this->sendError('Generated capture context failed validation.', 'Validation Error', 500);
+            if ($error = $result['error'] ?? null) {
+                $this->logCybersourceApiData($data, 'createPaymentIntent', $result, ['origin' => $origin], $payload);
+                return $this->sendError($error, 'Validation Error', 500);
             }
+
+            $captureContext = $result['captureContext'];
 
             // Store captureContext temporarily so we can validate transient token later.
             $bookingId = $data['booking_id'] ?? null;
@@ -50,10 +56,12 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 $this->cacheCaptureContext($bookingId, $captureContext);
             }
 
+            $this->logCybersourceApiData($data, 'createPaymentIntent', $result, $data, $payload);
+
             return $this->sendResponse(
                 [
                     'captureContext' => $captureContext,
-                    'booking_id'     => $data['booking_id'] ?? null,
+                    'booking_id' => $data['booking_id'] ?? null,
                 ],
                 'Capture context generated successfully.'
             );
@@ -61,6 +69,8 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
             Log::error('Cybersource Payment Create failed: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);
+
+            $this->logCybersourceApiData($data, 'createPaymentIntent', ['error' => $e->getMessage(), 'status_code' => 500], ['origin' => $data['origin'] ?? null], []);
 
             return $this->sendError(
                 'Internal server error.',
@@ -83,7 +93,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
     public function confirmationPaymentIntent(array $data)
     {
         try {
-            $bookingId      = $data['booking_id'] ?? null;
+            $bookingId = $data['booking_id'] ?? null;
             $transientToken = $data['transient_token'] ?? null;
 
             if (!$bookingId || !$transientToken) {
@@ -94,7 +104,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 );
             }
 
-            $amount   = (float) ($data['amount'] ?? 0);
+            $amount = (float) ($data['amount'] ?? 0);
             $currency = $data['currency'] ?? 'USD';
 
             // Build minimal billTo information.
@@ -127,7 +137,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 );
             }
 
-            $payment = $this->client->createPaymentWithTransientToken(
+            [$payment, $payload] = $this->client->createPaymentWithTransientToken(
                 $transientToken,
                 $amount,
                 $currency,
@@ -139,11 +149,13 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
             // You can adjust this list according to your business rules.
             $isSuccessful = in_array($status, ['AUTHORIZED', 'PENDING', 'SETTLED', 'CAPTURED'], true);
 
+            $this->logCybersourceApiData($data, 'confirmationPaymentIntent', $payment, $data, $payload);
+
             if (!$isSuccessful) {
                 Log::warning('Cybersource payment not successful.', [
                     'booking_id' => $bookingId,
-                    'status'     => $status,
-                    'response'   => $payment,
+                    'status' => $status,
+                    'response' => $payment,
                 ]);
 
                 return $this->sendError(
@@ -157,10 +169,10 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
             return $this->sendResponse([
                 'booking_id' => $bookingId,
-                'amount'     => $amount,
-                'currency'   => $currency,
-                'status'     => $status,
-                'payment'    => $payment,
+                'amount' => $amount,
+                'currency' => $currency,
+                'status' => $status,
+                'payment' => $payment,
             ], 'Cybersource payment confirmed successfully.');
         } catch (Throwable $e) {
             Log::error('Cybersource confirmation failed: ' . $e->getMessage(), [
@@ -175,6 +187,44 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
         }
     }
 
+    private function logCybersourceApiData(array $data, string $method, array $result, array $direction, array $payload): void
+    {
+        $id = $result['id'] ?? null;
+        $cybersourceApiLogData = [
+            'method' => $method,
+            'payment_intent_id' => $id,
+            'method_action_id' => $id,
+            'direction' => $direction,
+            'payload' => $payload,
+            'response' => $result,
+            'status_code' => $result['status_code'] ?? 201,
+            'booking_id' => $data['booking_id'] ?? null,
+        ];
+
+        if ($error = $result['error'] ?? null) {
+            $cybersourceApiLogData['status_code'] = $result['status_code'] ?? 400;
+            CybersourceApiLog::create($cybersourceApiLogData);
+
+            return;
+        }
+
+        $log = CybersourceApiLog::create($cybersourceApiLogData);
+
+        if (in_array($method, ['createPaymentIntent', 'confirmationPaymentIntent']) && $log) {
+            $action = $method === 'confirmationPaymentIntent' ? PaymentStatusEnum::CONFIRMED->value : PaymentStatusEnum::INIT->value;
+            ApiBookingPaymentInit::create([
+                'booking_id' => $log->booking_id,
+                'payment_intent_id' => $log->booking_id,
+                'action' => $action,
+                'amount' => $data['amount'] ?? 0,
+                'currency' => $data['currency'] ?? 'USD',
+                'provider' => 'cybersource',
+                'related_id' => $log->id,
+                'related_type' => CybersourceApiLog::class,
+            ]);
+        }
+    }
+
     /**
      * Build basic billing information for Cybersource payment.
      *
@@ -183,15 +233,15 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
     private function buildBillToPayload(string $bookingId, array $data): array
     {
         return [
-            'reference'          => $bookingId,
-            'firstName'          => $data['billing_first_name'] ?? 'Guest',
-            'lastName'           => $data['billing_last_name'] ?? 'Customer',
-            'email'              => $data['billing_email'] ?? $data['email'] ?? 'no-reply@example.com',
-            'address1'           => $data['billing_address1'] ?? 'N/A',
-            'locality'           => $data['billing_locality'] ?? 'N/A',
+            'reference' => $bookingId,
+            'firstName' => $data['billing_first_name'] ?? 'Guest',
+            'lastName' => $data['billing_last_name'] ?? 'Customer',
+            'email' => $data['billing_email'] ?? $data['email'] ?? 'no-reply@example.com',
+            'address1' => $data['billing_address1'] ?? 'N/A',
+            'locality' => $data['billing_locality'] ?? 'N/A',
             'administrativeArea' => $data['billing_administrative_area'] ?? 'N/A',
-            'postalCode'         => $data['billing_postal_code'] ?? '00000',
-            'country'            => $data['billing_country'] ?? 'US',
+            'postalCode' => $data['billing_postal_code'] ?? '00000',
+            'country' => $data['billing_country'] ?? 'US',
         ];
     }
 
@@ -207,7 +257,29 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
     public function getTransactionByBookingId($bookingId)
     {
-        return $this->sendError('Not implemented', 'Error');
+        $logs = CybersourceApiLog::where('booking_id', $bookingId)
+            ->where('method', 'confirmationPaymentIntent')
+            ->get();
+
+        if ($logs->isEmpty()) {
+            return response()->json(['error' => 'Transaction not found'], 404);
+        }
+
+        $transactions = [];
+        foreach ($logs as $log) {
+            $response = $log->response;
+            $transactions[] = [
+                'booking_id' => $log->booking_id,
+                'transaction_id' => $response['id'] ?? null,
+                'amount' => $response['orderInformation']['amountDetails']['totalAmount'] ?? null,
+                'currency' => $response['orderInformation']['amountDetails']['currency'] ?? null,
+                'merchant_order_id' => $response['clientReferenceInformation']['code'] ?? null,
+                'date' => $log->created_at->toDateTimeString(),
+                'request_id' => $response['id'] ?? null,
+            ];
+        }
+
+        return response()->json($transactions);
     }
 
     private function cacheKeyForBooking(string $bookingId): string

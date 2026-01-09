@@ -67,17 +67,19 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/phpinfo', fn () => phpinfo());
+Route::get('/phpinfo', fn() => phpinfo());
 
 Route::fallback(function () {
-    if (! request()->is('api/*')) {
+    if (!request()->is('api/*')) {
         return redirect()->route('root');
     } else {
         return response()->json(['message' => 'Not Found'], 404);
     }
 });
 
-Route::get('/admin/', fn () => Auth::check()
+Route::get(
+    '/admin/',
+    fn() => Auth::check()
     ? redirect()->route('reservations.index')
     : redirect()->route('login')
 )->name('root');
@@ -173,6 +175,8 @@ Route::prefix('admin')->group(function () {
 
         // AirwallexApiLog table route
         Route::get('airwallex-api-logs', [\App\Http\Controllers\AirwallexApiLogController::class, 'index'])->name('airwallex-api-logs.index');
+        // CybersourceApiLog table route
+        Route::get('cybersource-api-logs', [\App\Http\Controllers\CybersourceApiLogController::class, 'index'])->name('cybersource-api-logs.index');
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
