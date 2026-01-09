@@ -12,7 +12,6 @@ use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ChannelRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -23,6 +22,7 @@ use Modules\API\Services\HotelCombinationService;
 use Modules\API\Suppliers\Base\Adapters\BaseHotelBookingAdapter;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavAilabilityChangeTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavCancelTrait;
+use Modules\API\Suppliers\Base\Traits\HotelBookingavListBookingsTrait;
 use Modules\API\Suppliers\Base\Traits\HotelBookingavRetrieveBookingTrait;
 use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelBookingSupplierInterface;
 use Modules\API\Suppliers\HotelTrader\Client\HotelTraderClient;
@@ -30,13 +30,12 @@ use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelBookTransform
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderiHotelBookingRetrieveBookingTransformer;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBookingSupplierInterface
 {
     use HotelBookingavAilabilityChangeTrait;
     use HotelBookingavCancelTrait;
+    use HotelBookingavListBookingsTrait;
     use HotelBookingavRetrieveBookingTrait;
 
     public function __construct(
@@ -173,37 +172,9 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         return $res;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     * @throws GuzzleException
-     */
-    public function listBookings(): ?array
+    protected function getListBookingsLimit(): int
     {
-        $token_id = ChannelRepository::getTokenId(request()->bearerToken());
-        $supplierId = Supplier::where('name', SupplierNameEnum::HOTEL_TRADER->value)->first()->id;
-
-        $apiClientId = data_get(request()->all(), 'api_client.id');
-        $apiClientEmail = data_get(request()->all(), 'api_client.email');
-
-        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
-            ->where('supplier_id', $supplierId)
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
-            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', $apiClientEmail))
-            ->has('metadata')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        $data = [];
-        foreach ($itemsBooked as $item) {
-            $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item->metadata, SupplierNameEnum::HOTEL_TRADER);
-        }
-
-        return $data;
+        return 5;
     }
 
     public function priceCheck(array $filters): ?array
