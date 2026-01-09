@@ -8,6 +8,7 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -245,8 +246,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 'checkout' => $request['checkout'] ?? null,
                             ];
                             $i = 0;
-                            foreach ($passengers_by_room as $occupancy) {
-                                $input['occupancy'][$i]['room_code'] = $roomCodes[$i];
+                            foreach ($passengers_by_room as $roomIndex => $occupancy) {
+                                $input['occupancy'][$i]['room_code'] = $roomCodes[$i] ?? null;
                                 $input['occupancy'][$i]['rate_code'] = $rateCodes[$i] ?? null;
                                 $input['occupancy'][$i]['meal_plan_code'] = $mealPlans[$i] ?? null;
                                 $input['occupancy'][$i]['adults'] = $request['occupancy'][$i]['adults'] ?? 1;
@@ -254,10 +255,15 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 $input['occupancy'][$i]['special_request'] = $special_requests_by_room[$i + 1] ?? '';
                                 $input['occupancy'][$i]['comment'] = $comments_by_room[$i + 1] ?? '';
 
-                                $input['occupancy'][$i]['title'] = $occupancy[0]['title'] ?? '';
-                                $input['occupancy'][$i]['given_name'] = $occupancy[0]['given_name'] ?? '';
-                                $input['occupancy'][$i]['family_name'] = $occupancy[0]['family_name'] ?? '';
-                                $input['occupancy'][$i]['date_of_birth'] = $occupancy[0]['date_of_birth'] ?? null;
+                                $input['occupancy'][$i]['passengers'] = [];
+                                foreach ($occupancy as $passenger) {
+                                    $input['occupancy'][$i]['passengers'][] = [
+                                        'title' => $passenger['title'] ?? '',
+                                        'given_name' => $passenger['given_name'] ?? '',
+                                        'family_name' => $passenger['family_name'] ?? '',
+                                        'date_of_birth' => $passenger['date_of_birth'] ?? null,
+                                    ];
+                                }
 
                                 $i++;
                             }
@@ -276,7 +282,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 ->send();
                         })
                         ->visible(fn ($record) => auth()->user()?->roles()->where('slug', 'admin')->exists()
-                    && Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
+                            && Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
                 ])->color('gray'),
             ])
             ->filters([
@@ -343,9 +349,35 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 ->minValue(1)
                                 ->maxValue(6)
                                 ->required()
+                                ->live()
+                                ->afterStateUpdated(function ($state, $set, $get) {
+                                    $total = (int) $state + count($get('children_ages') ?? []);
+                                    $passengers = $get('passengers') ?? [];
+                                    if (count($passengers) < $total) {
+                                        for ($j = count($passengers); $j < $total; $j++) {
+                                            $passengers[] = ['title' => '', 'given_name' => '', 'family_name' => '', 'date_of_birth' => null];
+                                        }
+                                    } elseif (count($passengers) > $total) {
+                                        $passengers = array_slice($passengers, 0, $total);
+                                    }
+                                    $set('passengers', $passengers);
+                                })
                                 ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                             TagsInput::make('children_ages')
                                 ->label('Children Ages')
+                                ->live()
+                                ->afterStateUpdated(function ($state, $set, $get) {
+                                    $total = (int) $get('adults') + count($state ?? []);
+                                    $passengers = $get('passengers') ?? [];
+                                    if (count($passengers) < $total) {
+                                        for ($j = count($passengers); $j < $total; $j++) {
+                                            $passengers[] = ['title' => '', 'given_name' => '', 'family_name' => '', 'date_of_birth' => null];
+                                        }
+                                    } elseif (count($passengers) > $total) {
+                                        $passengers = array_slice($passengers, 0, $total);
+                                    }
+                                    $set('passengers', $passengers);
+                                })
                                 ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                         ])->columns(2),
                         Grid::make('')->schema([
@@ -362,23 +394,29 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 ->placeholder('Meal Plan Code')
                                 ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                         ])->columns(3),
-                        Grid::make('')->schema([
-                            TextInput::make('title')
-                                ->label('')
-                                ->placeholder('Title'),
-                            TextInput::make('given_name')
-                                ->label('')
-                                ->placeholder('Given Name'),
-                            TextInput::make('family_name')
-                                ->label('')
-                                ->placeholder('Family Name'),
-                            DatePicker::make('date_of_birth')
-                                ->label('')
-                                ->placeholder('Date of Birth')
-                                ->native(false)
-                                ->required()
-                                ->default(now()->addMonths(5)->format('Y-m-d')),
-                        ])->columns(4),
+                        Repeater::make('passengers')
+                            ->label('Passengers')
+                            ->schema([
+                                Grid::make('')->schema([
+                                    TextInput::make('title')
+                                        ->label('')
+                                        ->placeholder('Title'),
+                                    TextInput::make('given_name')
+                                        ->label('')
+                                        ->placeholder('Given Name'),
+                                    TextInput::make('family_name')
+                                        ->label('')
+                                        ->placeholder('Family Name'),
+                                    DatePicker::make('date_of_birth')
+                                        ->label('')
+                                        ->placeholder('Date of Birth')
+                                        ->native(false)
+                                        ->required(),
+                                ])->columns(4),
+                            ])
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false),
                         Grid::make('')->schema([
                             Textarea::make('special_request')
                                 ->label('')
