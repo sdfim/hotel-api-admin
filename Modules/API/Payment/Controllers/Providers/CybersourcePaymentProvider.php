@@ -3,18 +3,19 @@
 namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
+use CyberSource\ApiException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
-use Modules\API\Payment\Cybersource\Client\CaptureContextValidator;
 use Modules\API\Payment\Cybersource\Client\CybersourceClient;
+use Modules\API\Payment\Cybersource\Client\CybersourceValidator;
 use Throwable;
 
 class CybersourcePaymentProvider extends BaseController implements PaymentProviderInterface
 {
     public function __construct(
-        private readonly CybersourceClient $client,
-        private readonly CaptureContextValidator $validator,
+        private readonly CybersourceClient    $client,
+        private readonly CybersourceValidator $validator,
     ) {
     }
 
@@ -40,7 +41,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
             $captureContext = $this->client->generateCaptureContext($origin);
 
-            if (!$this->validator->validate($captureContext)) {
+            if (!$this->validator->validateCaptureContext($captureContext)) {
                 return $this->sendError('Generated capture context failed validation.', 'Validation Error', 500);
             }
 
@@ -110,7 +111,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
             }
 
             // (Optional but recommended) ensure cached captureContext is still valid.
-            if (!$this->validator->validate($captureContext)) {
+            if (!$this->validator->validateCaptureContext($captureContext)) {
                 return $this->sendError(
                     'Capture context is invalid or expired. Please refresh checkout and try again.',
                     'Validation Error',
@@ -134,15 +135,19 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 $billTo
             );
 
-            $status = $payment['status'] ?? null;
+            $status = strtoupper((string) ($payment['status'] ?? ''));
 
-            // You can adjust this list according to your business rules.
-            $isSuccessful = in_array($status, ['AUTHORIZED', 'PENDING', 'SETTLED', 'CAPTURED'], true);
+            $isAuthorized = $status === 'AUTHORIZED';
+            $isPending    = $status === 'PENDING'; // optional
+            $isPaid       = in_array($status, ['CAPTURED', 'SETTLED'], true);
+
+            // Currently, “success” = authorization completed (and/or pending/paid)
+            $isSuccessful = $isAuthorized || $isPending || $isPaid;
 
             if (!$isSuccessful) {
                 Log::warning('Cybersource payment not successful.', [
                     'booking_id' => $bookingId,
-                    'status'     => $status,
+                    'status'     => $status ?: null,
                     'response'   => $payment,
                 ]);
 
@@ -155,13 +160,33 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
             Cache::forget($this->cacheKeyForBooking($bookingId));
 
-            return $this->sendResponse([
-                'booking_id' => $bookingId,
-                'amount'     => $amount,
-                'currency'   => $currency,
-                'status'     => $status,
-                'payment'    => $payment,
-            ], 'Cybersource payment confirmed successfully.');
+            return $this->sendResponse(
+                [
+                'booking_id'     => $bookingId,
+                'amount'         => $amount,
+                'currency'       => $currency,
+                'status'         => $status,
+                'is_authorized'  => $isAuthorized,
+                'is_paid'        => $isPaid, // almost always false for now
+                'payment'        => $payment,
+            ],
+                $isPaid
+                ? 'Cybersource payment captured successfully.'
+                : 'Cybersource payment authorized successfully.'
+            );
+        } catch (ApiException $e) {
+            Log::error('Cybersource ApiException', [
+                'code'            => $e->getCode(),
+                'message'         => $e->getMessage(),
+                'response_body'   => $e->getResponseBody(),
+                'response_header' => $e->getResponseHeaders(),
+            ]);
+
+            return $this->sendError(
+                'Cybersource request failed.',
+                'Payment Error',
+                502
+            );
         } catch (Throwable $e) {
             Log::error('Cybersource confirmation failed: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -183,15 +208,15 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
     private function buildBillToPayload(string $bookingId, array $data): array
     {
         return [
-            'reference'          => $bookingId,
-            'firstName'          => $data['billing_first_name'] ?? 'Guest',
-            'lastName'           => $data['billing_last_name'] ?? 'Customer',
-            'email'              => $data['billing_email'] ?? $data['email'] ?? 'no-reply@example.com',
-            'address1'           => $data['billing_address1'] ?? 'N/A',
-            'locality'           => $data['billing_locality'] ?? 'N/A',
-            'administrativeArea' => $data['billing_administrative_area'] ?? 'N/A',
-            'postalCode'         => $data['billing_postal_code'] ?? '00000',
-            'country'            => $data['billing_country'] ?? 'US',
+            'reference'  => $bookingId,
+            'firstName'  => $data['billing_first_name'] ?? 'Guest',
+            'lastName'   => $data['billing_last_name'] ?? 'Customer',
+            'email'      => $data['billing_email'] ?? $data['email'] ?? 'no-reply@example.com',
+            'address1'   => $data['billing_address1'] ?? 'N/A',
+            'locality'   => $data['billing_locality'] ?? 'N/A',
+            'postalCode' => $data['billing_postal_code'] ?? '00000',
+            'country'    => $data['billing_country'] ?? 'US',
+            'administrativeArea' => $data['administrativeArea'] ?? null
         ];
     }
 
