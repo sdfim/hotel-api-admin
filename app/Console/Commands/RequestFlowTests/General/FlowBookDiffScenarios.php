@@ -54,6 +54,8 @@ class FlowBookDiffScenarios extends Command
                     'room_type' => 'LCOST',
                     'rate_plan_code' => 'CLIENTGL',
                     'meal_plan_code' => null,
+                    'special_request' => 'High floor, non-smoking',
+                    'comment' => 'Please provide extra pillows',
                 ],
                 [
                     'adults' => 1,
@@ -61,6 +63,8 @@ class FlowBookDiffScenarios extends Command
                     'room_type' => 'GMAMR',
                     'rate_plan_code' => 'CLIENTGM',
                     'meal_plan_code' => null,
+                    'special_request' => 'Near elevator, non-smoking',
+                    'comment' => 'Late check-in requested',
                 ],
             ],
             'blueprint_exist' => false,
@@ -112,7 +116,7 @@ class FlowBookDiffScenarios extends Command
 
         // Book
         if ($run_booking_flow) {
-            $this->book($bookingId, [$bookingItem]);
+            $this->book($bookingId, [$bookingItem], $formData);
         }
 
         $this->handleSleep();
