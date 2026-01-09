@@ -3,21 +3,16 @@
 namespace App\Livewire;
 
 use App\Livewire\Components\CustomRepeater;
-use App\Models\Enums\RoleSlug;
-use App\Models\Mapping;
 use App\Models\Reservation;
-use App\Models\Supplier;
-use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
@@ -240,11 +235,12 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
                             $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
 
-//                        dd($passengers_by_room);
+                            //                        dd($passengers_by_room);
 
                             $request = json_decode($record->apiBookingItem->search->request, true);
 
                             $input = [
+                                'change_type' => 'soft',
                                 'checkin' => $request['checkin'] ?? null,
                                 'checkout' => $request['checkout'] ?? null,
                             ];
@@ -273,15 +269,14 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         ->modalWidth('4xl')
                         ->action(function ($data) {
 
-
                             Notification::make()
                                 ->title('Flow Scenario is being processed')
                                 ->body('The task has been added to the queue.')
                                 ->success()
                                 ->send();
                         })
-//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
-                        ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+                        ->visible(fn ($record) => auth()->user()?->roles()->where('slug', 'admin')->exists()
+                    && Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
                 ])->color('gray'),
             ])
             ->filters([
@@ -304,20 +299,41 @@ class ReservationsTable extends Component implements HasForms, HasTable
     private function getFormSchema(): array
     {
         return [
+            ToggleButtons::make('change_type')
+                ->options([
+                    'soft' => 'Soft Change',
+                    'hard' => 'Hard Change',
+                ])
+                ->default('soft')
+                ->live()
+                ->colors([
+                    'soft' => 'info',
+                    'hard' => 'danger',
+                ])
+                ->icons([
+                    'soft' => 'heroicon-o-check-circle',
+                    'hard' => 'heroicon-o-exclamation-triangle',
+                ])
+                ->grouped(),
             Grid::make('')->schema([
                 DatePicker::make('checkin')
                     ->label('Check-in Date')
                     ->native(false)
                     ->required()
+                    ->disabled(fn (Get $get) => $get('change_type') === 'soft')
                     ->default(now()->addMonths(5)->format('Y-m-d')),
                 DatePicker::make('checkout')
                     ->label('Check-out Date')
                     ->native(false)
                     ->required()
+                    ->disabled(fn (Get $get) => $get('change_type') === 'soft')
                     ->default(now()->addMonths(5)->addDays(2)->format('Y-m-d')),
             ])->columns(2),
             CustomRepeater::make('occupancy')
                 ->label('Room')
+                ->addable(fn (Get $get) => $get('change_type') !== 'soft')
+                ->deletable(fn (Get $get) => $get('change_type') !== 'soft')
+                ->reorderable(fn (Get $get) => $get('change_type') !== 'soft')
                 ->schema([
                     Section::make('')->schema([
                         Grid::make('')->schema([
@@ -326,20 +342,25 @@ class ReservationsTable extends Component implements HasForms, HasTable
                                 ->numeric()
                                 ->minValue(1)
                                 ->maxValue(6)
-                                ->required(),
+                                ->required()
+                                ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                             TagsInput::make('children_ages')
-                                ->label('Children Ages'),
+                                ->label('Children Ages')
+                                ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                         ])->columns(2),
                         Grid::make('')->schema([
                             TextInput::make('room_code')
                                 ->label('')
-                                ->placeholder('Room Type'),
+                                ->placeholder('Room Type')
+                                ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                             TextInput::make('rate_code')
                                 ->label('')
-                                ->placeholder('Rate Plan Code'),
+                                ->placeholder('Rate Plan Code')
+                                ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                             TextInput::make('meal_plan_code')
                                 ->label('')
-                                ->placeholder('Meal Plan Code'),
+                                ->placeholder('Meal Plan Code')
+                                ->disabled(fn (Get $get) => $get('../../change_type') === 'soft'),
                         ])->columns(3),
                         Grid::make('')->schema([
                             TextInput::make('title')
@@ -370,7 +391,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 ]),
         ];
     }
-
 
     public function render(): View
     {
