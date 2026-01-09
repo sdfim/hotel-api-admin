@@ -1,68 +1,62 @@
 @php
-    use Illuminate\Support\Facades\Storage;
-
     /** Base data from pdfData */
-    $hotelName    = $hotelData['name']    ?? 'Hotel Name';
+    $hotelName = $hotelData['name'] ?? 'Hotel Name';
     $hotelAddress = $hotelData['address'] ?? '';
 
     // Main hotel photo with safe fallback
-    $heroImage = $hotelPhotoPath
-        ?: ($hotel->product?->hero_image
-            ? Storage::url($hotel->product->hero_image)
-            : Storage::url('hotel.webp'));
+    $heroImage = $hotel->product?->hero_image
+            ? \Illuminate\Support\Facades\Storage::url($hotel->product->hero_image)
+            : asset('images/email-backgrounds/hotel-placeholder.png');
 
     // Second image – for now use the same as main
     $secondaryImage = $heroImage;
 
-    $totalNet    = $total_net   ?? 0;
-    $totalTax    = $total_tax   ?? 0;
-    $totalFees   = $total_fees  ?? 0;
-    $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
+    $totalNet = $total_net ?? 0;
+    $totalTax = $total_tax ?? 0;
+    $totalFees = $total_fees ?? 0;
+    $totalPrice = $total_price ?? ($totalNet + $totalTax + $totalFees);
 
-    $agencyName  = $agency['booking_agent']       ?? ' {{ env('APP_NAME') }}Tours';
+    $agencyName = $agency['booking_agent'] ?? env('APP_NAME') . ' Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
 
     /** Optional fields */
-    $checkin            = $checkin            ?? null;
-    $checkout           = $checkout           ?? null;
-    $guestInfo          = $guest_info         ?? null;
-    $mainRoomName       = $main_room_name     ?? null;
-    $rateRefundable     = $rate_refundable    ?? null;
-    $rateMealPlan       = $rate_meal_plan     ?? null;
-    $perks              = $perks              ?? [];
-    $currency           = $currency           ?? 'USD';
-    $taxesAndFees       = $taxes_and_fees     ?? ($totalTax + $totalFees);
-    $advisorCommission  = $advisor_commission ?? 0;
+    $checkin = $checkin ?? null;
+    $checkout = $checkout ?? null;
+    $guestInfo = $guest_info ?? null;
+    $mainRoomName = $main_room_name ?? null;
+    $rateRefundable = $rate_refundable ?? null;
+    $rateMealPlan = $rate_meal_plan ?? null;
+    $perks = $perks ?? [];
+    $currency = $currency ?? 'USD';
+    $taxesAndFees = $taxes_and_fees ?? ($totalTax + $totalFees);
+    $advisorCommission = $advisor_commission ?? 0;
     $confirmationNumber = $confirmation_number ?? null;
 
-    // Static assets
-    $logoTm = asset('images/emails/terra-mare-logo-pdf.png');
-    $bgWave = asset('images/email-backgrounds/wave-bg.png');
+    // Static assets - Vidanta branding
+    $logoTm = public_path('images/firm-logo.png');
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Advisor Confirmation</title>
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: "Times New Roman", Georgia, serif;
+            font-family: Georgia, "Times New Roman", serif;
             font-size: 13px;
-            line-height: 1.4;
-            color: #1c2525;
-            background-color: #f4f0ed;
-            background-image: url('{{ $bgWave }}');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center center;
+            line-height: 1.5;
+            color: #1C1B1B;
+            background-color: #F7F7F7;
         }
 
         .page {
@@ -70,24 +64,44 @@
         }
 
         h1 {
-            font-size: 30px;
+            /* Бронзовый, крупный, serif заголовок — курсив */
+            font-size: 32px;
             font-weight: normal;
-            margin: 0 0 6px 0;
+            font-style: italic;
+            color: #C29C75;
+            font-family: Georgia, serif;
+            margin: 0 0 15px 0;
+            letter-spacing: 0.5px;
+        }
+
+        h2 {
+            /* Название отеля — uppercase, тёмный */
+            font-size: 22px;
+            font-weight: normal;
+            font-family: Georgia, serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #1C1B1B;
+            margin: 0 0 8px 0;
         }
 
         .hotel-address {
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 13px;
+            color: #888;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-bottom: 20px;
         }
 
         .hotel-image-main {
             width: 100%;
             height: auto;
             display: block;
+            border: 1px solid #EAEAEA;
         }
 
         .logo-tm {
-            width: 78px;
+            width: 160px;
             height: auto;
             display: block;
         }
@@ -97,54 +111,88 @@
         }
 
         .pill-wide {
-            background: #c7d5c7;
-            border-radius: 40px;
-            padding: 10px 12px;
-            font-size: 16px;
+            /* Бронзовый фон для главного блока */
+            background: #C29C75;
+            color: #FFFFFF;
+            border-radius: 4px;
+            padding: 12px 14px;
+            font-size: 14px;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .pill-row {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .pill {
-            background: #c7d5c7;
-            border-radius: 999px;
-            padding: 8px 10px;
+            /* Более чистый блок */
+            background: #FBF9F6;
+            border: 1px solid #E5E0D8;
+            border-radius: 4px;
+            padding: 10px 12px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .pill-title {
+            /* Стиль Label */
             display: block;
-            font-size: 14px;
-            margin-bottom: 3px;
-        }
-
-        .pill-value {
-            display: block;
-            font-size: 16px;
-        }
-
-        .card-vertical {
-            background: #c7d5c7;
-            border-radius: 26px;
-            padding: 10px 12px;
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .card-vertical-title {
-            font-size: 14px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
             margin-bottom: 4px;
         }
 
-        .card-vertical-line {
+        .pill-value {
+            /* Стиль Value */
             display: block;
             font-size: 16px;
+            font-family: Georgia, serif;
+            font-weight: normal;
+            color: #1C1B1B;
+        }
+
+        .pill-wide .pill-title {
+            color: #FBF9F6;
+            /* Светлый цвет для заголовка на бронзовом фоне */
+            letter-spacing: 2px;
+        }
+
+        .pill-wide .pill-value {
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .card-vertical {
+            /* Более чистый блок */
+            background: #FBF9F6;
+            border: 1px solid #E5E0D8;
+            border-radius: 4px;
+            padding: 12px 14px;
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .card-vertical-title {
+            /* Стиль Label */
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .card-vertical-line {
+            /* Стиль Value */
+            display: block;
+            font-size: 13px;
+            font-family: Georgia, serif;
+            font-weight: normal;
+            color: #1C1B1B;
         }
 
         ul {
@@ -154,7 +202,7 @@
 
         ul li {
             margin-bottom: 4px;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .contact-block {
@@ -163,25 +211,36 @@
         }
 
         .contact-name {
-            font-size: 20px;
-            margin-bottom: 6px;
-        }
-
-        .pricing-card {
-            background: #c7d5c7;
-            border-radius: 26px;
-            padding: 16px 24px;
-            font-size: 11px;
-        }
-
-        .pricing-title {
-            text-align: left;
-            font-size: 26px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1C1B1B;
             margin-bottom: 8px;
         }
 
+        .pricing-card {
+            /* Бронзовая полоса более выразительна */
+            background: #FBF9F6;
+            border: 1px solid #E5E0D8;
+            border-left: 6px solid #C29C75;
+            border-radius: 4px;
+            padding: 20px 24px;
+            font-size: 12px;
+        }
+
+        .pricing-title {
+            /* Бронзовый заголовок */
+            text-align: left;
+            font-size: 20px;
+            font-weight: normal;
+            font-family: Georgia, serif;
+            color: #C29C75;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #E5E0D8;
+        }
+
         .pricing-row td {
-            padding: 2px 0;
+            padding: 4px 0;
         }
 
         .pricing-label {
@@ -192,17 +251,32 @@
         .pricing-value {
             text-align: right;
             font-size: 16px;
+            font-weight: 500;
         }
 
         .pricing-total {
-            border-top: 1px solid #263a3a;
-            padding-top: 4px;
-            margin-top: 4px;
+            /* Бронзовый разделитель */
+            border-top: 2px solid #C29C75;
+            padding-top: 10px;
+            margin-top: 10px;
         }
 
-        .big-spacer { height: 26px; }
+        .pricing-total .pricing-label {
+            color: #1C1B1B;
+            font-weight: bold;
+        }
+
+        .pricing-total .pricing-value {
+            color: #1C1B1B;
+            font-weight: bold;
+        }
+
+        .big-spacer {
+            height: 30px;
+        }
     </style>
 </head>
+
 <body>
     <div class="page">
 
@@ -211,7 +285,8 @@
             <tr valign="top">
                 {{-- LEFT --}}
                 <td width="64%" style="padding-right: 26px;">
-                    <h1>{{ $hotelName }}</h1>
+                    <h1>Advisor Confirmation</h1>
+                    <h2>{{ $hotelName }}</h2>
 
                     @if($hotelAddress)
                         <div class="hotel-address">
@@ -297,7 +372,9 @@
             <tr valign="top">
                 {{-- Perks --}}
                 <td width="60%" style="padding-right:26px;">
-                    <div style="font-size: 24px; margin: 0 0 10px 0;"> {{ env('APP_NAME') }}Exclusive Perks:</div>
+                    <div style="font-size: 24px; margin: 0 0 10px 0; font-family: Georgia, serif; color: #1C1B1B;">
+                        {{ env('APP_NAME') }}Exclusive Perks:
+                    </div>
 
                     @if(!empty($perks))
                         <ul>
@@ -330,9 +407,9 @@
                 <td width="50%" style="padding-right:26px;">
                     <div class="contact-block">
                         <div class="contact-name"> {{ env('APP_NAME') }}Tours</div>
-                        <div>225 Broadway, Fl. 23,</div>
-                        <div>New York, NY, 10007, USA</div>
-                        <div>+1 (332)-232-8351</div>
+                        <div>1-800-292-9446 (US)</div>
+                        <div>0-800-096-9367 (UK)</div>
+                        <div>800-543-7044 (MEX)</div>
                         <div>{{ $agencyEmail }}</div>
                     </div>
                 </td>
@@ -386,4 +463,5 @@
 
     </div>
 </body>
+
 </html>

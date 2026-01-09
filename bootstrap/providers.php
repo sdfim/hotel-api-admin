@@ -18,6 +18,7 @@ return [
     Modules\API\Suppliers\HBSI\HbsiServiceProvider::class,
     Modules\API\Suppliers\Expedia\ExpediaServiceProvider::class,
     Modules\API\Suppliers\HotelTrader\HotelTraderServiceProvider::class,
+    Modules\API\Suppliers\Oracle\OracleServiceProvider::class,
     Modules\API\Suppliers\IcePortal\IcePortalServiceProvider::class,
     Modules\API\Suppliers\Hilton\HiltonServiceProvider::class,
 ];

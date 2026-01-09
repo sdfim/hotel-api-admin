@@ -36,36 +36,36 @@ class ImportScheduledTasks extends Command
 //                'time' => '05:00',
 //                'is_active' => true,
 //            ],
-            [
-                'name' => 'Fetch IcePortal Properties',
-                'description' => 'Download IcePortal data to DB',
-                'command' => 'download-iceportal-data',
-                'command_parameters' => [],
-                'frequency_type' => 'weekly',
-                'day_of_week' => 4, // Thursday
-                'time' => '01:00',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Download HotelTrader Data',
-                'description' => 'Download HotelTrader data to DB',
-                'command' => 'hoteltrader:download-and-import',
-                'command_parameters' => [],
-                'frequency_type' => 'weekly',
-                'day_of_week' => 4, // Thursday
-                'time' => '04:00',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Download Giata Data',
-                'description' => 'Download and process Giata data including Mapping Expedia, HBSI, IcePortal',
-                'command' => 'download-giata-data',
-                'command_parameters' => [],
-                'frequency_type' => 'weekly',
-                'day_of_week' => 4, // Thursday
-                'time' => '04:00',
-                'is_active' => true,
-            ],
+//            [
+//                'name' => 'Fetch IcePortal Properties',
+//                'description' => 'Download IcePortal data to DB',
+//                'command' => 'download-iceportal-data',
+//                'command_parameters' => [],
+//                'frequency_type' => 'weekly',
+//                'day_of_week' => 4, // Thursday
+//                'time' => '01:00',
+//                'is_active' => true,
+//            ],
+//            [
+//                'name' => 'Download HotelTrader Data',
+//                'description' => 'Download HotelTrader data to DB',
+//                'command' => 'hoteltrader:download-and-import',
+//                'command_parameters' => [],
+//                'frequency_type' => 'weekly',
+//                'day_of_week' => 4, // Thursday
+//                'time' => '04:00',
+//                'is_active' => true,
+//            ],
+//            [
+//                'name' => 'Download Giata Data',
+//                'description' => 'Download and process Giata data including Mapping Expedia, HBSI, IcePortal',
+//                'command' => 'download-giata-data',
+//                'command_parameters' => [],
+//                'frequency_type' => 'weekly',
+//                'day_of_week' => 4, // Thursday
+//                'time' => '04:00',
+//                'is_active' => true,
+//            ],
             [
                 'name' => 'Purge Basket',
                 'description' => 'A background routine to purge any baskets that have not turned into a booking',

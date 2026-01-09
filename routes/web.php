@@ -35,6 +35,7 @@ use Modules\AdministrationSuite\Http\Controllers\HiltonPropertyController;
 use Modules\AdministrationSuite\Http\Controllers\HotelTraderController;
 use Modules\AdministrationSuite\Http\Controllers\IcePortalController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
+use Modules\AdministrationSuite\Http\Controllers\OracleContentController;
 use Modules\AdministrationSuite\Http\Controllers\PaymentInitController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
@@ -54,7 +55,7 @@ use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
-
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -132,6 +133,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('hotel-trader', HotelTraderController::class)->only('index');
         Route::resource('expedia', ExpediaController::class)->only('index');
         Route::resource('hilton', HiltonPropertyController::class)->only('index');
+        Route::resource('oracle', OracleContentController::class)->only('index');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
 

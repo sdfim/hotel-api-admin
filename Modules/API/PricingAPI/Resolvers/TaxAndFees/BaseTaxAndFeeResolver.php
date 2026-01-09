@@ -652,10 +652,6 @@ class BaseTaxAndFeeResolver
 
         $value = ($baseRate * $taxToApply);
 
-        if ($applyType === ProductApplyTypeEnum::PER_ROOM->value) {
-            $value = $value / $numberOfNights;
-        }
-
         return $isRounded ? round($value, 2) : $value;
     }
 

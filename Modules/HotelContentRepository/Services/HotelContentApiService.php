@@ -232,7 +232,7 @@ class HotelContentApiService
             return [];
         }
 
-        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::HOTEL_TRADER->value);
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::ICE_PORTAL->value);
 
         $existingInMainSupplierGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
         $detailResults = $resultsSuppliers[$mainSupplier];
@@ -378,7 +378,7 @@ class HotelContentApiService
 
     private function combineContentResults(array $resultsSuppliers, array $structureSource, $repoData, array $giataCodes): array
     {
-        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::HOTEL_TRADER->value);
+        $mainSupplier = Cache::get('constant:content_supplier', SupplierNameEnum::ICE_PORTAL->value);
 
         $existingGiataIds = array_column($resultsSuppliers[$mainSupplier], 'giata_hotel_code');
         $contentResults = $resultsSuppliers[$mainSupplier];

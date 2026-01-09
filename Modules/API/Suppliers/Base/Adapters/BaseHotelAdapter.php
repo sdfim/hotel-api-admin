@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Tools\Geography;
 
-class BaseHotelAdapter
+class BaseHotelAdapter extends BaseEnrichmentRoomCombinations
 {
     private const RESULT_PER_PAGE = 1000;
 

@@ -38,6 +38,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\API\Suppliers\HBSI\Adapters\HbsiHotelAdapter;
 use Modules\Enums\FeeTaxCollectedByEnum;
 use Modules\Enums\ProductApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
@@ -45,7 +46,6 @@ use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
-use Modules\HotelContentRepository\Services\Suppliers\HbsiHotelContentApiService;
 use Modules\Utils\Tools;
 
 class ProductFeeTaxTable extends Component implements HasForms, HasTable
@@ -84,7 +84,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     {
         $supplierTaxOptions = [];
         if ($this->supplierType === SupplierNameEnum::HBSI->value) {
-            $hbsiService = app(HbsiHotelContentApiService::class);
+            $hbsiService = app(HbsiHotelAdapter::class);
             $supplierTaxOptions = $hbsiService->getTaxOptions($this->product->related->giata_code);
             $supplierTaxOptions = array_combine($supplierTaxOptions, $supplierTaxOptions);
         }

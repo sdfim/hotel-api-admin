@@ -4,10 +4,9 @@ namespace App\Services;
 
 use App\Models\ScheduledTask;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Schedule as ScheduleFacade;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ScheduledTaskService
 {
@@ -21,7 +20,7 @@ class ScheduledTaskService
     {
         try {
             // Skip if the table doesn't exist yet (e.g., during migrations)
-            if (!$this->tableExists('scheduled_tasks')) {
+            if (! $this->tableExists('scheduled_tasks')) {
                 return;
             }
 
@@ -33,7 +32,7 @@ class ScheduledTaskService
             }
         } catch (QueryException $e) {
             // Log the error but don't crash the application
-            Log::warning('Unable to load scheduled tasks from database: ' . $e->getMessage());
+            Log::warning('Unable to load scheduled tasks from database: '.$e->getMessage());
         }
     }
 
@@ -41,7 +40,6 @@ class ScheduledTaskService
      * Schedule an individual task based on its configuration
      *
      * @param  mixed  $schedule
-     * @param  ScheduledTask  $task
      * @return void
      */
     protected function scheduleTask($schedule, ScheduledTask $task)
@@ -93,7 +91,8 @@ class ScheduledTaskService
             return Schema::hasTable($tableName);
         } catch (QueryException $e) {
             // If there's a database connection issue, log it and assume table doesn't exist
-            Log::warning('Database connection failed when checking table existence: ' . $e->getMessage());
+            Log::warning('Database connection failed when checking table existence: '.$e->getMessage());
+
             return false;
         }
     }

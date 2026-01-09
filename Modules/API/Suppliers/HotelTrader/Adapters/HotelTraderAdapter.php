@@ -12,6 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Suppliers\Contracts\Hotel\Booking\HotelServiceSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentSupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelContentV1SupplierInterface;
 use Modules\API\Suppliers\Contracts\Hotel\Search\HotelPricingSupplierInterface;
@@ -21,8 +22,9 @@ use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderContentDetailTrans
 use Modules\API\Suppliers\HotelTrader\Transformers\HotelTraderHotelPricingTransformer;
 use Modules\API\Tools\Geography;
 use Modules\Enums\SupplierNameEnum;
+use Modules\API\Suppliers\Base\Adapters\BaseEnrichmentRoomCombinations;
 
-class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV1SupplierInterface, HotelPricingSupplierInterface
+class HotelTraderAdapter extends BaseEnrichmentRoomCombinations implements HotelContentSupplierInterface, HotelContentV1SupplierInterface, HotelPricingSupplierInterface, HotelServiceSupplierInterface
 {
     private const RESULT_PER_PAGE = 5000;
 
@@ -225,13 +227,13 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
     }
 
     // Pricing
-    public function price(array &$filters, array $searchInspector, array $hotelData): ?array
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array
     {
-        $hotelData = array_flip($hotelData);
+        $hotelData = array_flip($preSearchData);
         try {
             $hotelIds = array_values($hotelData);
 
-            if (empty($hotelIds)) {
+            if (! $hotelId && empty($hotelIds)) {
                 return [
                     'original' => [
                         'request' => [],
@@ -245,7 +247,16 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
             /** get PriceData from HotelTrader */
             /* @var HotelTraderClient $hotelTraderClient */
             $hotelTraderClient = app(HotelTraderClient::class);
-            $priceDataRaw = $hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+
+            if (! empty($hotelIds) && ! $hotelId) {
+                // async call for multiple hotels
+                $priceDataRaw = $hotelTraderClient->getPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+            } else {
+                // sync call for single hotel
+                $priceDataRaw = $hotelTraderClient->availability([$hotelId], $filters, $searchInspector);
+                $giata_id = Mapping::hotelTrader()->where('supplier_id', $hotelId)->first()->giata_id;
+                $hotelData = [$giata_id => $hotelId];
+            }
             $priceData = [];
 
             foreach (Arr::get($priceDataRaw, 'response', []) as $item) {
@@ -328,8 +339,8 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
             return [
                 'error' => $e->getMessage(),
                 'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                    'request' => $priceDataRaw['request'] ?? '',
+                    'response' => isset($priceDataRaw['response']) ? $priceDataRaw['response']->asXML() : '',
                 ],
                 'array' => [],
                 'total_pages' => 0,
@@ -341,8 +352,8 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
             return [
                 'error' => $e->getMessage(),
                 'original' => [
-                    'request' => $xmlPriceData['request'] ?? '',
-                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                    'request' => $priceDataRaw['request'] ?? '',
+                    'response' => isset($priceDataRaw['response']) ? $priceDataRaw['response']->asXML() : '',
                 ],
                 'array' => [],
                 'total_pages' => 0,
@@ -393,8 +404,17 @@ class HotelTraderAdapter implements HotelContentSupplierInterface, HotelContentV
 
         $clientResponse[$supplierName] = [];
         $count = 0;
+        $hotels = [];
         foreach ($hotelGenerator as $count => $hotel) {
-            $clientResponse[$supplierName][] = $hotel;
+            $hotels[] = $hotel;
+        }
+
+        /** Enrichment Room Combinations (Логика Room Combination Service) */
+        $countRooms = count($filters['occupancy']);
+        if ($countRooms > 1) {
+            $clientResponse[$supplierName] = $this->enrichmentRoomCombinations($hotels, $filters, SupplierNameEnum::HOTEL_TRADER);
+        } else {
+            $clientResponse[$supplierName] = $hotels;
         }
 
         $bookingItems[$supplierName] = $this->hTraderHotelPricingTransformer->bookingItems ?? [];

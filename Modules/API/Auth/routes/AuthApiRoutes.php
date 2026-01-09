@@ -16,6 +16,7 @@ class AuthApiRoutes
                 // Exchange user email+password -> channel token
                 Route::post('/channel-token', [ChannelAuthController::class, 'issueChannelToken']);
                 Route::post('/jwt-login', [JwtLoginController::class, 'login']);
+                Route::post('/generate-external-jwt', [JwtLoginController::class, 'generateExternalJwt']);
             });
     }
 }

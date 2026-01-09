@@ -31,6 +31,8 @@ class SearchInspectorController extends BaseInspectorController
             if (isset($original['keyCache'])) {
                 $keys = $original['keyCache'];
 
+                logger('Fetching cached data with keys: '.json_encode($keys));
+
                 $original = Cache::get($keys['dataOriginal']);
                 $content = Cache::get($keys['content']);
                 $clientContent = Cache::get($keys['clientContent']);
@@ -97,7 +99,7 @@ class SearchInspectorController extends BaseInspectorController
             Log::error('Error save ApiSearchInspector: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
             Log::error($e->getTraceAsString());
 
-            return false;
+            throw $e;
         }
     }
 }

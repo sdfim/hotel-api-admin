@@ -45,7 +45,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     use Timer;
 
     // TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
-    public const TTL = 0.5;
+    public const TTL = 5;
 
     private const PAGINATION_TO_RESULT = true;
 
@@ -319,18 +319,19 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 /** Save data to Inspector */
                 $cacheKeys = [];
                 foreach (['dataOriginal', 'content', 'clientContent', 'clientContentWithPricingRules'] as $variableName) {
-                    $key = $variableName.'_'.uniqid();
+                    $key = $variableName.'_'.$search_id;
                     $cacheKeys[$variableName] = $key;
-                    Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(10));
+                    Cache::put($key, gzcompress(json_encode($$variableName)), now()->addMinutes(20));
                 }
+
+                $isTestScenario = $request->input('is_test_scenario', false);
+                $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
                 // this approach is more memory-efficient.
-                SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
-
+                SaveSearchInspectorByCacheKey::$dispatchMethod($searchInspector, $cacheKeys);
                 MemoryLogger::log('SaveSearchInspectorByCacheKey');
-
                 if (! empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
-                        SaveBookingItems::dispatch($items);
+                        SaveBookingItems::$dispatchMethod($items);
                     }
                 }
 

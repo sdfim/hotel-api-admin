@@ -1,6 +1,10 @@
-<button type="button" onClick="openModal('{{ $getRecord()->search_id }}','request')"
-        class="text-white bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600 ml-3"
-        data-tw-target="#modal-idlargemodal-{{ $getRecord()->id }}-request">Request
+<button type="button"
+        title="View Request Details"
+        onClick="openModal('{{ $getRecord()->search_id }}','request')"
+        class="bg-blue-500 hover:bg-blue-600 text-white
+           w-8 h-8 flex items-center justify-center
+           rounded-full focus:ring ring-blue-200 ml-3">
+    <i class="mdi mdi-information-outline text-sm"></i>
 </button>
 <div class="relative z-50 hidden modal" id="modal-idlargemodal-{{ $getRecord()->search_id }}-request"
      aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -11,7 +15,7 @@
                 class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                 <div class="bg-white dark:bg-zinc-700">
                     <div class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                        <h3 class="text-xl font-semibold text-gray-100 dark:text-gray-100 ">
                             {{ $getRecord()->search_id }}
                         </h3>
                         <button onClick="closeModal('{{ $getRecord()->search_id }}','request')"

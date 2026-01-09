@@ -2,7 +2,7 @@
     $offColor = $getOffColor() ?? 'red';
     $onColor = $getOnColor() ?? 'lime';
     $handleOffColor = '#ee6a64';
-    $handleOnColor = '#87e291';
+    $handleOnColor = '#ffffff';
     $statePath = $getStatePath();
 
     $getBackgroundClasses = function($color) {

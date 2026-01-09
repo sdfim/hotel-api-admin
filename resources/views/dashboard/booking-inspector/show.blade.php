@@ -22,7 +22,6 @@
         </div>
         <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
             <div class="relative overflow-x-auto">
-                <div class="row">
                     <div class="col-lg-12 margin-tb">
                         <div class="mt-2">
                             <strong>Booking ID:</strong>
@@ -61,19 +60,25 @@
                                     data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
                             </button>
 
-                            @if($inspector->sub_type === 'create')
-                                <button type="button"
-                                        class="text-white px-2 py-2 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
-                                        data-tw-toggle="modal" data-tw-target="#modal-file-response">View Response
-                                </button>
-                            @endif
+{{--                            @if($inspector->sub_type === 'create')--}}
+{{--                                <button type="button"--}}
+{{--                                        class="text-white px-2 py-2 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"--}}
+{{--                                        data-tw-toggle="modal" data-tw-target="#modal-file-response">View Response--}}
+{{--                                </button>--}}
+{{--                            @endif--}}
 
                             <button type="button"
-                                    class="text-white px-2 py-2 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
-                                    id="loadResponse"><i class="fas fa-download"></i> Response as JSON
+                                    class="text-white px-2 py-2 bg-blue-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                    id="loadOriginal"><i class="fas fa-download"></i> Original RQ and RS as JSON
                             </button>
 
-                            @if ($inspector->sub_type == 'create' || $inspector->sub_type == 'retrieve' || $inspector->sub_type == 'change-soft')
+                            <button type="button"
+                                    class="text-white px-2 py-2 bg-blue-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                    id="loadResponse"><i class="fas fa-download"></i> API RS as JSON
+                            </button>
+
+                            @if (($inspector->sub_type == 'create' || $inspector->sub_type == 'retrieve' || $inspector->sub_type == 'change-soft')
+                                && $inspector->Supplier->name == 'HBSI')
                                 <button type="button"
                                         class="text-white px-2 py-2 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
                                         id="downLoadRawRequest"><i class="fas fa-download"></i> Raw Request
@@ -86,7 +91,6 @@
                             @endif
                         </div>
                     </div>
-                </div>
                 <div class="mt-10 sm:mt-0">
 
                 </div>
@@ -96,16 +100,16 @@
                 <div class="flex flex-wrap gap-2 mb-4">
                     <button data-tw-toggle="tab" data-tw-target="#tab-pills-origin"
                             class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-orange-100 text-orange-600 active-tab">
-                        Original Request and Response
+                        Original RQ and RS
                     </button>
-                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-response"
-                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-600">
-                        Supplier Response
-                    </button>
+{{--                    <button data-tw-toggle="tab" data-tw-target="#tab-pills-response"--}}
+{{--                            class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-600">--}}
+{{--                        Supplier Response--}}
+{{--                    </button>--}}
                     @if($inspector->client_response_path)
                         <button data-tw-toggle="tab" data-tw-target="#tab-pills-client-response"
                                 class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-600">
-                            {{ env('APP_NAME') }}API RS
+                            API RS
                         </button>
                     @endif
                 </div>
@@ -119,7 +123,7 @@
                                 <div class="bg-white dark:bg-zinc-700">
                                     <div
                                         class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
-                                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                                        <h3 class="text-xl font-semibold text-gray-100 dark:text-gray-100 ">
                                             Response {{$inspector->id}}
                                         </h3>
                                         <button
@@ -202,6 +206,10 @@
                             if($file_client_response == ''){
                                 $file_client_response = json_encode([]);
                             }
+                            $file_original_response = Storage::get(str_replace('client', 'original', $inspector->client_response_path));
+                            if($file_original_response == ''){
+                                $file_original_response = json_encode([]);
+                            }
                         @endphp
                         <div id="actions-toolbar">
                             <button
@@ -230,7 +238,7 @@
                                 <div class="bg-white dark:bg-zinc-700">
                                     <div
                                         class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
-                                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                                        <h3 class="text-xl font-semibold text-gray-100 dark:text-gray-100 ">
                                             Response {{$inspector->id}}
                                         </h3>
                                         <button
@@ -363,6 +371,11 @@
             if (currentSearch_client && e.keyCode === 13) {
                 currentSearch_client.next();
             }
+        });
+
+        document.getElementById('loadOriginal').addEventListener('click', function () {
+            var blob = new Blob([<?= json_encode($file_original_response) ?>], {type: "application/json;charset=utf-8"});
+            saveAs(blob, "file.json");
         });
 
         document.getElementById('loadResponse').addEventListener('click', function () {

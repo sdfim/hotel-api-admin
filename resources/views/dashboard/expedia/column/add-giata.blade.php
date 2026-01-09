@@ -13,7 +13,7 @@
                 <div class="bg-white dark:bg-zinc-700">
                     <div
                         class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                        <h3 class="text-xl font-semibold text-gray-100 dark:text-gray-100 ">
                             Add Giata Mapping to {{ $getRecord()->property_id }}
                         </h3>
                         <button onClick="closeModal('{{ $getRecord()->property_id }}')"

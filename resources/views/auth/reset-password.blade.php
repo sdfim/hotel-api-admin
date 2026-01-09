@@ -14,9 +14,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="index" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt=""
-                                         class="h-8 inline"> <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white"><?= env('APP_NAME'); ?></span>
+                                   <img src="{{ asset('images/firm-logo.png') }}" alt="" class="h-8 inline">
                                 </a>
                             </div>
 

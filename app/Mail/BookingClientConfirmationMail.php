@@ -2,25 +2,18 @@
 
 namespace App\Mail;
 
-use App\Models\ApiBookingItem;
-use App\Repositories\ApiBookingInspectorRepository;
+use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
-use Modules\API\Services\HotelBookingCheckQuoteService;
-use Modules\HotelContentRepository\Models\Hotel;
 
 class BookingClientConfirmationMail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
 
-    /** @var string */
     public string $bookingItem;
 
     public function __construct(string $bookingItem)
@@ -30,152 +23,48 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $bookingItem = ApiBookingItem::where('booking_item', $this->bookingItem)->firstOrFail();
-
-        // Используем тот же номер, что и для quote/confirmation
-        $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItem->booking_item);
-
-        /** @var HotelBookingCheckQuoteService $service */
-        $service         = app(HotelBookingCheckQuoteService::class);
-        $dataReservation = $service->getDataFirstSearch($bookingItem);
-
-        $searchRequest = $bookingItem->search->request ?? '{}';
-        $searchArray   = json_decode($searchRequest, true) ?? [];
-
-        $giataCode = $dataReservation[0]['giata_code'] ?? null;
-
-        // Hotel + product + descriptive sections (для perks)
-        $hotel = Hotel::query()
-            ->with(['product.descriptiveContentsSection.descriptiveType'])
-            ->where('giata_code', $giataCode)
-            ->first();
-
-        $hotelName = $hotel?->product?->name ?? '[Hotel Name]';
-
-        // ---- Totals across all rooms ----
-        $totalNet   = 0.0;
-        $totalTax   = 0.0;
-        $totalFees  = 0.0;
-        $totalPrice = 0.0;
-
-        foreach ($dataReservation as $item) {
-            $totalNet   += $item['total_net']   ?? 0;
-            $totalTax   += $item['total_tax']   ?? 0;
-            $totalFees  += $item['total_fees']  ?? 0;
-            $totalPrice += $item['total_price'] ?? 0;
-        }
-
-        $currency     = Arr::get($dataReservation, '0.currency', 'USD');
-        $taxesAndFees = $totalTax + $totalFees;
-
-        // ---- Dates / guests ----
-        $checkinRaw  = Arr::get($searchArray, 'checkin');
-        $checkoutRaw = Arr::get($searchArray, 'checkout');
-
-        $checkinFormatted  = $checkinRaw ? Carbon::parse($checkinRaw)->format('m/d/Y') : null;
-        $checkoutFormatted = $checkoutRaw ? Carbon::parse($checkoutRaw)->format('m/d/Y') : null;
-
-        $roomsCount    = count($dataReservation);
-        $adultsCount   = collect(Arr::get($searchArray, 'occupancy', []))->sum('adults');
-        $childrenCount = collect(Arr::get($searchArray, 'occupancy', []))
-            ->sum(fn ($o) => count(Arr::get($o, 'children_ages', [])));
-
-        $guestInfo = sprintf('%d Room(s), %d Adults, %d Children', $roomsCount, $adultsCount, $childrenCount);
-
-        // ---- Room / rate info (по первой комнате) ----
-        $mainRoomName   = Arr::get($dataReservation, '0.room_name');
-        $rateRefundable = Arr::get($dataReservation, '0.cancellation_policies.0.penalty_start_date');
-        $rateRefundable = $rateRefundable
-            ? 'Refundable until ' . Carbon::parse($rateRefundable)->format('m/d/Y')
-            : 'Non-Refundable';
-        $rateMealPlan   = Arr::get($dataReservation, '0.meal_plan_name')
-            ?? Arr::get($dataReservation, '0.meal_plan');
-
-        // ---- Hero image с fallback ----
-        $defaultHeroPath = Storage::url('hotel.webp');
-
-        if ($hotel?->product?->hero_image) {
-            $hotelPhotoPath = Storage::url($hotel->product->hero_image);
-        } else {
-            $hotelPhotoPath = $defaultHeroPath;
-        }
-
-        // ---- Perks ('  . env('APP_NAME') .  ' Amenities) ----
-        $perks = collect($hotel?->product?->descriptiveContentsSection ?? [])
-            ->filter(function ($sec) {
-                $name = trim($sec->descriptiveType->name ?? '');
-
-                return $name === ''  . env('APP_NAME') .  ' Amenities';
-            })
-            ->filter(function ($sec) {
-                $now    = now();
-                $starts = $sec->start_date ? $sec->start_date->startOfDay() : null;
-                $ends   = $sec->end_date ? $sec->end_date->endOfDay() : null;
-
-                return (! $starts || $now->gte($starts)) && (! $ends || $now->lte($ends));
-            })
-            ->sortByDesc(fn ($sec) => optional($sec->start_date)->timestamp ?? 0)
-            ->pluck('value')
-            ->map(fn ($v) => strip_tags((string) $v))
-            ->flatMap(fn ($text) => preg_split('/\r\n|\r|\n|•\s*|;\s*|\. +/u', $text) ?: [])
-            ->map(fn ($s) => trim($s, " \t\n\r\0\x0B•;,."))
-            ->filter()
-            ->values()
-            ->all();
-
-        logger('BookingClientConfirmationMail', [
-            'quoteNumber' => $quoteNumber,
-            'hotelGiata'  => $hotel?->giata_code,
-            'rooms_count' => count($dataReservation),
-        ]);
+        /** @var BookingEmailDataService $dataService */
+        $dataService = app(BookingEmailDataService::class);
+        $data = $dataService->getBookingData($this->bookingItem);
 
         // ---- PDF payload ----
-        $addr = $hotel?->address ?? [];
-
-        $hotelAddress = implode(', ', array_filter([
-            $addr['line_1']              ?? null,
-            $addr['city']                ?? null,
-            $addr['state_province_name'] ?? null,
-            $addr['country_code']        ?? null,
-        ]));
-
         $pdfData = [
-            'hotel'     => $hotel,
+            'hotel' => $data['hotel'],
             'hotelData' => [
-                'name'    => $hotelName,
-                'address' => $hotelAddress,
+                'name' => $data['hotelName'],
+                'address' => $data['hotelAddress'],
             ],
 
             // Totals
-            'total_net'      => $totalNet,
-            'total_tax'      => $totalTax,
-            'total_fees'     => $totalFees,
-            'total_price'    => $totalPrice,
-            'currency'       => $currency,
-            'taxes_and_fees' => $taxesAndFees,
+            'total_net' => $data['total_net'],
+            'total_tax' => $data['total_tax'],
+            'total_fees' => $data['total_fees'],
+            'total_price' => $data['total_price'],
+            'currency' => $data['currency'],
+            'taxes_and_fees' => $data['taxesAndFees'],
 
             // Agency info
             'agency' => [
-                'booking_agent'       => ''  . env('APP_NAME') .  ' Tours',
+                'booking_agent' => ''.env('APP_NAME').' Tours',
                 'booking_agent_email' => 'support@vidanta.com',
             ],
 
             // Images
-            'hotelPhotoPath' => $hotelPhotoPath,
+            'hotelPhotoPath' => $data['hotelPhotoPath'],
 
             // Pills / rate info
-            'checkin'         => $checkinFormatted,
-            'checkout'        => $checkoutFormatted,
-            'guest_info'      => $guestInfo,
-            'main_room_name'  => $mainRoomName,
-            'rate_refundable' => $rateRefundable,
-            'rate_meal_plan'  => $rateMealPlan,
+            'checkin' => $data['checkinDate'],
+            'checkout' => $data['checkoutDate'],
+            'guest_info' => $data['guestInfo'],
+            'main_room_name' => $data['mainRoomName'],
+            'rate_refundable' => $data['rateRefundable'],
+            'rate_meal_plan' => $data['rateMealPlan'],
 
             // Perks
-            'perks' => $perks,
+            'perks' => $data['perks'],
 
             // Misc
-            'confirmation_number' => $quoteNumber,
+            'confirmation_number' => $data['quoteNumber'],
         ];
 
         /** @var PdfGeneratorService $pdfService */
@@ -186,7 +75,7 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
         return $this->subject('Your Booking Confirmation')
             ->view('emails.booking.client-confirmation')
             ->with([
-                'hotelName' => $hotelName,
+                'hotelName' => $data['hotelName'],
             ])
             ->attachData($pdfContent, 'ClientConfirmation.pdf', [
                 'mime' => 'application/pdf',

@@ -7,35 +7,35 @@
 
     --white-color: #ffffff;
     --tab-buttom-color: #fafafa;
-    --buttom-color: #0e7d07;
+    --buttom-color: #1c1c24;
 
-    --background-main-color: #f8f8f8;
-    --background-item-color: #fdfdfd;
+    --background-main-color: #f7f7f7;
+    --background-item-color: #ffffff;
     --background-heder-item-color: #ded9d2;
 
-    --font-color: #545961;
+    --font-color: #1c1c24;
 
     --red-color: #ee6a64;
-    --green-color: #87e291;
-    --theme-color: #00c1a5;
-    --theme-light-color: #b2f2e6;
+    --green-color: #aa8c5d;
+    --theme-color: #aa8c5d;
+    --theme-light-color: #eaddcf;
 
-    --theme-background-color: #b5d2e9;
+    --theme-background-color: #252525;
 
     --grey-color : #e4e4e7;
     --grey-light-color : #fafafa;
 
-    --primary-50: 235, 247, 247;
-    --primary-100: 213, 237, 239;
-    --primary-200: 170, 215, 223;
-    --primary-300: 116, 186, 200;
-    --primary-400: 60, 146, 170;
-    --primary-500: 6, 119, 146;
-    --primary-600: 9, 83, 120;
-    --primary-700: 14, 64, 96;
-    --primary-800: 15, 53, 80;
-    --primary-900: 14, 44, 64;
-    --primary-950: 6, 21, 35;
+    --primary-50: 247, 246, 244;
+    --primary-100: 234, 221, 207;
+    --primary-200: 170, 140, 93;
+    --primary-300: 170, 140, 93;
+    --primary-400: 170, 140, 93;
+    --primary-500: 170, 140, 93;
+    --primary-600: 28, 28, 36;
+    --primary-700: 28, 28, 36;
+    --primary-800: 28, 28, 36;
+    --primary-900: 28, 28, 36;
+    --primary-950: 0, 0, 0;
 }
 
 .choices__list--multiple .choices__item {
@@ -123,11 +123,11 @@ thead .bg-gray-50{
 
 .fi-ta-content {
     outline: 1px solid var(--theme-light-color);
-    border-radius: 2px;
+    border-radius: 0px;
 }
 
 .rounded-xl {
-    border-radius: 25px;
+    border-radius: 0;
     border: 1px solid #e5e7eb;
 }
 .hotel-form-container .rounded-xl {
@@ -143,8 +143,8 @@ thead .bg-gray-50{
     --tw-ring-color: #FFFFFF00 !important;
 }
 
-.hotel-form-container .fi-input-wrp {
-    border-radius: 2px !important; /* Применяет радиус */
+.fi-input-wrp {
+    border-radius: 0px !important; /* Применяет радиус */
     line-height: 2.5rem !important; /* Для высоты строки */
 }
 
@@ -168,16 +168,16 @@ thead .bg-gray-50{
     line-height: 2.5rem !important; /* Для высоты строки */
 }
 
-.hotel-form-container .choices__inner {
+.choices__inner {
     min-height: 55px !important;
-    border-radius: 2px !important;
+    border-radius: 0px !important;
     display: flex;
     align-items: center;
 }
 
-.hotel-form-container .fi-select-input:focus {
+.fi-select-input:focus {
     outline: 2px solid var(--font-color) !important;
-    border-radius: 2px !important;
+    border-radius: 0px !important;
     outline-offset: 0;
 }
 
@@ -206,15 +206,19 @@ thead .bg-gray-50{
     background-color: var(--white-color);
     padding: 1.5rem;
     border: 1px solid #e5e7eb;
-    border-radius: 15px;
+    border-radius: 0px;
 }
 
-.hotel-form-container .choices__list--multiple .choices__item {
+.choices__list--multiple .choices__item {
     font-size: .85rem;
     font-weight: 500;
     gap: .35rem;
     line-height: 1rem;
     padding: .7rem .8rem;
+    background-color: var(--theme-color) !important;
+    border: 1px solid var(--theme-color) !important;
+    color: #fff !important;
+    border-radius: 0px !important;
 }
 
 .large-button {
@@ -236,7 +240,7 @@ thead .bg-gray-50{
     overflow-x: auto;
     scrollbar-width: none;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 0px;
     padding: 0.7rem;
     margin: 60px 0 5px;
     justify-content: flex-start;
@@ -254,7 +258,7 @@ thead .bg-gray-50{
 .sr_tab-link {
     display: block;
     padding: 0.75rem 1rem;
-    border-radius: 8px;
+    border-radius: 0px;
     border: #e5e7eb 1px solid;
     background-color: var(--tab-buttom-color);
     color: #333;
@@ -407,7 +411,7 @@ thead .bg-gray-50{
     bottom: 0;
     background-color: #e5e5e5;
     transition: background-color 0.4s;
-    border-radius: 25px;
+    border-radius: 25px !important;
 }
 
 .hotel-form-slider:before {
@@ -419,16 +423,16 @@ thead .bg-gray-50{
     bottom: 3.5px;
     background-color: var(--red-color);
     transition: transform 0.4s, background-color 0.4s;
-    border-radius: 50%;
+    border-radius: 50% !important;
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider {
-    background-color: #d9f7dc;
+    background-color: var(--theme-light-color);
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider:before {
     transform: translateX(27px);
-    background-color: var(--green-color)
+    background-color: #ffffff; /* Reset to white for standard look */
 }
 
 /* Basic Modal Styles */
@@ -461,7 +465,7 @@ thead .bg-gray-50{
 .hotel-modal-header {
     background-color: white;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 0px;
     width: 100%;
     max-width: 500px;
     text-align: center;
@@ -470,7 +474,7 @@ thead .bg-gray-50{
 .hotel-modal-header-simple {
     background-color: white;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 0px;
     width: 100%;
     max-width: 500px;
 }
@@ -495,7 +499,7 @@ thead .bg-gray-50{
     padding: 10px 16px;
     font-size: 14px;
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: 0px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
@@ -580,7 +584,7 @@ thead .bg-gray-50{
     border: none;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0px;
     cursor: pointer;
     font-size: 20px;
     display: flex;
@@ -616,7 +620,7 @@ thead .bg-gray-50{
 .nav-dot {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: 0px;
     border: 2px solid white;
     background: transparent;
     cursor: pointer;
@@ -643,3 +647,206 @@ thead .bg-gray-50{
 }
 
 
+
+/* Broader overrides for Vidanta style */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl {
+    border-radius: 0px !important;
+}
+
+button, .btn, .fi-btn, .fi-icon-btn, a.button {
+    border-radius: 0px !important;
+}
+
+input[type="text"], input[type="email"], input[type="password"], input[type="number"],
+input[type="date"], select, textarea, .form-control, .fi-input {
+    border-radius: 0px !important;
+}
+
+.card, .panel, .bg-white, .fi-section, .fi-fieldset {
+    border-radius: 0px !important;
+}
+
+/* Force rounded corners for Toggles specifically, to override the global button reset */
+/* Force rounded corners for Toggles specifically, to override the global button reset */
+div[role="switch"],
+button[role="switch"], 
+.fi-toggle button, 
+.fi-switch button,
+.fi-toggle .fi-btn,
+.filament-forms-toggle-component button {
+    border-radius: 9999px !important;
+}
+
+/* Ensure the toggle handle/circle is also round */
+/* Ensure the toggle handle/circle is also round */
+div[role="switch"] span,
+div[role="switch"] div,
+div[role="switch"] .bg-white,
+button[role="switch"] span,
+button[role="switch"] div,
+button[role="switch"] .bg-white,
+.fi-toggle button span,
+.fi-switch button span,
+.fi-toggle span,
+.fi-switch span {
+    border-radius: 50% !important;
+}
+
+/* Broader overrides for remaining Green/Primary buttons to match Theme */
+.bg-success-600, .bg-success-500, .bg-blue-600, .bg-primary-600 {
+    background-color: var(--theme-color) !important;
+    border-color: var(--theme-color) !important;
+    color: #ffffff !important;
+}
+
+.text-success-600, .text-primary-600 {
+    color: var(--theme-color) !important;
+}
+
+/* Force ALL checked toggles to be Theme Gold/Bronze, overriding Red(Danger) and Green(Success) */
+button[role="switch"][aria-checked="true"],
+button[role="switch"][aria-checked="true"] .bg-primary-600,
+button[role="switch"][aria-checked="true"] .bg-success-600,
+button[role="switch"][aria-checked="true"] .bg-danger-600,
+div[role="switch"][aria-checked="true"],
+div[role="switch"][aria-checked="true"] .bg-primary-600,
+div[role="switch"][aria-checked="true"] .bg-success-600,
+div[role="switch"][aria-checked="true"] .bg-danger-600,
+.fi-toggle .fi-btn-active {
+    background-color: var(--theme-light-color) !important;
+    border-color: var(--theme-light-color) !important;
+}
+
+/* Ensure icons inside toggles (if any) match the theme or white */
+button[role="switch"][aria-checked="true"] .text-primary-600,
+button[role="switch"][aria-checked="true"] .text-success-600,
+button[role="switch"][aria-checked="true"] .text-danger-600 {
+    color: var(--theme-color) !important;
+}
+
+/* Fix specific button found in screenshot (looks like teal/green) */
+.fi-btn-custom-color {
+    background-color: var(--theme-color) !important;
+}
+
+
+/* Logo visibility logic */
+body[data-sidebar-size="sm"] .navbar-brand .logo-lg {
+    display: none !important;
+}
+body[data-sidebar-size="sm"] .navbar-brand .logo-sm {
+    display: inline-block !important;
+}
+
+/* Default state (Sidebar open) */
+.navbar-brand .logo-lg {
+    display: inline-block !important;
+}
+.navbar-brand .logo-sm {
+    display: none !important;
+}
+
+/* Dark Mode Overrides for Vidanta */
+.dark body,
+body[data-mode="dark"],
+.dark .page-content,
+body[data-mode="dark"] .page-content,
+.dark .vertical-menu,
+body[data-mode="dark"] .vertical-menu {
+    background-color: #0c0c10 !important;
+    color: #e5e7eb !important;
+}
+
+.dark .bg-white,
+.dark .card,
+.dark .fi-section,
+.dark .fi-fieldset,
+.dark .hotel-modal-header,
+.dark .hotel-modal-header-simple,
+.dark .fi-ta-content,
+.dark .fi-ta-header,
+.dark .fi-ta-empty-state,
+body[data-mode="dark"] .bg-white,
+body[data-mode="dark"] .card,
+body[data-mode="dark"] .fi-section,
+body[data-mode="dark"] .fi-fieldset,
+body[data-mode="dark"] .hotel-modal-header,
+body[data-mode="dark"] .hotel-modal-header-simple,
+body[data-mode="dark"] .fi-ta-content,
+body[data-mode="dark"] .fi-ta-header,
+body[data-mode="dark"] .fi-ta-empty-state {
+    background-color: #1c1c24 !important;
+    color: #e5e7eb !important;
+    border-color: #2d2d39 !important;
+}
+
+.dark input, 
+.dark select, 
+.dark textarea,
+.dark .fi-input,
+.dark .fi-input-wrp,
+.dark .choices__inner,
+body[data-mode="dark"] input, 
+body[data-mode="dark"] select, 
+body[data-mode="dark"] textarea,
+body[data-mode="dark"] .fi-input,
+body[data-mode="dark"] .fi-input-wrp,
+body[data-mode="dark"] .choices__inner {
+    background-color: #1c1c24 !important;
+    color: #e5e7eb !important;
+    border-color: #2d2d39 !important;
+}
+
+.dark .hotel-modal,
+body[data-mode="dark"] .hotel-modal {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+.dark .hotel-modal-header h4,
+.dark .fi-section-header-heading,
+.dark .fi-ta-header-heading,
+body[data-mode="dark"] .hotel-modal-header h4,
+body[data-mode="dark"] .fi-section-header-heading,
+body[data-mode="dark"] .fi-ta-header-heading {
+    color: #ffffff !important;
+}
+
+.dark .fi-ta-header-cell-label, 
+.dark .fi-input-label,
+.dark .fi-section-header-description,
+.dark label,
+body[data-mode="dark"] .fi-ta-header-cell-label, 
+body[data-mode="dark"] .fi-input-label,
+body[data-mode="dark"] .fi-section-header-description,
+body[data-mode="dark"] label {
+    color: #9ca3af !important;
+}
+
+.dark .fi-ta-cell-content,
+.dark .fi-ta-text-item,
+.dark .fi-ta-text-item-label,
+body[data-mode="dark"] .fi-ta-cell-content,
+body[data-mode="dark"] .fi-ta-text-item,
+body[data-mode="dark"] .fi-ta-text-item-label {
+    color: #e5e7eb !important;
+}
+
+/* Sidebar Dropdown Fix for Dark Mode (when collapsed) */
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul,
+.dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a,
+.dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul {
+    background-color: #1c1c24 !important;
+}
+
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a span,
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a,
+.dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul > li:hover > a span,
+.dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a {
+    color: #e5e7eb !important;
+}
+
+body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover,
+.dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover {
+    color: var(--theme-color) !important;
+}

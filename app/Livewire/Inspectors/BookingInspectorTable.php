@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -22,6 +23,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
+use Modules\API\Requests\BookingCancelBooking;
 
 class BookingInspectorTable extends Component implements HasForms, HasTable
 {
@@ -81,12 +84,12 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('metadata.supplier_booking_item_id')
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
-//                    ->toggleable()
+                    //                    ->toggleable()
                     ->label('Confirmation'),
                 TextColumn::make('metadata.hotel_supplier_id')
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
-//                    ->toggleable()
+                    //                    ->toggleable()
                     ->label('Hotel Id'),
                 TextColumn::make('metadata')
                     ->label('Hotel/Vendor')
@@ -114,14 +117,53 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     }),
             ])
             ->actions([
-                //                ActionGroup::make([
-                //                    ViewAction::make()
-                //                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-                //                        ->label('View response')
-                //                        ->color('info')
-                //                ])
+                Action::make('Cancel')
+                    ->iconButton()
+                    ->tooltip('Cancel')
+                    ->requiresConfirmation()
+                    ->action(function (ApiBookingInspector $record) {
+                        $booking_id = $record->booking_id;
+                        $booking_item = $record->booking_item;
+
+                        $request = new BookingCancelBooking([
+                            'booking_id' => $booking_id,
+                            'booking_item' => $booking_item,
+                        ]);
+
+                        $handler = app(BookApiHandler::class);
+
+                        // Call cancelBooking
+                        $response = $handler->cancelBooking($request);
+                    })
+                    ->icon('heroicon-s-x-circle')
+                    ->color('danger')
+                    ->visible(
+                        fn (ApiBookingInspector $record): bool => $record->type === 'book' &&
+                        $record->sub_type === 'create' &&
+                        $record->status === 'success' &&
+                        ! ApiBookingInspector::where('booking_id', $record->booking_id)
+                            ->where('type', 'cancel_booking')
+                            ->where('status', 'success')
+                            ->exists()
+                    ),
             ])
             ->filters([
+                Filter::make('booked_not_cancelled')
+                    ->label('Booked but not Cancelled')
+                    ->toggle()
+                    ->query(function (Builder $query): Builder {
+                        return $query
+                            ->where('type', 'book')
+                            ->where('sub_type', 'create')
+                            ->where('status', 'success')
+                            ->whereNotIn('booking_id', function ($subQuery) {
+                                $subQuery->select('booking_id')
+                                    ->from('api_booking_inspector')
+                                    ->where('type', 'cancel_booking')
+                                    ->where('status', 'success');
+                            });
+                    }),
+
                 Filter::make('category')
                     ->form([
                         Select::make('category')
@@ -159,10 +201,11 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                                     });
                                 }
                             });
-                        } elseif (!empty($data['category'])) {
+                        } elseif (! empty($data['category'])) {
                             [$subType, $type] = explode('|', $data['category']);
                             $query->where('sub_type', trim($subType))->where('type', trim($type));
                         }
+
                         return $query;
                     })
                     ->indicateUsing(function (array $data) {
@@ -179,12 +222,14 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             'change-soft|change_book' => 'change_book_soft',
                             'update_change|change_passengers' => 'change_passengers_update',
                         ];
-                        if (!empty($data['category']) && is_array($data['category'])) {
-                            $labels = array_map(fn($cat) => $map[$cat] ?? $cat, $data['category']);
-                            return 'Category: ' . implode(', ', $labels);
-                        } elseif (!empty($data['category'])) {
-                            return 'Category: ' . ($map[$data['category']] ?? $data['category']);
+                        if (! empty($data['category']) && is_array($data['category'])) {
+                            $labels = array_map(fn ($cat) => $map[$cat] ?? $cat, $data['category']);
+
+                            return 'Category: '.implode(', ', $labels);
+                        } elseif (! empty($data['category'])) {
+                            return 'Category: '.($map[$data['category']] ?? $data['category']);
                         }
+
                         return null;
                     }),
                 Filter::make('created_at')

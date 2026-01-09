@@ -2,18 +2,12 @@
 
 namespace App\Mail;
 
-use App\Models\ApiBookingItem;
-use App\Models\User;
-use App\Repositories\ApiBookingInspectorRepository;
+use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
-use Modules\API\Services\HotelBookingCheckQuoteService;
-use Modules\HotelContentRepository\Models\Hotel;
 
 class BookingConfirmationMail extends Mailable implements ShouldQueue
 {
@@ -28,65 +22,26 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $bookingItem = ApiBookingItem::where('booking_item', $this->bookingItem)->first();
-        $service = app(HotelBookingCheckQuoteService::class);
-        $dataReservation = $service->getDataFirstSearch($bookingItem);
-        $searchRequest = $bookingItem->search->request;
-        $giata_code = $dataReservation[0]['giata_code'] ?? null;
-        $hotel = Hotel::where('giata_code', $giata_code)->first();
-
-        $booking = ApiBookingInspectorRepository::getBookItemsByBookingItem($bookingItem->booking_item);
-        $bookingMeta = $booking?->metadata ?? [];
-        $requestBooking = json_decode($booking?->request ?? '', true) ?? [];
-        $agentId = Arr::get($requestBooking, 'api_client.id');
-        $agentEmail = Arr::get($requestBooking, 'api_client.email');
-        $userAgent = User::where('id', $agentId)
-            ->orWhere('email', $agentEmail)
-            ->first();
-        $clientLastNane = Arr::get($requestBooking, 'booking_contact.last_name');
-        $clientFirstName = Arr::get($requestBooking, 'booking_contact.first_name');
-
-        logger('BookingConfirmationMail', [
-            'hotel' => $hotel,
-            'booking' => $booking,
-            'booking_request' => $requestBooking,
-            'rooms' => $dataReservation,
-            'searchRequest' => json_decode($searchRequest, true),
-            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
-        ]);
-        $total_net = 0;
-        $total_tax = 0;
-        $total_fees = 0;
-        $total_price = 0;
-
-        foreach ($dataReservation as $item) {
-            $total_net += $item['total_net'] ?? 0;
-            $total_tax += $item['total_tax'] ?? 0;
-            $total_fees += $item['total_fees'] ?? 0;
-            $total_price += $item['total_price'] ?? 0;
-        }
+        /** @var BookingEmailDataService $dataService */
+        $dataService = app(BookingEmailDataService::class);
+        $data = $dataService->getBookingData($this->bookingItem);
 
         $pdfData = [
-            'customerName' => 'Mr '.$clientFirstName.' '.$clientLastNane,
-            'hotel' => $hotel,
+            'customerName' => 'Mr '.$data['clientFirstName'].' '.$data['clientLastName'],
+            'hotel' => $data['hotel'],
             'hotelData' => [
-                'name' => $hotel?->product?->name ?? 'Unknown Hotel',
-                'address' => trim(
-                    ($hotel->address['line_1'] ?? '').', '.
-                    ($hotel->address['city'] ?? '').', '.
-                    ($hotel->address['state_province_name'] ?? '').', '.
-                    ($hotel->address['country_code'] ?? '')
-                ),
+                'name' => $data['hotelName'],
+                'address' => $data['hotelAddress'],
             ],
-            'total_net' => $total_net,
-            'total_tax' => $total_tax,
-            'total_fees' => $total_fees,
-            'total_price' => $total_price,
+            'total_net' => $data['total_net'],
+            'total_tax' => $data['total_tax'],
+            'total_fees' => $data['total_fees'],
+            'total_price' => $data['total_price'],
             'agency' => [
-                'booking_agent' => $userAgent->name ?? 'OLIVER SHACKNOW',
-                'booking_agent_email' => $userAgent->email ?? 'kshacknow@vidanta.com',
+                'booking_agent' => $data['userAgent']->name ?? 'OLIVER SHACKNOW',
+                'booking_agent_email' => $data['userAgent']->email ?? 'kshacknow@vidanta.com',
             ],
-            'hotelPhotoPath' => $hotel?->product?->hero_image ? Storage::url($hotel?->product?->hero_image) : '',
+            'hotelPhotoPath' => $data['hotelPhotoPath'],
         ];
 
         // 🔹 генерируем PDF прямо здесь
@@ -98,10 +53,10 @@ class BookingConfirmationMail extends Mailable implements ShouldQueue
         \Cache::put($cacheKey, $pdfData, now()->addDays(7));
 
         $emailData = [
-            'hotel' => $hotel,
-            'bookingMeta' => $bookingMeta,
-            'rooms' => $dataReservation,
-            'searchRequest' => json_decode($searchRequest, true),
+            'hotel' => $data['hotel'],
+            'bookingMeta' => $data['bookingMeta'],
+            'rooms' => $data['dataReservation'],
+            'searchRequest' => $data['searchArray'],
         ];
 
         // Save cache for 7 days using bookingItem as part of the key

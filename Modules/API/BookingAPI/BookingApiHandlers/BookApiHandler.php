@@ -172,14 +172,18 @@ class BookApiHandler extends BaseController
                 $paymentUrl = $request->input('payment_url');
                 $paymentUrl = $paymentUrl ?: request()->getSchemeAndHttpHost().'/payment/'.$item->booking_id;
                 $email_client = $request->input('booking_contact.email');
-                Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $item->booking_id));
+                if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
+                    Mail::to($email_client)->queue(new BookingClientPaymentMail($paymentUrl, $item->booking_id, $item->booking_item));
+                }
             } catch (\Throwable $mailException) {
                 Log::error('Booking payment email queue error: '.$mailException->getMessage());
             }
         }
 
         // Retrieve booking to get the full details after booking
-        RetrieveBookingJob::dispatch($request->booking_id);
+        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
+        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+        RetrieveBookingJob::$dispatchMethod($request->booking_id);
 
         $totalTime = (microtime(true) - $sts).' seconds';
 
@@ -360,7 +364,12 @@ class BookApiHandler extends BaseController
         $filters['search_id'] = $searchId;
 
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $bookingId, $filters, $supplierId, 'change_passengers', $subType, 'hotel',
+            $bookingId,
+            $filters,
+            $supplierId,
+            'change_passengers',
+            $subType,
+            'hotel',
         ]);
 
         SaveBookingInspector::dispatchSync($bookingInspector, [], [
@@ -389,10 +398,12 @@ class BookApiHandler extends BaseController
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
 
-        if (! ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('booking_item', $request->booking_item)
-            ->where('type', 'price-check')
-            ->where('status', 'success')->exists()) {
+        if (
+            ! ApiBookingInspector::where('booking_id', $request->booking_id)
+                ->where('booking_item', $request->booking_item)
+                ->where('type', 'price-check')
+                ->where('status', 'success')->exists()
+        ) {
             return $this->sendError('First you need to do change/price-check', 'failed');
         }
 
@@ -465,7 +476,9 @@ class BookApiHandler extends BaseController
         }
 
         try {
-            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters);
+            $data = $this->supplierRegistry
+                ->get(SupplierNameEnum::from($bookingItem->supplier->name))
+                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name));
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -651,7 +664,8 @@ class BookApiHandler extends BaseController
             }
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $data[] = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->retrieveBooking($filters, $item);
+                $supplierEnum = SupplierNameEnum::from($supplier);
+                $data[] = $this->supplierRegistry->get($supplierEnum)->retrieveBooking($filters, $item, $supplierEnum);
             } catch (Exception $e) {
                 Log::error('BookApiHandler | retrieveBooking '.$e->getMessage());
                 Log::error($e->getTraceAsString());
@@ -705,7 +719,8 @@ class BookApiHandler extends BaseController
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
-                $response = $this->supplierRegistry->get(SupplierNameEnum::from($supplier))->cancelBooking($filters, $item);
+                $supplierEnum = SupplierNameEnum::from($supplier);
+                $response = $this->supplierRegistry->get($supplierEnum)->cancelBooking($filters, $item, $supplierEnum);
                 $data[] = $response;
 
                 // If cancellation is successful, update Reservation
@@ -898,7 +913,9 @@ class BookApiHandler extends BaseController
 
         // Second/new search. Check availability and price.
         try {
-            $data = $this->supplierRegistry->get(SupplierNameEnum::from($bookingItem->supplier->name))->availabilityChange($filters, 'check_quote');
+            $data = $this->supplierRegistry
+                ->get(SupplierNameEnum::from($bookingItem->supplier->name))
+                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name), 'check_quote');
         } catch (Exception $e) {
             Log::error('BookApiHandler | checkQuote '.$e->getMessage());
             Log::error($e->getTraceAsString());

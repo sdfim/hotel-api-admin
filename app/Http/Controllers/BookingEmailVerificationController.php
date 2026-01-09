@@ -49,7 +49,9 @@ class BookingEmailVerificationController extends Controller
         [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($booking_item);
         if ($agentEmail) {
             try {
-                Mail::to($agentEmail)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
+                if (! Cache::has('bookingItem_no_mail_'.$booking_item)) {
+                    Mail::to($agentEmail)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
+                }
             } catch (\Exception $e) {
                 Log::error('Failed to send agent notification email for booking item '.$booking_item.': '.$e->getMessage());
             }
@@ -61,7 +63,9 @@ class BookingEmailVerificationController extends Controller
                 continue;
             }
             try {
-                Mail::to($email)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
+                if (! Cache::has('bookingItem_no_mail_'.$booking_item)) {
+                    Mail::to($email)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
+                }
             } catch (\Exception $e) {
                 Log::error('Failed to send agent notification email for booking item '.$booking_item.': '.$e->getMessage(), ['email' => $email]);
             }

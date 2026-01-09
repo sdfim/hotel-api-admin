@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class GenerateJwt extends Command
 {
-    protected $signature = 'jwt:generate {email} {sub} {first_name} {last_name}';
+    protected $signature = 'jwt:generate {email} {sub} {first_name} {last_name} {key?}';
 
     protected $description = 'Generate a JWT token with the provided claims';
 
@@ -17,18 +17,20 @@ class GenerateJwt extends Command
         $sub = $this->argument('sub');
         $firstName = $this->argument('first_name');
         $lastName = $this->argument('last_name');
+        $key = $this->argument('key');
 
-        $key = config('jwt.secret');
+        $key = $key ?: config('jwt.secret');
         $payload = [
             'email' => $email,
-            'sub' => $sub,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
+            'externalCustomerId' => $sub,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
             'exp' => time() + 3600, // Token expires in 1 hour
+            'iat' => time(), // Token issued at
         ];
 
         $jwt = JWT::encode($payload, $key, 'HS256');
 
-        $this->info('Generated JWT: '.$jwt);
+        $this->line($jwt);
     }
 }

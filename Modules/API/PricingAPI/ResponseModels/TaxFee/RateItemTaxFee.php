@@ -16,7 +16,7 @@ class RateItemTaxFee
 
     protected ?string $level = null;
 
-    protected ?string $collected_by;
+    protected ?string $collected_by = null;
 
     protected ?string $start_date = null;
 

@@ -138,7 +138,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             'EUR' => 'info',
                             'GBP' => 'danger',
                             'CAD' => 'warning',
-                            'JPY' => 'gray',
+                            'MXN' => 'gray',
                             default => 'success',
                         };
                     })

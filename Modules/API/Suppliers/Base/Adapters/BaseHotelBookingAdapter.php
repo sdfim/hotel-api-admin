@@ -123,4 +123,19 @@ class BaseHotelBookingAdapter extends BaseBookingAdapter
 
         return ['booking_id' => $booking_id];
     }
+
+    private function getCurrentBookingItem(array $itemPrice): array
+    {
+        return [
+            'total_net' => $itemPrice['total_net'] ?? 0,
+            'total_tax' => $itemPrice['total_tax'] ?? 0,
+            'total_fees' => $itemPrice['total_fees'] ?? 0,
+            'total_price' => $itemPrice['total_price'] ?? 0,
+            'cancellation_policies' => $itemPrice['cancellation_policies'] ?? [],
+            'breakdown' => $itemPrice['breakdown'] ?? [],
+            'rate_name' => $itemPrice['rate_name'] ?? '',
+            'room_name' => $itemPrice['room_type'] ?? '',
+            'currency' => $itemPrice['currency'] ?? '',
+        ];
+    }
 }

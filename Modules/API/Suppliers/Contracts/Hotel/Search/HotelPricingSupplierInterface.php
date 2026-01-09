@@ -8,7 +8,7 @@ namespace Modules\API\Suppliers\Contracts\Hotel\Search;
  */
 interface HotelPricingSupplierInterface extends HotelSupplierInterface
 {
-    public function price(array &$filters, array $searchInspector, array $preSearchData): ?array;
+    public function price(array &$filters, array $searchInspector, array $preSearchData, string $hotelId = ''): ?array;
 
     public function processPriceResponse(
         array $rawResponse,

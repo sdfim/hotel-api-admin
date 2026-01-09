@@ -51,4 +51,48 @@ class AddImage
             }
         });
     }
+
+    /**
+     * Multi-upload images to galleries.
+     *
+     * @param  array  $data  - expects 'image_url' as array, other fields as arrays or single values
+     *
+     * @throws \Throwable
+     */
+    public function addImagesToGallery(array $data, ?Product $product, ?HotelRoom $room, string $galleryName, string $description, array $galleries = []): void
+    {
+        DB::transaction(function () use ($data, $room, $product, $galleryName, $description, $galleries) {
+            $imageUrls = $data['image_url'] ?? [];
+            foreach ($imageUrls as $idx => $url) {
+                $image = Image::create([
+                    'image_url' => $url,
+                    'tag' => is_array($data['tag']) ? implode(';', $data['tag']) : $data['tag'],
+                    'alt' => $data['alt'],
+                    'section_id' => $data['section_id'],
+                    'weight' => $data['weight'] ?? '500',
+                ]);
+
+                $galleryModels = ImageGallery::whereIn('id', $galleries)->get();
+                foreach ($galleryModels as $gallery) {
+                    $gallery->images()->attach($image->id);
+                }
+
+                if ($galleryName) {
+                    $gallery = ImageGallery::firstOrCreate(
+                        ['gallery_name' => $galleryName],
+                        ['description' => $description]
+                    );
+                    $gallery->images()->attach($image->id);
+
+                    if ($product) {
+                        $product->galleries()->syncWithoutDetaching([$gallery->id]);
+                    }
+
+                    if ($room) {
+                        $room->galleries()->syncWithoutDetaching([$gallery->id]);
+                    }
+                }
+            }
+        });
+    }
 }

@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Not Found</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-        <div class="bg-white rounded-xl shadow-lg px-6 py-8 w-full max-w-xs sm:max-w-md">
-            <h1 class="text-red-600 text-2xl font-bold mb-5 text-center">Booking Not Found</h1>
-            <p class="mb-0 text-center text-base">The booking you are trying to verify does not exist or the link is invalid.</p>
-        </div>
+@extends('booking.vidanta_landing_layout')
+
+@section('title', 'Not Found - ' . env('APP_NAME'))
+
+@section('content')
+    <h1 class="font-playfair italic text-5xl text-vidantaBlack mb-8">Verification Error</h1>
+
+    <div class="space-y-6 text-vidantaBlack/80 leading-relaxed font-light text-lg">
+        <p>
+            We could not find the booking verification record you are looking for.
+        </p>
+        <p>
+            This may be due to an expired link or an incorrect URL. Please ensure you are using the correct link from your
+            official confirmation email.
+        </p>
     </div>
-</body>
-</html>
+
+    <div class="mt-12 flex justify-center">
+        <div class="w-12 h-[1px] bg-vidantaBronze text-red-500"></div>
+    </div>
+@endsection
