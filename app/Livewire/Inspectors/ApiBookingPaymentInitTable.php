@@ -47,42 +47,40 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                     ->label('Booking ID')
                     ->searchable(isIndividual: true)
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => (string) $state)
-                    ->action(fn ($record) => $this->filterByBookingId($record->booking_id)),
+                    ->formatStateUsing(fn($state) => (string) $state)
+                    ->action(fn($record) => $this->filterByBookingId($record->booking_id)),
 
                 TextColumn::make('booking_cost')
                     ->label('Booking Cost')
                     ->numeric(2)
                     ->toggleable()
                     ->sortable()
-                    ->summarize(new class extends Summarizer
-                    {
-                        public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
-                        {
-                            $bookingIds = $query->distinct()->pluck('booking_id');
-                            $sum = 0;
-                            foreach ($bookingIds as $bookingId) {
-                                $cost = ApiBookingInspectorRepository::getPriceBookingId($bookingId);
-                                $sum += $cost ?? 0;
-                            }
+                    ->summarize(new class extends Summarizer {
+            public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
+            {
+                $bookingIds = $query->distinct()->pluck('booking_id');
+                $sum = 0;
+                foreach ($bookingIds as $bookingId) {
+                    $cost = ApiBookingInspectorRepository::getPriceBookingId($bookingId);
+                    $sum += $cost ?? 0;
+                }
 
-                            return number_format($sum, 2);
-                        }
+                return number_format($sum, 2);
+            }
                     }),
 
                 TextColumn::make('init_amount')
                     ->numeric(2)
                     ->label('Init')
-                    ->formatStateUsing(fn ($state, $record) => $record->init_amount ? number_format($record->init_amount, 2) : '')
-                    ->summarize(new class extends Summarizer
-                    {
-                        public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
-                        {
-                            $sum = $query->where('action', 'init')->sum('amount');
+                    ->formatStateUsing(fn($state, $record) => $record->init_amount ? number_format($record->init_amount, 2) : '')
+                    ->summarize(new class extends Summarizer {
+            public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
+            {
+                $sum = $query->where('action', 'init')->sum('amount');
 
-                            return number_format($sum, 2);
-                        }
-                    }),
+                return number_format($sum, 2);
+            }
+                        }),
 
                 TextColumn::make('init_currency')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -90,15 +88,14 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                 TextColumn::make('confirmed_amount')
                     ->numeric(2)
                     ->label('Confirmed')
-                    ->formatStateUsing(fn ($state, $record) => $record->confirmed_amount ? number_format($record->confirmed_amount, 2) : '')
-                    ->summarize(new class extends Summarizer
-                    {
-                        public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
-                        {
-                            $sum = $query->where('action', 'confirmed')->sum('amount');
+                    ->formatStateUsing(fn($state, $record) => $record->confirmed_amount ? number_format($record->confirmed_amount, 2) : '')
+                    ->summarize(new class extends Summarizer {
+            public function summarize(\Illuminate\Database\Query\Builder $query, string $attribute): mixed
+            {
+                $sum = $query->where('action', 'confirmed')->sum('amount');
 
-                            return number_format($sum, 2);
-                        }
+                return number_format($sum, 2);
+            }
                     }),
 
                 TextColumn::make('confirmed_currency')
@@ -111,8 +108,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                     ->url(function ($record) {
                         $providerRoutes = [
                             'airwallex' => 'airwallex-api-logs.index',
-                            // Добавьте другие провайдеры и их роуты ниже
-                            // 'provider_name' => 'route_name',
+                            'cybersource' => 'cybersource-api-logs.index',
                         ];
                         $provider = $record->provider;
                         $routeName = $providerRoutes[$provider] ?? null;
@@ -126,7 +122,7 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                     ->label('Created At')
                     ->toggleable()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('m/d/Y H:i:s')),
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('m/d/Y H:i:s')),
             ])
             ->filters([
                 Filter::make('booking_id')
@@ -137,29 +133,29 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                             ->searchable(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['booking_id'])) {
+                        if (!empty($data['booking_id'])) {
                             $query->whereIn('booking_id', (array) $data['booking_id']);
                         }
 
                         return $query;
                     })
-                    ->indicateUsing(fn (array $data) => ! empty($data['booking_id']) ? 'Booking ID: '.implode(', ', (array) $data['booking_id']) : null),
+                    ->indicateUsing(fn(array $data) => !empty($data['booking_id']) ? 'Booking ID: ' . implode(', ', (array) $data['booking_id']) : null),
 
                 Filter::make('action')
                     ->form([
                         \Filament\Forms\Components\Select::make('action')
                             ->label('Payment Status')
                             ->multiple()
-                            ->options(collect(PaymentStatusEnum::cases())->mapWithKeys(fn ($case) => [$case->value => $case->name])->toArray()),
+                            ->options(collect(PaymentStatusEnum::cases())->mapWithKeys(fn($case) => [$case->value => $case->name])->toArray()),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['action'])) {
+                        if (!empty($data['action'])) {
                             $query->whereIn('action', (array) $data['action']);
                         }
 
                         return $query;
                     })
-                    ->indicateUsing(fn (array $data) => ! empty($data['action']) ? 'Status: '.implode(', ', (array) $data['action']) : null),
+                    ->indicateUsing(fn(array $data) => !empty($data['action']) ? 'Status: ' . implode(', ', (array) $data['action']) : null),
 
                 Filter::make('created_at_range')
                     ->form([
@@ -167,24 +163,24 @@ class ApiBookingPaymentInitTable extends Component implements HasForms, HasTable
                         \Filament\Forms\Components\DatePicker::make('created_to')->label('Created to'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['created_from'])) {
+                        if (!empty($data['created_from'])) {
                             $query->whereDate('created_at', '>=', $data['created_from']);
                         }
-                        if (! empty($data['created_to'])) {
+                        if (!empty($data['created_to'])) {
                             $query->whereDate('created_at', '<=', $data['created_to']);
                         }
 
                         return $query;
                     })
                     ->indicateUsing(function (array $data) {
-                        if (! empty($data['created_from']) && ! empty($data['created_to'])) {
-                            return 'Created: '.$data['created_from'].' - '.$data['created_to'];
+                        if (!empty($data['created_from']) && !empty($data['created_to'])) {
+                            return 'Created: ' . $data['created_from'] . ' - ' . $data['created_to'];
                         }
-                        if (! empty($data['created_from'])) {
-                            return 'Created from: '.$data['created_from'];
+                        if (!empty($data['created_from'])) {
+                            return 'Created from: ' . $data['created_from'];
                         }
-                        if (! empty($data['created_to'])) {
-                            return 'Created to: '.$data['created_to'];
+                        if (!empty($data['created_to'])) {
+                            return 'Created to: ' . $data['created_to'];
                         }
 
                         return null;

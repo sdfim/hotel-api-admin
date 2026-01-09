@@ -49,7 +49,7 @@ class CybersourceClient
         $config->setHost($merchantConfig->getHost());
 
         // ApiClient requires both Configuration and MerchantConfiguration.
-        $this->apiClient    = new ApiClient($config, $merchantConfig);
+        $this->apiClient = new ApiClient($config, $merchantConfig);
         $this->microformApi = new MicroformIntegrationApi($this->apiClient);
     }
 
@@ -60,16 +60,18 @@ class CybersourceClient
      * @return string JWT capture context.
      * @throws Exception
      */
-    public function generateCaptureContext(string $origin): string
+    public function generateCaptureContext(string $origin): array
     {
         // Minimal set according to docs:
         // clientVersion, targetOrigins, allowedCardNetworks.
-        $request = new GenerateCaptureContextRequest([
-            'clientVersion'       => config('cybersource.client_version'),
-            'targetOrigins'       => [$origin],
+        $payload = [
+            'clientVersion' => config('cybersource.client_version'),
+            'targetOrigins' => [$origin],
             'allowedCardNetworks' => config('cybersource.allowed_card_networks'),
             'allowedPaymentTypes' => config('cybersource.allowed_payment_types'),
-        ]);
+        ];
+
+        $request = new GenerateCaptureContextRequest($payload);
 
         $response = $this->microformApi->generateCaptureContext($request);
 
@@ -78,13 +80,14 @@ class CybersourceClient
         //  - ['captureContext' => jwt, ...]
         //  - plain string jwt
         //  - object with getCaptureContext()
+        $jwt = '';
         if (is_array($response)) {
             if (isset($response[0]) && is_string($response[0])) {
                 $jwt = $response[0];
             } elseif (isset($response['captureContext']) && is_string($response['captureContext'])) {
                 $jwt = $response['captureContext'];
             } else {
-                throw new Exception('Unexpected array response from Cybersource generateCaptureContext().');
+                return [['error' => 'Unexpected array response from Cybersource generateCaptureContext().'], $payload];
             }
         } elseif (is_string($response)) {
             $jwt = $response;
@@ -92,20 +95,18 @@ class CybersourceClient
             /** @var mixed $ctx */
             $ctx = $response->getCaptureContext();
             if (!is_string($ctx)) {
-                throw new Exception('Unexpected captureContext type on response object.');
+                return [['error' => 'Unexpected captureContext type on response object.'], $payload];
             }
             $jwt = $ctx;
         } else {
-            throw new Exception(
-                'Unexpected response type from Cybersource generateCaptureContext(): ' . gettype($response)
-            );
+            return [['error' => 'Unexpected response type from Cybersource generateCaptureContext(): ' . gettype($response)], $payload];
         }
 
         if ($jwt === '') {
-            throw new Exception('Empty capture context returned from Cybersource.');
+            return [['error' => 'Empty capture context returned from Cybersource.'], $payload];
         }
 
-        return $jwt;
+        return [['captureContext' => $jwt], $payload];
     }
 
     /**
@@ -160,7 +161,7 @@ class CybersourceClient
             return $jwk;
         } catch (Throwable $e) {
             \Log::error('Cybersource JWK fetch failed', [
-                'kid'       => $kid,
+                'kid' => $kid,
                 'exception' => $e->getMessage(),
             ]);
 
@@ -196,24 +197,24 @@ class CybersourceClient
         // orderInformation.amountDetails
         $amountDetails = new Ptsv2paymentsOrderInformationAmountDetails([
             'totalAmount' => number_format($amount, 2, '.', ''),
-            'currency'    => $currency,
+            'currency' => $currency,
         ]);
 
         // orderInformation.billTo
         $billToModel = new Ptsv2paymentsOrderInformationBillTo([
-            'firstName'          => $billTo['firstName'] ?? 'Guest',
-            'lastName'           => $billTo['lastName'] ?? 'Customer',
-            'email'              => $billTo['email'] ?? 'no-reply@example.com',
-            'address1'           => $billTo['address1'] ?? 'N/A',
-            'locality'           => $billTo['locality'] ?? 'N/A',
+            'firstName' => $billTo['firstName'] ?? 'Guest',
+            'lastName' => $billTo['lastName'] ?? 'Customer',
+            'email' => $billTo['email'] ?? 'no-reply@example.com',
+            'address1' => $billTo['address1'] ?? 'N/A',
+            'locality' => $billTo['locality'] ?? 'N/A',
             'administrativeArea' => $billTo['administrativeArea'] ?? 'N/A',
-            'postalCode'         => $billTo['postalCode'] ?? '00000',
-            'country'            => $billTo['country'] ?? 'US',
+            'postalCode' => $billTo['postalCode'] ?? '00000',
+            'country' => $billTo['country'] ?? 'US',
         ]);
 
         $orderInfo = new Ptsv2paymentsOrderInformation([
             'amountDetails' => $amountDetails,
-            'billTo'        => $billToModel,
+            'billTo' => $billToModel,
         ]);
 
         // tokenInformation.transientTokenJwt
@@ -227,9 +228,9 @@ class CybersourceClient
 
         $request = new CreatePaymentRequest([
             'clientReferenceInformation' => $clientRef,
-            'orderInformation'           => $orderInfo,
-            'tokenInformation'           => $tokenInfo,
-            'processingInformation'      => $processingInformation,
+            'orderInformation' => $orderInfo,
+            'tokenInformation' => $tokenInfo,
+            'processingInformation' => $processingInformation,
         ]);
 
         $paymentsApi = new PaymentsApi($this->apiClient);
@@ -243,19 +244,21 @@ class CybersourceClient
             ? $apiResponse[0]
             : $apiResponse;
 
+        $payload = json_decode(json_encode($request), true);
+
         try {
             // Convert SDK model to associative array for easier handling.
             $json = json_encode($model, JSON_THROW_ON_ERROR);
             /** @var array $decoded */
             $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-            return $decoded;
+            return [$decoded, $payload];
         } catch (Exception $e) {
             Log::error('Failed to normalize Cybersource payment response: ' . $e->getMessage(), [
                 'response' => $apiResponse,
             ]);
 
-            throw $e;
+            return [['error' => $e->getMessage()], $payload];
         }
     }
 }
