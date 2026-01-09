@@ -144,9 +144,11 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
         }
 
         if (! $error) {
-            SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
+            $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
+            $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+            SaveBookingInspector::$dispatchMethod($inspectorBook, $dataResponseToSave, $clientResponse);
             // Save Book data to Reservation
-            SaveReservations::dispatch($booking_id, $filters, $dataPassengers, request()->bearerToken());
+            SaveReservations::$dispatchMethod($booking_id, $filters, $dataPassengers, request()->bearerToken());
         }
 
         if (! $bookingData) {
@@ -190,7 +192,9 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
         $reservation['main_guest']['Surname'] = Arr::get($mainGuest, '0.family_name', '');
         $reservation['main_guest']['GivenName'] = Arr::get($mainGuest, '0.given_name', '');
 
-        SaveBookingMetadata::dispatch($filters, $reservation);
+        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
+        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+        SaveBookingMetadata::$dispatchMethod($filters, $reservation);
     }
 
     private function getConfirmationNumber(array $bookingData): ?string

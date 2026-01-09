@@ -114,7 +114,8 @@ class FlowBookDiffScenarios extends Command
         if ($run_booking_flow) {
             $this->book($bookingId, [$bookingItem]);
         }
-        sleep(5);
+
+        $this->handleSleep();
 
         // Cancel
         if ($run_cancellation_flow && $run_booking_flow) {
