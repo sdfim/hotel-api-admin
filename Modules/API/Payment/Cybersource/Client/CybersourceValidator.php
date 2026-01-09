@@ -7,7 +7,7 @@ use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Log;
 
-readonly class CaptureContextValidator
+readonly class CybersourceValidator
 {
     public function __construct(
         private CybersourceClient $client,
@@ -22,7 +22,7 @@ readonly class CaptureContextValidator
      *  - verifies JWT signature using RS256
      *  - optionally checks "exp" claim is not in the past
      */
-    public function validate(string $jwt): bool
+    public function validateCaptureContext(string $jwt): bool
     {
         try {
             $parts = explode('.', $jwt);

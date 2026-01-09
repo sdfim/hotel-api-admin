@@ -5,6 +5,7 @@ namespace Modules\API\Payment\Cybersource\Client;
 use CyberSource\Api\MicroformIntegrationApi;
 use CyberSource\Api\PaymentsApi;
 use CyberSource\ApiClient;
+use CyberSource\ApiException;
 use CyberSource\Authentication\Core\MerchantConfiguration;
 use CyberSource\Configuration;
 use CyberSource\Model\CreatePaymentRequest;
@@ -15,6 +16,7 @@ use CyberSource\Model\Ptsv2paymentsOrderInformationAmountDetails;
 use CyberSource\Model\Ptsv2paymentsOrderInformationBillTo;
 use CyberSource\Model\Ptsv2paymentsProcessingInformation;
 use CyberSource\Model\Ptsv2paymentsTokenInformation;
+use CyberSource\ObjectSerializer;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -49,7 +51,7 @@ class CybersourceClient
         $config->setHost($merchantConfig->getHost());
 
         // ApiClient requires both Configuration and MerchantConfiguration.
-        $this->apiClient = new ApiClient($config, $merchantConfig);
+        $this->apiClient    = new ApiClient($config, $merchantConfig);
         $this->microformApi = new MicroformIntegrationApi($this->apiClient);
     }
 
@@ -57,8 +59,8 @@ class CybersourceClient
      * Generates capture context (JWT) for Microform initialization.
      *
      * @param string $origin Frontend origin where Microform is rendered.
-     * @return string JWT capture context.
-     * @throws Exception
+     * @return array JWT capture context.
+     * @throws ApiException
      */
     public function generateCaptureContext(string $origin): array
     {
@@ -161,7 +163,7 @@ class CybersourceClient
             return $jwk;
         } catch (Throwable $e) {
             \Log::error('Cybersource JWK fetch failed', [
-                'kid' => $kid,
+                'kid'       => $kid,
                 'exception' => $e->getMessage(),
             ]);
 
@@ -197,24 +199,26 @@ class CybersourceClient
         // orderInformation.amountDetails
         $amountDetails = new Ptsv2paymentsOrderInformationAmountDetails([
             'totalAmount' => number_format($amount, 2, '.', ''),
-            'currency' => $currency,
+            'currency'    => $currency,
         ]);
 
         // orderInformation.billTo
-        $billToModel = new Ptsv2paymentsOrderInformationBillTo([
-            'firstName' => $billTo['firstName'] ?? 'Guest',
-            'lastName' => $billTo['lastName'] ?? 'Customer',
-            'email' => $billTo['email'] ?? 'no-reply@example.com',
-            'address1' => $billTo['address1'] ?? 'N/A',
-            'locality' => $billTo['locality'] ?? 'N/A',
-            'administrativeArea' => $billTo['administrativeArea'] ?? 'N/A',
+        $billToPayload = [
+            'firstName'  => $billTo['firstName'] ?? 'Guest',
+            'lastName'   => $billTo['lastName'] ?? 'Customer',
+            'email'      => $billTo['email'] ?? 'no-reply@example.com',
+            'address1'   => $billTo['address1'] ?? 'N/A',
+            'locality'   => $billTo['locality'] ?? 'N/A',
             'postalCode' => $billTo['postalCode'] ?? '00000',
-            'country' => $billTo['country'] ?? 'US',
-        ]);
+            'country'    => $billTo['country'] ?? 'US',
+            'administrativeArea' => $billTo['administrativeArea'] ?? 'CA'
+        ];
+
+        $billToModel = new Ptsv2paymentsOrderInformationBillTo($billToPayload);
 
         $orderInfo = new Ptsv2paymentsOrderInformation([
             'amountDetails' => $amountDetails,
-            'billTo' => $billToModel,
+            'billTo'        => $billToModel,
         ]);
 
         // tokenInformation.transientTokenJwt
@@ -228,34 +232,53 @@ class CybersourceClient
 
         $request = new CreatePaymentRequest([
             'clientReferenceInformation' => $clientRef,
-            'orderInformation' => $orderInfo,
-            'tokenInformation' => $tokenInfo,
-            'processingInformation' => $processingInformation,
+            'orderInformation'           => $orderInfo,
+            'tokenInformation'           => $tokenInfo,
+            'processingInformation'      => $processingInformation,
         ]);
 
         $paymentsApi = new PaymentsApi($this->apiClient);
 
-        $apiResponse = $paymentsApi->createPayment($request);
-
-        // SDK may return either:
-        //  - an array [model, statusCode, headers]
-        //  - just a model instance
-        $model = is_array($apiResponse) && isset($apiResponse[0])
-            ? $apiResponse[0]
-            : $apiResponse;
-
         $payload = json_decode(json_encode($request), true);
 
         try {
-            // Convert SDK model to associative array for easier handling.
-            $json = json_encode($model, JSON_THROW_ON_ERROR);
+            // IMPORTANT: use WithHttpInfo to get status code + headers
+            [$result, $statusCode, $headers] = $paymentsApi->createPaymentWithHttpInfo($request);
+
+            Log::info('Cybersource createPayment meta', [
+                'status_code' => $statusCode,
+                'request_id'  => $headers['X-RequestID'][0] ?? null,
+                'corr_id'     => $headers['v-c-correlation-id'][0] ?? null,
+            ]);
+
+            // IMPORTANT: SDK models often can’t be json_encoded directly -> use ObjectSerializer
+            $sanitized = ObjectSerializer::sanitizeForSerialization($result);
+
             /** @var array $decoded */
-            $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode(
+                json_encode($sanitized, JSON_THROW_ON_ERROR),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+
+            // If Cybersource returns non-2xx but SDK didn't throw, still treat as error
+            if ($statusCode < 200 || $statusCode >= 300) {
+                Log::warning('Cybersource createPayment non-2xx', [
+                    'status_code' => $statusCode,
+                    'decoded'     => $decoded,
+                ]);
+
+                return [['error' => 'Cybersource createPayment failed with HTTP ' . $statusCode], $payload];
+            }
 
             return [$decoded, $payload];
-        } catch (Exception $e) {
-            Log::error('Failed to normalize Cybersource payment response: ' . $e->getMessage(), [
-                'response' => $apiResponse,
+        } catch (ApiException $e) {
+            Log::error('Cybersource ApiException (createPayment)', [
+                'code'          => $e->getCode(),
+                'message'       => $e->getMessage(),
+                'response_body' => $e->getResponseBody(),
+                'headers'       => $e->getResponseHeaders(),
             ]);
 
             return [['error' => $e->getMessage()], $payload];
