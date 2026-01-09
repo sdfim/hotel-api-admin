@@ -106,7 +106,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         return ['booking_id' => $booking_id];
     }
 
-    public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'change'): ?array
+    public function availabilityChange(array $filters, $type = 'change'): ?array
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
@@ -529,7 +529,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         return $responses;
     }
 
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -593,7 +593,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
         }
     }
 
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
         $booking_id = $filters['booking_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;

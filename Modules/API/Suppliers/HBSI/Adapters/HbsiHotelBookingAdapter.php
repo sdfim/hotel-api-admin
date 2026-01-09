@@ -212,7 +212,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         return $res;
     }
 
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
@@ -287,7 +287,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
     /**
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
         $booking_id = $filters['booking_id'];
 
@@ -350,7 +350,7 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
                     $apiBookingsMetadata = ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
 
                     if ($iterations < static::MAX_CANCEL_BOOKING_RETRY_COUNT) {
-                        return $this->cancelBooking($filters, $apiBookingsMetadata, $supplier, $iterations + 1);
+                        return $this->cancelBooking($filters, $apiBookingsMetadata, $iterations + 1);
                     }
                 }
             } else {

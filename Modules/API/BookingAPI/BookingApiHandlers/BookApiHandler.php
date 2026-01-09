@@ -478,7 +478,7 @@ class BookApiHandler extends BaseController
         try {
             $data = $this->supplierRegistry
                 ->get(SupplierNameEnum::from($bookingItem->supplier->name))
-                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name));
+                ->availabilityChange($filters);
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
@@ -665,7 +665,7 @@ class BookApiHandler extends BaseController
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $supplierEnum = SupplierNameEnum::from($supplier);
-                $data[] = $this->supplierRegistry->get($supplierEnum)->retrieveBooking($filters, $item, $supplierEnum);
+                $data[] = $this->supplierRegistry->get($supplierEnum)->retrieveBooking($filters, $item);
             } catch (Exception $e) {
                 Log::error('BookApiHandler | retrieveBooking '.$e->getMessage());
                 Log::error($e->getTraceAsString());
@@ -720,7 +720,7 @@ class BookApiHandler extends BaseController
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $supplierEnum = SupplierNameEnum::from($supplier);
-                $response = $this->supplierRegistry->get($supplierEnum)->cancelBooking($filters, $item, $supplierEnum);
+                $response = $this->supplierRegistry->get($supplierEnum)->cancelBooking($filters, $item);
                 $data[] = $response;
 
                 // If cancellation is successful, update Reservation
@@ -915,7 +915,7 @@ class BookApiHandler extends BaseController
         try {
             $data = $this->supplierRegistry
                 ->get(SupplierNameEnum::from($bookingItem->supplier->name))
-                ->availabilityChange($filters, SupplierNameEnum::from($bookingItem->supplier->name), 'check_quote');
+                ->availabilityChange($filters, 'check_quote');
         } catch (Exception $e) {
             Log::error('BookApiHandler | checkQuote '.$e->getMessage());
             Log::error($e->getTraceAsString());

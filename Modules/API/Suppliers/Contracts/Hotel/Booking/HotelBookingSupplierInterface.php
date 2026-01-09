@@ -21,17 +21,17 @@ interface HotelBookingSupplierInterface extends BaseBookingSupplierInterface
     /**
      * @return array<HotelBookResponseModel>|null
      */
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array;
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array;
 
     /**
      * @return array<HotelRetrieveBookingResponseModel>|null
      */
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array;
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array;
 
     public function listBookings(): ?array;
 
     // Change Booking Section
-    public function availabilityChange(array $filters, SupplierNameEnum $supplier, $type = 'default'): ?array;
+    public function availabilityChange(array $filters, $type = 'default'): ?array;
 
     /**
      * @return array{

@@ -22,8 +22,8 @@ trait HotelBookingavListBookingsTrait
             ->where('supplier_id', $supplierId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
-            ->when(filled($apiClientId), fn ($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
-            ->when(filled($apiClientEmail), fn ($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
+            ->when(filled($apiClientId), fn($q) => $q->whereJsonContains('request->api_client->id', (int) $apiClientId))
+            ->when(filled($apiClientEmail), fn($q) => $q->whereJsonContains('request->api_client->email', (string) $apiClientEmail))
             ->has('metadata')
             ->orderBy('created_at', 'desc')
             ->limit($this->getListBookingsLimit())
@@ -32,7 +32,7 @@ trait HotelBookingavListBookingsTrait
         $data = [];
         foreach ($itemsBooked as $item) {
             $filters['booking_id'] = $item->metadata?->booking_id;
-            $data[] = $this->retrieveBooking($filters, $item->metadata, $supplier);
+            $data[] = $this->retrieveBooking($filters, $item->metadata);
         }
 
         return $data;

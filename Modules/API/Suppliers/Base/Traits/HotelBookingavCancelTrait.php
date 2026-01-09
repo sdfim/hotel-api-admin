@@ -12,8 +12,9 @@ use Modules\Enums\SupplierNameEnum;
 
 trait HotelBookingavCancelTrait
 {
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, int $iterations = 0): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
+        $supplier = $this->supplier();
         $booking_id = $filters['booking_id'];
 
         $supplierId = Supplier::where('name', $supplier->value)->first()->id;

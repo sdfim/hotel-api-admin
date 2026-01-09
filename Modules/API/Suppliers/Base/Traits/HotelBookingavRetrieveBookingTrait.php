@@ -8,12 +8,12 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Support\Arr;
-use Modules\Enums\SupplierNameEnum;
 
 trait HotelBookingavRetrieveBookingTrait
 {
-    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, SupplierNameEnum $supplier, bool $isSync = false): ?array
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, bool $isSync = false): ?array
     {
+        $supplier = $this->supplier();
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
         $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
