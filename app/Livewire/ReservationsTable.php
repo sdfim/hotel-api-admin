@@ -2,10 +2,26 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Components\CustomRepeater;
+use App\Models\Enums\RoleSlug;
+use App\Models\Mapping;
 use App\Models\Reservation;
+use App\Models\Supplier;
+use App\Models\User;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
@@ -214,6 +230,63 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
                 ])->color('gray'),
             ])
+            ->actions([
+                Action::make('change_booking')
+                    ->label('')
+                    ->tooltip('Change Booking')
+                    ->icon('heroicon-o-pencil-square')
+                    ->fillForm(function ($record) {
+                        $field = json_decode($record->reservation_contains, true);
+                        $passengers_by_room = ApiBookingInspectorRepository::getPassengersByRoom($record->booking_id, $record->booking_item);
+                        [$special_requests_by_room, $comments_by_room] = ApiBookingInspectorRepository::getSpecialRequestsAndComments($record->booking_id, $record->booking_item) ?? [];
+                        $roomCodes = array_filter(explode(';', $field['price']['room_type'] ?? ''));
+                        $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
+                        $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
+
+//                        dd($passengers_by_room);
+
+                        $request = json_decode($record->apiBookingItem->search->request, true);
+
+                        $input = [
+                            'checkin' => $request['checkin'] ?? null,
+                            'checkout' => $request['checkout'] ?? null,
+                        ];
+                        $i = 0;
+                        foreach ($passengers_by_room as $occupancy) {
+                            $input['occupancy'][$i]['room_code'] = $roomCodes[$i];
+                            $input['occupancy'][$i]['rate_code'] = $rateCodes[$i] ?? null;
+                            $input['occupancy'][$i]['meal_plan_code'] = $mealPlans[$i] ?? null;
+                            $input['occupancy'][$i]['adults'] = $request['occupancy'][$i]['adults'] ?? 1;
+                            $input['occupancy'][$i]['children_ages'] = $request['occupancy'][$i]['children_ages'] ?? [];
+                            $input['occupancy'][$i]['special_request'] = $special_requests_by_room[$i + 1] ?? '';
+                            $input['occupancy'][$i]['comment'] = $comments_by_room[$i + 1] ?? '';
+
+                            $input['occupancy'][$i]['title'] = $occupancy[0]['title'] ?? '';
+                            $input['occupancy'][$i]['given_name'] = $occupancy[0]['given_name'] ?? '';
+                            $input['occupancy'][$i]['family_name'] = $occupancy[0]['family_name'] ?? '';
+                            $input['occupancy'][$i]['date_of_birth'] = $occupancy[0]['date_of_birth'] ?? null;
+
+                            $i++;
+                        }
+
+                        return $input;
+                    })
+                    ->form($this->getFormSchema())
+                    ->modalHeading('Change Booking')
+                    ->modalWidth('4xl')
+                    ->action(function ($data) {
+
+
+                        Notification::make()
+                            ->title('Flow Scenario is being processed')
+                            ->body('The task has been added to the queue.')
+                            ->success()
+                            ->send();
+                    })
+//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+
+            ])
             ->filters([
                 SelectFilter::make('cancellation')
                     ->label('Booking Status')
@@ -230,6 +303,77 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     }),
             ]);
     }
+
+    private function getFormSchema(): array
+    {
+        return [
+            Grid::make('')->schema([
+                DatePicker::make('checkin')
+                    ->label('Check-in Date')
+                    ->native(false)
+                    ->required()
+                    ->default(now()->addMonths(5)->format('Y-m-d')),
+                DatePicker::make('checkout')
+                    ->label('Check-out Date')
+                    ->native(false)
+                    ->required()
+                    ->default(now()->addMonths(5)->addDays(2)->format('Y-m-d')),
+            ])->columns(2),
+            CustomRepeater::make('occupancy')
+                ->label('Room')
+                ->schema([
+                    Section::make('')->schema([
+                        Grid::make('')->schema([
+                            TextInput::make('adults')
+                                ->label('Count of Adults')
+                                ->numeric()
+                                ->minValue(1)
+                                ->maxValue(6)
+                                ->required(),
+                            TagsInput::make('children_ages')
+                                ->label('Children Ages'),
+                        ])->columns(2),
+                        Grid::make('')->schema([
+                            TextInput::make('room_code')
+                                ->label('')
+                                ->placeholder('Room Type'),
+                            TextInput::make('rate_code')
+                                ->label('')
+                                ->placeholder('Rate Plan Code'),
+                            TextInput::make('meal_plan_code')
+                                ->label('')
+                                ->placeholder('Meal Plan Code'),
+                        ])->columns(3),
+                        Grid::make('')->schema([
+                            TextInput::make('title')
+                                ->label('')
+                                ->placeholder('Title'),
+                            TextInput::make('given_name')
+                                ->label('')
+                                ->placeholder('Given Name'),
+                            TextInput::make('family_name')
+                                ->label('')
+                                ->placeholder('Family Name'),
+                            DatePicker::make('date_of_birth')
+                                ->label('')
+                                ->placeholder('Date of Birth')
+                                ->native(false)
+                                ->required()
+                                ->default(now()->addMonths(5)->format('Y-m-d')),
+                        ])->columns(4),
+                        Grid::make('')->schema([
+                            Textarea::make('special_request')
+                                ->label('')
+                                ->placeholder('Special Request'),
+                            Textarea::make('comment')
+                                ->label('')
+                                ->placeholder('Comment'),
+                        ])->columns(2),
+                    ])->columns(1),
+                ]),
+        ];
+    }
+
 
     public function render(): View
     {

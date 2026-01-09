@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
@@ -319,7 +320,7 @@ class ApiBookingInspectorRepository
 
     public static function bookedItems(string $booking_id): object
     {
-        //TODO: remove this after cybersource will be implemented
+        // TODO: remove this after cybersource will be implemented
         if (app()->environment('local') && $booking_id === '00000000-0000-0000-0000-000000000000') {
             // Return non-empty collection so PaymentController check passes
             return collect([['id' => 1]]);
@@ -403,6 +404,49 @@ class ApiBookingInspectorRepository
             ->where('type', 'add_passengers')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
+    }
+
+    public static function getPassengersByRoom(string $booking_id, string $booking_item): ?SupportCollection
+    {
+        $passengersRepoData = self::getChangePassengers($booking_id, $booking_item);
+        $passengersArr = $passengersRepoData->toArray();
+        $dataPassengers = json_decode($passengersArr['request'], true)['passengers'];
+
+        return collect($dataPassengers)->groupBy(function ($passenger) {
+            return $passenger['booking_items'][0]['room'];
+        });
+    }
+
+    public static function getSpecialRequestsAndComments(string $booking_id, string $booking_item): ?array
+    {
+        $repoData = self::bookedItem($booking_id, $booking_item);
+        $repoDataRsArr = json_decode($repoData->toArray()['request'], true);
+        $specialRequests = Arr::get($repoDataRsArr, 'special_requests', []);
+        $comments = Arr::get($repoDataRsArr, 'comments', []);
+
+        $specialRequestsGrouped = collect($specialRequests)
+            ->groupBy(fn ($item) => $item['room'])
+            ->mapWithKeys(function ($roomRequests, $roomNumber) {
+                $firstRequest = $roomRequests->first();
+
+                return [
+                    $roomNumber => $firstRequest['special_request'] ?? '',
+                ];
+            })
+            ->toArray();
+
+        $commentsGrouped = collect($comments)
+            ->groupBy(fn ($item) => $item['room'])
+            ->mapWithKeys(function ($roomComments, $roomNumber) {
+                $firstComment = $roomComments->first();
+
+                return [
+                    $roomNumber => $firstComment['comment'] ?? '',
+                ];
+            })
+            ->toArray();
+
+        return [$specialRequestsGrouped,  $commentsGrouped];
     }
 
     public static function getChangePassengers(string $bookingId, string $bookingItem): ApiBookingInspector

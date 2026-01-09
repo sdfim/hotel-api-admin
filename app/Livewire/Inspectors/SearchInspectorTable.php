@@ -17,10 +17,12 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
@@ -305,12 +307,22 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 ->label('')
                                 ->placeholder('Meal Plan Code'),
                         ])->columns(3),
+                        Grid::make('')->schema([
+                            Textarea::make('special_request')
+                                ->label('')
+                                ->placeholder('Special Request'),
+                            Textarea::make('comment')
+                                ->label('')
+                                ->placeholder('Comment'),
+                        ])->columns(2)
+                            ->visible(fn (Get $get) => $get('../../run_booking_flow')),
                     ])->columns(1),
                 ]),
             Grid::make('')->schema([
                 Toggle::make('run_booking_flow')
                     ->label('Run Booking Flow')
-                    ->default(true),
+                    ->default(true)
+                    ->reactive(),
                 Toggle::make('run_cancellation_flow')
                     ->label('Run Cancellation Flow')
                     ->default(true),
