@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default_provider' => env('PAYMENT_PROVIDER', 'airwallex'),
+    'default_provider' => env('PAYMENT_PROVIDER', 'cybersource'),
 
     'providers' => [
         'airwallex'   => \Modules\API\Payment\Controllers\Providers\AirwallexPaymentProvider::class,
