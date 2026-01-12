@@ -16,11 +16,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         mariadb-client \
         libjpeg-dev \
         libpng-dev \
+        libwebp-dev \
         libfreetype6-dev
 
 # ✅ Шаг 2: Установка PHP расширений - будет кэшироваться
 RUN docker-php-ext-install -j$(nproc) zip pdo_mysql mysqli bcmath sockets intl && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install -j$(nproc) gd
 
 # ✅ Шаг 3: Установка Redis через PECL с версией - будет кэшироваться
