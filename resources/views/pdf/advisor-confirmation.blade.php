@@ -3,18 +3,14 @@
     $hotelName = $hotelData['name'] ?? 'Hotel Name';
     $hotelAddress = $hotelData['address'] ?? '';
 
-    // Main hotel photo with safe fallback
-    $heroImage = $hotel->product?->hero_image
-            ? \Illuminate\Support\Facades\Storage::url($hotel->product->hero_image)
-            : asset('images/email-backgrounds/hotel-placeholder.png');
+    $heroImage = $hotelPhotoPath ?? Storage::url('hotel.webp');
+    $secondaryImage = $roomPhotoPath ?? Storage::url('hotel.webp');
 
-    // Second image – for now use the same as main
-    $secondaryImage = $heroImage;
-
-    $totalNet = $total_net ?? 0;
-    $totalTax = $total_tax ?? 0;
-    $totalFees = $total_fees ?? 0;
-    $totalPrice = $total_price ?? ($totalNet + $totalTax + $totalFees);
+    $totalNet    = $total_net   ?? 0;
+    $totalTax    = $total_tax   ?? 0;
+    $totalFees   = $total_fees  ?? 0;
+    $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
+    $subtotal    = $subtotal    ?? ($totalPrice - $totalTax - $totalFees);
 
     $agencyName = $agency['booking_agent'] ?? env('APP_NAME') . ' Tours';
     $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
@@ -423,7 +419,7 @@
                             <tr>
                                 <td class="pricing-label">Reservation Subtotal:</td>
                                 <td class="pricing-value">
-                                    {{ $currency }} {{ number_format($totalNet, 2) }}
+                                    {{ $currency }} {{ number_format($subtotal, 2) }}
                                 </td>
                             </tr>
                             <tr>

@@ -28,9 +28,6 @@ class BookingEmailDataService
                 if (! $metadata) {
                     throw new \Exception('Booking item not found: '.$bookingItemHandle);
                 }
-                // We still need the original ApiBookingItem for search relation etc.
-                // If it's not found, we might have a problem with some methods.
-                // But usually it should be there.
             }
 
             $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItemHandle);
@@ -95,8 +92,16 @@ class BookingEmailDataService
                 ?? Arr::get($dataReservation, '0.meal_plan');
 
             // Hero photo
-            $defaultHeroPath = Storage::url('hotel.webp');
-            $hotelPhotoPath = ($hotel?->product?->hero_image) ? Storage::url($hotel->product->hero_image) : $defaultHeroPath;
+            $hotelPhotoPath = ($hotel?->product?->hero_image) ? Storage::url($hotel->product->hero_image) : Storage::url('hotel.webp');
+            $room = $hotel?->rooms->where('name', $mainRoomName)->first();
+            $roomImage = $room ? $room->galleries->flatMap(fn ($g) => $g->images)->first()?->image_url : null;
+            $roomPhotoPath = $roomImage ? Storage::url($roomImage) : Storage::url('hotel.webp');
+
+            logger()->info('Room found for email data service', [
+                'hotelPhotoPath' => $hotelPhotoPath,
+                'roomPhotoPath' => $roomPhotoPath,
+                'room' => $room?->toArray(),
+            ]);
 
             // Perks
             $perks = collect($hotel?->product?->descriptiveContentsSection ?? [])
@@ -151,6 +156,7 @@ class BookingEmailDataService
                 'hotelName' => $hotel?->product?->name ?? 'Unknown Hotel',
                 'hotelAddress' => $hotelAddress,
                 'hotelPhotoPath' => $hotelPhotoPath,
+                'roomPhotoPath' => $roomPhotoPath,
                 'total_net' => $total_net,
                 'total_tax' => $total_tax,
                 'total_fees' => $total_fees,

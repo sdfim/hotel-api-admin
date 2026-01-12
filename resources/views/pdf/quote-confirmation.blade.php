@@ -4,11 +4,8 @@
     $hotelName    = $hotelData['name']    ?? 'Hotel Name';
     $hotelAddress = $hotelData['address'] ?? '';
 
-    $heroImage = $hotel->product?->hero_image
-            ? \Illuminate\Support\Facades\Storage::url($hotel->product->hero_image)
-            : asset('images/email-backgrounds/hotel-placeholder.png');
-
-    $secondaryImage = $heroImage;
+    $heroImage = $hotelPhotoPath ?? Storage::url('hotel.webp');
+    $secondaryImage = $roomPhotoPath ?? Storage::url('hotel.webp');
 
     $totalNet    = $total_net   ?? 0;
     $totalTax    = $total_tax   ?? 0;

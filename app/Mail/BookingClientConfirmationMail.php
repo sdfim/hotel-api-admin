@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
 use Illuminate\Bus\Queueable;
@@ -27,6 +28,12 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
         $dataService = app(BookingEmailDataService::class);
         $data = $dataService->getBookingData($this->bookingItem);
 
+        $confirmationNumber = $this->bookingItem;
+        $bookedId = ApiBookingInspectorRepository::getBookedId($this->bookingItem);
+        if ($bookedId) {
+            $confirmationNumber = $bookedId->metadata->supplier_booking_item_id;
+        }
+
         // ---- PDF payload ----
         $pdfData = [
             'hotel' => $data['hotel'],
@@ -51,6 +58,7 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
 
             // Images
             'hotelPhotoPath' => $data['hotelPhotoPath'],
+            'roomPhotoPath' => $data['roomPhotoPath'],
 
             // Pills / rate info
             'checkin' => $data['checkinDate'],
@@ -64,7 +72,7 @@ class BookingClientConfirmationMail extends Mailable implements ShouldQueue
             'perks' => $data['perks'],
 
             // Misc
-            'confirmation_number' => $data['quoteNumber'],
+            'confirmation_number' => $confirmationNumber,
         ];
 
         /** @var PdfGeneratorService $pdfService */

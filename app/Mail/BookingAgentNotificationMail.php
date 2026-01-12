@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Reservation;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
 use Illuminate\Bus\Queueable;
@@ -28,6 +29,12 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
         /** @var BookingEmailDataService $dataService */
         $dataService = app(BookingEmailDataService::class);
         $data = $dataService->getBookingData($this->bookingItem);
+
+        $confirmationNumber = $this->bookingItem;
+        $bookedId = ApiBookingInspectorRepository::getBookedId($this->bookingItem);
+        if ($bookedId) {
+            $confirmationNumber = $bookedId->metadata->supplier_booking_item_id;
+        }
 
         $guestName = Reservation::where('booking_item', $this->bookingItem)
             ->value('passenger_surname') ?? '';
@@ -58,6 +65,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
 
             // Images
             'hotelPhotoPath' => $data['hotelPhotoPath'],
+            'roomPhotoPath' => $data['roomPhotoPath'],
 
             // Pills / rate info
             'checkin' => $data['checkinDate'],
@@ -71,8 +79,7 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             'perks' => $data['perks'],
 
             // Misc
-            // For now we use quoteNumber as confirmation number; replace if real confirmation id appears.
-            'confirmation_number' => $data['quoteNumber'],
+            'confirmation_number' => $confirmationNumber,
         ];
 
         /** @var PdfGeneratorService $pdfService */

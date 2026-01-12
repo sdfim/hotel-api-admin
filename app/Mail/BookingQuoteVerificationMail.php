@@ -74,6 +74,7 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
 
             // Images
             'hotelPhotoPath' => $data['hotelPhotoPath'],
+            'roomPhotoPath' => $data['roomPhotoPath'],
 
             // Pills / rate info
             'checkin' => $data['checkinDate'],
