@@ -112,9 +112,9 @@
                                             <ul class="list-disc list-inside">
                                                 @foreach($passengers_by_room[$index + 1] as $passenger)
                                                     <li class="text-zinc-800 dark:text-zinc-200">
-                                                        <strong>{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }} {{ $passenger['family_name'] }}</strong><br>
-                                                        Age: {{ $passenger['age'] }}<br>
-                                                        Date of Birth: {{ $passenger['date_of_birth'] }}
+                                                         <strong>{{ ucfirst($passenger['title'] ?? '') }} {{ $passenger['given_name'] ?? '' }} {{ $passenger['family_name'] ?? '' }}</strong><br>
+                                                        Age: {{ $passenger['age'] ?? 'N/A' }}<br>
+                                                        Date of Birth: {{ $passenger['date_of_birth'] ?? 'N/A' }}
                                                     </li>
                                                 @endforeach
                                             </ul>

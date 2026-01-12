@@ -415,11 +415,24 @@ class ApiBookingInspectorRepository
         }
 
         $passengersArr = $passengersRepoData->toArray();
-        $dataPassengers = json_decode($passengersArr['request'], true)['passengers'];
+        $requestData = json_decode($passengersArr['request'], true);
+        $dataPassengers = Arr::get($requestData, 'passengers', []);
 
-        return collect($dataPassengers)->groupBy(function ($passenger) {
-            return $passenger['booking_items'][0]['room'];
-        });
+        return collect($dataPassengers)
+            ->map(function ($passenger) {
+                if (empty($passenger['age']) && ! empty($passenger['date_of_birth'])) {
+                    try {
+                        $passenger['age'] = \Carbon\Carbon::parse($passenger['date_of_birth'])->age;
+                    } catch (\Exception $e) {
+                        logger('Error parsing date_of_birth for passenger: '.$e->getMessage());
+                    }
+                }
+
+                return $passenger;
+            })
+            ->groupBy(function ($passenger) {
+                return Arr::get($passenger, 'booking_items.0.room', 1);
+            });
     }
 
     public static function getSpecialRequestsAndComments(string $booking_id, string $booking_item): ?array
