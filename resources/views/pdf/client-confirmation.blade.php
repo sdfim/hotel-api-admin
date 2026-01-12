@@ -34,7 +34,7 @@
     $confirmationNumber = $confirmation_number ?? null;
 
     // Static assets
-    $logoTm      = asset('images/emails/terra-mare-logo-pdf.png');
+    $logoTm      = asset('images/emails/firm-logo-pdf.png');
     $bgWave      = asset('images/email-backgrounds/wave-bg.png'); // Сохранено, но стиль игнорируется
     $staticImage = asset('images/emails/pdf-confirmation-static-img.png');
 @endphp
