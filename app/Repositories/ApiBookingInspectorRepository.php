@@ -320,12 +320,6 @@ class ApiBookingInspectorRepository
 
     public static function bookedItems(string $booking_id): object
     {
-        // TODO: remove this after cybersource will be implemented
-        if (app()->environment('local') && $booking_id === '00000000-0000-0000-0000-000000000000') {
-            // Return non-empty collection so PaymentController check passes
-            return collect([['id' => 1]]);
-        }
-
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'book')
             ->where('sub_type', 'create')
@@ -391,6 +385,15 @@ class ApiBookingInspectorRepository
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->first();
+    }
+
+    public static function getBookedId(string $booking_item): ?ApiBookingInspector
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
@@ -490,7 +493,7 @@ class ApiBookingInspectorRepository
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-            //            ->where('sub_type', 'like', 'price_check' . '%')
+//            ->where('sub_type', 'like', 'price_check' . '%')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get();
     }
@@ -786,38 +789,38 @@ class ApiBookingInspectorRepository
             ->toArray();
     }
 
-    public static function getBookingContactEmailAndItemByBookingId(string $bookingId): array
-    {
-        /** @var ApiBookingInspector|null $inspector */
-        $inspector = ApiBookingInspector::query()
-            ->where('booking_id', $bookingId)
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            // We do not want errored inspectors
-            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
-            ->latest('id')
-            ->first();
-
-        // No matching booking inspector found
-        if (! $inspector) {
-            return [null, null];
-        }
-
-        // "request" can be stored either as JSON string or as array
-        $rawRequest = $inspector->request;
-
-        if (is_array($rawRequest)) {
-            $requestData = $rawRequest;
-        } else {
-            $requestData = json_decode($rawRequest ?? '[]', true) ?? [];
-        }
-
-        // Primary email: booking_contact.email
-        $email = Arr::get($requestData, 'booking_contact.email');
-
-        // Booking item can be taken from request or from inspector itself
-        $bookingItem = Arr::get($requestData, 'booking_item', $inspector->booking_item);
-
-        return [$email, $bookingItem];
-    }
+//    public static function getBookingContactEmailAndItemByBookingId(string $bookingId): array
+//    {
+//        /** @var ApiBookingInspector|null $inspector */
+//        $inspector = ApiBookingInspector::query()
+//            ->where('booking_id', $bookingId)
+//            ->where('type', 'book')
+//            ->where('sub_type', 'create')
+//            // We do not want errored inspectors
+//            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+//            ->latest('id')
+//            ->first();
+//
+//        // No matching booking inspector found
+//        if (! $inspector) {
+//            return [null, null];
+//        }
+//
+//        // "request" can be stored either as JSON string or as array
+//        $rawRequest = $inspector->request;
+//
+//        if (is_array($rawRequest)) {
+//            $requestData = $rawRequest;
+//        } else {
+//            $requestData = json_decode($rawRequest ?? '[]', true) ?? [];
+//        }
+//
+//        // Primary email: booking_contact.email
+//        $email = Arr::get($requestData, 'booking_contact.email');
+//
+//        // Booking item can be taken from request or from inspector itself
+//        $bookingItem = Arr::get($requestData, 'booking_item', $inspector->booking_item);
+//
+//        return [$email, $bookingItem];
+//    }
 }

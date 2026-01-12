@@ -45,34 +45,6 @@ class BookingEmailVerificationController extends Controller
         Cache::forget($cacheKey);
         Log::info('Booking item email verified: '.$booking_item);
 
-//        // Send notification email to agent
-//        [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($booking_item);
-//        if ($agentEmail) {
-//            try {
-//                if (! Cache::has('bookingItem_no_mail_'.$booking_item)) {
-//                    Mail::to($agentEmail)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
-//                }
-//            } catch (\Exception $e) {
-//                Log::error('Failed to send agent notification email for booking item '.$booking_item.': '.$e->getMessage());
-//            }
-//        }
-//
-//        $notificationEmails = User::find($agentId)?->notification_emails ?? [];
-//        foreach ($notificationEmails as $email) {
-//            if (empty($email)) {
-//                continue;
-//            }
-//            try {
-//                if (! Cache::has('bookingItem_no_mail_'.$booking_item)) {
-//                    Mail::to($email)->queue(new \App\Mail\BookingAgentNotificationMail($booking_item));
-//                }
-//            } catch (\Exception $e) {
-//                Log::error('Failed to send agent notification email for booking item '.$booking_item.': '.$e->getMessage(), ['email' => $email]);
-//            }
-//        }
-//
-//        logger('Booking item email verified: '.$booking_item, ['agent_email' => $agentEmail, 'agent_id' => $agentId, 'notification_emails' => $notificationEmails]);
-
         return view('booking.email_verification_thankyou');
     }
 

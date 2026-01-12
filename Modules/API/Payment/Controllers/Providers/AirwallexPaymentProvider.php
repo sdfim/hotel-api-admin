@@ -3,19 +3,13 @@
 namespace Modules\API\Payment\Controllers\Providers;
 
 use App\Contracts\PaymentProviderInterface;
-use App\Mail\BookingConfirmationMail;
 use App\Models\AirwallexApiLog;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingPaymentInit;
 use App\Models\Enums\PaymentStatusEnum;
-use App\Models\User;
-use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Payment\Airwallex\Client\AirwallexClient;
@@ -472,39 +466,6 @@ class AirwallexPaymentProvider extends BaseController implements PaymentProvider
         ]);
 
         $paymentInit->update(['related_id' => $logConfirm->id, 'related_type' => AirwallexApiLog::class]);
-
-        $items = ApiBookingInspectorRepository::bookedItems($bookingId);
-
-        foreach ($items as $item) {
-            // Send confirmation email for each item after booking
-            $email_notification = Arr::get(json_decode($item->request, true), 'booking_contact.email');
-
-            if ($email_notification) {
-                try {
-                    if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
-                        Mail::to($email_notification)->queue(new BookingConfirmationMail($item->booking_item));
-                    }
-                } catch (\Throwable $mailException) {
-                    Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
-                }
-
-                [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
-                $notificationEmails = User::find($agentId)?->notification_emails ?? [];
-                $notificationEmails = array_merge($notificationEmails, [$externalAdvisorEmail]);
-                foreach ($notificationEmails as $email) {
-                    if (empty($email)) {
-                        continue;
-                    }
-                    try {
-                        if (! Cache::has('bookingItem_no_mail_'.$item->booking_item)) {
-                            Mail::to($email)->queue(new \App\Mail\BookingConfirmationForAgentMail($item->booking_item));
-                        }
-                    } catch (\Exception $e) {
-                        Log::error('Failed to send agent notification email for booking item '.$item->booking_item.': '.$e->getMessage(), ['email' => $email]);
-                    }
-                }
-            }
-        }
 
         return $this->sendResponse($response, 'success');
     }

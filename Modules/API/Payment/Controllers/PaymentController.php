@@ -5,10 +5,12 @@ namespace Modules\API\Payment\Controllers;
 use App\Contracts\PaymentProviderInterface;
 use App\Mail\BookingClientConfirmationMail;
 use App\Models\ApiBookingPaymentInit;
+use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Support\PaymentProviderResolver;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Modules\API\BaseController;
 use Modules\API\Payment\Requests\ConfirmationPaymentIntentRequest;
@@ -26,7 +28,7 @@ class PaymentController extends BaseController
 
     public function createPaymentIntent(CreatePaymentIntentRequest $request)
     {
-        $provider   = $this->getProvider($request);
+        $provider = $this->getProvider($request);
         $booking_id = $request->input('booking_id');
 
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
@@ -60,8 +62,8 @@ class PaymentController extends BaseController
 
     public function confirmationPaymentIntent(ConfirmationPaymentIntentRequest $request)
     {
-        $validated    = $request->validated();
-        $provider     = $this->getProvider($request);
+        $validated = $request->validated();
+        $provider = $this->getProvider($request);
         $providerName = $validated['provider'] ?? config('payment.default_provider');
 
         // 1) Confirm payment on provider side (Airwallex or Cybersource)
@@ -117,13 +119,32 @@ class PaymentController extends BaseController
             return;
         }
 
-        [$email, $bookingItem] = ApiBookingInspectorRepository::getBookingContactEmailAndItemByBookingId(
-            $bookingId
-        );
+        $items = ApiBookingInspectorRepository::bookedItems($bookingId);
 
-        if ($email && $bookingItem) {
-            if (! Cache::has('bookingItem_no_mail_'.$bookingItem)) {
-                Mail::to($email)->queue(new BookingClientConfirmationMail($bookingItem));
+        foreach ($items as $item) {
+            // Send confirmation email for each item after booking
+            $email_notification = Arr::get(json_decode($item->request, true), 'booking_contact.email');
+
+            if ($email_notification) {
+                try {
+                    Mail::to($email_notification)->queue(new BookingClientConfirmationMail($item->booking_item));
+                } catch (\Throwable $mailException) {
+                    Log::error('Booking confirmation email queue error: ' . $mailException->getMessage());
+                }
+
+                [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
+                $notificationEmails = User::find($agentId)?->notification_emails ?? [];
+                $notificationEmails = array_unique(array_merge($notificationEmails, [$externalAdvisorEmail]));
+                foreach ($notificationEmails as $email) {
+                    if (empty($email)) {
+                        continue;
+                    }
+                    try {
+                        Mail::to($email)->queue(new \App\Mail\BookingAgentNotificationMail($item->booking_item));
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send agent notification email for booking item ' . $item->booking_item . ': ' . $e->getMessage(), ['email' => $email]);
+                    }
+                }
             }
         }
     }
