@@ -239,8 +239,12 @@ class CybersourceClient
 
         $paymentsApi = new PaymentsApi($this->apiClient);
 
-        $payload = json_decode(json_encode($request), true);
-//        $payload = json_decode(json_encode(ObjectSerializer::sanitizeForSerialization($request)));
+        $payload = json_decode(
+            json_encode(ObjectSerializer::sanitizeForSerialization($request), JSON_THROW_ON_ERROR),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
 
         try {
             // IMPORTANT: use WithHttpInfo to get status code + headers
