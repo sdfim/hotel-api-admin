@@ -105,7 +105,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
                 );
             }
 
-            $amount   = (float) ($data['amount'] ?? 0);
+            $amount = (float) ($data['amount'] ?? 0);
             $currency = $data['currency'] ?? 'USD';
 
             // Build minimal billTo information.
@@ -113,6 +113,11 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
             $captureContext = $this->getCachedCaptureContext($bookingId);
             if (!$captureContext) {
+                Log::warning('Cybersource confirmation failed: Capture context not found in cache.', [
+                    'booking_id' => $bookingId,
+                    'cache_key' => $this->cacheKeyForBooking($bookingId),
+                ]);
+
                 return $this->sendError(
                     'Capture context not found or expired. Please refresh checkout and try again.',
                     'Validation Error',
@@ -122,6 +127,10 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
             // (Optional but recommended) ensure cached captureContext is still valid.
             if (!$this->validator->validateCaptureContext($captureContext)) {
+                Log::warning('Cybersource confirmation failed: Cached capture context failed validation.', [
+                    'booking_id' => $bookingId,
+                ]);
+
                 return $this->sendError(
                     'Capture context is invalid or expired. Please refresh checkout and try again.',
                     'Validation Error',
@@ -318,13 +327,22 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
         $exp = $this->validator->getExp($captureContext);
         $now = time();
 
-        // If exp is missing, fallback to 15 minutes.
-        $ttlSeconds = 15 * 60;
+        // If exp is missing, fallback to 1 hour.
+        $ttlSeconds = 60 * 60;
 
         if ($exp !== null) {
-            $ttlSeconds = max(60, $exp - $now); // at least 60s
-            $ttlSeconds = min($ttlSeconds, 60 * 60); // cap at 60 minutes (tunable)
+            // We use at least 1 hour even if JWT exp is close, to handle time drift.
+            // Cybersource tokens usually last 15 mins, but if our server time is ahead,
+            // we might perceive it as expiring much sooner.
+            $ttlSeconds = max(3600, $exp - $now);
+            $ttlSeconds = min($ttlSeconds, 24 * 3600); // cap at 24h
         }
+
+        Log::info('Caching Cybersource capture context.', [
+            'booking_id' => $bookingId,
+            'ttl_seconds' => $ttlSeconds,
+            'exp_diff' => $exp ? ($exp - $now) : 'N/A',
+        ]);
 
         Cache::put($this->cacheKeyForBooking($bookingId), $captureContext, $ttlSeconds);
     }
