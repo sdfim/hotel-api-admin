@@ -223,7 +223,9 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         })
                         ->icon('heroicon-o-banknotes')
                         ->color('success')
-                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record) && ($record->total_cost > $record->paid) && $record->canceled_at === null),
+                        ->visible(fn (Reservation $record): bool => Gate::allows('update', $record)
+                            && ($record->total_cost > $record->paid) && $record->canceled_at === null
+                            && config('superuser.email') === auth()->user()->email),
                     Action::make('change_booking')
                         ->label('Change Booking')
                         ->tooltip('Change Booking')
