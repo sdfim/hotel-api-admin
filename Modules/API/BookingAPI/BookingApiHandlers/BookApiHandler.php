@@ -166,6 +166,11 @@ class BookApiHandler extends BaseController
         $itemsToDeleteFromCache = ApiBookingInspectorRepository::bookedBookingItems($request->booking_id);
         ClearSearchCacheByBookingItemsJob::dispatchSync($itemsToDeleteFromCache);
 
+        // Retrieve booking to get the full details after booking
+        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
+        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
+        RetrieveBookingJob::$dispatchMethod($request->booking_id);
+
         foreach ($items as $item) {
             // Send payment email to client
             try {
@@ -179,11 +184,6 @@ class BookApiHandler extends BaseController
                 Log::error('Booking payment email queue error: '.$mailException->getMessage());
             }
         }
-
-        // Retrieve booking to get the full details after booking
-        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
-        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
-        RetrieveBookingJob::$dispatchMethod($request->booking_id);
 
         $totalTime = (microtime(true) - $sts).' seconds';
 
