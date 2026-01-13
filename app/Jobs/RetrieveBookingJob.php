@@ -26,7 +26,7 @@ class RetrieveBookingJob implements ShouldQueue
     {
         sleep(1);
 
-        $timeout = 10;
+        $timeout = 20;
         $elapsed = 0;
         do {
             $itemsBooked = ApiBookingsMetadataRepository::bookedItems($this->bookingId);
