@@ -1,34 +1,6 @@
 @php
-    /** Base data from pdfData */
-    $hotelName = $hotelData['name'] ?? 'Hotel Name';
-    $hotelAddress = $hotelData['address'] ?? '';
-
-    $heroImage = $hotelPhotoPath ?? Storage::url('hotel.webp');
-    $secondaryImage = $roomPhotoPath ?? Storage::url('hotel.webp');
-
-    $totalNet    = $total_net   ?? 0;
-    $totalTax    = $total_tax   ?? 0;
-    $totalFees   = $total_fees  ?? 0;
-    $totalPrice  = $total_price ?? ($totalNet + $totalTax + $totalFees);
-    $subtotal    = $subtotal    ?? ($totalPrice - $totalTax - $totalFees);
-
-    $agencyName = $agency['booking_agent'] ?? env('APP_NAME') . ' Tours';
-    $agencyEmail = $agency['booking_agent_email'] ?? 'support@vidanta.com';
-
-    /** Optional fields */
-    $checkin = $checkin ?? null;
-    $checkout = $checkout ?? null;
-    $guestInfo = $guest_info ?? null;
-    $mainRoomName = $main_room_name ?? null;
-    $rateRefundable = $rate_refundable ?? null;
-    $rateMealPlan = $rate_meal_plan ?? null;
-    $perks = $perks ?? [];
-    $currency = $currency ?? 'USD';
-    $taxesAndFees = $taxes_and_fees ?? ($totalTax + $totalFees);
-    $advisorCommission = $advisor_commission ?? 0;
-    $confirmationNumber = $confirmation_number ?? null;
-
-    // Static assets - Vidanta branding
+    $heroImage = $heroImage ?? \Illuminate\Support\Facades\Storage::url('hotel.webp');
+    $secondaryImage = $secondaryImage ?? \Illuminate\Support\Facades\Storage::url('hotel.webp');
     $logoTm = public_path('images/firm-logo.png');
 @endphp
 

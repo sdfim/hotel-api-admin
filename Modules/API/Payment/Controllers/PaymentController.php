@@ -3,6 +3,7 @@
 namespace Modules\API\Payment\Controllers;
 
 use App\Contracts\PaymentProviderInterface;
+use App\Mail\BookingAgentNotificationMail;
 use App\Mail\BookingClientConfirmationMail;
 use App\Models\ApiBookingPaymentInit;
 use App\Models\User;
@@ -32,7 +33,7 @@ class PaymentController extends BaseController
         $booking_id = $request->input('booking_id');
 
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id . ' - booking_id not found or not booked';
+            $error = $booking_id.' - booking_id not found or not booked';
 
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
@@ -45,7 +46,7 @@ class PaymentController extends BaseController
         $provider = $this->getProvider(null);
 
         if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id . ' - booking_id not found or not booked';
+            $error = $booking_id.' - booking_id not found or not booked';
 
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
@@ -115,7 +116,7 @@ class PaymentController extends BaseController
      */
     private function sendClientConfirmationMailForBookingId(?string $bookingId): void
     {
-        if (!$bookingId) {
+        if (! $bookingId) {
             return;
         }
 
@@ -129,7 +130,7 @@ class PaymentController extends BaseController
                 try {
                     Mail::to($email_notification)->queue(new BookingClientConfirmationMail($item->booking_item));
                 } catch (\Throwable $mailException) {
-                    Log::error('Booking confirmation email queue error: ' . $mailException->getMessage());
+                    Log::error('Booking confirmation email queue error: '.$mailException->getMessage());
                 }
 
                 [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
@@ -140,9 +141,9 @@ class PaymentController extends BaseController
                         continue;
                     }
                     try {
-                        Mail::to($email)->queue(new \App\Mail\BookingAgentNotificationMail($item->booking_item));
+                        Mail::to($email)->queue(new BookingAgentNotificationMail($item->booking_item));
                     } catch (\Exception $e) {
-                        Log::error('Failed to send agent notification email for booking item ' . $item->booking_item . ': ' . $e->getMessage(), ['email' => $email]);
+                        Log::error('Failed to send agent notification email for booking item '.$item->booking_item.': '.$e->getMessage(), ['email' => $email]);
                     }
                 }
             }

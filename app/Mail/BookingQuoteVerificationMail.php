@@ -37,91 +37,35 @@ class BookingQuoteVerificationMail extends Mailable implements ShouldQueue
         $dataService = app(BookingEmailDataService::class);
         $data = $dataService->getBookingData($this->bookingItem);
 
-        // 3) Agent name fallback (kept custom logic for agent name if needed)
-        $this->agentData['name'] = $data['userAgent'] ? $data['userAgent']->name : ($this->agentData['name'] ?? 'N/A');
-
-        // 7) Cache confirmation date for 7 days
-        $cacheKey = 'booking_confirmation_date_'.$this->bookingItem;
+        $cacheKey = 'booking_confirmation_date_' . $this->bookingItem;
         $confirmationDate = Cache::get($cacheKey);
 
-        if (! $confirmationDate) {
+        if (!$confirmationDate) {
             $confirmationDate = now()->toDateString();
             Cache::put($cacheKey, $confirmationDate, now()->addDays(7));
         }
 
-        // 8) Build PDF payload
-        $pdfData = [
-            'hotel' => $data['hotel'],
-            'hotelData' => [
-                'name' => $data['hotelName'],
-                'address' => $data['hotelAddress'],
-            ],
+        $data['confirmation_date'] = $confirmationDate;
 
-            // Totals
-            'total_net' => $data['total_net'],
-            'total_tax' => $data['total_tax'],
-            'total_fees' => $data['total_fees'],
-            'total_price' => $data['total_price'],
-            'currency' => $data['currency'],
-            'taxes_and_fees' => $data['taxesAndFees'],
-            'advisor_commission' => $data['advisor_commission'],
+        // Sync agent name if found via userAgent in service
+        if (!empty($data['userAgent'])) {
+            $this->agentData['name'] = $data['userAgent']->name;
+            $data['agency']['booking_agent'] = $data['userAgent']->name;
+            $data['agency']['booking_agent_email'] = $data['userAgent']->email;
+        }
 
-            // Agency info
-            'agency' => [
-                'booking_agent' => $this->agentData['name'],
-                'booking_agent_email' => $this->agentData['email'] ?? 'kshacknow@vidanta.com',
-            ],
-
-            // Images
-            'hotelPhotoPath' => $data['hotelPhotoPath'],
-            'roomPhotoPath' => $data['roomPhotoPath'],
-
-            // Pills / rate info
-            'checkin' => $data['checkinDate'],
-            'checkout' => $data['checkoutDate'],
-            'guest_info' => $data['guestInfo'],
-            'main_room_name' => $data['mainRoomName'],
-            'rate_refundable' => $data['rateRefundable'],
-            'rate_meal_plan' => $data['rateMealPlan'],
-
-            // Perks
-            'perks' => $data['perks'],
-
-            // Misc
-            'confirmation_date' => $confirmationDate,
-        ];
-
-        // 9) Generate PDF
         $pdfService = app(PdfGeneratorService::class);
-        $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', $pdfData);
+        $pdfContent = $pdfService->generateRaw('pdf.quote-confirmation', $data);
 
-        // 10) Cache PDF data for 7 days
-        Cache::put('booking_pdf_data_'.$this->bookingItem, $pdfData, now()->addDays(7));
+        Cache::put('booking_pdf_data_' . $this->bookingItem, $data, now()->addDays(7));
 
-        // 11) Build mail with attached PDF
-        return $this->subject('Your Quote from '.env('APP_NAME').': Please Confirm')
+        return $this->subject('Your Quote from ' . env('APP_NAME') . ': Please Confirm')
             ->view('emails.booking.email_verification')
-            ->with([
+            ->with(array_merge($data, [
                 'verificationUrl' => $this->verificationUrl,
                 'denyUrl' => $this->denyUrl,
                 'agentData' => $this->agentData,
-                'quoteNumber' => $data['quoteNumber'],
-                'hotel' => $data['hotel'],
-                'rooms' => $data['dataReservation'],
-                'searchRequest' => $data['searchArray'],
-                'perks' => $data['perks'],
-
-                // Pre-calculated values for Blade
-                'checkinDate' => $data['checkinDate'],
-                'checkoutDate' => $data['checkoutDate'],
-                'guestInfo' => $data['guestInfo'],
-                'currency' => $data['currency'],
-                'subtotal' => $data['subtotal'],
-                'taxes' => $data['total_tax'],
-                'fees' => $data['total_fees'],
-                'totalPrice' => $data['total_price'],
-                'advisorCommission' => $data['advisor_commission'],
-            ])
+            ]))
             ->attachData($pdfContent, 'QuoteDetails.pdf', [
                 'mime' => 'application/pdf',
             ]);

@@ -16,7 +16,9 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
     use SerializesModels;
 
     public ?string $payment_url;
+
     public ?string $booking_id;
+
     public ?string $booking_item;
 
     public function __construct(string $payment_url, string $booking_id, ?string $booking_item = null)
@@ -29,19 +31,16 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
     public function build()
     {
         $hotelName = 'your hotel';
+        $data = [];
 
         if ($this->booking_item) {
             /** @var BookingEmailDataService $dataService */
             $dataService = app(BookingEmailDataService::class);
-            try {
-                $data = $dataService->getBookingData($this->booking_item);
-                $hotelName = $data['hotelName'];
-            } catch (\Exception $e) {
-                // Fallback if service fails
-            }
+            $data = $dataService->getBookingData($this->booking_item);
+            $hotelName = $data['hotelName'];
         }
 
-        if ($this->booking_id) {
+        if ($this->booking_id && $hotelName === 'your hotel') {
             $bookimgMetadata = ApiBookingsMetadata::where('booking_id', $this->booking_id)->first();
             $bookimgItemData = $bookimgMetadata?->booking_item_data;
 
@@ -54,9 +53,9 @@ class BookingClientPaymentMail extends Mailable implements ShouldQueue
 
         return $this->subject("Your $appName Advisor has booked you at $hotelName and your booking is ready for payment")
             ->view('emails.booking.client_payment')
-            ->with([
+            ->with(array_merge($data, [
                 'payment_url' => $this->payment_url,
                 'hotelName' => $hotelName,
-            ]);
+            ]));
     }
 }
