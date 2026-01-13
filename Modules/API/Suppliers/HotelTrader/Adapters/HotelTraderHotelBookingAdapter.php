@@ -309,6 +309,6 @@ class HotelTraderHotelBookingAdapter extends BaseHotelBookingAdapter implements 
         $reservation['main_guest']['Surname'] = Arr::get($mainGuest, '0.0.lastName', '');
         $reservation['main_guest']['GivenName'] = Arr::get($mainGuest, '0.0.firstName', '');
 
-        SaveBookingMetadata::dispatch($filters, $reservation);
+        SaveBookingMetadata::dispatchSync($filters, $reservation);
     }
 }

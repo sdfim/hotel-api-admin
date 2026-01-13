@@ -189,9 +189,7 @@ class OracleHotelBookingAdapter extends BaseHotelBookingAdapter implements Hotel
         $reservation['main_guest']['Surname'] = Arr::get($mainGuest, '0.family_name', '');
         $reservation['main_guest']['GivenName'] = Arr::get($mainGuest, '0.given_name', '');
 
-        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
-        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
-        SaveBookingMetadata::$dispatchMethod($filters, $reservation);
+        SaveBookingMetadata::dispatchSync($filters, $reservation);
     }
 
     private function getConfirmationNumber(array $bookingData): ?string

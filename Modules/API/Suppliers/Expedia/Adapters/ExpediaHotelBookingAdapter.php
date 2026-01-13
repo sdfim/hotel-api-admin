@@ -479,7 +479,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
 
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
-        $this->retrieveBooking($filters, $item, SupplierNameEnum::EXPEDIA, true);
+        $this->retrieveBooking($filters, $item, true);
 
         // after retrieveBooking, we need to update the ApiBookingsMetadata with the cancellation_paths
         $this->saveBookingInfo($filters, $content, $bookingInspector);
@@ -733,11 +733,7 @@ class ExpediaHotelBookingAdapter extends BaseHotelBookingAdapter implements Hote
             'retrieve_path' => $linkBookRetrieves,
         ];
 
-        if ($isSync) {
-            SaveBookingMetadata::dispatchSync($filters, $reservation);
-        } else {
-            SaveBookingMetadata::dispatch($filters, $reservation);
-        }
+        SaveBookingMetadata::dispatchSync($filters, $reservation);
     }
 
     public function changeBooking(array $filters, string $type = 'soft'): ?array

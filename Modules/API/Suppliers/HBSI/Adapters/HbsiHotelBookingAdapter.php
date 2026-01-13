@@ -591,6 +591,6 @@ class HbsiHotelBookingAdapter extends BaseHotelBookingAdapter implements HotelBo
         $reservation = $this->extractReservationId($dataResponse);
         $reservation['main_guest'] = $mainGuest['PersonName'];
 
-        SaveBookingMetadata::dispatch($filters, $reservation);
+        SaveBookingMetadata::dispatchSync($filters, $reservation);
     }
 }
