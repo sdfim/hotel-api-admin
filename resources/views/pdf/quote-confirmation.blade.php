@@ -12,280 +12,297 @@
     <title>Quote Details</title>
 
     <style>
+        @page {
+            margin: 0;
+        }
+
         html,
         body {
-            height: 100%;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 13px;
-            line-height: 1.5;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
             color: #1C1B1B;
-            background-color: #F7F7F7;
+            background-color: #FFFFFF;
         }
 
         .page {
-            padding: 40px 40px 36px 40px;
+            padding: 30px 40px;
+        }
+
+        .header-title {
+            margin-bottom: 20px;
         }
 
         h1 {
-            /* Бронзовый, крупный, serif заголовок — курсив */
+            font-family: Georgia, "Times New Roman", serif;
             font-size: 32px;
             font-weight: normal;
             font-style: italic;
             color: #C29C75;
-            font-family: Georgia, serif;
-            margin: 0 0 15px 0;
-            letter-spacing: 0.5px;
+            margin: 0 0 5px 0;
+            line-height: 1.1;
         }
 
         h2 {
-            /* Название отеля — uppercase, тёмный */
-            font-size: 22px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 18px;
             font-weight: normal;
-            font-family: Georgia, serif;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             color: #1C1B1B;
             margin: 0 0 8px 0;
         }
 
         .hotel-address {
-            font-size: 13px;
-            color: #888;
-            text-transform: none;
-            /* Убран uppercase */
-            letter-spacing: 0;
-            margin-bottom: 20px;
+            font-size: 10px;
+            color: #777;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .hotel-image-main {
             width: 100%;
             height: auto;
+            max-height: 300px;
+            object-fit: cover;
             display: block;
-            border: 1px solid #EAEAEA;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .logo-tm {
-            width: 160px;
-            /* Увеличенный логотип */
+            width: 110px;
             height: auto;
             display: block;
         }
 
-        .pill-row {
-            margin-bottom: 12px;
+        .sidebar {
+            padding-left: 20px;
         }
 
-        .pill {
-            /* Более чистый блок */
-            background: #FBF9F6;
-            border: 1px solid #E5E0D8;
-            border-radius: 4px;
-            padding: 10px 12px;
-            text-align: center;
-            font-size: 13px;
+        .info-block {
+            background-color: #F9F7F3;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 2px solid #C29C75;
         }
 
-        .pill-title {
-            /* Стиль Label */
+        .info-label {
             display: block;
-            font-size: 10px;
+            font-size: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 4px;
+            letter-spacing: 2px;
+            color: #C29C75;
+            margin-bottom: 3px;
+            font-weight: bold;
         }
 
-        .pill-value {
-            /* Стиль Value */
+        .info-value {
             display: block;
-            font-size: 16px;
             font-family: Georgia, serif;
-            font-weight: normal;
+            font-size: 13px;
             color: #1C1B1B;
         }
 
-        .card-vertical {
-            /* Более чистый блок */
-            background: #FBF9F6;
-            border: 1px solid #E5E0D8;
-            border-radius: 4px;
-            padding: 12px 14px;
-            text-align: center;
-            font-size: 13px;
-            margin-bottom: 12px;
+        .date-container {
+            margin-bottom: 15px;
         }
 
-        .card-vertical-title {
-            /* Стиль Label */
-            font-size: 10px;
+        .date-box {
+            padding: 8px 0;
+            border-bottom: 1px solid #EAEAEA;
+        }
+
+        .date-label {
+            font-size: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             color: #888;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
+            display: block;
         }
 
-        .card-vertical-line {
-            /* Стиль Value */
-            display: block;
-            font-size: 13px;
+        .date-value {
             font-family: Georgia, serif;
-            font-weight: normal;
+            font-size: 14px;
             color: #1C1B1B;
+            display: block;
+        }
+
+        .section-title {
+            font-family: Georgia, serif;
+            font-size: 18px;
+            color: #1C1B1B;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #EAEAEA;
+            padding-bottom: 6px;
         }
 
         ul {
-            margin: 6px 0 0 18px;
+            margin: 0;
             padding: 0;
+            list-style: none;
         }
 
         ul li {
-            margin-bottom: 4px;
-            font-size: 12px;
+            padding: 4px 0;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 11px;
+            color: #444;
+            position: relative;
+            padding-left: 12px;
         }
 
-        .contact-block {
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .contact-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1C1B1B;
-            margin-bottom: 8px;
-        }
-
-        .pricing-card {
-            /* Бронзовая полоса более выразительна */
-            background: #FBF9F6;
-            border: 1px solid #E5E0D8;
-            border-left: 6px solid #C29C75;
-            border-radius: 4px;
-            padding: 20px 24px;
-            font-size: 12px;
-        }
-
-        .pricing-title {
-            /* Бронзовый заголовок */
-            text-align: left;
-            font-size: 20px;
-            font-weight: normal;
-            font-family: Georgia, serif;
+        ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
             color: #C29C75;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #E5E0D8;
+        }
+
+        .perks-container {
+            margin-top: 20px;
+        }
+
+        .pricing-section {
+            margin-top: 20px;
+            background-color: #F9F7F3;
+            padding: 15px;
+        }
+
+        .pricing-table {
+            width: 100%;
+        }
+
+        .pricing-header {
+            font-family: Georgia, serif;
+            font-size: 20px;
+            color: #C29C75;
+            margin-bottom: 10px;
+            font-style: italic;
         }
 
         .pricing-row td {
             padding: 4px 0;
+            font-size: 12px;
         }
 
         .pricing-label {
-            text-align: left;
-            font-size: 16px;
+            color: #777;
         }
 
         .pricing-value {
             text-align: right;
-            font-size: 16px;
-            font-weight: 500;
+            color: #1C1B1B;
+            font-weight: bold;
         }
 
-        .pricing-total {
-            /* Бронзовый разделитель */
-            border-top: 2px solid #C29C75;
+        .total-row td {
             padding-top: 10px;
+            border-top: 1px solid #E5E0D8;
+            font-size: 18px;
+            font-family: Georgia, serif;
+        }
+
+        .total-label {
+            color: #1C1B1B;
+        }
+
+        .total-value {
+            color: #C29C75;
+            text-align: right;
+        }
+
+        .contact-info {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #777;
+            line-height: 1.4;
+        }
+
+        .contact-title {
+            font-weight: bold;
+            color: #1C1B1B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .footer-logo {
             margin-top: 10px;
         }
 
-        .pricing-total .pricing-label {
-            color: #1C1B1B;
-            font-weight: bold;
-        }
-
-        .pricing-total .pricing-value {
-            color: #1C1B1B;
-            /* Итоговая цена черная/бронзовая */
-            font-weight: bold;
-        }
-
-        .big-spacer {
-            height: 30px;
+        .spacer {
+            height: 40px;
         }
     </style>
 </head>
 
 <body>
     <div class="page">
-
         <table width="100%" cellspacing="0" cellpadding="0">
             <tr valign="top">
+                <td width="65%">
+                    <div class="header-title">
+                        <h1>Your Curated Quote</h1>
+                        <h2>{{ $hotelName }}</h2>
+                        @if ($hotelAddress)
+                            <div class="hotel-address">{{ $hotelAddress }}</div>
+                        @endif
+                    </div>
 
-                <td width="64%" style="padding-right: 26px;">
-                    <h1>Your Curated Quote</h1>
-                    <h2>{{ $hotelName }}</h2>
-
-                    @if($hotelAddress)
-                        <div class="hotel-address">
-                            {{ $hotelAddress }}
-                        </div>
-                    @endif
-
-                    @if($heroImage)
+                    @if ($heroImage)
                         <img src="{{ $heroImage }}" class="hotel-image-main" alt="Hotel image">
                     @endif
                 </td>
 
-                <td width="36%" align="right">
-                    <div style="text-align:right; margin-bottom: 24px;">
-                        <img src="{{ $logoTm }}" alt=" <?= env('APP_NAME'); ?>" class="logo-tm">
+                <td width="35%" class="sidebar">
+                    <div style="text-align:right; margin-bottom: 20px;">
+                        <img src="{{ $logoTm }}" alt="<?= env('APP_NAME') ?>" class="logo-tm"
+                            style="display: inline-block;">
                     </div>
 
-                    @if($checkin || $checkout)
-                        <table width="100%" cellspacing="0" cellpadding="0" class="pill-row">
-                            <tr>
-                                <td width="50%" style="padding-right:4px;">
-                                    <div class="pill">
-                                        <span class="pill-title">Check-In</span>
-                                        <span class="pill-value">{{ $checkin ?? '—' }}</span>
-                                    </div>
-                                </td>
-                                <td width="50%" style="padding-left:4px;">
-                                    <div class="pill">
-                                        <span class="pill-title">Check-Out</span>
-                                        <span class="pill-value">{{ $checkout ?? '—' }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    @endif
+                    <div class="date-container">
+                        @if ($checkin)
+                            <div class="date-box">
+                                <span class="date-label">Check-In</span>
+                                <span class="date-value">{{ $checkin }}</span>
+                            </div>
+                        @endif
+                        @if ($checkout)
+                            <div class="date-box">
+                                <span class="date-label">Check-Out</span>
+                                <span class="date-value">{{ $checkout }}</span>
+                            </div>
+                        @endif
+                    </div>
 
-                    @if($rateRefundable || $rateMealPlan)
-                        <div class="card-vertical">
-                            <div class="card-vertical-title">Rate Type</div>
-                            @if($rateRefundable)
-                                <span class="card-vertical-line">{{ $rateRefundable }}</span>
+                    @if ($rateRefundable || $rateMealPlan)
+                        <div class="info-block">
+                            <span class="info-label">Rate Type</span>
+                            @if ($rateRefundable)
+                                <span class="info-value">{{ $rateRefundable }}</span>
                             @endif
-                            @if($rateMealPlan)
-                                <span class="card-vertical-line">{{ $rateMealPlan }}</span>
+                            @if ($rateMealPlan)
+                                <span class="info-value">{{ $rateMealPlan }}</span>
                             @endif
                         </div>
                     @endif
 
-                    @if($mainRoomName || $guestInfo)
-                        <div class="card-vertical">
-                            <div class="card-vertical-title">Rooms &amp; Guests</div>
-                            @if($mainRoomName)
-                                <span class="card-vertical-line">{{ $mainRoomName }}</span>
+                    @if ($mainRoomName || $guestInfo)
+                        <div class="info-block">
+                            <span class="info-label">Accommodation</span>
+                            @if ($mainRoomName)
+                                <span class="info-value">{{ $mainRoomName }}</span>
                             @endif
-                            @if($guestInfo)
-                                <span class="card-vertical-line">{{ $guestInfo }}</span>
+                            @if ($guestInfo)
+                                <span class="info-value">{{ $guestInfo }}</span>
                             @endif
                         </div>
                     @endif
@@ -293,87 +310,63 @@
             </tr>
         </table>
 
-        <div class="big-spacer"></div>
+        <div class="perks-container">
+            <table width="100%" cellspacing="0" cellpadding="0">
+                <tr valign="top">
+                    <td width="60%" style="padding-right: 40px;">
+                        <div class="section-title">Exclusive Perks</div>
+                        @if (!empty($perks))
+                            <ul>
+                                @foreach ($perks as $perk)
+                                    <li>{{ $perk }}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p style="color: #777;">Special perks will be detailed upon final reservation.</p>
+                        @endif
+                    </td>
+                    <td width="40%">
+                        @if ($secondaryImage)
+                            <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Resort view">
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-        <table width="100%" cellspacing="0" cellpadding="0">
-            <tr valign="top">
+        <div class="pricing-section">
+            <div class="pricing-header">Investment Summary</div>
+            <table class="pricing-table" cellspacing="0" cellpadding="0">
+                <tr class="pricing-row">
+                    <td class="pricing-label">Reservation Subtotal</td>
+                    <td class="pricing-value">{{ $currency }} {{ number_format($subtotal, 2) }}</td>
+                </tr>
+                <tr class="pricing-row">
+                    <td class="pricing-label">Taxes &amp; Fees</td>
+                    <td class="pricing-value">{{ $currency }} {{ number_format($taxesAndFees, 2) }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="total-label">Estimated Total</td>
+                    <td class="total-value">{{ $currency }} {{ number_format($totalPrice, 2) }}</td>
+                </tr>
+            </table>
+        </div>
 
-                <td width="60%" style="padding-right:26px;">
-                    <div style="font-size:24px; margin: 0 0 10px 0; font-family: Georgia, serif; color: #1C1B1B;">
-                        {{ env('APP_NAME') }}Exclusive Perks:</div>
-
-                    @if(!empty($perks))
-                        <ul>
-                            @foreach($perks as $perk)
-                                <li style="font-size: 14px;">{{ $perk }}</li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <div style="font-size:16px;">
-                            Perks information will be provided upon request.
-                        </div>
-                    @endif
+        <table width="100%" cellspacing="0" cellpadding="0" class="contact-info">
+            <tr>
+                <td width="60%">
+                    <div class="contact-title">{{ env('APP_NAME') }} Concierge</div>
+                    <div>Toll Free: 1-800-292-9446 (US) | 0-800-096-9367 (UK) | 800-543-7044 (MEX)</div>
+                    <div>Email: {{ $agencyEmail }}</div>
                 </td>
-
-                <td width="40%">
-                    @if($secondaryImage)
-                        <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Hotel view">
-                    @endif
-                </td>
-            </tr>
-        </table>
-
-        <div class="big-spacer"></div>
-
-        <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 40px;">
-            <tr valign="top">
-
-                <td width="50%" style="padding-right:26px;">
-                    <div class="contact-block">
-                        <div class="contact-name">{{ env('APP_NAME') }} Tours</div>
-                        <div>1-800-292-9446 (US)</div>
-                        <div>0-800-096-9367 (UK)</div>
-                        <div>800-543-7044 (MEX)</div>
-                        <div>{{ $agencyEmail }}</div>
-                    </div>
-                </td>
-
-                <td width="50%" align="right">
-                    <div class="pricing-card" style="width: 320px;">
-                        <div class="pricing-title">Pricing:</div>
-
-                        <table width="100%" class="pricing-row" cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td class="pricing-label">Reservation Subtotal:</td>
-                                <td class="pricing-value">
-                                    {{ $currency }} {{ number_format($subtotal, 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="pricing-label">Taxes &amp; Fees:</td>
-                                <td class="pricing-value">
-                                    {{ $currency }} {{ number_format($taxesAndFees, 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="pricing-total">
-                                    <table width="100%" cellspacing="0" cellpadding="0">
-                                        <tr>
-                                            <td class="pricing-label" style="font-size: 20px;">Total Price:</td>
-                                            <td class="pricing-value" style="font-size: 20px;">
-                                                {{ $currency }} {{ number_format($totalPrice, 2) }}
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-
+                <td width="40%" align="right">
+                    <div class="footer-logo">
+                        <img src="{{ $logoTm }}" alt="<?= env('APP_NAME') ?>" class="logo-tm"
+                            style="display: inline-block; opacity: 0.5;">
                     </div>
                 </td>
             </tr>
         </table>
-
     </div>
 </body>
 
