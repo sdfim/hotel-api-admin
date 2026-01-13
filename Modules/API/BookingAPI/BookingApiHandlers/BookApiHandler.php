@@ -181,9 +181,7 @@ class BookApiHandler extends BaseController
         }
 
         // Retrieve booking to get the full details after booking
-        $isTestScenario = Arr::get($filters, 'is_test_scenario', false);
-        $dispatchMethod = $isTestScenario ? 'dispatchSync' : 'dispatch';
-        RetrieveBookingJob::$dispatchMethod($request->booking_id);
+        RetrieveBookingJob::dispatchSync($request->booking_id);
 
         $totalTime = (microtime(true) - $sts).' seconds';
 
