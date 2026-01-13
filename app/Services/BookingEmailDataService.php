@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingsMetadata;
 use App\Models\User;
 use App\Repositories\ApiBookingInspectorRepository;
 use Carbon\Carbon;
@@ -20,6 +19,15 @@ class BookingEmailDataService
      */
     public function getBookingData(string $bookingItemHandle): array
     {
+        if (Cache::has('booking_email_common_data_'.$bookingItemHandle)) {
+            $cachedData = Cache::get('booking_email_common_data_'.$bookingItemHandle);
+            \Log::info('BookingEmailDataServiceData _ found in cache', ['data' => $cachedData]);
+
+            return $cachedData;
+        } else {
+            \Log::info('BookingEmailDataService _ Data not found in cache, fetching new data', ['bookingItemHandle' => $bookingItemHandle]);
+        }
+
         return Cache::remember('booking_email_common_data_'.$bookingItemHandle, 600, function () use ($bookingItemHandle) {
             /** @var ApiBookingItem|null $bookingItem */
             $bookingItem = ApiBookingItem::where('booking_item', $bookingItemHandle)->first();
@@ -155,7 +163,6 @@ class BookingEmailDataService
                 'currency' => $currency,
                 'taxesAndFees' => $taxesAndFees,
                 'taxes_and_fees' => $taxesAndFees,
-                'advisor_commission' => $advisorCommission,
                 'advisorCommission' => $advisorCommission,
                 'checkinDate' => $checkinFormatted,
                 'checkoutDate' => $checkoutFormatted,

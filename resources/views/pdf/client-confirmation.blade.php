@@ -15,299 +15,27 @@
     <meta charset="UTF-8">
     <title>Client Confirmation</title>
 
+    @include('pdf.partials.styles')
     <style>
-        @page {
-            margin: 0;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.5;
-            color: #1C1B1B;
-            background-color: #FFFFFF;
-        }
-
-        .page {
-            padding: 40px 40px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .page-break {
-            page-break-after: always;
-        }
-
-        /* Page 1: Greeting */
-        .welcome-title {
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 40px;
-            font-weight: normal;
-            font-style: italic;
-            color: #C29C75;
-            margin-bottom: 20px;
-        }
-
-        .welcome-text {
-            font-family: Georgia, serif;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #444;
-        }
-
-        .welcome-signature {
-            margin-top: 30px;
-            font-family: Georgia, serif;
-            font-size: 16px;
-            color: #C29C75;
-            font-style: italic;
-        }
-
-        .welcome-image-cell {
-            padding-left: 30px;
-            vertical-align: middle;
-        }
-
-        .welcome-image {
-            width: 100%;
-            height: auto;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Page 2: Summary */
-        .header-title {
-            margin-bottom: 30px;
-        }
-
+        /* Specific overrides for Client Confirmation */
         h1 {
-            font-family: Georgia, "Times New Roman", serif;
             font-size: 36px;
-            font-weight: normal;
-            font-style: italic;
-            color: #C29C75;
-            margin: 0 0 5px 0;
-            line-height: 1.1;
-        }
-
-        h2 {
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 18px;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #1C1B1B;
-            margin: 0 0 10px 0;
-        }
-
-        .hotel-address {
-            font-size: 11px;
-            color: #777;
-            letter-spacing: 0.5px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .hotel-image-main {
-            width: 100%;
-            height: auto;
-            display: block;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .logo-tm {
-            width: 120px;
-            height: auto;
-            display: block;
-        }
-
-        .sidebar {
-            padding-left: 20px;
-        }
-
-        .confirm-block {
-            background-color: #C29C75;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #FFFFFF;
-            text-align: center;
-        }
-
-        .confirm-label {
-            display: block;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 4px;
-            opacity: 0.9;
-        }
-
-        .confirm-value {
-            display: block;
-            font-family: Georgia, serif;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .info-block {
-            background-color: #F9F7F3;
-            padding: 15px;
-            margin-bottom: 12px;
-            border-left: 2px solid #C29C75;
-        }
-
-        .info-label {
-            display: block;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #C29C75;
-            margin-bottom: 4px;
-            font-weight: bold;
-        }
-
-        .info-value {
-            display: block;
-            font-family: Georgia, serif;
-            font-size: 14px;
-            color: #1C1B1B;
-        }
-
-        .date-container {
-            margin-bottom: 20px;
-        }
-
-        .date-box {
-            padding: 10px 0;
-            border-bottom: 1px solid #EAEAEA;
-        }
-
-        .date-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #888;
-            margin-bottom: 2px;
-            display: block;
-        }
-
-        .date-value {
-            font-family: Georgia, serif;
-            font-size: 16px;
-            color: #1C1B1B;
-            display: block;
-        }
-
-        .section-title {
-            font-family: Georgia, serif;
-            font-size: 20px;
-            color: #1C1B1B;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #EAEAEA;
-            padding-bottom: 8px;
-        }
-
-        ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        ul li {
-            padding: 6px 0;
-            border-bottom: 1px solid #F0F0F0;
-            font-size: 13px;
-            color: #444;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        ul li:before {
-            content: "—";
-            position: absolute;
-            left: 0;
-            color: #C29C75;
-        }
-
-        .perks-container {
-            margin-top: 30px;
-        }
-
-        .pricing-section {
-            margin-top: 30px;
-            background-color: #F9F7F3;
-            padding: 25px;
-        }
-
-        .pricing-table {
-            width: 100%;
         }
 
         .pricing-header {
-            font-family: Georgia, serif;
             font-size: 24px;
-            color: #C29C75;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-
-        .pricing-row td {
-            padding: 6px 0;
-            font-size: 14px;
-        }
-
-        .pricing-label {
-            color: #777;
-        }
-
-        .pricing-value {
-            text-align: right;
-            color: #1C1B1B;
-            font-weight: bold;
         }
 
         .total-row td {
-            padding-top: 15px;
-            border-top: 1px solid #E5E0D8;
             font-size: 20px;
-            font-family: Georgia, serif;
         }
 
-        .total-label {
-            color: #1C1B1B;
-        }
-
-        .total-value {
-            color: #C29C75;
-            text-align: right;
-        }
-
-        .contact-info {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #777;
-            line-height: 1.6;
-        }
-
-        .contact-title {
-            font-weight: bold;
-            color: #1C1B1B;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .footer-logo {
-            margin-top: 20px;
+        .welcome-text,
+        .welcome-signature {
+            font-size: 16px;
         }
     </style>
+
 </head>
 
 <body>
@@ -460,10 +188,18 @@
                     <td class="pricing-label">Taxes &amp; Fees</td>
                     <td class="pricing-value">{{ $currency }} {{ number_format($taxesAndFees, 2) }}</td>
                 </tr>
+
                 <tr class="total-row">
                     <td class="total-label">Est. Total Price</td>
                     <td class="total-value">{{ $currency }} {{ number_format($totalPrice, 2) }}</td>
                 </tr>
+
+                @if ($advisorCommission > 0)
+                    <tr class="pricing-row commission-row">
+                        <td class="pricing-label">Advisor Commission</td>
+                        <td class="pricing-value">{{ $currency }} {{ number_format($advisorCommission, 2) }}</td>
+                    </tr>
+                @endif
             </table>
         </div>
 
