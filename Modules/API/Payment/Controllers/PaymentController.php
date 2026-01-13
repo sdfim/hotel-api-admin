@@ -11,6 +11,7 @@ use App\Repositories\ApiBookingInspectorRepository;
 use App\Support\PaymentProviderResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Modules\API\BaseController;
@@ -29,16 +30,22 @@ class PaymentController extends BaseController
 
     public function createPaymentIntent(CreatePaymentIntentRequest $request)
     {
-        $provider = $this->getProvider($request);
         $booking_id = $request->input('booking_id');
+        $providerName = $request->input('provider', config('payment.default_provider'));
 
-        if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
-            $error = $booking_id.' - booking_id not found or not booked';
+        $cacheKey = "payment_intent_{$booking_id}_{$providerName}";
 
-            return $this->sendError($error, 'Booking not found or not booked', 404);
-        }
+        return Cache::remember($cacheKey, now()->addMinutes(3), function () use ($request, $booking_id) {
+            $provider = $this->getProvider($request);
 
-        return $provider->createPaymentIntent($request->validated());
+            if (ApiBookingInspectorRepository::bookedItems($booking_id)->isEmpty()) {
+                $error = $booking_id.' - booking_id not found or not booked';
+
+                return $this->sendError($error, 'Booking not found or not booked', 404);
+            }
+
+            return $provider->createPaymentIntent($request->validated());
+        });
     }
 
     public function createPaymentIntentMoFoF(string $booking_id, float $amount)
