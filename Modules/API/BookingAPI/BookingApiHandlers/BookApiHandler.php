@@ -647,7 +647,22 @@ class BookApiHandler extends BaseController
             return $this->sendResponse(['result' => $data], 'success');
         }
 
-        $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
+        $itemsBooked = null;
+        $waitTime = 0;
+        $maxWaitTime = 10;
+
+        while ($waitTime < $maxWaitTime) {
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
+            if (! empty($itemsBooked)) {
+                break;
+            }
+            sleep(2);
+            $waitTime++;
+        }
+
+        if (empty($itemsBooked)) {
+            return $this->sendError('No booked items found within the timeout period.', 'failed');
+        }
 
         $data = [];
         $retrieved = [];

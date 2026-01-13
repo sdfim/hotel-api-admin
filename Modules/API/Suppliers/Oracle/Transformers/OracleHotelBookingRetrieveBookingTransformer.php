@@ -87,8 +87,6 @@ class OracleHotelBookingRetrieveBookingTransformer
                 $supplierBookId = $reservationId;
             }
 
-            $totalPrice += Arr::get($reservation, 'roomStay.total.amountBeforeTax', 0.0);
-
             if ($status === 'cancelled') {
                 $overallStatus = 'cancelled';
             } elseif ($overallStatus !== 'cancelled' && $status === 'checked_out') {
