@@ -33,12 +33,9 @@ class OracleHotelBookingRetrieveBookingTransformer
      */
     public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
-        // 1. Извлечение списка резерваций
-        // FIX: Использование корректного пути 'reservations.reservation' вместо 'reservations.reservationInfo'
         $reservations = Arr::get($dataResponse, 'reservations.reservation', []);
 
-        // Если в ответе только одна резервация (объект вместо массива), заворачиваем ее в массив для foreach
-        if (is_array($reservations) && !isset($reservations[0]) && count($reservations) > 0) {
+        if (is_array($reservations) && ! isset($reservations[0]) && count($reservations) > 0) {
             $reservations = [$reservations];
         }
 
@@ -50,20 +47,15 @@ class OracleHotelBookingRetrieveBookingTransformer
             return $responseModel->toRetrieveArray();
         }
 
-        // 2. Извлечение сохраненных данных (для цены, налога, условий и контактных данных)
         $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
         $saveResponse = $bookData ? json_decode(Storage::get($bookData->client_response_path), true) : [];
         $bookRequest = json_decode($bookData?->request ?? '', true) ?? [];
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
         $bookingPricingData = json_decode($bookingItem?->booking_pricing_data ?? '', true) ?? [];
 
-        // Получаем данные о пассажирах из репозитория
         $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
         $roomsFromRequest = json_decode(Arr::get($passengersData, 'request', '{"rooms": []}'), true)['rooms'] ?? [];
 
-        // 3. Агрегация данных и формирование структуры "rooms"
-        $totalPrice = 0.0;
-        // FIX: Проверяем, что первый элемент существует
         $firstReservation = Arr::get($reservations, 0, []);
         $currency = Arr::get($firstReservation, 'roomStay.rateAmount.currencyCode', Arr::get($saveResponse, 'currency', 'USD'));
         $confirmationNumbers = [];
@@ -91,15 +83,12 @@ class OracleHotelBookingRetrieveBookingTransformer
                 ];
             }
 
-            // Используем ID первой резервации как общий SupplierBookId
             if ($supplierBookId === null && $reservationId) {
                 $supplierBookId = $reservationId;
             }
 
-            // Суммируем цену (rateAmount)
             $totalPrice += Arr::get($reservation, 'roomStay.total.amountBeforeTax', 0.0);
 
-            // Определяем общий статус (приоритет: cancelled > checked_out > booked/pending > no_show)
             if ($status === 'cancelled') {
                 $overallStatus = 'cancelled';
             } elseif ($overallStatus !== 'cancelled' && $status === 'checked_out') {
@@ -112,22 +101,17 @@ class OracleHotelBookingRetrieveBookingTransformer
                 $overallStatus = 'no_show';
             }
 
-            // Формирование элемента комнаты
             $guest = Arr::get($reservation, 'reservationGuests.0.profileInfo.profile.customer') ?? [];
 
-            // Получаем список пассажиров для текущей комнаты
             $roomPassengers = Arr::get($roomsFromRequest, $i);
 
-            // FIX: Если нет пассажиров в запросе (инспекторе), создаем минимальный массив пассажиров
             if (empty($roomPassengers) || ! is_array($roomPassengers)) {
-                // Извлекаем имя из personName, если оно есть
-                $primaryName = Arr::first(Arr::get($guest, 'personName', []), fn($name) => Arr::get($name, 'nameType') === 'Primary') ?? [];
+                $primaryName = Arr::first(Arr::get($guest, 'personName', []), fn ($name) => Arr::get($name, 'nameType') === 'Primary') ?? [];
 
                 // Создаем массив, содержащий хотя бы одного гостя (основного)
                 $roomPassengers = [[
                     'given_name' => Arr::get($primaryName, 'givenName'),
                     'family_name' => Arr::get($primaryName, 'surname'),
-                    // Дополнительные поля (title, age) могут быть пустыми, если их нет
                 ]];
             }
 
@@ -143,7 +127,6 @@ class OracleHotelBookingRetrieveBookingTransformer
             ];
         }
 
-        // 4. Поиск и метаданные отеля (логика из HotelTrader)
         $hotelNameWithCode = Arr::get($saveResponse, 'hotel_name', Arr::get($firstReservation, 'hotelName', ''));
         preg_match('/^(.*?)\s*\((\d+)\)$/', $hotelNameWithCode, $matches);
         $name = $matches[1] ?? Arr::get($firstReservation, 'hotelName', '');
@@ -154,7 +137,6 @@ class OracleHotelBookingRetrieveBookingTransformer
             $hotel = Hotel::where('giata_code', $giata_code)->first();
         }
         if (! $hotel) {
-            // FIX: Используем hotelId, который присутствует в дампе (VIRM)
             $hotel = Hotel::where('giata_code', Arr::get($firstReservation, 'hotelId'))->first();
         }
 
@@ -164,7 +146,6 @@ class OracleHotelBookingRetrieveBookingTransformer
             $hotelImage = Storage::url($imagePath);
         }
 
-        // 5. Meal Plans (логика из HotelTrader)
         $roomsDataSaved = Arr::get($saveResponse, 'rooms', []);
         $mealPlans = [];
         if (is_array($roomsDataSaved)) {
@@ -182,8 +163,6 @@ class OracleHotelBookingRetrieveBookingTransformer
         if (empty($mealPlans)) {
             $mealPlans = $hotel?->hotel_board_basis ?? [];
         }
-
-        // 6. Заполнение Response Model
 
         /** @var ResponseModel $responseModel */
         $responseModel = app(ResponseModel::class);
@@ -208,7 +187,7 @@ class OracleHotelBookingRetrieveBookingTransformer
         $responseModel->setDepositInformation(Arr::get($saveResponse, 'deposits', []));
         $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
 
-        $responseModel->setTotalPrice($totalPrice > 0 ? $totalPrice : Arr::get($saveResponse, 'total_price', 0));
+        $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
         $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
         $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
         $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
@@ -216,7 +195,6 @@ class OracleHotelBookingRetrieveBookingTransformer
         $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis(Arr::get($saveResponse, 'meal_plan', ''));
 
-        // Идентификаторы и контактные данные
         $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId($supplierBookId);
         $responseModel->setConfirmationNumbers(array_unique($confirmationNumbers, SORT_REGULAR));
