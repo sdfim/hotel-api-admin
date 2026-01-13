@@ -14,6 +14,7 @@ use CyberSource\Model\Ptsv2paymentsClientReferenceInformation;
 use CyberSource\Model\Ptsv2paymentsOrderInformation;
 use CyberSource\Model\Ptsv2paymentsOrderInformationAmountDetails;
 use CyberSource\Model\Ptsv2paymentsOrderInformationBillTo;
+use CyberSource\Model\Ptsv2paymentsPaymentInformation;
 use CyberSource\Model\Ptsv2paymentsProcessingInformation;
 use CyberSource\Model\Ptsv2paymentsTokenInformation;
 use CyberSource\ObjectSerializer;
@@ -49,6 +50,14 @@ class CybersourceClient
         // Build SDK configuration with correct host.
         $config = new Configuration();
         $config->setHost($merchantConfig->getHost());
+        $config->setCurlTimeout(60);
+        $config->setCurlConnectTimeout(30);
+
+        if (config('app.env') === 'local') {
+            $config->setSSLVerification(false);
+        }
+
+        $config->setTlsVersion('TLSv1.2'); // Force TLS 1.2
 
         // ApiClient requires both Configuration and MerchantConfiguration.
         $this->apiClient    = new ApiClient($config, $merchantConfig);
@@ -189,7 +198,8 @@ class CybersourceClient
         string $transientTokenJwt,
         float $amount,
         string $currency,
-        array $billTo
+        array $billTo,
+        bool $requestToken = true
     ): array {
         // clientReferenceInformation
         $clientRef = new Ptsv2paymentsClientReferenceInformation([
@@ -226,9 +236,16 @@ class CybersourceClient
             'transientTokenJwt' => $transientTokenJwt,
         ]);
 
-        $processingInformation = new Ptsv2paymentsProcessingInformation([
+        $processingInformationPayload = [
             'capture' => true, // if you want auth+capture right away
-        ]);
+        ];
+
+        if ($requestToken) {
+            $processingInformationPayload['actionList'] = ['TOKEN_CREATE'];
+            $processingInformationPayload['actionTokenTypes'] = ['paymentInstrument', 'instrumentIdentifier'];
+        }
+
+        $processingInformation = new Ptsv2paymentsProcessingInformation($processingInformationPayload);
 
         $request = new CreatePaymentRequest([
             'clientReferenceInformation' => $clientRef,
@@ -287,6 +304,92 @@ class CybersourceClient
             ]);
 
             return [['error' => $e->getMessage()], $payload];
+        }
+    }
+
+    /**
+     * Create a payment using saved tokens (MIT).
+     *
+     * @throws Exception
+     */
+    public function createPaymentWithToken(
+        ?string $paymentInstrumentId,
+        ?string $instrumentIdentifierId,
+        float $amount,
+        string $currency,
+        array $billTo
+    ): array {
+        // clientReferenceInformation
+        $clientRef = new Ptsv2paymentsClientReferenceInformation([
+            'code' => $billTo['reference'] ?? null,
+        ]);
+
+        // orderInformation.amountDetails
+        $amountDetails = new Ptsv2paymentsOrderInformationAmountDetails([
+            'totalAmount' => number_format($amount, 2, '.', ''),
+            'currency' => $currency,
+        ]);
+
+        $orderInfo = new Ptsv2paymentsOrderInformation([
+            'amountDetails' => $amountDetails,
+        ]);
+
+        // paymentInformation
+        $paymentInfoPayload = [];
+        if ($paymentInstrumentId) {
+            $paymentInfoPayload['paymentInstrument'] = ['id' => $paymentInstrumentId];
+        }
+        // Note: according to some docs, instrumentIdentifier is recommended but not always mandatory if paymentInstrument is used.
+        // We'll try with just paymentInstrument first to see if it fixes INVALID_DATA.
+        $paymentInfo = new Ptsv2paymentsPaymentInformation($paymentInfoPayload);
+
+        $processingInformation = new Ptsv2paymentsProcessingInformation([
+            'capture' => true,
+        ]);
+
+        $request = new CreatePaymentRequest([
+            'clientReferenceInformation' => $clientRef,
+            'orderInformation' => $orderInfo,
+            'paymentInformation' => $paymentInfo,
+            'processingInformation' => $processingInformation,
+        ]);
+
+        $paymentsApi = new PaymentsApi($this->apiClient);
+
+        $payload = json_decode(
+            json_encode(ObjectSerializer::sanitizeForSerialization($request), JSON_THROW_ON_ERROR),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        try {
+            [$result, $statusCode, $headers] = $paymentsApi->createPaymentWithHttpInfo($request);
+
+            $sanitized = ObjectSerializer::sanitizeForSerialization($result);
+            $decoded = json_decode(json_encode($sanitized, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+
+            if ($statusCode < 200 || $statusCode >= 300) {
+                return [['error' => 'Cybersource createPayment (MIT) failed with HTTP ' . $statusCode], $payload];
+            }
+
+            return [$decoded, $payload];
+        } catch (ApiException $e) {
+            Log::error('Cybersource createPayment (MIT) ApiException', [
+                'message' => $e->getMessage(),
+                'response_body' => $e->getResponseBody(),
+                'response_headers' => $e->getResponseHeaders(),
+                'code' => $e->getCode(),
+            ]);
+
+            return [['error' => $e->getMessage() . ' (Status code: ' . $e->getCode() . ')'], $payload];
+        } catch (\Throwable $t) {
+            Log::error('Cybersource createPayment (MIT) Throwable', [
+                'message' => $t->getMessage(),
+                'trace' => $t->getTraceAsString(),
+            ]);
+
+            return [['error' => 'Unexpected error: ' . $t->getMessage()], $payload];
         }
     }
 }

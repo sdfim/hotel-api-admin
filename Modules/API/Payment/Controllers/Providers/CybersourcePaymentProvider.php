@@ -221,6 +221,66 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
         }
     }
 
+    /**
+     * Create a new payment for the remaining balance (MoFoF) using saved tokens.
+     *
+     * @param string $bookingId
+     * @param float $amount
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createPaymentIntentMoFoF(string $bookingId, float $amount)
+    {
+        try {
+            // 1. Find the last successful confirmation log for this booking to get tokens.
+            $log = CybersourceApiLog::where('booking_id', $bookingId)
+                ->where('method', 'confirmationPaymentIntent')
+                ->where('status_code', 201)
+                ->latest()
+                ->first();
+
+            if (!$log) {
+                return $this->sendError('No previous successful Cybersource payment found for this booking.', 'Error', 404);
+            }
+
+            $response = $log->response;
+            $paymentInstrumentId = $response['tokenInformation']['paymentInstrument']['id'] ?? null;
+            $instrumentIdentifierId = $response['tokenInformation']['instrumentIdentifier']['id'] ?? null;
+
+            if (!$paymentInstrumentId && !$instrumentIdentifierId) {
+                return $this->sendError('No saved payment tokens found for this booking.', 'Error', 422);
+            }
+
+            $amountDetails = $response['orderInformation']['amountDetails'] ?? null;
+            $currency = $amountDetails['currency'] ?? 'USD';
+
+            // Build billTo (can use data from the previous log)
+            $billTo = $this->buildBillToPayload($bookingId, $log->direction);
+
+            // 2. Create the payment using the token
+            [$result, $payload] = $this->client->createPaymentWithToken(
+                $paymentInstrumentId,
+                $instrumentIdentifierId,
+                $amount,
+                $currency,
+                $billTo
+            );
+
+            if ($error = $result['error'] ?? null) {
+                Log::error('Cybersource MIT Payment failed: ' . $error);
+                $this->logCybersourceApiData(['booking_id' => $bookingId, 'amount' => $amount, 'currency' => $currency], 'createPaymentIntentMoFoF', $result, $billTo, $payload);
+                return $this->sendError($error, 'Cybersource API error', 400);
+            }
+
+            $this->logCybersourceApiData(['booking_id' => $bookingId, 'amount' => $amount, 'currency' => $currency], 'createPaymentIntentMoFoF', $result, $billTo, $payload);
+
+            return $this->sendResponse($result, 'Cybersource MIT payment processed successfully.');
+
+        } catch (Throwable $e) {
+            Log::error('Cybersource MoFoF failed: ' . $e->getMessage());
+            return $this->sendError('Internal server error during Cybersource MoFoF.', 'Internal Server Error', 500);
+        }
+    }
+
     private function logCybersourceApiData(array $data, string $method, array $result, array $direction, array $payload): void
     {
         $id = $result['id'] ?? null;
@@ -244,8 +304,8 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
 
         $log = CybersourceApiLog::create($cybersourceApiLogData);
 
-        if (in_array($method, ['createPaymentIntent', 'confirmationPaymentIntent']) && $log) {
-            $action = $method === 'confirmationPaymentIntent' ? PaymentStatusEnum::CONFIRMED->value : PaymentStatusEnum::INIT->value;
+        if (in_array($method, ['createPaymentIntent', 'confirmationPaymentIntent', 'createPaymentIntentMoFoF']) && $log) {
+            $action = in_array($method, ['confirmationPaymentIntent', 'createPaymentIntentMoFoF']) ? PaymentStatusEnum::CONFIRMED->value : PaymentStatusEnum::INIT->value;
             ApiBookingPaymentInit::create([
                 'booking_id' => $log->booking_id,
                 'payment_intent_id' => $log->booking_id,
@@ -289,7 +349,7 @@ class CybersourcePaymentProvider extends BaseController implements PaymentProvid
         return $this->sendError('Not implemented', 'Error');
     }
 
-    public function getTransactionByBookingId($bookingId)
+    public function getTransactionByBookingId($bookingId): mixed
     {
         $logs = CybersourceApiLog::where('booking_id', $bookingId)
             ->where('method', 'confirmationPaymentIntent')
