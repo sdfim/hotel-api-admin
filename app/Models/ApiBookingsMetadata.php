@@ -72,11 +72,14 @@ class ApiBookingsMetadata extends Model
 
     public function hotel(): HasOneThrough
     {
-        if (! in_array($this->supplier->name, [
-            SupplierNameEnum::HBSI->value,
-            SupplierNameEnum::HOTEL_TRADER->value,
-            SupplierNameEnum::EXPEDIA->value,
-        ])) {
+        if (
+            ! $this->supplier || ! in_array($this->supplier->name, [
+                SupplierNameEnum::HBSI->value,
+                SupplierNameEnum::HOTEL_TRADER->value,
+                SupplierNameEnum::EXPEDIA->value,
+                SupplierNameEnum::ORACLE->value,
+            ])
+        ) {
             return $this->hasOneThrough(
                 Property::class,
                 Mapping::class,
@@ -92,7 +95,7 @@ class ApiBookingsMetadata extends Model
             Mapping::class,
             'supplier_id', // Foreign key on the mappings table
             'code', // Foreign key on the properties table
-            'hotel_supplier_id', // Local key on the current model (e.g., ApiBookingsMetadata)
+            'hotel_supplier_id', // Local key on the current model
             'giata_id' // Local key on the mappings table
         )->where('mappings.supplier', $this->supplier->name);
     }
@@ -103,5 +106,35 @@ class ApiBookingsMetadata extends Model
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->whereColumn('booking_id', 'api_bookings_metadata.booking_id');
+    }
+
+    public function contentHotel(): HasOneThrough
+    {
+        if (
+            ! $this->supplier || ! in_array($this->supplier->name, [
+                \Modules\Enums\SupplierNameEnum::HBSI->value,
+                \Modules\Enums\SupplierNameEnum::HOTEL_TRADER->value,
+                \Modules\Enums\SupplierNameEnum::EXPEDIA->value,
+                \Modules\Enums\SupplierNameEnum::ORACLE->value,
+            ])
+        ) {
+            return $this->hasOneThrough(
+                \Modules\HotelContentRepository\Models\Hotel::class,
+                Mapping::class,
+                'supplier_id',
+                'giata_code',
+                'hotel_supplier_id',
+                'giata_id'
+            )->whereRaw('1 = 0');
+        }
+
+        return $this->hasOneThrough(
+            \Modules\HotelContentRepository\Models\Hotel::class,
+            Mapping::class,
+            'supplier_id',
+            'giata_code',
+            'hotel_supplier_id',
+            'giata_id'
+        )->where('mappings.supplier', $this->supplier->name);
     }
 }

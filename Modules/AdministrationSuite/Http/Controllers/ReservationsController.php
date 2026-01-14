@@ -2,8 +2,6 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\ApiBookingPaymentInit;
-use App\Models\Enums\PaymentStatusEnum;
 use App\Models\Reservation;
 use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\View\View;
@@ -38,9 +36,12 @@ class ReservationsController extends BaseWithPolicyController
         $text = $this->message;
 
         // Load reservation with soft-deleted channel relation
-        $reservation = Reservation::with(['channel' => function ($q) {
-            $q->withTrashed();
-        }])->findOrFail($id);
+        $reservation = Reservation::with([
+            'channel' => function ($q) {
+                $q->withTrashed();
+            },
+            'apiBookingsMetadata',
+        ])->findOrFail($id);
 
         // Decode JSON payload from reservation_contains
         $contains = json_decode($reservation->reservation_contains, true) ?? [];

@@ -237,9 +237,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             $roomCodes = array_filter(explode(';', $field['price']['room_type'] ?? ''));
                             $rateCodes = explode(';', $field['price']['rate_plan_code'] ?? '');
                             $mealPlans = explode(';', $field['price']['meal_plan'] ?? '');
-
-                            //                        dd($passengers_by_room);
-
                             $request = json_decode($record->apiBookingItem->search->request, true);
 
                             $input = [
