@@ -27,6 +27,8 @@ class OracleClient
 
     protected ?string $token = null;
 
+    protected ?array $lastTokenError = null;
+
     protected array $headers = [];
 
     public function __construct(
@@ -41,10 +43,9 @@ class OracleClient
             return;
         }
 
-        try {
-            $this->token = $this->fetchToken();
-        } catch (Exception $e) {
-            Log::error('OracleClient: Failed to fetch authentication token: '.$e->getMessage());
+        $this->token = $this->fetchToken();
+
+        if ($this->token === null) {
             throw new Exception('OracleClient: Initialization failed due to authentication token error.');
         }
 
@@ -77,18 +78,24 @@ class OracleClient
         $credentials = CredentialsFactory::fromConfig();
         $basicAuthHeader = 'Basic '.base64_encode($credentials->basicUsername.':'.$credentials->basicPassword);
 
+        $requestMeta = [
+            'url' => $credentials->baseUrl.'/oauth/v1/tokens',
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'x-app-key' => $credentials->appKey,
+                'Authorization' => $basicAuthHeader,
+            ],
+            'form_params' => [
+                'username' => $credentials->username,
+                'password' => $credentials->password,
+                'grant_type' => 'password',
+            ],
+        ];
+
         try {
-            $response = $this->client->request('POST', $credentials->baseUrl.'/oauth/v1/tokens', [
-                'headers' => [
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'x-app-key' => $credentials->appKey,
-                    'Authorization' => $basicAuthHeader,
-                ],
-                'form_params' => [
-                    'username' => $credentials->username,
-                    'password' => $credentials->password,
-                    'grant_type' => 'password',
-                ],
+            $response = $this->client->request('POST', $requestMeta['url'], [
+                'headers' => $requestMeta['headers'],
+                'form_params' => $requestMeta['form_params'],
             ]);
 
             $responseBody = $response->getBody()->getContents();
@@ -97,6 +104,11 @@ class OracleClient
             $data = json_decode($responseBody, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->lastTokenError = [
+                    'request' => $requestMeta,
+                    'response' => $responseBody,
+                    'error' => 'Failed to decode JSON response: '.json_last_error_msg(),
+                ];
                 Log::error('OracleClient: Failed to decode JSON response.', [
                     'json_error' => json_last_error_msg(),
                     'response_body' => $responseBody,
@@ -116,6 +128,11 @@ class OracleClient
                 return $token;
             }
 
+            $this->lastTokenError = [
+                'request' => $requestMeta,
+                'response' => $data,
+                'error' => 'access_token or expires_in missing in response',
+            ];
             Log::warning('OracleClient: Successful response (200 OK) but access_token or expires_in missing in response.', [
                 'response_data' => $data,
             ]);
@@ -125,11 +142,22 @@ class OracleClient
             if (method_exists($e, 'getResponse') && $e->getResponse() !== null) {
                 $responseErrorBody = $e->getResponse()->getBody()->getContents();
             }
+
+            $this->lastTokenError = [
+                'request' => $requestMeta,
+                'response' => json_decode($responseErrorBody, true) ?: $responseErrorBody,
+                'error' => $e->getMessage(),
+            ];
+
             Log::error('OracleClient: Guzzle error during token fetching.', [
                 'exception_message' => $e->getMessage(),
                 'response_body' => $responseErrorBody,
             ]);
         } catch (Exception $e) {
+            $this->lastTokenError = [
+                'request' => $requestMeta,
+                'error' => $e->getMessage(),
+            ];
             Log::error('OracleClient: Failed to fetch Oracle API token.', ['exception_message' => $e->getMessage()]);
         }
 
@@ -147,7 +175,18 @@ class OracleClient
      */
     public function getPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            $this->dispatchSearchError(
+                $searchInspector,
+                $e->getMessage(),
+                'N/A',
+                $this->lastTokenError ?: ['error' => $e->getMessage()]
+            );
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         $allResults = [];
         $errors = [];
@@ -333,7 +372,18 @@ class OracleClient
      */
     public function getSyncPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            $this->dispatchSearchError(
+                $searchInspector,
+                $e->getMessage(),
+                'N/A',
+                $this->lastTokenError ?: ['error' => $e->getMessage()]
+            );
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         $allResults = [];
         $errors = [];
@@ -524,7 +574,24 @@ class OracleClient
 
         $url = $this->credentials->baseUrl.'/rsv/v1/hotels/'.$supplierHotelId.'/reservations';
 
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            $this->dispatchBookingError(
+                $inspectorBook,
+                $e->getMessage(),
+                ['original' => ['request' => $bodyQuery, 'response' => $this->lastTokenError ?: $e->getMessage()]]
+            );
+
+            return [
+                'error' => $e->getMessage(),
+                'token_error' => $this->lastTokenError,
+                'request' => [],
+                'response' => [],
+                'main_guest' => $mappedGuests,
+                'errors' => $this->lastTokenError ?: [$e->getMessage()],
+            ];
+        }
         $headers = $this->headers;
         $headers['x-hotelid'] = $supplierHotelId;
 
@@ -583,7 +650,22 @@ class OracleClient
 
         $url = $this->credentials->baseUrl."/rsv/v1/hotels/{$hotelId}/reservations/{$reservationId}";
 
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            $this->dispatchBookingError(
+                $inspector,
+                $e->getMessage(),
+                ['original' => ['request' => ['hotelId' => $hotelId, 'reservationId' => $reservationId], 'response' => $this->lastTokenError ?: $e->getMessage()]]
+            );
+
+            return [
+                'error' => $e->getMessage(),
+                'token_error' => $this->lastTokenError,
+                'request' => ['hotelId' => $hotelId, 'reservationId' => $reservationId],
+                'response' => null,
+            ];
+        }
         $headers = $this->headers;
         $headers['x-hotelid'] = $hotelId;
 
@@ -648,7 +730,20 @@ class OracleClient
             return null;
         }
 
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            $this->dispatchBookingError(
+                $inspectorCancel,
+                $e->getMessage(),
+                ['original' => ['request' => ['hotelId' => $hotelId, 'reservationId' => $reservationId], 'response' => $this->lastTokenError ?: $e->getMessage()]]
+            );
+
+            return [
+                'error' => $e->getMessage(),
+                'token_error' => $this->lastTokenError,
+            ];
+        }
 
         $bodyQuery = [
             'reason' => [
@@ -716,7 +811,20 @@ class OracleClient
      */
     public function getReservationsByConfirmationNumbers(string $hotelId, array $confirmationNumbers, array $inspector): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            if (! empty($inspector)) {
+                $this->dispatchSearchError(
+                    $inspector,
+                    $e->getMessage(),
+                    $hotelId,
+                    $this->lastTokenError ?: ['error' => $e->getMessage()]
+                );
+            }
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         // Converting an array of confirmation numbers to a comma-separated string for the query parameter
         $confirmationNumberList = implode(',', $confirmationNumbers);
@@ -1262,7 +1370,20 @@ class OracleClient
      */
     public function getRoomClasses(string $hotelId, array $inspector = []): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            if (! empty($inspector)) {
+                $this->dispatchSearchError(
+                    $inspector,
+                    $e->getMessage(),
+                    $hotelId,
+                    $this->lastTokenError ?: ['error' => $e->getMessage()]
+                );
+            }
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         $endpoint = "/rm/config/v1/hotels/{$hotelId}/roomClasses";
 
@@ -1306,7 +1427,20 @@ class OracleClient
      */
     public function getRooms(string $hotelId, array $inspector = []): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            if (! empty($inspector)) {
+                $this->dispatchSearchError(
+                    $inspector,
+                    $e->getMessage(),
+                    $hotelId,
+                    $this->lastTokenError ?: ['error' => $e->getMessage()]
+                );
+            }
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         $endpoint = "/rm/config/v1/hotels/{$hotelId}/rooms";
 
@@ -1351,7 +1485,20 @@ class OracleClient
      */
     public function getRoomTypes(string $hotelId, array $inspector = []): ?array
     {
-        $this->ensureToken();
+        try {
+            $this->ensureToken();
+        } catch (Exception $e) {
+            if (! empty($inspector)) {
+                $this->dispatchSearchError(
+                    $inspector,
+                    $e->getMessage(),
+                    $hotelId,
+                    $this->lastTokenError ?: ['error' => $e->getMessage()]
+                );
+            }
+
+            return ['error' => $e->getMessage(), 'token_error' => $this->lastTokenError];
+        }
 
         // Parameters specified in the request
         $queryParams = http_build_query([
