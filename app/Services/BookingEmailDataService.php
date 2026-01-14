@@ -68,11 +68,8 @@ class BookingEmailDataService
             $advisorCommissionService = app(AdvisorCommissionService::class);
             $advisorCommission = $advisorCommissionService->calculate($bookingItem, $subtotal);
 
-            $checkinRaw = Arr::get($searchArray, 'checkin');
-            $checkoutRaw = Arr::get($searchArray, 'checkout');
-
-            $checkinFormatted = $checkinRaw ? Carbon::parse($checkinRaw)->format('m/d/Y') : null;
-            $checkoutFormatted = $checkoutRaw ? Carbon::parse($checkoutRaw)->format('m/d/Y') : null;
+            $checkinFormatted = optional(Carbon::parse(Arr::get($searchArray, 'checkin')))->format('m/d/Y');
+            $checkoutFormatted = optional(Carbon::parse(Arr::get($searchArray, 'checkout')))->format('m/d/Y');
 
             $roomsCount = count($dataReservation);
             $adultsCount = collect(Arr::get($searchArray, 'occupancy', []))->sum('adults');
@@ -109,20 +106,11 @@ class BookingEmailDataService
                 }
             }
 
-            // Hero photo
             $hotelPhotoPath = ($hotel?->product?->hero_image) ? Storage::url($hotel->product->hero_image) : null;
-            $hotelPhotoRealPath = ($hotel?->product?->hero_image) ? Storage::path($hotel->product->hero_image) : null;
 
             $room = $hotel?->rooms->where('name', Arr::get($firstRoom, 'room_name'))->first();
             $roomImage = $room ? $room->galleries->flatMap(fn ($g) => $g->images)->first()?->image_url : null;
             $roomPhotoPath = $roomImage ? Storage::url($roomImage) : $hotelPhotoPath;
-            $roomPhotoRealPath = $roomImage ? Storage::path($roomImage) : $hotelPhotoRealPath;
-
-            logger()->info('Room found for email data service', [
-                'hotelPhotoPath' => $hotelPhotoPath,
-                'roomPhotoPath' => $roomPhotoPath,
-                'room' => $room?->toArray(),
-            ]);
 
             // Perks
             $perks = collect($hotel?->product?->descriptiveContentsSection ?? [])
@@ -190,12 +178,8 @@ class BookingEmailDataService
                     'booking_agent' => ''.env('APP_NAME').' Tours',
                     'booking_agent_email' => 'support@terramaretours.com',
                 ],
-                'hotelPhotoPath' => $hotelPhotoPath,
                 'heroImage' => $hotelPhotoPath, // matching email_verification.blade.php
-                'heroImageRaw' => $hotelPhotoRealPath,
-                'roomPhotoPath' => $roomPhotoPath,
                 'secondaryImage' => $roomPhotoPath, // matching PDF
-                'secondaryImageRaw' => $roomPhotoRealPath,
                 'totalNet' => $total_net,
                 'total_tax' => $total_tax,
                 'totalTax' => $total_tax,

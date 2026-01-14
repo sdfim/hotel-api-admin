@@ -26,9 +26,7 @@
                         @endif
                     </div>
 
-                    @if ($heroImageRaw)
-                        <img src="{{ $heroImageRaw }}" class="hotel-image-main" alt="Hotel image">
-                    @elseif ($heroImage)
+                    @if ($heroImage)
                         <img src="{{ $heroImage }}" class="hotel-image-main" alt="Hotel image">
                     @endif
                 </td>
@@ -104,9 +102,7 @@
                         @endif
                     </td>
                     <td width="40%">
-                        @if ($secondaryImageRaw)
-                            <img src="{{ $secondaryImageRaw }}" class="hotel-image-main" alt="Resort view">
-                        @elseif ($secondaryImage)
+                        @if ($secondaryImage)
                             <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Resort view">
                         @endif
                     </td>
