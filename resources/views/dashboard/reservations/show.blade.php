@@ -49,6 +49,23 @@
             color: white !important;
             border-left: 4px solid var(--luxury-gold);
         }
+        .luxury-tag {
+            background-color: var(--luxury-light);
+            color: var(--luxury-dark);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .luxury-tag-gold {
+            background-color: #f3e9df;
+            color: #8b6e4e;
+            border-color: #e9dccb;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
 @endsection
@@ -153,14 +170,16 @@
                         <div class="section-title p-3 px-4">
                             <h5 class="text-15 text-white mb-0 font-serif tracking-wider uppercase">Reservation Information</h5>
                         </div>
-                        <div class="p-5">
+                        <div class="p-6">
+                            <!-- Full Width Hotel Name -->
+                            <div class="mb-8 pb-6 border-gray-100">
+                                <span class="luxury-label block mb-2">Hotel Name</span>
+                                <h2 class="text-3xl font-serif text-[#C29C75] font-bold leading-tight uppercase tracking-tight">{{ $field['hotel_name'] }}</h2>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <!-- Info Section -->
                                 <div class="space-y-4">
-                                    <div>
-                                        <p class="luxury-label mb-1">ID</p>
-                                        <p class="luxury-value text-lg">{{ $reservation->id }}</p>
-                                    </div>
                                     <div>
                                         <p class="luxury-label mb-1">Date Travel</p>
                                         <p class="luxury-value text-lg">{{ $reservation->date_travel }}</p>
@@ -174,16 +193,18 @@
                                         <p class="luxury-value">{{ $reservation->channel->name }}</p>
                                     </div>
                                 </div>
-                                <!-- Hotel Section -->
+                                <!-- Hotel Metadata Section -->
                                 <div class="space-y-4">
-                                    <div>
-                                        <p class="luxury-label mb-1">Hotel Name</p>
-                                        <p class="luxury-value text-xl leading-tight text-[#C29C75]">{{ $field['hotel_name'] }}</p>
-                                    </div>
                                     <div>
                                         <p class="luxury-label mb-1">GIATA ID</p>
                                         <p class="luxury-value">{{ $field['hotel_id'] }}</p>
                                     </div>
+                                    @if($reservation->apiBookingsMetadata?->hotel_supplier_id)
+                                        <div>
+                                            <p class="luxury-label mb-1">Supplier Hotel ID</p>
+                                            <p class="luxury-value">{{ $reservation->apiBookingsMetadata->hotel_supplier_id }}</p>
+                                        </div>
+                                    @endif
                                     <div>
                                         <p class="luxury-label mb-1">Advisor Email</p>
                                         <p class="luxury-value text-sm text-gray-500 italic">{{ $advisorEmail ?? 'N/A' }}</p>
@@ -225,7 +246,7 @@
                                         <div>
                                             <h4 class="luxury-label mb-1">Room {{ $index + 1 }}</h4>
                                             <h3 class="text-xl font-serif text-[#222222] font-semibold mb-4">{{ trim($roomName) }}</h3>
-                                            
+
                                             <div class="space-y-4">
                                                 <div>
                                                     <p class="luxury-label mb-1">Room Code</p>
@@ -242,6 +263,36 @@
                                                     </div>
                                                 @endif
                                             </div>
+
+                                            @if($room)
+                                                <div class="mt-4 flex flex-wrap gap-2">
+                                                    @if($room->area)
+                                                        <span class="luxury-tag" title="Area">
+                                                            <i class="bx bx-area"></i> {{ $room->area }} sq ft
+                                                        </span>
+                                                    @endif
+                                                    @if($room->max_occupancy)
+                                                        <span class="luxury-tag" title="Max Occupancy">
+                                                            <i class="bx bx-group"></i> {{ $room->max_occupancy }} Guests
+                                                        </span>
+                                                    @endif
+                                                    @if($room->room_views)
+                                                        @foreach($room->room_views as $view)
+                                                            <span class="luxury-tag luxury-tag-gold">{{ $view }}</span>
+                                                        @endforeach
+                                                    @endif
+                                                    @if($room->bed_groups)
+                                                        @foreach($room->bed_groups as $bed)
+                                                            <span class="luxury-tag luxury-tag-gold">
+                                                                <i class="bx bx-bed"></i> {{ $bed['description'] ?? $bed }}
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                    @foreach($room->attributes as $attr)
+                                                        <span class="luxury-tag">{{ $attr->name }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         </div>
 
                                         <!-- Column 2: Passengers -->
