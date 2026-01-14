@@ -35,12 +35,14 @@ class ReservationsController extends BaseWithPolicyController
     {
         $text = $this->message;
 
-        // Load reservation with soft-deleted channel relation
+        // Load reservation with soft-deleted channel relation and booking item for commission
         $reservation = Reservation::with([
             'channel' => function ($q) {
                 $q->withTrashed();
             },
             'apiBookingsMetadata',
+            'apiBookingItem.supplier',
+            'apiBookingItem.search',
         ])->findOrFail($id);
 
         // Decode JSON payload from reservation_contains
@@ -53,6 +55,13 @@ class ReservationsController extends BaseWithPolicyController
         [, , $advisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($bookingItem)
             ?? [null, null, null];
 
-        return view('dashboard.reservations.show', compact('reservation', 'text', 'advisorEmail'));
+        // Calculate advisor commission
+        $advisorCommission = 0;
+        if ($reservation->apiBookingItem) {
+            $totalPrice = (float) \Illuminate\Support\Arr::get($contains, 'price.total_price', $reservation->total_cost ?? 0);
+            $advisorCommission = app(\App\Services\AdvisorCommissionService::class)->calculate($reservation->apiBookingItem, $totalPrice);
+        }
+
+        return view('dashboard.reservations.show', compact('reservation', 'text', 'advisorEmail', 'advisorCommission'));
     }
 }

@@ -151,10 +151,16 @@
                                     <p class="luxury-label mb-1">Markup</p>
                                     <p class="luxury-value text-gray-700">{{ $markup }}</p>
                                 </div>
-                                <div class="col-span-2 pt-3 border-t border-gray-100 mt-2 flex justify-between items-end">
+                                <div class="col-span-2 pt-3 border-t border-gray-100 mt-2 flex justify-between items-start">
                                     <div>
                                         <p class="luxury-label mb-1">Total Price</p>
                                         <p class="luxury-value text-4xl font-serif text-[#C29C75]">{{ $total_price }}</p>
+                                        @if(isset($advisorCommission) && $advisorCommission > 0)
+                                            <div class="mt-3">
+                                                <p class="luxury-label text-xs mb-0">Advisor Commission</p>
+                                                <p class="text-lg font-serif text-[#8b6e4e]">{{ number_format($advisorCommission, 2) }}</p>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="text-right">
                                         <p class="luxury-label mb-1">Paid Status</p>
