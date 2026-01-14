@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Reservation;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Services\BookingEmailDataService;
 use App\Services\PdfGeneratorService;
@@ -35,14 +34,12 @@ class BookingAgentNotificationMail extends Mailable implements ShouldQueue
             $data['confirmationNumber'] = $bookedId->metadata->supplier_booking_item_id;
         }
 
-        $data['guestName'] = Reservation::where('booking_item', $this->bookingItem)
-            ->value('passenger_surname') ?? '';
-
         /** @var PdfGeneratorService $pdfService */
         $pdfService = app(PdfGeneratorService::class);
         $pdfContent = $pdfService->generateRaw('pdf.advisor-confirmation', $data);
 
-        return $this->subject('Congratulations! Your ' . env('APP_NAME') . ' Booking is Confirmed!')
+        // ---- Build mail ----
+        return $this->subject('Congratulations! Your '.env('APP_NAME').' Booking is Confirmed!')
             ->view('emails.booking.advisor-confirmation')
             ->with($data)
             ->attachData($pdfContent, 'AdvisorConfirmation.pdf', [

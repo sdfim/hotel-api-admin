@@ -1,7 +1,5 @@
 @php
-    $heroImage = $heroImage ?? \Illuminate\Support\Facades\Storage::url('hotel.webp');
-    $secondaryImage = $secondaryImage ?? \Illuminate\Support\Facades\Storage::url('hotel.webp');
-    $logoTm = public_path('images/firm-logo.png');
+    $logoTm = asset('images/firm-logo.png');
 @endphp
 
 <!DOCTYPE html>
@@ -28,8 +26,8 @@
                         @endif
                     </div>
 
-                    @if ($heroImage)
-                        <img src="{{ $heroImage }}" class="hotel-image-main" alt="Hotel image">
+                    @if ($heroImageRaw)
+                        <img src="{{ $heroImageRaw }}" class="hotel-image-main" alt="Hotel image">
                     @endif
                 </td>
 
@@ -104,8 +102,8 @@
                         @endif
                     </td>
                     <td width="40%">
-                        @if ($secondaryImage)
-                            <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Resort view">
+                        @if ($secondaryImageRaw)
+                            <img src="{{ $secondaryImageRaw }}" class="hotel-image-main" alt="Resort view">
                         @endif
                     </td>
                 </tr>

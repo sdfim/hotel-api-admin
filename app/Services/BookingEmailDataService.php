@@ -31,6 +31,7 @@ class BookingEmailDataService
         return Cache::remember('booking_email_common_data_'.$bookingItemHandle, 600, function () use ($bookingItemHandle) {
             /** @var ApiBookingItem|null $bookingItem */
             $bookingItem = ApiBookingItem::where('booking_item', $bookingItemHandle)->first();
+
             $quoteNumber = ApiBookingInspectorRepository::getBookIdByBookingItem($bookingItemHandle);
 
             /** @var HotelBookingCheckQuoteService $service */
@@ -80,19 +81,50 @@ class BookingEmailDataService
 
             $guestInfo = sprintf('%d Room(s), %d Adults, %d Children', $roomsCount, $adultsCount, $childrenCount);
 
-            $mainRoomName = Arr::get($dataReservation, '0.room_name');
-            $rateRefundable = Arr::get($dataReservation, '0.cancellation_policies.0.penalty_start_date');
-            $rateRefundable = $rateRefundable
-                ? 'Refundable until '.Carbon::parse($rateRefundable)->format('m/d/Y')
-                : 'Refundable';
-            $rateMealPlan = Arr::get($dataReservation, '0.meal_plan_name')
-                ?? Arr::get($dataReservation, '0.meal_plan');
+            // Room / rate info
+            $firstRoom = $dataReservation[0] ?? [];
+            $refundableUntil = '';
+            $cancellationPolicies = Arr::get($firstRoom, 'cancellation_policies', []);
+            foreach ($cancellationPolicies as $policy) {
+                if (Arr::get($policy, 'description') === 'General Cancellation Policy' || Arr::get($policy, 'penalty_start_date')) {
+                    $penaltyStartDate = Arr::get($policy, 'penalty_start_date');
+                    if ($penaltyStartDate) {
+                        $refundableUntil = 'Refundable until '.Carbon::parse($penaltyStartDate)->format('m/d/Y');
+                        break;
+                    }
+                }
+            }
+            if (empty($refundableUntil)) {
+                $refundableUntil = 'Refundable';
+            }
 
-            $hotelPhotoPath = ($hotel?->product?->hero_image) ? Storage::url($hotel->product->hero_image) : Storage::url('hotel.webp');
-            $room = $hotel?->rooms->where('name', $mainRoomName)->first();
+            $mealPlanSummary = Arr::get($firstRoom, 'meal_plan_name') ?? Arr::get($firstRoom, 'meal_plan');
+            if (empty($mealPlanSummary)) {
+                if (! empty($hotel->hotel_board_basis)) {
+                    $mealPlanSummary = is_array($hotel->hotel_board_basis)
+                        ? implode(', ', $hotel->hotel_board_basis)
+                        : $hotel->hotel_board_basis;
+                } else {
+                    $mealPlanSummary = 'All-Inclusive Meal Plan';
+                }
+            }
+
+            // Hero photo
+            $hotelPhotoPath = ($hotel?->product?->hero_image) ? Storage::url($hotel->product->hero_image) : null;
+            $hotelPhotoRealPath = ($hotel?->product?->hero_image) ? Storage::path($hotel->product->hero_image) : null;
+
+            $room = $hotel?->rooms->where('name', Arr::get($firstRoom, 'room_name'))->first();
             $roomImage = $room ? $room->galleries->flatMap(fn ($g) => $g->images)->first()?->image_url : null;
-            $roomPhotoPath = $roomImage ? Storage::url($roomImage) : Storage::url('hotel.webp');
+            $roomPhotoPath = $roomImage ? Storage::url($roomImage) : $hotelPhotoPath;
+            $roomPhotoRealPath = $roomImage ? Storage::path($roomImage) : $hotelPhotoRealPath;
 
+            logger()->info('Room found for email data service', [
+                'hotelPhotoPath' => $hotelPhotoPath,
+                'roomPhotoPath' => $roomPhotoPath,
+                'room' => $room?->toArray(),
+            ]);
+
+            // Perks
             $perks = collect($hotel?->product?->descriptiveContentsSection ?? [])
                 ->filter(function ($sec) {
                     $name = trim($sec->descriptiveType->name ?? '');
@@ -123,6 +155,7 @@ class BookingEmailDataService
                 $addr['country_code'] ?? null,
             ]));
 
+            // Advisor info for confirmed bookings
             $booking = ApiBookingInspectorRepository::getBookItemsByBookingItem($bookingItemHandle);
             $bookingMeta = $booking?->metadata ?? [];
             $requestBooking = json_decode($booking?->request ?? '', true) ?? [];
@@ -135,6 +168,10 @@ class BookingEmailDataService
             $clientLastName = Arr::get($requestBooking, 'booking_contact.last_name');
             $clientFirstName = Arr::get($requestBooking, 'booking_contact.first_name');
 
+            // Agent Default Info
+            $agentName = $userAgent->name ?? 'N/A';
+            $agentEmail = $userAgent->email ?? 'support@terramaretours.com';
+
             return [
                 'bookingItem' => $bookingItem,
                 'quoteNumber' => $quoteNumber,
@@ -145,13 +182,21 @@ class BookingEmailDataService
                 'hotel' => $hotel,
                 'hotelName' => $hotel?->product?->name ?? 'Unknown Hotel',
                 'hotelAddress' => $hotelAddress,
+                'hotelData' => [
+                    'name' => $hotel?->product?->name ?? 'Unknown Hotel',
+                    'address' => $hotelAddress,
+                ],
+                'agency' => [
+                    'booking_agent' => ''.env('APP_NAME').' Tours',
+                    'booking_agent_email' => 'support@terramaretours.com',
+                ],
                 'hotelPhotoPath' => $hotelPhotoPath,
-                'heroImage' => $hotelPhotoPath,
+                'heroImage' => $hotelPhotoPath, // matching email_verification.blade.php
+                'heroImageRaw' => $hotelPhotoRealPath,
                 'roomPhotoPath' => $roomPhotoPath,
-                'secondaryImage' => $roomPhotoPath,
-                'total_net' => $total_net,
+                'secondaryImage' => $roomPhotoPath, // matching PDF
+                'secondaryImageRaw' => $roomPhotoRealPath,
                 'totalNet' => $total_net,
-                'subtotal' => $subtotal,
                 'total_tax' => $total_tax,
                 'totalTax' => $total_tax,
                 'taxes' => $total_tax,
@@ -162,35 +207,27 @@ class BookingEmailDataService
                 'totalPrice' => $total_price,
                 'currency' => $currency,
                 'taxesAndFees' => $taxesAndFees,
-                'taxes_and_fees' => $taxesAndFees,
+                'subtotal' => $subtotal,
                 'advisorCommission' => $advisorCommission,
                 'checkinDate' => $checkinFormatted,
                 'checkoutDate' => $checkoutFormatted,
                 'checkin' => $checkinFormatted,
                 'checkout' => $checkoutFormatted,
                 'guestInfo' => $guestInfo,
-                'guest_info' => $guestInfo,
-                'mainRoomName' => $mainRoomName,
-                'main_room_name' => $mainRoomName,
-                'rateRefundable' => $rateRefundable,
-                'rate_refundable' => $rateRefundable,
-                'rateMealPlan' => $rateMealPlan,
-                'rate_meal_plan' => $rateMealPlan,
+                'mainRoomName' => Arr::get($firstRoom, 'room_name'),
+                'rateRefundable' => $refundableUntil,
+                'refundableUntil' => $refundableUntil,
+                'rateMealPlan' => $mealPlanSummary,
+                'mealPlanSummary' => $mealPlanSummary,
                 'perks' => $perks,
                 'userAgent' => $userAgent,
                 'bookingMeta' => $bookingMeta,
                 'clientFirstName' => $clientFirstName,
                 'clientLastName' => $clientLastName,
+                'guestName' => trim($clientFirstName.' '.$clientLastName),
+                'agentName' => $agentName,
+                'agentEmail' => $agentEmail,
 
-                // Nested structures for PDF templates
-                'hotelData' => [
-                    'name' => $hotel?->product?->name ?? 'Unknown Hotel',
-                    'address' => $hotelAddress,
-                ],
-                'agency' => [
-                    'booking_agent' => ($userAgent ? $userAgent->name : env('APP_NAME').' Tours'),
-                    'booking_agent_email' => ($userAgent ? $userAgent->email : 'support@vidanta.com'),
-                ],
                 // Aliases for nested (legacy support)
                 'agencyName' => ($userAgent ? $userAgent->name : env('APP_NAME').' Tours'),
                 'agencyEmail' => ($userAgent ? $userAgent->email : 'support@vidanta.com'),
