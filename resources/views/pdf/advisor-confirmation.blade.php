@@ -1,5 +1,5 @@
 @php
-    $logoTm = asset('images/firm-logo.png');
+    $logoTm = public_path('images/firm-logo.png');
 @endphp
 
 <!DOCTYPE html>
@@ -28,6 +28,8 @@
 
                     @if ($heroImageRaw)
                         <img src="{{ $heroImageRaw }}" class="hotel-image-main" alt="Hotel image">
+                    @elseif ($heroImage)
+                        <img src="{{ $heroImage }}" class="hotel-image-main" alt="Hotel image">
                     @endif
                 </td>
 
@@ -104,6 +106,8 @@
                     <td width="40%">
                         @if ($secondaryImageRaw)
                             <img src="{{ $secondaryImageRaw }}" class="hotel-image-main" alt="Resort view">
+                        @elseif ($secondaryImage)
+                            <img src="{{ $secondaryImage }}" class="hotel-image-main" alt="Resort view">
                         @endif
                     </td>
                 </tr>
