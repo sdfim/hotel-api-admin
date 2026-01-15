@@ -84,6 +84,8 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $supplierRateData = $propertyGroup['ratePlans'] ?? [];
 
+        $roomGroupsData = null; // Initialize the variable to avoid undefined variable error.
+
         foreach ($propertyGroup['rooms'] as $roomGroup) {
             $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $query, $supplierRateData);
             if (empty($roomGroupsData) || Arr::get($roomGroupsData, 'roomGroupsResponse.total_price') == 0.0) {
@@ -96,9 +98,15 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
             }
         }
 
-        $countRefundableRates = $this->fetchCountRefundableRates($roomGroupsData['roomGroupsResponse']);
-        $hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
-        $hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
+        // Ensure $roomGroupsData is valid before accessing it.
+        if ($roomGroupsData && isset($roomGroupsData['roomGroupsResponse'])) {
+            $countRefundableRates = $this->fetchCountRefundableRates($roomGroupsData['roomGroupsResponse']);
+            $hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
+            $hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
+        } else {
+            $hotelResponse->setNonRefundableRates('');
+            $hotelResponse->setRefundableRates('');
+        }
 
         $hotelResponse->setMealPlansAvailable(implode(', ', $this->meal_plans_available));
 

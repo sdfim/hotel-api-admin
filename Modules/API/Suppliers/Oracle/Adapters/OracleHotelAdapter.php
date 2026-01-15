@@ -137,7 +137,7 @@ class OracleHotelAdapter extends BaseHotelAdapter implements HotelContentV1Suppl
                         }
 
                         // Ensure that roomType is always treated as an array, even if API returns a single object
-                        if (! is_array($masterRoomTypes) || array_keys($masterRoomTypes)[0] === 0) {
+                        if (! is_array($masterRoomTypes) || empty($masterRoomTypes) || array_keys($masterRoomTypes)[0] === 0) {
                             // It's a standard array of rooms or an empty array, proceed
                         } else {
                             // The API returned a single room object instead of an array (common issue in old APIs)
@@ -174,7 +174,7 @@ class OracleHotelAdapter extends BaseHotelAdapter implements HotelContentV1Suppl
                         $masterRatePlans = Arr::get($availability, 'masterInfo.ratePlans.ratePlan', []);
 
                         // Handle single object vs array of rate plans
-                        if (! is_array($masterRatePlans) || array_keys($masterRatePlans)[0] === 0) {
+                        if (! is_array($masterRatePlans) || empty($masterRatePlans) || array_keys($masterRatePlans)[0] === 0) {
                             // It's a standard array of rate plans or an empty array, proceed
                         } else {
                             // The API returned a single rate plan object instead of an array

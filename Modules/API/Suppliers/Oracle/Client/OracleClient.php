@@ -229,6 +229,8 @@ class OracleClient
                     'currencyCode' => 'USD',
                     'roomType' => $guestDetails['roomType'],
                     'ratePlanCode' => $guestDetails['ratePlanCode'],
+
+                    'limit' => 200,
                 ];
 
                 //                if (! empty($guestDetails['childAge'])) {
