@@ -63,8 +63,11 @@ class ReservationsController extends BaseWithPolicyController
         $roomPrices = [];
         if ($reservation->apiBookingItem) {
             $totalPrice = (float) Arr::get($contains, 'price.total_price', $reservation->total_cost ?? 0);
+            $totalTax = (float) Arr::get($contains, 'price.total_tax', 0);
+            $totalFees = (float) Arr::get($contains, 'price.total_fees', 0);
+            $subtotal = $totalPrice - ($totalTax + $totalFees);
             $advisorCommission = Arr::get($contains, 'price.advisor_commission')
-                ?? app(AdvisorCommissionService::class)->calculate($reservation->apiBookingItem, $totalPrice);
+                ?? app(AdvisorCommissionService::class)->calculate($reservation->apiBookingItem, $subtotal);
 
             // Fetch individual room prices for multi-room bookings
             if (! empty($reservation->apiBookingItem->child_items)) {

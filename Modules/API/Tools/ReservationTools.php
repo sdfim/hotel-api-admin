@@ -64,11 +64,14 @@ class ReservationTools
             $totalCost = $reservationsData['price']['total_price'];
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
-                $reservation = new Reservation;
+                $reservation = new Reservation();
 
                 $priceData = json_decode($apiBookingItem->booking_pricing_data, true);
-                $advisorCommission = app(AdvisorCommissionService::class)
-                    ->calculate($apiBookingItem, Arr::get($priceData, 'total_price', 0));
+                $totalPrice = Arr::get($priceData, 'total_price', 0);
+                $totalTax = Arr::get($priceData, 'total_tax', 0);
+                $totalFees = Arr::get($priceData, 'total_fees', 0);
+                $subtotal = $totalPrice - ($totalTax + $totalFees);
+                $advisorCommission = app(AdvisorCommissionService::class)->calculate($apiBookingItem, $subtotal);
                 $priceData['advisor_commission'] = $advisorCommission;
 
                 $reservation->date_offload = null;
