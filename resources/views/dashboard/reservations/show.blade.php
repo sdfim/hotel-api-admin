@@ -78,8 +78,11 @@
             @php
                 $field = json_decode($reservation->reservation_contains, true);
                 $total_net = Arr::get($field, 'price.total_net', 0);
+                $total_tax = Arr::get($field, 'price.total_tax', 0);
+                $total_fees = Arr::get($field, 'price.total_fees', 0);
                 $total_price = Arr::get($field, 'price.total_price', 0);
                 $markup = $total_price - $total_net;
+                $subtotal = $total_price - $total_tax - $total_fees;
                 $passengers_by_room = \App\Repositories\ApiBookingInspectorRepository::getPassengersByRoom($reservation->booking_id, $reservation->booking_item);
                 [$special_requests_by_room, $comments_by_room] = \App\Repositories\ApiBookingInspectorRepository::getSpecialRequestsAndComments($reservation->booking_id, $reservation->booking_item) ?? [];
             @endphp
@@ -131,40 +134,44 @@
                         </div>
                         <div class="p-5">
                             <div class="grid grid-cols-2 gap-y-4 gap-x-6">
-                                <div>
+                                 <div>
                                     <p class="luxury-label mb-1">Currency</p>
-                                    <p class="luxury-value">{{ Arr::get($field, 'price.currency', 'USD') }}</p>
+                                    <p class="text-lg font-bold text-[#8b6e4e]">{{ Arr::get($field, 'price.currency', 'USD') }}</p>
                                 </div>
-                                <div>
+                                <div class="text-right">
                                     <p class="luxury-label mb-1">Total Tax</p>
-                                    <p class="luxury-value text-gray-700">{{ Arr::get($field, 'price.total_tax', 0) }}</p>
+                                    <p class="luxury-value text-gray-700">{{ $total_tax }}</p>
                                 </div>
                                 <div>
                                     <p class="luxury-label mb-1">Total Net</p>
                                     <p class="luxury-value text-gray-700">{{ $total_net }}</p>
                                 </div>
-                                <div>
+                                <div class="text-right">
                                     <p class="luxury-label mb-1">Total Fees</p>
-                                    <p class="luxury-value text-gray-700">{{ Arr::get($field, 'price.total_fees', 0) }}</p>
+                                    <p class="luxury-value text-gray-700">{{ $total_fees }}</p>
                                 </div>
                                 <div>
                                     <p class="luxury-label mb-1">Markup</p>
                                     <p class="luxury-value text-gray-700">{{ $markup }}</p>
                                 </div>
-                                <div class="col-span-2 pt-3 border-t border-gray-100 mt-2 flex justify-between items-start">
+                                <div class="text-right">
+                                    <p class="luxury-label mb-1">Subtotal</p>
+                                    <p class="luxury-value text-gray-700">{{ $subtotal }}</p>
+                                </div>
+                                 <div class="col-span-2 pt-3 border-t border-gray-100 mt-2 flex justify-between items-start">
                                     <div>
                                         <p class="luxury-label mb-1">Total Price</p>
                                         <p class="luxury-value text-4xl font-serif text-[#C29C75]">{{ $total_price }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="luxury-label mb-1">Paid Status</p>
+                                        <span class="text-2xl luxury-badge px-4 py-3 block">{{ $reservation->paid ?? 0 }}</span>
                                         @if(isset($advisorCommission) && $advisorCommission > 0)
                                             <div class="mt-3">
                                                 <p class="luxury-label text-xs mb-0">Advisor Commission</p>
                                                 <p class="text-lg font-serif text-[#8b6e4e]">{{ number_format($advisorCommission, 2) }}</p>
                                             </div>
                                         @endif
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="luxury-label mb-1">Paid Status</p>
-                                        <span class="text-2xl luxury-badge px-4 py-3 block">{{ $reservation->paid ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -352,15 +359,24 @@
                                              @if ($roomImages)
                                                 <h5 class="luxury-label mb-3">Room Gallery</h5>
                                                 <div class="flex flex-wrap gap-2">
-                                                    @foreach($roomImages as $imageNumber => $image)
-                                                        @php
-                                                            $imageUrl = Str::startsWith($image, ['http://', 'https://']) ? $image : Storage::url($image);
-                                                        @endphp
-                                                        <a href="{{ $imageUrl }}" class="reservation-show-glightbox">
-                                                            <img class="w-32 h-32 md:w-40 md:h-40  rounded object-cover cursor-pointer hover:opacity-80 transition shadow-sm border border-gray-100"
-                                                                 src="{{ $imageUrl }}" alt="Room {{ $index + 1 }} - Image {{ $imageNumber }}">
-                                                        </a>
-                                                    @endforeach
+                                                     @foreach($roomImages as $imageNumber => $image)
+                                                         @php
+                                                             $imageUrl = Str::startsWith($image, ['http://', 'https://']) ? $image : Storage::url($image);
+                                                         @endphp
+                                                         @if($imageNumber < 4)
+                                                            <a href="{{ $imageUrl }}" class="reservation-show-glightbox relative group">
+                                                                <img class="w-32 h-32 md:w-40 md:h-40 rounded object-cover cursor-pointer hover:opacity-80 transition shadow-sm border border-gray-100"
+                                                                     src="{{ $imageUrl }}" alt="Room {{ $index + 1 }} - Image {{ $imageNumber }}">
+                                                                @if($imageNumber == 3 && count($roomImages) > 4)
+                                                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center rounded text-white font-bold pointer-events-none group-hover:bg-black/20 transition">
+                                                                        +{{ count($roomImages) - 4 }}
+                                                                    </div>
+                                                                @endif
+                                                            </a>
+                                                         @else
+                                                            <a href="{{ $imageUrl }}" class="reservation-show-glightbox hidden"></a>
+                                                         @endif
+                                                     @endforeach
                                                 </div>
                                              @endif
                                         </div>
