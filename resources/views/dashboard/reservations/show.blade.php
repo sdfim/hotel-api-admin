@@ -253,6 +253,15 @@
                                             <h4 class="luxury-label mb-1">Room {{ $index + 1 }}</h4>
                                             <h3 class="text-xl font-serif text-[#222222] font-semibold mb-4">{{ trim($roomName) }}</h3>
 
+                                            @if(count($roomNames) > 1 && isset($roomPrices[$index]))
+                                                <div class="mb-5 p-3 bg-[#fdfaf7] border border-[#f3e9df] rounded-lg inline-block min-w-[150px]">
+                                                    <p class="luxury-label text-[10px] uppercase tracking-wider mb-1">Room Price</p>
+                                                    <p class="text-xl font-serif text-[#C29C75] font-bold">
+                                                        {{ Arr::get($field, 'price.currency', 'USD') }} {{ number_format($roomPrices[$index], 2) }}
+                                                    </p>
+                                                </div>
+                                            @endif
+
                                             <div class="space-y-4">
                                                 <div>
                                                     <p class="luxury-label mb-1">Room Code</p>
@@ -307,9 +316,16 @@
                                                 <h5 class="luxury-label mb-3">Passengers</h5>
                                                 <div class="space-y-2">
                                                     @foreach($passengers_by_room[$index + 1] as $passenger)
-                                                        <div class="bg-gray-50 p-3 rounded text-sm border-l-2 border-gray-200 mb-1">
-                                                             <p class="font-semibold text-gray-800">{{ ucfirst($passenger['title'] ?? '') }} {{ $passenger['given_name'] ?? '' }} {{ $passenger['family_name'] ?? '' }}</p>
-                                                             <p class="text-xs text-gray-500 mt-1">Age: {{ $passenger['age'] ?? 'N/A' }} | DOB: {{ $passenger['date_of_birth'] ?? 'N/A' }}</p>
+                                                        <div class="bg-gray-50 p-3 rounded text-sm border-l-2 border-gray-200 mb-1 flex justify-between items-center">
+                                                             <div>
+                                                                 <p class="font-semibold text-gray-800">{{ ucfirst($passenger['title'] ?? '') }} {{ $passenger['given_name'] ?? '' }} {{ $passenger['family_name'] ?? '' }}</p>
+                                                                 <p class="text-xs text-gray-500 mt-1">Age: {{ $passenger['age'] ?? 'N/A' }} | DOB: {{ $passenger['date_of_birth'] ?? 'N/A' }}</p>
+                                                             </div>
+                                                             @if(isset($passenger['age']) && is_numeric($passenger['age']) && $passenger['age'] < 18)
+                                                                 <div class="text-[#C29C75] text-xl" title="Child">
+                                                                     <i class="bx bxs-face"></i>
+                                                                 </div>
+                                                             @endif
                                                         </div>
                                                     @endforeach
                                                 </div>

@@ -9,6 +9,7 @@ use App\Models\Reservation;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use App\Repositories\ChannelRepository;
+use App\Services\AdvisorCommissionService;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -30,9 +31,11 @@ class ReservationTools
             $apiBookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
             $supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
 
-            foreach ($passenger['rooms'] as $room) {
-                foreach ($room as $passenger) {
-                    $passenger_surname = ($passenger['family_name'] ?? '').' '.($passenger['given_name'] ?? '');
+            if (! empty($passenger['rooms'][0])) {
+                $firstRoom = $passenger['rooms'][0];
+                if (! empty($firstRoom[0])) {
+                    $firstPassenger = $firstRoom[0];
+                    $passenger_surname = ($firstPassenger['family_name'] ?? '').' '.($firstPassenger['given_name'] ?? '');
                 }
             }
 
@@ -61,7 +64,12 @@ class ReservationTools
             $totalCost = $reservationsData['price']['total_price'];
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
-                $reservation = new Reservation();
+                $reservation = new Reservation;
+
+                $priceData = json_decode($apiBookingItem->booking_pricing_data, true);
+                $advisorCommission = app(AdvisorCommissionService::class)
+                    ->calculate($apiBookingItem, Arr::get($priceData, 'total_price', 0));
+                $priceData['advisor_commission'] = $advisorCommission;
 
                 $reservation->date_offload = null;
                 $reservation->date_travel = date('Y-m-d', strtotime($checkin));
@@ -77,7 +85,7 @@ class ReservationTools
                     'hotel_id' => $hotelId,
                     'hotel_name' => $hotelName,
                     'hotel_images' => json_encode($hotelImages),
-                    'price' => json_decode($apiBookingItem->booking_pricing_data, true),
+                    'price' => $priceData,
                 ]);
 
                 $reservation->channel_id = $channel_id;

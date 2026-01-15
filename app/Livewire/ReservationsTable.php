@@ -23,7 +23,6 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -53,18 +52,17 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->columns([
                 ViewColumn::make('reservation_contains')
                     ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->view('dashboard.reservations.column.contains'),
-                TextColumn::make('channel.name')
-                    ->numeric()
-                    ->toggleable()
-                    ->searchable(isIndividual: true)
-                    ->sortable(),
 
-                TextColumn::make('apiBookingsMetadata.supplier_booking_item_id')
+                TextColumn::make('confirmation')
                     ->fontFamily(FontFamily::Mono)
                     ->toggleable()
-                    ->searchable(isIndividual: true)
                     ->label('Confirmation')
+                    ->getStateUsing(fn ($record) => collect($record->apiBookingsMetadata?->supplier_booking_item_id)
+                        ->filter()
+                        ->implode(', ')
+                    )
                     ->formatStateUsing(function ($state) {
                         if (is_array($state)) {
                             return implode('<br>', array_map('trim', $state));
@@ -75,14 +73,25 @@ class ReservationsTable extends Component implements HasForms, HasTable
 
                         return '';
                     })
+                    ->weight(FontWeight::Bold)
                     ->html(),
-                TextColumn::make('apiBookingsMetadata.hotel_supplier_id')
+
+                TextColumn::make('hotel_id')
                     ->label('Hotel Id')
+                    ->getStateUsing(fn ($record) => $record->apiBookingsMetadata?->hotel_supplier_id
+                    )
                     ->toggleable()
-                    ->fontFamily(FontFamily::Mono)
-                    ->searchable(isIndividual: true),
-                TextColumn::make('apiBookingsMetadata')
+                    ->fontFamily(FontFamily::Mono),
+
+                TextColumn::make('hotel_vendor')
                     ->label('Hotel/Vendor')
+                    ->getStateUsing(fn ($record) => trim(
+                        ($record->apiBookingsMetadata?->hotel?->name ?? '').
+                        ' ('.
+                        ($record->apiBookingsMetadata?->supplier?->name ?? '').
+                        ')'
+                    )
+                    )
                     ->wrap()
                     ->toggleable()
                     ->toggledHiddenByDefault(true)
@@ -93,46 +102,32 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         return "$hotelName ($vendorName)";
                     }),
 
-                ImageColumn::make('images')
-                    ->toggleable()
-                    ->state(function (Reservation $record) {
-                        $reservationContains = json_decode($record->reservation_contains, true);
-                        $images = [];
-                        if (isset($reservationContains['hotel_images'])) {
-                            $images = json_decode($reservationContains['hotel_images']);
-                        }
-                        if (isset($reservationContains['flight_images'])) {
-                            $images = json_decode($reservationContains['flight_images']);
-                        }
-
-                        return $images;
-                    })
-                    ->circular()
-                    ->stacked()
-                    ->limit(4)
-                    ->size(45)
-                    ->limitedRemainingText(isSeparate: true)
-                    ->url(fn (Reservation $record): string => route('reservations.show', $record))
-                    ->openUrlInNewTab(),
                 TextColumn::make('created_at')
                     ->label('Offload')
+                    ->date()
                     ->default('N\A')
                     ->toggleable()
-                    ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'N\A' => 'info',
                         default => 'success',
                     })
                     ->sortable(),
+
                 TextColumn::make('date_travel')
                     ->date()
                     ->toggleable()
-                    ->searchable(isIndividual: true)
                     ->sortable(),
+
                 TextColumn::make('passenger_surname')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable(isIndividual: true),
+                    ->label('Passenger')
+                    ->weight(FontWeight::Bold)
+                    ->toggleable(),
+
+                TextColumn::make('channel.name')
+                    ->numeric()
+                    ->toggleable()
+                    ->sortable(),
 
                 TextColumn::make('total_cost')
                     ->numeric()
@@ -175,6 +170,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(fn (Reservation $record) => $record->canceled_at ? 'Canceled' : 'Active')

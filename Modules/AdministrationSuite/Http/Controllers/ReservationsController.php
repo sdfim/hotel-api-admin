@@ -2,8 +2,11 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
+use App\Models\ApiBookingItem;
 use App\Models\Reservation;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Services\AdvisorCommissionService;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 class ReservationsController extends BaseWithPolicyController
@@ -57,11 +60,25 @@ class ReservationsController extends BaseWithPolicyController
 
         // Calculate advisor commission
         $advisorCommission = 0;
+        $roomPrices = [];
         if ($reservation->apiBookingItem) {
-            $totalPrice = (float) \Illuminate\Support\Arr::get($contains, 'price.total_price', $reservation->total_cost ?? 0);
-            $advisorCommission = app(\App\Services\AdvisorCommissionService::class)->calculate($reservation->apiBookingItem, $totalPrice);
+            $totalPrice = (float) Arr::get($contains, 'price.total_price', $reservation->total_cost ?? 0);
+            $advisorCommission = Arr::get($contains, 'price.advisor_commission')
+                ?? app(AdvisorCommissionService::class)->calculate($reservation->apiBookingItem, $totalPrice);
+
+            // Fetch individual room prices for multi-room bookings
+            if (! empty($reservation->apiBookingItem->child_items)) {
+                $children = ApiBookingItem::whereIn('booking_item', $reservation->apiBookingItem->child_items)->get();
+                foreach ($reservation->apiBookingItem->child_items as $childId) {
+                    $child = $children->where('booking_item', $childId)->first();
+                    if ($child) {
+                        $pricing = json_decode($child->booking_pricing_data, true);
+                        $roomPrices[] = $pricing['total_price'] ?? 0;
+                    }
+                }
+            }
         }
 
-        return view('dashboard.reservations.show', compact('reservation', 'text', 'advisorEmail', 'advisorCommission'));
+        return view('dashboard.reservations.show', compact('reservation', 'text', 'advisorEmail', 'advisorCommission', 'roomPrices'));
     }
 }
