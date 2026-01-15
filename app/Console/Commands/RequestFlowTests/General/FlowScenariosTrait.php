@@ -31,6 +31,12 @@ trait FlowScenariosTrait
     {
         $results = Arr::get($searchResponse, 'data.results');
 
+        if (empty($results) || ! is_array($results)) {
+            $this->error('No results found in search response');
+
+            return null;
+        }
+
         foreach ($results as $hotel) {
             $roomCombinations = Arr::get($hotel, 'room_combinations');
             $roomGroups = Arr::get($hotel, 'room_groups');

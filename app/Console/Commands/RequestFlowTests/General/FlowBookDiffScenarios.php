@@ -92,6 +92,12 @@ class FlowBookDiffScenarios extends Command
         // Find booking item
         $bookingItem = $this->fetchBookingItem($searchResponse, $formData['occupancy']);
 
+        if (! $bookingItem) {
+            $this->error('Booking item not found by given room params');
+            logger()->error('FlowBookDiffScenarios _ Booking item not found by given room params', ['formData' => $formData, 'searchResponse' => $searchResponse]);
+            exit(1);
+        }
+
         // Disable email sending for this booking item. Running test flow only
         Cache::put('bookingItem_no_mail_'.$bookingItem, false, 600);
 
