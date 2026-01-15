@@ -125,28 +125,28 @@
                             @if($canView(User::class))
                                 <li>
                                     <a href="{{ Route('users.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                       font-medium text-gray-700 transition-all
-                                       duration-150 ease-linear hover:text-maintheme-500
-                                       dark:text-gray-300 dark:active:text-white
-                                       dark:hover:text-white">Users</a>
+                                               font-medium text-gray-700 transition-all
+                                               duration-150 ease-linear hover:text-maintheme-500
+                                               dark:text-gray-300 dark:active:text-white
+                                               dark:hover:text-white">Users</a>
                                 </li>
                             @endif
                             @if($canView(Role::class))
                                 <li>
                                     <a href="{{ Route('roles.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                       font-medium text-gray-700 transition-all
-                                       duration-150 ease-linear hover:text-maintheme-500
-                                       dark:text-gray-300 dark:active:text-white
-                                       dark:hover:text-white">Roles</a>
+                                               font-medium text-gray-700 transition-all
+                                               duration-150 ease-linear hover:text-maintheme-500
+                                               dark:text-gray-300 dark:active:text-white
+                                               dark:hover:text-white">Roles</a>
                                 </li>
                             @endif
                             @if($canView(Permission::class))
                                 <li>
                                     <a href="{{ Route('permissions.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                       font-medium text-gray-700 transition-all
-                                       duration-150 ease-linear hover:text-maintheme-500
-                                       dark:text-gray-300 dark:active:text-white
-                                       dark:hover:text-white">Permissions</a>
+                                               font-medium text-gray-700 transition-all
+                                               duration-150 ease-linear hover:text-maintheme-500
+                                               dark:text-gray-300 dark:active:text-white
+                                               dark:hover:text-white">Permissions</a>
                                 </li>
                             @endif
                         </ul>
@@ -201,13 +201,13 @@
                                         Booking Inspector</a>
                                 </li>
                             @endif
-{{--                            @if($canView(ApiBookingItem::class))--}}
-{{--                                <li>--}}
-{{--                                    <a href="{{ Route('booking-items.index') }}"--}}
-{{--                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">--}}
-{{--                                        Booking Items</a>--}}
-{{--                                </li>--}}
-{{--                            @endif--}}
+                            {{-- @if($canView(ApiBookingItem::class))--}}
+                            {{-- <li>--}}
+                                {{-- <a href="{{ Route('booking-items.index') }}" --}} {{--
+                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-items.show') active @endif">--}}
+                                    {{-- Booking Items</a>--}}
+                                {{-- </li>--}}
+                            {{-- @endif--}}
                             @if($canView(ApiBookingInspector::class))
                                 <li>
                                     <a href="{{ Route('payment-inspector.index') }}"
@@ -412,14 +412,22 @@
                             @endcan
                             @can('log-viewer')
                                 <li>
+                                    <a href="{{ url('admin/activities') }}" class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-document"></i>
+                                        <span data-key="t-log-viewer">Activity Log</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @if(config('payment.default_provider') === 'airwallex')
+                                <li>
                                     <a href="{{ url('admin/airwallex-api-logs') }}"
                                         class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-document-remove"></i>
                                         <span data-key="t-log-viewer">Airwallex Logs</span>
                                     </a>
                                 </li>
-                            @endcan
-                            @can('log-viewer')
+                            @endif
+                            @if(config('payment.default_provider') === 'cybersource')
                                 <li>
                                     <a href="{{ url('admin/cybersource-api-logs') }}"
                                         class="{{ ClassHelper::sidebarCildrenClass() }}">
@@ -427,15 +435,7 @@
                                         <span data-key="t-log-viewer">Cybersource Logs</span>
                                     </a>
                                 </li>
-                            @endcan
-                            @can('log-viewer')
-                                <li>
-                                    <a href="{{ url('admin/activities') }}" class="{{ ClassHelper::sidebarCildrenClass() }}">
-                                        <i class="dripicons-document"></i>
-                                        <span data-key="t-log-viewer">Activity Log</span>
-                                    </a>
-                                </li>
-                            @endcan
+                            @endif
                             @can('log-viewer')
                                 <li>
                                     <a href="{{ Route('notifications') }}" class="{{ ClassHelper::sidebarCildrenClass() }}">
@@ -444,6 +444,14 @@
                                     </a>
                                 </li>
                             @endcan
+                            @if(config('superuser.email') === auth()->user()->email)
+                                <li>
+                                    <a href="{{ Route('failed-jobs') }}" class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-document-remove"></i>
+                                        <span data-key="t-failed-jobs">Failed Jobs</span>
+                                    </a>
+                                </li>
+                            @endif
                             @can('swagger-docs')
                                 <li>
                                     <a href="javascript: void(0);" aria-expanded="false"

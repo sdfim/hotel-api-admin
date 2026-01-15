@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BookingEmailVerificationController;
 use App\Http\Controllers\HbsiPropertyController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FailedJobController;
 use App\Http\Controllers\TeamController;
 use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
@@ -138,6 +139,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('oracle', OracleContentController::class)->only('index');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::get('failed-jobs', [FailedJobController::class, 'index'])->name('failed-jobs');
 
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
