@@ -31,6 +31,11 @@ class OracleClient
 
     protected array $headers = [];
 
+    protected array $listRoomTypes = [
+        'VINV' => 'EST1B, EST2B, EST3B, EST4B, EEE4B, CPAJS, CPAJL, MPAMR, MPAST, MPAMS, GMAMR, GMAST, GMAMS, GBLMR, GBLST, GBLMS, LVIMR, LCOMR, BON1BK, BON1BD, BON2BS, BON2BL, LCOST, LCOMS, LVIST, LVIMS, LRLCE, LRL1B, LPUSH, LPU1B, LPU2B, LPU3B, LSP2B, LRL2B, LRL3B, LRL4B, LRD1B, LRD2B, SGAMR, SGAST, LSP3B, GMADJS, GMAD1B, KOSL2B, KOSPST, KOS2PS',
+        'VIRM' => 'LVIMR, LCOMR, LCOST, LCOMS, LVIST, LVIMS, LPUSH, LPU2B, LPU3B, LSP2B, LSP3B, LRD1B, LRD2B, GBLMR, GBLST, GBLMS, GMAMR, GMAST, GMAMS, MPAMR, MPAST, MPAMS, SGAMR, SGAST, EST1B, EST2B, EST3B, EST4B, BLIMR, BLIST, BLIMS, LRL2B, LRL3B, LRL4B',
+    ];
+
     public function __construct(
         private readonly Client $client,
     ) {
@@ -217,62 +222,75 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
-                $queryParams = [
-                    'roomStayStartDate' => $checkin,
-                    'roomStayEndDate' => $checkout,
-                    'roomStayQuantity' => 1,
-                    'adults' => $guestDetails['adults'],
-                    'children' => $guestDetails['children'],
-                    'ratePlanInfo' => 'true',
-                    'resGuaranteeInfo' => 'true',
-                    'roomTypeInfo' => 'true',
-                    'currencyCode' => 'USD',
-                    'roomType' => $guestDetails['roomType'],
-                    'ratePlanCode' => $guestDetails['ratePlanCode'],
-
-                    'limit' => 200,
-                ];
-
-                //                if (! empty($guestDetails['childAge'])) {
-                //                    $queryParams['childAge'] = $guestDetails['childAge'];
-                //                }
-
-                $url = $this->credentials->baseUrl
-                    ."/par/v1/hotels/{$hotelId}/availability?"
-                    .http_build_query($queryParams);
-
-                $headers = $this->headers;
-                $headers['x-hotelid'] = $hotelId;
-
-                $requestMeta = [
-                    'hotelId' => $hotelId,
-                    'roomIndex' => $roomIndex,
-                    'url' => $url,
-                    'headers' => $headers,
-                    'method' => 'GET',
-                ];
-
-                $originalRequests[] = $requestMeta;
-
-                $promises[] = $this->client->getAsync($url, [
-                    'headers' => $headers,
-                    'timeout' => config('services.oracle.timeout', 60),
-                ])->then(
-                    function ($response) use ($requestMeta) {
-                        return [
-                            'status' => 'fulfilled',
-                            'meta' => $requestMeta,
-                            'response' => $response,
-                        ];
-                    },
-                    function ($reason) use ($requestMeta) {
-                        return [
-                            'status' => 'rejected',
-                            'meta' => $requestMeta,
-                            'error' => $reason,
-                        ];
+                $roomTypesToProcess = [];
+                if (empty($guestDetails['roomType'])) {
+                    $roomTypesString = $this->listRoomTypes[$hotelId] ?? '';
+                    $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    if (! empty($roomTypes)) {
+                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / 4));
+                    } else {
+                        $roomTypesToProcess = [[null]];
                     }
-                );
+                } else {
+                    $roomTypesToProcess = [[$guestDetails['roomType']]];
+                }
+
+                foreach ($roomTypesToProcess as $roomTypeBatch) {
+                    $batchRoomType = is_array($roomTypeBatch) ? implode(',', $roomTypeBatch) : $roomTypeBatch;
+
+                    $queryParams = [
+                        'roomStayStartDate' => $checkin,
+                        'roomStayEndDate' => $checkout,
+                        'roomStayQuantity' => 1,
+                        'adults' => $guestDetails['adults'],
+                        'children' => $guestDetails['children'],
+                        'ratePlanInfo' => 'true',
+                        'resGuaranteeInfo' => 'true',
+                        'roomTypeInfo' => 'true',
+                        'currencyCode' => 'USD',
+                        'roomType' => $batchRoomType ?: null,
+                        'ratePlanCode' => $guestDetails['ratePlanCode'],
+
+                        'limit' => 200,
+                    ];
+
+                    $url = $this->credentials->baseUrl
+                        ."/par/v1/hotels/{$hotelId}/availability?"
+                        .http_build_query($queryParams);
+
+                    $headers = $this->headers;
+                    $headers['x-hotelid'] = $hotelId;
+
+                    $requestMeta = [
+                        'hotelId' => $hotelId,
+                        'roomIndex' => $roomIndex,
+                        'url' => $url,
+                        'headers' => $headers,
+                        'method' => 'GET',
+                    ];
+
+                    $originalRequests[] = $requestMeta;
+
+                    $promises[] = $this->client->getAsync($url, [
+                        'headers' => $headers,
+                        'timeout' => config('services.oracle.timeout', 60),
+                    ])->then(
+                        function ($response) use ($requestMeta) {
+                            return [
+                                'status' => 'fulfilled',
+                                'meta' => $requestMeta,
+                                'response' => $response,
+                            ];
+                        },
+                        function ($reason) use ($requestMeta) {
+                            return [
+                                'status' => 'rejected',
+                                'meta' => $requestMeta,
+                                'error' => $reason,
+                            ];
+                        }
+                    );
+                }
             }
         }
 
@@ -335,7 +353,16 @@ class OracleClient
                     $allResults[$hotelId] = [];
                 }
 
-                $allResults[$hotelId]['room_'.$roomIndex] = $responseData;
+                if (! isset($allResults[$hotelId]['room_'.$roomIndex])) {
+                    $allResults[$hotelId]['room_'.$roomIndex] = $responseData;
+                } else {
+                    if (isset($responseData['hotelAvailability'])) {
+                        $allResults[$hotelId]['room_'.$roomIndex]['hotelAvailability'] = array_merge(
+                            $allResults[$hotelId]['room_'.$roomIndex]['hotelAvailability'] ?? [],
+                            $responseData['hotelAvailability']
+                        );
+                    }
+                }
             }
 
         } catch (ConnectException $e) {
@@ -411,73 +438,100 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
-                $queryParams = [
-                    'roomStayStartDate' => $checkin,
-                    'roomStayEndDate' => $checkout,
-                    'roomStayQuantity' => 1,
-                    'adults' => $guestDetails['adults'],
-                    'children' => $guestDetails['children'],
-                    'ratePlanInfo' => 'true',
-                    'resGuaranteeInfo' => 'true',
-                    'roomTypeInfo' => 'true',
-                    'currencyCode' => 'USD',
-                    'roomType' => $guestDetails['roomType'],
-                    'ratePlanCode' => $guestDetails['ratePlanCode'],
-                ];
+                $roomTypesToProcess = [];
+                if (empty($guestDetails['roomType'])) {
+                    $roomTypesString = $this->listRoomTypes[$hotelId] ?? '';
+                    $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    if (! empty($roomTypes)) {
+                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / 4));
+                    } else {
+                        $roomTypesToProcess = [[null]];
+                    }
+                } else {
+                    $roomTypesToProcess = [[$guestDetails['roomType']]];
+                }
 
-                $url = $this->credentials->baseUrl
-                    ."/par/v1/hotels/{$hotelId}/availability?"
-                    .http_build_query($queryParams);
+                foreach ($roomTypesToProcess as $roomTypeBatch) {
+                    $batchRoomType = is_array($roomTypeBatch) ? implode(',', $roomTypeBatch) : $roomTypeBatch;
 
-                $headers = $this->headers;
-                $headers['x-hotelid'] = $hotelId;
-
-                $requestMeta = [
-                    'hotelId' => $hotelId,
-                    'roomIndex' => $roomIndex,
-                    'url' => $url,
-                    'headers' => $headers,
-                    'method' => 'GET',
-                    // Important: for GET requests there is no body, so body: null
-                    'body' => null,
-                ];
-
-                $originalRequests[] = $requestMeta;
-                $requestBodyForInspector = null; // Для GET запроса
-
-                // 2. Determining the API callback for the request (GET)
-                $apiCall = function () use ($url, $headers) {
-                    return $this->client->get($url, [
-                        'headers' => $headers,
-                        'timeout' => config('services.oracle.timeout', 60),
-                    ]);
-                };
-
-                // 3. Executing a synchronous request through a common wrapper
-                $result = $this->executeSyncRequest(
-                    $apiCall,
-                    $searchInspector,
-                    $requestMeta,
-                    $requestBodyForInspector
-                );
-
-                if (isset($result['error'])) {
-                    $errors[] = [
-                        'hotelId' => $hotelId,
-                        'roomIndex' => $roomIndex,
-                        'error' => $result['error'],
+                    $queryParams = [
+                        'roomStayStartDate' => $checkin,
+                        'roomStayEndDate' => $checkout,
+                        'roomStayQuantity' => 1,
+                        'adults' => $guestDetails['adults'],
+                        'children' => $guestDetails['children'],
+                        'ratePlanInfo' => 'true',
+                        'resGuaranteeInfo' => 'true',
+                        'roomTypeInfo' => 'true',
+                        'currencyCode' => 'USD',
+                        'roomType' => $batchRoomType ?: null,
+                        'ratePlanCode' => $guestDetails['ratePlanCode'],
+                        'limit' => 200,
                     ];
 
-                    continue;
-                }
+                    $url = $this->credentials->baseUrl
+                        ."/par/v1/hotels/{$hotelId}/availability?"
+                        .http_build_query($queryParams);
 
-                // Успешный результат
-                $responseData = $result['response'];
-                if (! isset($allResults[$hotelId])) {
-                    $allResults[$hotelId] = [];
-                }
+                    $headers = $this->headers;
+                    $headers['x-hotelid'] = $hotelId;
 
-                $allResults[$hotelId]['room_'.$roomIndex] = $responseData;
+                    $requestMeta = [
+                        'hotelId' => $hotelId,
+                        'roomIndex' => $roomIndex,
+                        'url' => $url,
+                        'headers' => $headers,
+                        'method' => 'GET',
+                        // Important: for GET requests there is no body, so body: null
+                        'body' => null,
+                    ];
+
+                    $originalRequests[] = $requestMeta;
+                    $requestBodyForInspector = null; // Для GET запроса
+
+                    // 2. Determining the API callback for the request (GET)
+                    $apiCall = function () use ($url, $headers) {
+                        return $this->client->get($url, [
+                            'headers' => $headers,
+                            'timeout' => config('services.oracle.timeout', 60),
+                        ]);
+                    };
+
+                    // 3. Executing a synchronous request through a common wrapper
+                    $result = $this->executeSyncRequest(
+                        $apiCall,
+                        $searchInspector,
+                        $requestMeta,
+                        $requestBodyForInspector
+                    );
+
+                    if (isset($result['error'])) {
+                        $errors[] = [
+                            'hotelId' => $hotelId,
+                            'roomIndex' => $roomIndex,
+                            'error' => $result['error'],
+                        ];
+
+                        continue;
+                    }
+
+                    // Успешный результат
+                    $responseData = $result['response'];
+                    if (! isset($allResults[$hotelId])) {
+                        $allResults[$hotelId] = [];
+                    }
+
+                    if (! isset($allResults[$hotelId]['room_'.$roomIndex])) {
+                        $allResults[$hotelId]['room_'.$roomIndex] = $responseData;
+                    } else {
+                        if (isset($responseData['hotelAvailability'])) {
+                            $allResults[$hotelId]['room_'.$roomIndex]['hotelAvailability'] = array_merge(
+                                $allResults[$hotelId]['room_'.$roomIndex]['hotelAvailability'] ?? [],
+                                $responseData['hotelAvailability']
+                            );
+                        }
+                    }
+                }
             }
         }
 
