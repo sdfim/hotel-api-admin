@@ -275,8 +275,13 @@ class HotelForm extends Component implements HasForms
                                         ->downloadable()
                                         ->columnSpan(1)
                                         ->visible()
-                                        ->visibility('public')
+                                        ->maxSize(250)
+                                        ->live()
                                         ->afterStateUpdated(function ($state, $set) {
+                                            if ($state instanceof \Illuminate\Http\UploadedFile && $state->getSize() > 250 * 1024) {
+                                                return;
+                                            }
+
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName());
                                                 $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
