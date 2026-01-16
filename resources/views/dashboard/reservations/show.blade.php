@@ -246,7 +246,7 @@
                         <div class="flex flex-col gap-6">
                             @foreach($roomNames as $index => $roomName)
                                 @php
-                                    $room = $reservation->apiBookingsMetadata->contentHotel?->rooms->where('name', trim($roomName))->first();
+                                    $room = $reservation->apiBookingsMetadata?->contentHotel?->rooms->where('name', trim($roomName))->first();
                                     $roomImages = $room ? $room->galleries->flatMap(fn($g) => $g->images)->pluck('image_url')->toArray() : [];
                                     if ($roomImages) {
                                         $collectedRoomImages = array_merge($collectedRoomImages, $roomImages);
