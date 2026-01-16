@@ -85,6 +85,10 @@
                 $subtotal = $total_price - $total_tax - $total_fees;
                 $passengers_by_room = \App\Repositories\ApiBookingInspectorRepository::getPassengersByRoom($reservation->booking_id, $reservation->booking_item);
                 [$special_requests_by_room, $comments_by_room] = \App\Repositories\ApiBookingInspectorRepository::getSpecialRequestsAndComments($reservation->booking_id, $reservation->booking_item) ?? [];
+
+                $searchRequest = json_decode($reservation->apiBookingsMetadata?->inspector?->search?->request ?? '{}', true);
+                $checkin = $searchRequest['checkin'] ?? null;
+                $checkout = $searchRequest['checkout'] ?? null;
             @endphp
             <div class="card-body">
                 <!-- Back Button -->
@@ -190,13 +194,25 @@
                                 <h2 class="text-3xl font-serif text-[#C29C75] font-bold leading-tight uppercase tracking-tight">{{ $field['hotel_name'] }}</h2>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <!-- Info Section -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <!-- Column 1: Dates -->
                                 <div class="space-y-4">
                                     <div>
-                                        <p class="luxury-label mb-1">Date Travel</p>
-                                        <p class="luxury-value text-lg">{{ $reservation->date_travel }}</p>
+                                        <p class="luxury-label mb-1">Check-in</p>
+                                        <p class="luxury-value text-lg text-[#C29C75]">{{ $checkin ?? $reservation->date_travel }}</p>
                                     </div>
+                                    <div>
+                                        <p class="luxury-label mb-1">Check-out</p>
+                                        <p class="luxury-value text-lg text-[#C29C75]">{{ $checkout ?? 'N/A' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="luxury-label mb-1">Created Date</p>
+                                        <p class="luxury-value">{{ $reservation->created_at }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Column 2: Passenger & Contact -->
+                                <div class="space-y-4">
                                     <div>
                                         <p class="luxury-label mb-1">Passenger</p>
                                         <p class="luxury-value text-lg">{{ $reservation->passenger_surname }}</p>
@@ -205,8 +221,13 @@
                                         <p class="luxury-label mb-1">Channel</p>
                                         <p class="luxury-value">{{ $reservation->channel->name }}</p>
                                     </div>
+                                    <div>
+                                        <p class="luxury-label mb-1">Advisor Email</p>
+                                        <p class="luxury-value text-sm text-gray-500 italic">{{ $advisorEmail ?? 'N/A' }}</p>
+                                    </div>
                                 </div>
-                                <!-- Hotel Metadata Section -->
+
+                                <!-- Column 3: Identifiers -->
                                 <div class="space-y-4">
                                     <div>
                                         <p class="luxury-label mb-1">GIATA ID</p>
@@ -218,10 +239,6 @@
                                             <p class="luxury-value">{{ $reservation->apiBookingsMetadata->hotel_supplier_id }}</p>
                                         </div>
                                     @endif
-                                    <div>
-                                        <p class="luxury-label mb-1">Advisor Email</p>
-                                        <p class="luxury-value text-sm text-gray-500 italic">{{ $advisorEmail ?? 'N/A' }}</p>
-                                    </div>
                                 </div>
                             </div>
                         </div>

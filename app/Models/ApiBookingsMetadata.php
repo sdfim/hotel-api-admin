@@ -104,8 +104,7 @@ class ApiBookingsMetadata extends Model
     {
         return $this->hasOne(ApiBookingInspector::class, 'booking_item', 'booking_item')
             ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->whereColumn('booking_id', 'api_bookings_metadata.booking_id');
+            ->where('sub_type', 'create');
     }
 
     public function contentHotel(): HasOneThrough
