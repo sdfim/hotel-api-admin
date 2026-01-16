@@ -16,7 +16,7 @@
     @php
         $heroImage = $hotel->product?->hero_image
             ? \Illuminate\Support\Facades\Storage::url($hotel->product->hero_image)
-            : asset('images/email-backgrounds/hotel-placeholder.png');
+            : asset('images/email-backgrounds/hotel-placeholder.jpg');
         $hotelName = $hotel->product?->name ?? 'Hotel Name';
         $hotelAddress = implode(', ', $hotel->address ?? []);
     @endphp
