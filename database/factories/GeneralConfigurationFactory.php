@@ -23,6 +23,7 @@ class GeneralConfigurationFactory extends Factory
             'time_inspector_retained' => $this->faker->numberBetween(60, 365),
             'star_ratings' => $this->faker->numberBetween(0, 5.5),
             'stop_bookings' => $this->faker->numberBetween(1, 365),
+            'default_currency' => 'USD',
         ];
     }
 }

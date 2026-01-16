@@ -86,8 +86,10 @@ test('possibility of updating an existing pricing rule', function () {
     /** @var PricingRulesDataGenerationTools $pricingRulesTools */
     $pricingRulesTools = app(PricingRulesDataGenerationTools::class);
 
-    // 2. Generate new conditions for update (can stay random, we only check that they were saved)
-    $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
+    // 2. Define a stable condition to avoid hierarchy validation issues (e.g. rate_code requires property)
+    $pricingRuleConditionsData = [
+        ['field' => 'property', 'compare' => '=', 'value_from' => '12345'],
+    ];
 
     // 3. Define deterministic (non-random) data for updating the pricing rule
     //    This makes the test stable and predictable.
@@ -125,7 +127,7 @@ test('possibility of updating an existing pricing rule', function () {
     $this->assertEquals(0, (int) $actual->weight);
     $this->assertEquals(0, (int) $actual->is_sr_creator);
     $this->assertEquals(0, (int) $actual->is_exclude_action);
-//    $this->assertEquals('net_price', $actual->manipulable_price_type);
+    //    $this->assertEquals('net_price', $actual->manipulable_price_type);
     $this->assertEquals(1.0, (int) $actual->price_value);
     $this->assertEquals('percentage', $actual->price_value_type);
     $this->assertEquals('per_person', $actual->price_value_target);
