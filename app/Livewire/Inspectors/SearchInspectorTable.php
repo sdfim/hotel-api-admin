@@ -35,6 +35,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\Enums\SupplierNameEnum;
 
 class SearchInspectorTable extends Component implements HasForms, HasTable
 {
@@ -214,6 +215,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 unset($input['occupancy'][$key]['rate_plan_code']);
                             }
                         }
+                        if (empty($input['supplier'])) {
+                            $input['supplier'] = [SupplierNameEnum::ORACLE->value];
+                        }
+                        if (empty($input['currency'])) {
+                            $input['currency'] = 'USD';
+                        }
 
                         return $input;
                     })
@@ -245,11 +252,30 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     private function getFormSchema(): array
     {
         return [
-            Select::make('api_user')
-                ->label('API User')
-                ->options(User::whereHas('roles', function ($query) {
-                    $query->where('slug', RoleSlug::API_USER->value);
-                })->pluck('name', 'email')->toArray()),
+
+            Grid::make('')->schema([
+                Select::make('api_user')
+                    ->label('API User')
+                    ->options(User::whereHas('roles', function ($query) {
+                        $query->where('slug', RoleSlug::API_USER->value);
+                    })->pluck('name', 'email')->toArray())
+                    ->default(function () {
+                        $user = User::whereHas('roles', function ($query) {
+                            $query->where('slug', RoleSlug::API_USER->value);
+                        })->first();
+
+                        return $user ? $user->email : '';
+                    }),
+                Select::make('currency')
+                    ->label('Currency')
+                    ->options([
+                        '*' => 'ALL',
+                        'USD' => 'USD',
+                        'MXN' => 'MXN',
+                        'EUR' => 'EUR',
+                    ])
+                    ->default('*'),
+            ])->columns(2),
             Grid::make('')->schema([
                 TextInput::make('type')
                     ->label('Type')
@@ -258,7 +284,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 Select::make('supplier')
                     ->label('Supplier')
                     ->options(Supplier::all()->pluck('name', 'name')->toArray())
-                    ->default([1]),
+                    ->default([SupplierNameEnum::ORACLE->value]),
             ])->columns(2),
             Grid::make('')->schema([
                 DatePicker::make('checkin')
@@ -292,7 +318,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 ->numeric()
                                 ->minValue(1)
                                 ->maxValue(6)
-                                ->required(),
+                                ->required()
+                                ->default(2),
                             TagsInput::make('children_ages')
                                 ->label('Children Ages'),
                         ])->columns(2),

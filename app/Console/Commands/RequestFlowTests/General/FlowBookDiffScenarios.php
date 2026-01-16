@@ -43,6 +43,7 @@ class FlowBookDiffScenarios extends Command
 
         $formData ?: $formData = [
             'type' => 'hotel',
+            'currency' => '*',
             'supplier' => 'Oracle',
             'checkin' => Carbon::now()->addMonths(3)->toDateString(),
             'checkout' => Carbon::now()->addMonths(3)->addDays(2)->toDateString(),
