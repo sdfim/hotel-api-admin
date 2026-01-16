@@ -30,7 +30,7 @@ class PaymentController extends BaseController
 
     public function createPaymentIntent(CreatePaymentIntentRequest $request)
     {
-        $booking_id = $request->input('booking_id');
+        $booking_id   = $request->input('booking_id');
         $providerName = $request->input('provider', config('payment.default_provider'));
 
         $cacheKey = "payment_intent_{$booking_id}_{$providerName}";
@@ -44,7 +44,27 @@ class PaymentController extends BaseController
                 return $this->sendError($error, 'Booking not found or not booked', 404);
             }
 
-            return $provider->createPaymentIntent($request->validated());
+            $totalPrice   = ApiBookingInspectorRepository::getPriceBookingId($booking_id);
+            $amount       = (float) $request->input('amount');
+            $data         = $request->validated();
+            $notification = null;
+
+            if ($amount > $totalPrice) {
+                $notification   = "Requested amount ($amount) is higher than booking total price ($totalPrice). Adjusted to total price.";
+                $amount         = $totalPrice;
+                $data['amount'] = $amount;
+            }
+
+            $response = $provider->createPaymentIntent($data);
+
+            if ($notification && $response instanceof \Illuminate\Http\JsonResponse) {
+                $responseData            = $response->getData(true);
+                $responseData['message'] = $notification;
+
+                return response()->json($responseData, $response->getStatusCode());
+            }
+
+            return $response;
         });
     }
 
@@ -58,7 +78,24 @@ class PaymentController extends BaseController
             return $this->sendError($error, 'Booking not found or not booked', 404);
         }
 
-        return $provider->createPaymentIntentMoFoF($booking_id, $amount);
+        $totalPrice   = ApiBookingInspectorRepository::getPriceBookingId($booking_id);
+        $notification = null;
+
+        if ($amount > $totalPrice) {
+            $notification = "Requested amount ($amount) is higher than booking total price ($totalPrice). Adjusted to total price.";
+            $amount       = $totalPrice;
+        }
+
+        $response = $provider->createPaymentIntentMoFoF($booking_id, $amount);
+
+        if ($notification && $response instanceof \Illuminate\Http\JsonResponse) {
+            $responseData            = $response->getData(true);
+            $responseData['message'] = $notification;
+
+            return response()->json($responseData, $response->getStatusCode());
+        }
+
+        return $response;
     }
 
     public function retrievePaymentConsent(RetrievePaymentConsentRequest $request, string $consentId)
@@ -70,14 +107,11 @@ class PaymentController extends BaseController
 
     public function confirmationPaymentIntent(ConfirmationPaymentIntentRequest $request)
     {
-        $validated = $request->validated();
-        $provider = $this->getProvider($request);
+        $validated    = $request->validated();
+        $provider     = $this->getProvider($request);
         $providerName = $validated['provider'] ?? config('payment.default_provider');
 
-        // 1) Confirm payment on provider side (Airwallex or Cybersource)
-        $response = $provider->confirmationPaymentIntent($validated);
-
-        // 2) Resolve booking_id depending on provider
+        // Resolve booking_id to check total price
         $bookingId = null;
 
         if ($providerName === 'airwallex') {
@@ -93,14 +127,35 @@ class PaymentController extends BaseController
                 $bookingId = $paymentInit?->booking_id;
             }
         } elseif ($providerName === 'cybersource') {
-            // For Cybersource we receive booking_id directly from the request
             $bookingId = $validated['booking_id'] ?? null;
         }
 
-        // 3) Send confirmation email (if booking_id was found)
+        $notification = null;
+
+        if ($bookingId) {
+            $totalPrice = ApiBookingInspectorRepository::getPriceBookingId($bookingId);
+            $amount     = (float) ($validated['amount'] ?? 0);
+
+            if ($amount > $totalPrice) {
+                $notification        = "Requested amount ($amount) is higher than booking total price ($totalPrice). Adjusted to total price.";
+                $validated['amount'] = $totalPrice;
+            }
+        }
+
+        // 1) Confirm payment on provider side (Airwallex or Cybersource)
+        $response = $provider->confirmationPaymentIntent($validated);
+
+        if ($notification && $response instanceof \Illuminate\Http\JsonResponse) {
+            $responseData            = $response->getData(true);
+            $responseData['message'] = $notification;
+
+            $response = response()->json($responseData, $response->getStatusCode());
+        }
+
+        // 2) Send confirmation email (if booking_id was found)
         $this->sendClientConfirmationMailForBookingId($bookingId);
 
-        // 4) Return provider response as-is
+        // 3) Return provider response as-is
         return $response;
     }
 
@@ -141,8 +196,8 @@ class PaymentController extends BaseController
                 }
 
                 [$agentEmail, $agentId, $externalAdvisorEmail] = ApiBookingInspectorRepository::getEmailAgentBookingItem($item->booking_item);
-                $notificationEmails = User::find($agentId)?->notification_emails ?? [];
-                $notificationEmails = array_unique(array_merge($notificationEmails, [$externalAdvisorEmail]));
+                $notificationEmails                            = User::find($agentId)?->notification_emails ?? [];
+                $notificationEmails                            = array_unique(array_merge($notificationEmails, [$externalAdvisorEmail]));
                 foreach ($notificationEmails as $email) {
                     if (empty($email)) {
                         continue;
