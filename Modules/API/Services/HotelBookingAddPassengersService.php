@@ -10,7 +10,7 @@ use Modules\Enums\TypeRequestEnum;
 
 class HotelBookingAddPassengersService
 {
-    private const AGE_ADULT = 18;
+    private const AGE_ADULT = 14;
 
     public function checkCountGuestsChildrenAges(array $filtersOutput): array
     {

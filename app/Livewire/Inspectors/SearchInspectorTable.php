@@ -86,7 +86,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->modalHeading('Add Flow Scenario')
                     ->modalWidth('4xl')
                     ->form($this->getFormSchema())
-//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
                     ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
 
             ])
@@ -237,7 +237,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                             ->success()
                             ->send();
                     })
-//                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
                     ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
 
             ])
@@ -252,7 +252,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     private function getFormSchema(): array
     {
         return [
-
             Grid::make('')->schema([
                 Select::make('api_user')
                     ->label('API User')
@@ -321,7 +320,19 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 ->required()
                                 ->default(2),
                             TagsInput::make('children_ages')
-                                ->label('Children Ages'),
+                                ->label('Children Ages')
+                                ->required()
+                                ->placeholder('Ages 1-13')
+                                ->rules([
+                                    'array',
+                                    fn () => function (string $attribute, $value, $fail) {
+                                        foreach ($value as $age) {
+                                            if (! is_numeric($age) || $age < 1 || $age > 13 || floor($age) != $age) {
+                                                $fail("Age {$age} must be an integer between 1 and 13.");
+                                            }
+                                        }
+                                    },
+                                ]),
                         ])->columns(2),
                         Grid::make('')->schema([
                             TextInput::make('room_code')
