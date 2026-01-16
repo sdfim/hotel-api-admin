@@ -164,15 +164,40 @@ class ApiBookingItemRepository
     {
         $order = [
             'unified_room_code',
-            'room_type', 'rate_plan_code', 'rate_name', 'supplier_room_name',
-            'booking_item', 'non_refundable',
-            'currency', 'total_net', 'total_tax', 'total_price', 'total_fees',  'commissionable_amount', 'markup',
-            'breakdown', 'cancellation_policies',
-            'capacity', 'rate_description', 'room_description',
-            'penalty_date',  'meal_plan', 'amenities', 'promotions', 'rate_id',
-            'distribution', 'package_deal',
-            'query_package', 'giata_room_code', 'giata_room_name', 'supplier_room_id',
-            'bed_configurations', 'descriptive_content', 'pricing_rules_applier', 'per_day_rate_breakdown', 'deposits',
+            'room_type',
+            'rate_plan_code',
+            'rate_name',
+            'supplier_room_name',
+            'booking_item',
+            'non_refundable',
+            'currency',
+            'total_net',
+            'total_tax',
+            'total_price',
+            'total_fees',
+            'commissionable_amount',
+            'markup',
+            'breakdown',
+            'cancellation_policies',
+            'capacity',
+            'rate_description',
+            'room_description',
+            'penalty_date',
+            'meal_plan',
+            'amenities',
+            'promotions',
+            'rate_id',
+            'distribution',
+            'package_deal',
+            'query_package',
+            'giata_room_code',
+            'giata_room_name',
+            'supplier_room_id',
+            'bed_configurations',
+            'descriptive_content',
+            'pricing_rules_applier',
+            'per_day_rate_breakdown',
+            'deposits',
         ];
         $reorder = function (array $data) use ($order) {
             $result = [];
@@ -295,5 +320,55 @@ class ApiBookingItemRepository
         });
 
         return $filteredDeposits->values()->toArray();
+    }
+
+    public static function getDeposits(string $booking_item): array
+    {
+        $item = ApiBookingItem::where('booking_item', $booking_item)->first();
+        if (! $item) {
+            return [];
+        }
+
+        $pricingData = json_decode($item->booking_pricing_data, true);
+        $deposits = $pricingData['deposits'] ?? [];
+
+        if (! empty($deposits)) {
+            return $deposits;
+        }
+
+        $childItems = $item->child_items;
+        if (! $childItems || ! is_array($childItems)) {
+            return $deposits;
+        }
+
+        $aggregatedDeposits = [];
+        foreach ($childItems as $childId) {
+            $childItem = ApiBookingItem::where('booking_item', $childId)->first();
+            if (! $childItem) {
+                continue;
+            }
+            $childPricingData = json_decode($childItem->booking_pricing_data, true);
+            $childDeposits = $childPricingData['deposits'] ?? [];
+
+            foreach ($childDeposits as $deposit) {
+                $found = false;
+                foreach ($aggregatedDeposits as &$existing) {
+                    if (
+                        ($existing['name'] ?? null) === ($deposit['name'] ?? null) &&
+                        ($existing['type'] ?? null) === ($deposit['type'] ?? null) &&
+                        ($existing['due_date'] ?? null) === ($deposit['due_date'] ?? null)
+                    ) {
+                        $existing['total_deposit'] = (float) ($existing['total_deposit'] ?? 0) + (float) ($deposit['total_deposit'] ?? 0);
+                        $found = true;
+                        break;
+                    }
+                }
+                if (! $found) {
+                    $aggregatedDeposits[] = $deposit;
+                }
+            }
+        }
+
+        return $aggregatedDeposits;
     }
 }

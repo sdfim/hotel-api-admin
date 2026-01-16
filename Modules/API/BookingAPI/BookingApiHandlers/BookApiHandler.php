@@ -643,7 +643,14 @@ class BookApiHandler extends BaseController
         if (! isset($filters['force'])) {
             $latestRetrieves = ApiBookingInspectorRepository::getLatestRetrievesByBookingId($request->booking_id);
             foreach ($latestRetrieves as $latestRetrieve) {
-                $data[] = json_decode(Storage::get($latestRetrieve->client_response_path));
+                $decoded = json_decode(Storage::get($latestRetrieve->client_response_path), true);
+                if ((empty($decoded['deposits']) || empty($decoded['deposit_information'])) && ! empty($latestRetrieve->booking_item)) {
+                    $deposits = \App\Repositories\ApiBookingItemRepository::getDeposits($latestRetrieve->booking_item);
+                    if (! empty($deposits)) {
+                        $decoded['deposit_information'] = $deposits;
+                    }
+                }
+                $data[] = $decoded;
             }
 
             return $this->sendResponse(['result' => $data], 'success');

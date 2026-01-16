@@ -63,6 +63,8 @@ class ExpediaHotelBookingRetrieveBookingTransformer
         $responseModel->setHotelName($hotelName ?? Arr::get($saveResponse, 'hotel_name', ''));
 
         $responseModel->setRooms($rooms);
+        $aggregatedDeposits = \App\Repositories\ApiBookingItemRepository::getDeposits($filters['booking_item']);
+        $responseModel->setDepositInformation($aggregatedDeposits);
 
         $responseModel->setCancellationTerms($cancellationTerms);
         $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));

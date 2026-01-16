@@ -100,6 +100,7 @@ class HotelTraderiHotelBookingRetrieveBookingTransformer
         $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
             ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
         $responseModel->setCancellationTerms($cancellationTerms);
+        $depositInformation = ! empty($depositInformation) ? $depositInformation : \App\Repositories\ApiBookingItemRepository::getDeposits($filters['booking_item']);
         $responseModel->setDepositInformation($depositInformation);
         $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
         $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));

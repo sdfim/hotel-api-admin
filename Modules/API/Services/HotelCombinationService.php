@@ -122,6 +122,29 @@ class HotelCombinationService
                 'booking_item' => $bookingItem->booking_item,
                 'breakdown' => $booking_pricing_data['breakdown'],
             ];
+
+            $childDeposits = Arr::get($booking_pricing_data, 'deposits', []);
+            if (! isset($completeBookingItem['booking_pricing_data']['deposits'])) {
+                $completeBookingItem['booking_pricing_data']['deposits'] = [];
+            }
+
+            foreach ($childDeposits as $deposit) {
+                $found = false;
+                foreach ($completeBookingItem['booking_pricing_data']['deposits'] as &$parentDeposit) {
+                    if (
+                        ($parentDeposit['name'] ?? null) === ($deposit['name'] ?? null) &&
+                        ($parentDeposit['type'] ?? null) === ($deposit['type'] ?? null) &&
+                        ($parentDeposit['due_date'] ?? null) === ($deposit['due_date'] ?? null)
+                    ) {
+                        $parentDeposit['total_deposit'] += $deposit['total_deposit'];
+                        $found = true;
+                        break;
+                    }
+                }
+                if (! $found) {
+                    $completeBookingItem['booking_pricing_data']['deposits'][] = $deposit;
+                }
+            }
         }
 
         $completeBookingItem['booking_item'] = $completeItem;

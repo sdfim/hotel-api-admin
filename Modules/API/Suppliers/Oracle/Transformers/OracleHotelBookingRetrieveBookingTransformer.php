@@ -70,10 +70,14 @@ class OracleHotelBookingRetrieveBookingTransformer
             $status = self::ORACLE_STATUS_MAP[$currentStatus] ?? 'unknown';
 
             // Находим ID резервации (supplierBookId) и номер подтверждения (ConfirmationNumber)
-            $reservationId = Arr::first(Arr::get($reservation, 'reservationIdList', []),
-                fn ($item) => $item['type'] === 'Reservation')['id'] ?? null;
-            $confirmationNumber = Arr::first(Arr::get($reservation, 'reservationIdList', []),
-                fn ($item) => $item['type'] === 'Confirmation')['id'] ?? null;
+            $reservationId = Arr::first(
+                Arr::get($reservation, 'reservationIdList', []),
+                fn ($item) => $item['type'] === 'Reservation'
+            )['id'] ?? null;
+            $confirmationNumber = Arr::first(
+                Arr::get($reservation, 'reservationIdList', []),
+                fn ($item) => $item['type'] === 'Confirmation'
+            )['id'] ?? null;
 
             if ($confirmationNumber) {
                 $confirmationNumbers[] = [
@@ -107,10 +111,12 @@ class OracleHotelBookingRetrieveBookingTransformer
                 $primaryName = Arr::first(Arr::get($guest, 'personName', []), fn ($name) => Arr::get($name, 'nameType') === 'Primary') ?? [];
 
                 // Создаем массив, содержащий хотя бы одного гостя (основного)
-                $roomPassengers = [[
-                    'given_name' => Arr::get($primaryName, 'givenName'),
-                    'family_name' => Arr::get($primaryName, 'surname'),
-                ]];
+                $roomPassengers = [
+                    [
+                        'given_name' => Arr::get($primaryName, 'givenName'),
+                        'family_name' => Arr::get($primaryName, 'surname'),
+                    ],
+                ];
             }
 
             $rooms[] = [
@@ -182,7 +188,9 @@ class OracleHotelBookingRetrieveBookingTransformer
         $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
             ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
         $responseModel->setCancellationTerms($cancellationTerms);
-        $responseModel->setDepositInformation(Arr::get($saveResponse, 'deposits', []));
+        $depositInformation = Arr::get($saveResponse, 'deposits', []);
+        $depositInformation = ! empty($depositInformation) ? $depositInformation : \App\Repositories\ApiBookingItemRepository::getDeposits($filters['booking_item']);
+        $responseModel->setDepositInformation($depositInformation);
         $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
 
         $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
