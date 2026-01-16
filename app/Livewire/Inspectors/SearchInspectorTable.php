@@ -87,7 +87,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->modalWidth('4xl')
                     ->form($this->getFormSchema())
                     //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
-                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+                    ->visible(fn() => auth()->user()?->roles()->where('slug', 'admin')->exists()),
 
             ])
             ->paginated([5, 10, 25, 50])
@@ -101,7 +101,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('status')
                     ->badge()
                     ->toggleable()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'error' => 'danger',
                         'success' => 'success',
                         default => 'gray',
@@ -112,7 +112,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('type')
                     ->label('')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'price' => 'success',
                         'check_quote' => 'warning',
                         'change' => 'gray',
@@ -125,7 +125,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->formatStateUsing(function ($state, $record) {
                         $giataIds = json_decode($record->request, true)['giata_ids'] ?? [];
-                        if (! is_array($giataIds) || empty($giataIds)) {
+                        if (!is_array($giataIds) || empty($giataIds)) {
                             return '';
                         }
                         $codes = array_slice($giataIds, 0, 3);
@@ -199,7 +199,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         $token_id = Arr::get($input, 'token_id');
                         $channel = Channel::where('access_token', 'like', "%$token_id")->first();
                         $apiUser = $channel?->apiUsers?->first();
-                        if (! $apiUser) {
+                        if (!$apiUser) {
                             $apiUser = User::whereHas('roles', function ($query) {
                                 $query->where('slug', RoleSlug::API_USER->value);
                             })->first();
@@ -238,14 +238,14 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                             ->send();
                     })
                     //                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
-                    ->visible(fn () => auth()->user()?->roles()->where('slug', 'admin')->exists()),
+                    ->visible(fn() => auth()->user()?->roles()->where('slug', 'admin')->exists()),
 
             ])
             ->bulkActions([
                 BulkAction::make('delete')
-                    ->action(fn ($records) => ApiSearchInspector::destroy($records->pluck('search_id')->toArray()))
+                    ->action(fn($records) => ApiSearchInspector::destroy($records->pluck('search_id')->toArray()))
                     ->requiresConfirmation()
-                    ->visible(fn () => config('superuser.email') === auth()->user()->email),
+                    ->visible(fn() => config('superuser.email') === auth()->user()->email),
             ]);
     }
 
@@ -305,7 +305,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     $property = $mapping->property;
                     $name = $property ? $property->name : '';
 
-                    return [$mapping->giata_id => $mapping->giata_id.' | '.$name];
+                    return [$mapping->giata_id => $mapping->giata_id . ' | ' . $name];
                 })),
             CustomRepeater::make('occupancy')
                 ->label('Room')
@@ -321,13 +321,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 ->default(2),
                             TagsInput::make('children_ages')
                                 ->label('Children Ages')
-                                ->required()
                                 ->placeholder('Ages 1-13')
                                 ->rules([
                                     'array',
-                                    fn () => function (string $attribute, $value, $fail) {
+                                    fn() => function (string $attribute, $value, $fail) {
                                         foreach ($value as $age) {
-                                            if (! is_numeric($age) || $age < 1 || $age > 13 || floor($age) != $age) {
+                                            if (!is_numeric($age) || $age < 1 || $age > 13 || floor($age) != $age) {
                                                 $fail("Age {$age} must be an integer between 1 and 13.");
                                             }
                                         }
@@ -353,7 +352,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                                 ->label('')
                                 ->placeholder('Comment'),
                         ])->columns(2)
-                            ->visible(fn (Get $get) => $get('../../run_booking_flow')),
+                            ->visible(fn(Get $get) => $get('../../run_booking_flow')),
                     ])->columns(1),
                 ]),
             Grid::make('')->schema([
