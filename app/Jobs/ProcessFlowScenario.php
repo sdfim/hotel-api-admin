@@ -20,6 +20,13 @@ class ProcessFlowScenario implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 1;
+
     protected $data;
 
     protected $user;
@@ -40,24 +47,47 @@ class ProcessFlowScenario implements ShouldQueue
      */
     public function handle()
     {
-        $key_rs_cache = 'flow_scenario_result_'.md5(json_encode($this->data));
-        $this->data['key_rs_cache'] = $key_rs_cache;
+        try {
+            $key_rs_cache = 'flow_scenario_result_' . md5(json_encode($this->data));
+            $this->data['key_rs_cache'] = $key_rs_cache;
 
-        Artisan::call('flow:book-diff-scenarios', ['data' => $this->data]);
+            $exitCode = Artisan::call('flow:book-diff-scenarios', ['data' => $this->data]);
 
-        $output = Cache::get($key_rs_cache);
+            if ($exitCode !== 0) {
+                $output = Cache::get($key_rs_cache);
+                $errorMessage = Arr::get($output, 'error', 'Unknown error occurred.');
 
-        $searchId = Arr::get($output, 'search_id');
-        $bookingId = Arr::get($output, 'booking_id');
-        $bookingItem = Arr::get($output, 'booking_item');
+                Notification::make()
+                    ->title('Flow scenario failed.')
+                    ->body("The flow scenario has failed. Error: {$errorMessage}")
+                    ->danger()
+                    ->sendToDatabase($this->user);
 
-        Notification::make()
-            ->title('Flow scenario processed successfully.')
-            ->body('The flow scenario has been processed successfully.'.
-                ($searchId ? " Search ID: {$searchId}." : '').
-                ($bookingId ? " Booking ID: {$bookingId}." : '').
-                ($bookingItem ? " Booking Item: {$bookingItem}." : ''))
-            ->success()
-            ->sendToDatabase($this->user);
+                return; // Завершаем успешно для очереди, так как мы уже обработали ошибку
+            }
+
+            $output = Cache::get($key_rs_cache);
+
+            $searchId = Arr::get($output, 'search_id');
+            $bookingId = Arr::get($output, 'booking_id');
+            $bookingItem = Arr::get($output, 'booking_item');
+
+            Notification::make()
+                ->title('Flow scenario processed successfully.')
+                ->body('The flow scenario has been processed successfully.' .
+                    ($searchId ? " Search ID: {$searchId}." : '') .
+                    ($bookingId ? " Booking ID: {$bookingId}." : '') .
+                    ($bookingItem ? " Booking Item: {$bookingItem}." : ''))
+                ->success()
+                ->sendToDatabase($this->user);
+        } catch (\Throwable $e) {
+            logger()->error('ProcessFlowScenario Error: ' . $e->getMessage(), ['exception' => $e]);
+
+            Notification::make()
+                ->title('Flow scenario critical error.')
+                ->body('A critical error occurred while processing the scenario. Check logs.')
+                ->danger()
+                ->sendToDatabase($this->user);
+        }
     }
 }

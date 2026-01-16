@@ -35,7 +35,7 @@ class FlowBookDiffScenarios extends Command
         $this->isQueueSync = config('queue.default') === 'sync';
     }
 
-    public function handle(): void
+    public function handle(): int
     {
         Artisan::call('cache:clear');
 
@@ -94,29 +94,31 @@ class FlowBookDiffScenarios extends Command
         $bookingItem = $this->fetchBookingItem($searchResponse, $formData['occupancy']);
 
         if (! $bookingItem) {
-            $this->error('Booking item not found by given room params');
             logger()->error('FlowBookDiffScenarios _ Booking item not found by given room params', ['formData' => $formData, 'searchResponse' => $searchResponse]);
-            exit(1);
+
+            return $this->reportErrorAndFail('Booking item not found by given room params', $key_rs_cache);
         }
 
         // Disable email sending for this booking item. Running test flow only
         Cache::put('bookingItem_no_mail_'.$bookingItem, false, 600);
 
         if (! $bookingItem) {
-            $this->error('Booking item not found by given room params');
-            exit(1);
+            return $this->reportErrorAndFail('Booking item not found by given room params (secondary check)', $key_rs_cache);
         }
 
         // Add to booking
         $this->handleSleep();
         $bookingId = $this->addBookingItem($bookingItem);
 
+        if (! $bookingId) {
+            return $this->reportErrorAndFail('Adding item to booking failed', $key_rs_cache);
+        }
+
         // Add Passengers
         $this->handleSleep();
         $responseAddPassengers = $this->addPassengers($bookingId, [$bookingItem], [$formData['occupancy']]);
         if (Arr::get($responseAddPassengers, 'error')) {
-            $this->error('Adding passengers failed');
-            exit(1);
+            return $this->reportErrorAndFail('Adding passengers failed', $key_rs_cache);
         }
 
         $this->handleSleep();
@@ -142,6 +144,8 @@ class FlowBookDiffScenarios extends Command
             ];
             Cache::put($key_rs_cache, $dataForQueue, 3600);
         }
+
+        return self::SUCCESS;
     }
 
     public function removeEmptyValues(array $array): array
@@ -160,5 +164,16 @@ class FlowBookDiffScenarios extends Command
         }
 
         return $array;
+    }
+
+    private function reportErrorAndFail(string $message, ?string $cacheKey): int
+    {
+        $this->error($message);
+
+        if ($cacheKey) {
+            Cache::put($cacheKey, ['error' => $message], 3600);
+        }
+
+        return self::FAILURE;
     }
 }

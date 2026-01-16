@@ -52,6 +52,14 @@ class NotificationTable extends Component implements HasForms, HasTable
                     ->toggleable(),
                 TextColumn::make('data.status')
                     ->label('Status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'success' => 'success',
+                        'error', 'danger' => 'danger',
+                        'warning' => 'warning',
+                        'info' => 'info',
+                        default => 'gray',
+                    })
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
@@ -68,12 +76,15 @@ class NotificationTable extends Component implements HasForms, HasTable
                         'info' => 'Info',
                         'warning' => 'Warning',
                     ])
-                    ->query(function (Builder $query, $data) {
-                        if ($data['value']) {
-                            $query->whereRaw("JSON_EXTRACT(data, '$.status') = ?", [$data]);
-                        } else {
-                            $query->whereNotNull('data');
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === 'error') {
+                            return $query->whereIn('data->status', ['error', 'danger']);
                         }
+
+                        return $query->when(
+                            $data['value'],
+                            fn(Builder $query, $state): Builder => $query->where('data->status', $state)
+                        );
                     }),
             ]);
     }
