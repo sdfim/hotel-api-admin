@@ -168,7 +168,13 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setRateDescription($roomGroup['room_name'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
+        $requestedCurrency = Arr::get($query, 'currency', 'USD');
         $this->currency = Arr::get($roomGroup, 'rates.0.total.currencyCode', 'USD');
+
+        if ($requestedCurrency !== '*') {
+            $this->currency = $requestedCurrency;
+        }
+
         $roomGroupsResponse->setCurrency($this->currency);
 
         $rooms = [];
@@ -265,6 +271,11 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         $pricingRulesApplier['total_net'] = 0.0;
 
         $currency = Arr::get($rate, 'total.currencyCode', 'USD');
+
+        $requestedCurrency = Arr::get($query, 'currency', 'USD');
+        if ($requestedCurrency !== '*' && $currency !== $requestedCurrency) {
+            return [];
+        }
 
         $repoTaxFees = collect(Arr::get($this->repoTaxFees, $giataId, []))
             ->map(function ($items) {

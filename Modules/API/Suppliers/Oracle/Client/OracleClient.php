@@ -32,8 +32,14 @@ class OracleClient
     protected array $headers = [];
 
     protected array $listRoomTypes = [
-        'VINV' => 'EST1B, EST2B, EST3B, EST4B, EEE4B, CPAJS, CPAJL, MPAMR, MPAST, MPAMS, GMAMR, GMAST, GMAMS, GBLMR, GBLST, GBLMS, LVIMR, LCOMR, BON1BK, BON1BD, BON2BS, BON2BL, LCOST, LCOMS, LVIST, LVIMS, LRLCE, LRL1B, LPUSH, LPU1B, LPU2B, LPU3B, LSP2B, LRL2B, LRL3B, LRL4B, LRD1B, LRD2B, SGAMR, SGAST, LSP3B, GMADJS, GMAD1B, KOSL2B, KOSPST, KOS2PS',
-        'VIRM' => 'LVIMR, LCOMR, LCOST, LCOMS, LVIST, LVIMS, LPUSH, LPU2B, LPU3B, LSP2B, LSP3B, LRD1B, LRD2B, GBLMR, GBLST, GBLMS, GMAMR, GMAST, GMAMS, MPAMR, MPAST, MPAMS, SGAMR, SGAST, EST1B, EST2B, EST3B, EST4B, BLIMR, BLIST, BLIMS, LRL2B, LRL3B, LRL4B',
+        'MXN' => [
+            'VINV' => 'BON1BK, BON1BD, BON2BS, BON2BL, EST1B, EST2B, EST3B, EST4B, EEE4B, CPAJS, CPAJL, MPAMR, MPAST, MPAMS, GMAMR, GMAST, GMAMS, GBLMR, GBLST, GBLMS, LVIMR, LCOMR, LCOST, LCOMS, LVIST, LVIMS, LRLCE, LRL1B, LPUSH, LPU1B, LPU2B, LPU3B, LSP2B, LRL2B, LRL3B, LRL4B, LRD1B, LRD2B, SGAMR, SGAST, LSP3B, GMADJS, GMAD1B, KOSL2B, KOSPST, KOS2PS',
+            'VIRM' => 'JST1BK, LVIMR, LCOMR, LCOST, LCOMS, LVIST, LVIMS, LPUSH, LPU2B, LPU3B, LSP2B, LSP3B, LRD1B, LRD2B, GBLMR, GBLST, GBLMS, GMAMR, GMAST, GMAMS, MPAMR, MPAST, MPAMS, SGAMR, SGAST, EST1B, EST2B, EST3B, EST4B, BLIMR, BLIST, BLIMS, LRL2B, LRL3B, LRL4B',
+        ],
+        'USD' => [
+            'VINV' => 'BON1BK, BON1BD, BON2BS, BON2BL, KOSL2B, KOSPST, KOS2PS, CPAJS, CPAJL',
+            'VIRM' => 'JST1BK,',
+        ],
     ];
 
     public function __construct(
@@ -222,12 +228,21 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
+                $currency = Arr::get($filters, 'currency', 'USD');
                 $roomTypesToProcess = [];
                 if (empty($guestDetails['roomType'])) {
-                    $roomTypesString = $this->listRoomTypes[$hotelId] ?? '';
-                    $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    if ($currency === '*') {
+                        $mxn = $this->listRoomTypes['MXN'][$hotelId] ?? '';
+                        $usd = $this->listRoomTypes['USD'][$hotelId] ?? '';
+                        $roomTypes = array_unique(array_filter(array_map('trim', explode(',', $mxn.','.$usd))));
+                    } else {
+                        $curKey = in_array($currency, ['USD', 'MXN']) ? $currency : 'USD';
+                        $roomTypesString = $this->listRoomTypes[$curKey][$hotelId] ?? '';
+                        $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    }
                     if (! empty($roomTypes)) {
-                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / 4));
+                        $groupCount = min(4, (int) ceil(count($roomTypes) / 10));
+                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / $groupCount));
                     } else {
                         $roomTypesToProcess = [[null]];
                     }
@@ -247,7 +262,6 @@ class OracleClient
                         'ratePlanInfo' => 'true',
                         'resGuaranteeInfo' => 'true',
                         'roomTypeInfo' => 'true',
-                        'currencyCode' => 'USD',
                         'roomType' => $batchRoomType ?: null,
                         'ratePlanCode' => $guestDetails['ratePlanCode'],
 
@@ -438,12 +452,21 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
+                $currency = Arr::get($filters, 'currency', 'USD');
                 $roomTypesToProcess = [];
                 if (empty($guestDetails['roomType'])) {
-                    $roomTypesString = $this->listRoomTypes[$hotelId] ?? '';
-                    $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    if ($currency === '*') {
+                        $mxn = $this->listRoomTypes['MXN'][$hotelId] ?? '';
+                        $usd = $this->listRoomTypes['USD'][$hotelId] ?? '';
+                        $roomTypes = array_unique(array_filter(array_map('trim', explode(',', $mxn.','.$usd))));
+                    } else {
+                        $curKey = in_array($currency, ['USD', 'MXN']) ? $currency : 'USD';
+                        $roomTypesString = $this->listRoomTypes[$curKey][$hotelId] ?? '';
+                        $roomTypes = array_filter(array_map('trim', explode(',', $roomTypesString)));
+                    }
                     if (! empty($roomTypes)) {
-                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / 4));
+                        $groupCount = min(4, (int) ceil(count($roomTypes) / 10));
+                        $roomTypesToProcess = array_chunk($roomTypes, (int) ceil(count($roomTypes) / $groupCount));
                     } else {
                         $roomTypesToProcess = [[null]];
                     }
@@ -463,7 +486,6 @@ class OracleClient
                         'ratePlanInfo' => 'true',
                         'resGuaranteeInfo' => 'true',
                         'roomTypeInfo' => 'true',
-                        'currencyCode' => 'USD',
                         'roomType' => $batchRoomType ?: null,
                         'ratePlanCode' => $guestDetails['ratePlanCode'],
                         'limit' => 200,

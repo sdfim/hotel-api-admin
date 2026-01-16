@@ -378,14 +378,15 @@
                     </li>
                 @endif
 
-                @can('statistic-charts')
-                    <li>
-                        <a href="{{ Route('statistic-charts') }}" class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-graph-pie"></i>
-                            <span data-key="t-statistic-charts"> Statistic charts</span>
-                        </a>
-                    </li>
-                @endcan
+{{--                @can('statistic-charts')--}}
+{{--                    <li>--}}
+{{--                        <a href="{{ Route('statistic-charts') }}" class="{{ ClassHelper::sidebarPointClass() }}">--}}
+{{--                            <i class="dripicons-graph-pie"></i>--}}
+{{--                            <span data-key="t-statistic-charts"> Statistic charts</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                @endcan--}}
+
                 @if($canView(GiataGeography::class))
                     <li>
                         <a href="{{ Route('geography') }}" class="{{ ClassHelper::sidebarPointClass() }}">
