@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Channels;
 
+use App\Helpers\ClassHelper;
 use App\Models\Channel;
 use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
@@ -58,6 +60,14 @@ class ChannelsTable extends Component implements HasForms, HasTable
                         ->action(fn (Channel $record) => $record->delete())
                         ->visible(fn (Channel $record) => Gate::allows('delete', $record)),
                 ]),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->url(fn (): string => route('channels.create'))
+                    ->visible(fn () => Gate::allows('create', Channel::class)),
             ]);
     }
 
@@ -68,7 +78,8 @@ class ChannelsTable extends Component implements HasForms, HasTable
         return Channel::query()
             ->when(! $user->hasRole(RoleSlug::ADMIN->value), function ($query) use ($user) {
                 return $query->whereHas(
-                    'token', fn ($query) => $query->where('tokenable_id', $user->id),
+                    'token',
+                    fn ($query) => $query->where('tokenable_id', $user->id),
                 );
             });
     }

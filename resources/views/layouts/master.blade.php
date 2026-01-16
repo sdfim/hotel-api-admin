@@ -38,7 +38,8 @@
             document.body.setAttribute('data-mode', theme);
             if (theme === 'dark') document.documentElement.classList.add('dark');
 
-            const topbarMode = localStorage.getItem('topbar-mode') || 'fixed';
+            let topbarMode = localStorage.getItem('topbar-mode') || 'fixed';
+            if (topbarMode === 'dynamic') topbarMode = 'fixed';
             document.body.classList.add('topbar-' + topbarMode);
         })();
     </script>
@@ -67,6 +68,7 @@
 
             <div class="container-fluid px-[0.625rem]">
                 <!-- content -->
+                @include('layouts.dynamic-breadcrumbs', ['class' => 'page-content-breadcrumbs'])
                 @yield('content')
             </div>
         </div>

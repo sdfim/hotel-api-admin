@@ -16,14 +16,14 @@ trait ByCurrentTeam
         return $this->canByTeam('update', $user, $model);
     }
 
-    public function delete(User $user, Model $model): bool
+    public function delete(User $user, ?Model $model = null): bool
     {
         return $this->canByTeam('delete', $user, $model);
     }
 
     private function canByTeam(string $name, User $user, ?Model $model = null): bool
     {
-        if (! $model) {
+        if (!$model) {
             return $this->can($name, $user);
         }
 
@@ -32,7 +32,7 @@ trait ByCurrentTeam
         }
 
         if ($this->withTeam($name, $user)) {
-            if (! empty($this->withRelation)) {
+            if (!empty($this->withRelation)) {
                 return $model->{$this->withRelation}()
                     ->whereIn('vendor_id', $user->allTeams()->pluck('vendor_id')->toArray())
                     ->exists();
@@ -41,7 +41,7 @@ trait ByCurrentTeam
             return in_array($model->vendor_id, $user->allTeams()->pluck('vendor_id')->toArray());
         }
 
-        $permission = $this->getPrefix().'.'.$name;
+        $permission = $this->getPrefix() . '.' . $name;
 
         return $user->hasPermission($permission);
     }

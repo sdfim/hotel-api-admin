@@ -3,12 +3,167 @@
 /*@import "supplier-repository.css";*/
 @import "swiper/css/bundle";
 
-/* Default Topbar Behavior */
+body {
+    background-color: #f3f5f8 !important;
+}
+
+[data-mode="dark"] body {
+    background-color: #0c0c10 !important;
+}
+
+/* Default Topbar Behavior (Dark) */
 nav.main {
     height: 65px;
     border: none;
     border-bottom: 1px solid var(--theme-light-color);
     transition: all 0.3s ease;
+    background-color: #1c1c24 !important; /* Almost black */
+}
+
+/* Default Colors for Dark Topbar */
+nav.main .vertical-menu-btn,
+nav.main #user-dropdown-toggle span,
+nav.main #user-dropdown-toggle svg,
+nav.main .breadcrumb-item a,
+nav.main .breadcrumb-link,
+nav.main .breadcrumb-current {
+    color: #ffffff !important;
+}
+
+nav.main .logo-lg,
+nav.main .logo-sm {
+    filter: none !important;
+}
+
+[data-mode="dark"] nav.main {
+    background-color: #1c1c24;
+}
+
+/* Unified Logo Area Background (Part of the "Sidebar Column") */
+.topbar-brand {
+    background-color: transparent; /* Default to follow nav.main or body */
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 250px !important;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Match Sidebar color ONLY when Topbar is Hidden */
+body.topbar-hidden .topbar-brand {
+    background-color: #f3f5f8 !important;
+    border-right: 1px solid #e5e7eb !important;
+    height: 100% !important;
+}
+
+body[data-mode="dark"].topbar-hidden .topbar-brand {
+    background-color: #0c0c10 !important;
+    border-right: 1px solid #2d2d39 !important;
+}
+
+body[data-sidebar-size="sm"] .topbar-brand,
+body[data-sidebar-size="sm"] .vertical-menu,
+body[data-sidebar-size="sm"] .navbar-brand {
+    width: 70px !important;
+    min-width: 70px !important;
+}
+
+body[data-sidebar-size="sm"] .main-content {
+    margin-left: 70px !important;
+}
+
+@media (max-width: 992px) {
+    body[data-sidebar-size="sm"]:not(.sidebar-enable) .main-content {
+        margin-left: 0 !important;
+    }
+}
+
+/* Prevent labels from appearing in the main sidebar column in SM mode, UNLESS hovered */
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:not(:hover) > a span:not(.mdi),
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu .menu-heading,
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu .badge,
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu .has-arrow:after {
+    display: none !important;
+}
+
+/* Ensure labels inside floating sub-menus or hovered parent titles are VISIBLE */
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > a span:not(.mdi) {
+    display: block !important;
+    position: absolute;
+    left: 70px;
+    top: 0;
+    background-color: #ffffff;
+    width: 190px;
+    padding: 15px 20px;
+    box-shadow: 6px 4px 12px rgba(0,0,0,0.1);
+    border-radius: 0 4px 4px 0;
+    color: #495057 !important;
+    z-index: 45;
+}
+
+body[data-mode="dark"][data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > a span:not(.mdi) {
+    background-color: #1c1c24;
+    color: #ced4da !important;
+    box-shadow: 6px 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Force sub-menus to stay collapsed (hidden) inline in SM mode */
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li > ul {
+    display: none !important;
+}
+
+/* Allow sub-menus to show ONLY on hover as floating elements */
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul {
+    display: block !important;
+    position: absolute;
+    left: 70px;
+    top: 0;
+    width: 190px;
+    background-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    padding: 8px 0 !important;
+    border-radius: 0 4px 4px 0 !important;
+    z-index: 45 !important;
+}
+
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul a {
+    color: #495057 !important;
+    padding: 8px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+}
+
+/* Explicitly SHOW spans (text) inside the floating hover menu */
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul span {
+    display: inline-block !important;
+    margin-left: 10px !important;
+}
+
+body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul a:hover {
+    background-color: #f8f9fa !important;
+    color: var(--theme-color) !important;
+}
+
+/* Dark mode for floating sub-menus */
+body[data-mode="dark"][data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul {
+    background-color: #1c1c24 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+body[data-mode="dark"][data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul a {
+    color: #ced4da !important;
+}
+
+body[data-mode="dark"][data-sidebar-size="sm"] .vertical-menu #sidebar-menu > ul > li:hover > ul a:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Add a transition to make appearing smoother */
+.vertical-menu #sidebar-menu > ul > li > a span {
+    transition: opacity 0.2s ease;
 }
 
 .vertical-menu, .main-content, .footer {
@@ -35,8 +190,13 @@ nav.main {
     padding: 0 !important;
 }
 
+body:not([data-sidebar-size="sm"]) .vertical-menu-btn {
+    justify-content: flex-start !important;
+    padding-left: 20px !important;
+}
+
 .navbar-brand .logo-link {
-    margin-left: 10px;
+    margin-left: -14px;
     transition: all 0.3s ease;
 }
 
@@ -45,67 +205,70 @@ body[data-sidebar-size="sm"] .navbar-brand .logo-link {
     display: none !important;
 }
 
-/* Dynamic AND Hidden Mode Shared Behavior */
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) nav.main {
-    background: transparent !important;
+/* Hidden Mode Behavior */
+body.topbar-hidden nav.main {
+    background-color: transparent !important;
     border-bottom: none !important;
+    box-shadow: none !important;
 }
 
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .navbar-brand {
-    background: #f3f5f8 !important; /* Matches Light SideBar */
-    border-right: none !important;
-    transition: all 0.3s ease;
-    width: var(--tw-sidebar-width);
+body.topbar-hidden .navbar-brand {
+    background: transparent !important;
+    border: none !important;
+    width: 100% !important;
+    box-shadow: none !important;
 }
 
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .navbar-brand {
-    background: #0c0c10 !important; /* Matches Dark SideBar */
+/* Hide breadcrumbs and right section in hidden mode. FIX: Target ONLY topbar elements */
+body.topbar-hidden nav.main .topbar-right-section,
+body.topbar-hidden nav.main .flex-1 {
+    display: none !important;
 }
 
-/* Light Mode Colors (Black logos/text) */
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-lg,
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-sm {
+/* Hidden Mode - Adapt Colors for Light Background */
+body.topbar-hidden .logo-lg,
+body.topbar-hidden .logo-sm {
     filter: invert(1) brightness(0.2) !important;
 }
 
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .vertical-menu-btn,
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle span,
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle svg {
+body.topbar-hidden .vertical-menu-btn,
+body.topbar-hidden #user-dropdown-toggle span,
+body.topbar-hidden #user-dropdown-toggle svg,
+body.topbar-hidden .breadcrumb-link,
+body.topbar-hidden .breadcrumb-current {
     color: #1a1a1a !important;
 }
 
 /* Dark Mode Colors (White logos/text) */
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-lg,
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-sm {
+[data-mode="dark"].topbar-hidden .logo-lg,
+[data-mode="dark"].topbar-hidden .logo-sm {
     filter: none !important;
 }
 
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .vertical-menu-btn,
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle span,
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle svg {
+[data-mode="dark"].topbar-hidden .vertical-menu-btn,
+[data-mode="dark"].topbar-hidden #user-dropdown-toggle span,
+[data-mode="dark"].topbar-hidden #user-dropdown-toggle svg,
+[data-mode="dark"].topbar-hidden .breadcrumb-link,
+[data-mode="dark"].topbar-hidden .breadcrumb-current {
     color: #ffffff !important;
 }
 
-/* Mode Specifics */
-body.topbar-dynamic.is-scrolled nav.main {
-    height: 50px !important;
+[data-mode="dark"].topbar-hidden .breadcrumb-link {
+    color: #d4b491 !important;
 }
 
-body.topbar-dynamic.is-scrolled .vertical-menu {
-    top: 50px !important;
-}
 
 body.topbar-hidden nav.main {
     height: 50px !important;
     position: fixed !important;
-    z-index: 50 !important;
+    z-index: 41 !important;
     pointer-events: none;
     background: transparent !important;
     border: none !important;
 }
 
-body.topbar-hidden nav.main > * {
-    pointer-events: auto;
+body.topbar-hidden nav.main .topbar-brand {
+    pointer-events: auto; /* Re-enable clicks for the logo area */
 }
 
 body.topbar-hidden .navbar-brand {
@@ -115,16 +278,92 @@ body.topbar-hidden .navbar-brand {
 body.topbar-hidden .vertical-menu {
     top: 0 !important;
     height: 100vh !important;
-    z-index: 40 !important;
     padding-top: 50px !important;
+}
+
+/* Global Sidebar Interaction Fixes */
+.vertical-menu {
+    z-index: 40 !important; /* Above content (0) but below modals (50+) */
+    overflow: visible !important; /* Critical for hover titles/submenus in SM mode */
+}
+
+body.topbar-hidden .page-content {
+    padding-top: 10px !important;
 }
 
 body.topbar-hidden .main-content {
     margin-top: 0 !important;
 }
 
-body.topbar-hidden .page-content {
-    padding-top: 10px !important;
+/* Fix sidebar submenu/hover clipping in SM mode */
+body[data-sidebar-size="sm"] .vertical-menu,
+body[data-sidebar-size="sm"] .vertical-menu [data-simplebar] {
+    overflow: visible !important;
+}
+
+body[data-sidebar-size="sm"] .vertical-menu .simplebar-content-wrapper,
+body[data-sidebar-size="sm"] .vertical-menu .simplebar-mask {
+    overflow: visible !important;
+}
+
+/* Ensure sidebar/topbar stay BELOW modals but ABOVE content */
+body:is(.modal-open, .overflow-hidden, .filament-modal-open, .fi-modal-open) .vertical-menu,
+body:is(.modal-open, .overflow-hidden, .filament-modal-open, .fi-modal-open) nav.main,
+body:is(.modal-open, .overflow-hidden, .filament-modal-open, .fi-modal-open) .sidebar-user-container,
+body:is(.modal-open, .overflow-hidden, .filament-modal-open, .fi-modal-open) .vertical-menu #sidebar-menu > ul > li:hover > ul,
+body:is(.modal-open, .overflow-hidden, .filament-modal-open, .fi-modal-open) .vertical-menu #sidebar-menu > ul > li:hover > a span:not(.mdi) {
+    z-index: 0 !important;
+}
+
+/* Fix dropdown layer for sidebar user menu */
+.sidebar-user-container {
+    z-index: 50 !important; /* Higher than vertical-menu (40) to let dropdown be on top */
+}
+
+/* Sidebar User Profile Logic - ALWAYS VISIBLE */
+.sidebar-user-container {
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    display: block !important;
+}
+
+/* Hide topbar user menu & center section ONLY in Hidden mode */
+body.topbar-hidden .topbar-right-section,
+body.topbar-hidden .flex-1.px-4 {
+    display: none !important;
+}
+
+/* In topbar-hidden mode, hide EVERYTHING in topbar except the logo area */
+body.topbar-hidden nav.main > *:not(.topbar-brand) {
+    display: none !important;
+}
+
+.sidebar-user-container button:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+[data-mode="dark"] .sidebar-user-container button:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Compressed sidebar state for user profile */
+body[data-sidebar-size="sm"] .sidebar-user-name,
+body[data-sidebar-size="sm"] .sidebar-user-container .mdi-chevron-up {
+    display: none !important;
+}
+
+body[data-sidebar-size="sm"] .sidebar-user-container {
+    width: 70px;
+}
+
+/*body[data-sidebar-size="sm"] .sidebar-user-container button {*/
+/*    justify-content: center !important;*/
+/*    padding-left: 0 !important;*/
+/*    padding-right: 0 !important;*/
+/*}*/
+
+body[data-sidebar-size="sm"] .sidebar-user-container i.dripicons-user {
+    margin-left: 0 !important;
 }
 
 /* Default: hide the simplified bars icon for user menu */
@@ -132,40 +371,7 @@ body.topbar-hidden .page-content {
     display: none;
 }
 
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle {
-    background: rgba(255, 255, 255, 0.4) !important;
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 6px;
-    width: 36px;
-    height: 36px;
-    padding: 0 !important;
-    justify-content: center !important;
-    position: fixed !important;
-    right: 15px;
-    top: 7px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255,255,255,0.1);
-}
-
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-toggle-content {
-    display: none !important;
-}
-
-body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-mode-icon {
-    display: block !important;
-    color: #333 !important;
-    font-size: 16px;
-}
-
-[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-mode-icon {
-    color: #eee !important;
-}
-
-.logo-lg, .logo-sm, .vertical-menu-btn, #user-dropdown-toggle span, #user-dropdown-toggle svg, #user-dropdown-toggle {
+.logo-lg, .logo-sm, .vertical-menu-btn, #user-dropdown-toggle span, #user-dropdown-toggle svg, #user-dropdown-toggle, .sidebar-user-container {
     transition: all 0.3s ease;
 }
 
@@ -275,3 +481,71 @@ footer.border-t {
 .fi-btn-label {
     text-transform: capitalize;
 }
+
+/* Breadcrumbs Visibility & Alignment Logic */
+
+/* 1. Reset Brand width to standard if needed, or keep it for alignment with sidebar */
+.navbar-brand {
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* 2. Breadcrumbs in the content are ALWAYS shown */
+.page-content-breadcrumbs {
+    display: block !important;
+    padding-left: 0.5rem;
+    margin-bottom: 5px;
+}
+
+/* 3. Hide topbar breadcrumb container entirely if empty */
+.flex-1 .breadcrumb-container {
+    display: none !important;
+}
+
+/* 7. Positioning for content breadcrumbs (Photo 1) */
+/* Premium Dynamic Breadcrumbs */
+.breadcrumb-container {
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb-container ol li:not(:last-child)::after {
+    content: "›";
+    margin: 0 0.5rem;
+    color: #cbd5e1; /* slate-300 */
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+[data-mode="dark"] .breadcrumb-container ol li:not(:last-child)::after {
+    color: #94a3b8; /* Brighter slate for dark mode */
+}
+
+.breadcrumb-link {
+    color: #b19558;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+[data-mode="dark"] .breadcrumb-link {
+    color: #d4b491 !important; /* Brighter gold for dark mode */
+}
+
+[data-mode="dark"] .breadcrumb-link:hover {
+    color: #eaddcf !important;
+}
+
+.breadcrumb-link:hover {
+    color: #8a7444;
+    text-decoration: none;
+}
+
+.breadcrumb-current {
+    color: #94a3b8; /* slate-400 */
+    font-weight: 400;
+}
+
+[data-mode="dark"] .breadcrumb-current {
+    color: #f1f5f9; /* Brighter slate for dark mode */
+}
+

@@ -205,7 +205,7 @@ thead .bg-gray-50{
     position: relative;
     background-color: var(--white-color);
     padding: 1.5rem;
-    border: 1px solid #e5e7eb;
+    border: 0.5px solid rgba(0, 0, 0, 0.08); /* Hairline border */
     border-radius: 0px;
 }
 
@@ -239,7 +239,7 @@ thead .bg-gray-50{
     grid: auto-flow / repeat(auto-fill, minmax(100px, 1fr));
     overflow-x: auto;
     scrollbar-width: none;
-    border: 1px solid #e5e7eb;
+    border: 0.5px solid rgba(0, 0, 0, 0.08); /* Hairline border */
     border-radius: 0px;
     padding: 0.7rem;
     margin: 60px 0 5px;
@@ -309,6 +309,7 @@ thead .bg-gray-50{
 /* breadcrumbs */
 .breadcrumb-container {
     margin-bottom: 20px;
+    padding-top: 4px; /* Raised 10px from previous 14px */
     font-size: 14px;
 }
 
@@ -822,6 +823,15 @@ body[data-mode="dark"] label {
     color: #9ca3af !important;
 }
 
+/* Dark Mode Backgrounds for Form and Tabs */
+.dark .hotel-form-container,
+body[data-mode="dark"] .hotel-form-container,
+.dark .sr_tab-list,
+body[data-mode="dark"] .sr_tab-list {
+    background-color: #1c1c24 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 .dark .fi-ta-cell-content,
 .dark .fi-ta-text-item,
 .dark .fi-ta-text-item-label,
@@ -849,4 +859,20 @@ body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul u
 body[data-mode="dark"][data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover,
 .dark[data-sidebar-size=sm] .vertical-menu #sidebar-menu > ul ul a:hover {
     color: var(--theme-color) !important;
+}
+
+[data-mode="dark"] .breadcrumb-item,
+[data-mode="dark"] .breadcrumb-item a,
+[data-mode="dark"] .breadcrumb-link {
+    color: #b19558 !important;
+    font-weight: 500;
+}
+
+[data-mode="dark"] .breadcrumb-item::after {
+    color: #71717a !important;
+}
+
+[data-mode="dark"] .breadcrumb-item:last-child {
+    color: #b19558 !important;
+    font-weight: bold;
 }

@@ -84,10 +84,10 @@
     $configurationLinks = $fixedLinks->merge($sortedLinks);
 @endphp
 <!-- ========== Left Sidebar Start ========== -->
-<div class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
+<div class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 h-screen flex flex-col border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10"
     style="top: 65px;">
 
-    <div data-simplebar class="h-full">
+    <div data-simplebar class="flex-1 overflow-x-hidden">
         <!--- Sidemenu -->
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
@@ -124,29 +124,32 @@
                         <ul>
                             @if($canView(User::class))
                                 <li>
-                                    <a href="{{ Route('users.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                               font-medium text-gray-700 transition-all
-                                               duration-150 ease-linear hover:text-maintheme-500
-                                               dark:text-gray-300 dark:active:text-white
-                                               dark:hover:text-white">Users</a>
+                                    <a href="{{ Route('users.index') }}"
+                                        class="pl-14 pr-4 py-2 block text-[13.5px]
+                                                                                                                       font-medium text-gray-700 transition-all
+                                                                                                                       duration-150 ease-linear hover:text-maintheme-500
+                                                                                                                       dark:text-gray-300 dark:active:text-white
+                                                                                                                       dark:hover:text-white">Users</a>
                                 </li>
                             @endif
                             @if($canView(Role::class))
                                 <li>
-                                    <a href="{{ Route('roles.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                               font-medium text-gray-700 transition-all
-                                               duration-150 ease-linear hover:text-maintheme-500
-                                               dark:text-gray-300 dark:active:text-white
-                                               dark:hover:text-white">Roles</a>
+                                    <a href="{{ Route('roles.index') }}"
+                                        class="pl-14 pr-4 py-2 block text-[13.5px]
+                                                                                                                       font-medium text-gray-700 transition-all
+                                                                                                                       duration-150 ease-linear hover:text-maintheme-500
+                                                                                                                       dark:text-gray-300 dark:active:text-white
+                                                                                                                       dark:hover:text-white">Roles</a>
                                 </li>
                             @endif
                             @if($canView(Permission::class))
                                 <li>
-                                    <a href="{{ Route('permissions.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px]
-                                               font-medium text-gray-700 transition-all
-                                               duration-150 ease-linear hover:text-maintheme-500
-                                               dark:text-gray-300 dark:active:text-white
-                                               dark:hover:text-white">Permissions</a>
+                                    <a href="{{ Route('permissions.index') }}"
+                                        class="pl-14 pr-4 py-2 block text-[13.5px]
+                                                                                                                       font-medium text-gray-700 transition-all
+                                                                                                                       duration-150 ease-linear hover:text-maintheme-500
+                                                                                                                       dark:text-gray-300 dark:active:text-white
+                                                                                                                       dark:hover:text-white">Permissions</a>
                                 </li>
                             @endif
                         </ul>
@@ -169,14 +172,15 @@
                     </li>
                 @endif
 
-                @if($canView(PropertyWeighting::class))
-                    <li>
-                        <a href="{{ Route('property-weighting.index') }}" class="{{ ClassHelper::sidebarPointClass() }}">
-                            <i class="dripicons-weight"></i>
-                            <span data-key="t-property-weighting"> Property Weighting</span>
-                        </a>
-                    </li>
-                @endif
+                {{-- @if($canView(PropertyWeighting::class))--}}
+                {{-- <li>--}}
+                    {{-- <a href="{{ Route('property-weighting.index') }}"
+                        class="{{ ClassHelper::sidebarPointClass() }}">--}}
+                        {{-- <i class="dripicons-weight"></i>--}}
+                        {{-- <span data-key="t-property-weighting"> Property Weighting</span>--}}
+                        {{-- </a>--}}
+                    {{-- </li>--}}
+                {{-- @endif--}}
 
                 @if($canView(ApiSearchInspector::class) || $canView(ApiBookingInspector::class) || $canView(ApiBookingItem::class))
                     <li
@@ -219,27 +223,6 @@
                     </li>
                 @endif
 
-                @if($canView(ApiExceptionReport::class))
-                    <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
-                        <a href="javascript: void(0);" aria-expanded="false"
-                            class="{{ ClassHelper::sidebarParrentClass() }}">
-                            <i class="dripicons-graph-line"></i>
-                            <span data-key="t-inspector">Exceptions Report</span>
-                        </a>
-                        <ul>
-                            <li>
-                                <a href="{{ Route('exceptions-report.index') }}"
-                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
-                                    Data</a>
-                            </li>
-                            <li>
-                                <a href="{{ Route('exceptions-report-chart.index') }}"
-                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
-                                    Chart</a>
-                            </li>
-                        </ul>
-                    </li>
-                @endif
                 @if($canView(ImageGallery::class) || $canView(Image::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
@@ -378,14 +361,14 @@
                     </li>
                 @endif
 
-{{--                @can('statistic-charts')--}}
-{{--                    <li>--}}
-{{--                        <a href="{{ Route('statistic-charts') }}" class="{{ ClassHelper::sidebarPointClass() }}">--}}
-{{--                            <i class="dripicons-graph-pie"></i>--}}
-{{--                            <span data-key="t-statistic-charts"> Statistic charts</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
-{{--                @endcan--}}
+                {{-- @can('statistic-charts')--}}
+                {{-- <li>--}}
+                    {{-- <a href="{{ Route('statistic-charts') }}" class="{{ ClassHelper::sidebarPointClass() }}">--}}
+                        {{-- <i class="dripicons-graph-pie"></i>--}}
+                        {{-- <span data-key="t-statistic-charts"> Statistic charts</span>--}}
+                        {{-- </a>--}}
+                    {{-- </li>--}}
+                {{-- @endcan--}}
 
                 @if($canView(GiataGeography::class))
                     <li>
@@ -395,6 +378,29 @@
                         </a>
                     </li>
                 @endif
+
+                @if($canView(ApiExceptionReport::class))
+                    <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
+                        <a href="javascript: void(0);" aria-expanded="false"
+                            class="{{ ClassHelper::sidebarParrentClass() }}">
+                            <i class="dripicons-graph-line"></i>
+                            <span data-key="t-inspector">Exceptions Report</span>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ Route('exceptions-report.index') }}"
+                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                    Data</a>
+                            </li>
+                            <li>
+                                <a href="{{ Route('exceptions-report-chart.index') }}"
+                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                    Chart</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
                 @canany(['log-viewer', 'swagger-docs', 'activities'])
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
@@ -480,6 +486,67 @@
                     </li>
                 @endcanany
             </ul>
+        </div>
+    </div>
+
+    <!-- Sidebar User Profile (Bottom) -->
+    <div class="sidebar-user-container dark:bg-transparent relative"
+        x-data="{ open: false, bodyMode: localStorage.getItem('topbar-mode') || 'fixed' }" @click.away="open = false"
+        @set-topbar-mode.window="open = false" @toggle-theme.window="open = false">
+        <button @click="open = !open"
+            class="flex w-full h-[52px] items-center pl-6 pr-4 text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-maintheme-500 dark:text-white dark:active:text-white dark:hover:text-white outline-none">
+            <i class="dripicons-user text-lg"></i>
+            <span class="ml-2 sidebar-user-name truncate" data-key="t-user">{{ Auth::user()->name }}</span>
+            <i class="mdi mdi-chevron-up ml-auto transition-transform duration-200"
+                :class="open ? 'rotate-180' : ''"></i>
+        </button>
+
+        <!-- Dropdown Content (opens upwards) -->
+        <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+            class="absolute bottom-full left-2 right-2 mb-2 min-w-[210px] overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-zinc-700 z-50">
+            <div class="py-1">
+                <a href="{{ route('profile.show') }}" @click="open = false"
+                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-600">
+                    <i class="mdi mdi-account-outline mr-2 text-lg w-5 text-center"></i> Profile
+                </a>
+                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                    <a href="{{ route('api-tokens.index') }}" @click="open = false"
+                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-600">
+                        <i class="mdi mdi-key-variant mr-2 text-lg w-5 text-center"></i> API
+                    </a>
+                @endif
+                <button type="button" @click="window.dispatchEvent(new Event('toggle-theme')); open = false;"
+                    class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-600 outline-none">
+                    <i class="mdi mdi-theme-light-dark mr-2 text-lg w-5 text-center"></i> Toggle Theme
+                </button>
+
+                <!-- Topbar Mode Settings (Restored) -->
+                <div class="border-t border-gray-100 pt-2 mt-1 dark:border-zinc-600">
+                    <p class="px-4 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Topbar Mode</p>
+                    <button type="button"
+                        @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'fixed' })); bodyMode = 'fixed'; open = false;"
+                        class="flex w-full items-center px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-600"
+                        :class="bodyMode === 'fixed' ? 'bg-gray-50 dark:bg-zinc-600 font-bold' : ''">
+                        <i class="mdi mdi-pin-outline mr-2 text-lg w-5 text-center"></i> Always Present
+                    </button>
+                    <button type="button"
+                        @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'hidden' })); bodyMode = 'hidden'; open = false;"
+                        class="flex w-full items-center px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-600"
+                        :class="bodyMode === 'hidden' ? 'bg-gray-50 dark:bg-zinc-600 font-bold' : ''">
+                        <i class="mdi mdi-eye-off-outline mr-2 text-lg w-5 text-center"></i> No Topbar
+                    </button>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" class="border-t dark:border-zinc-600 mt-1"
+                    @submit="open = false">
+                    @csrf
+                    <button type="submit"
+                        class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-zinc-600">
+                        <i class="mdi mdi-logout mr-2 text-lg w-5"></i> Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

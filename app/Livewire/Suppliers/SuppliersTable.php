@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Suppliers;
 
+use App\Helpers\ClassHelper;
 use App\Models\PropertyWeighting;
 use App\Models\Supplier;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -47,17 +49,25 @@ class SuppliersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn (Supplier $record): string => route('suppliers.show', $record)),
+                        ->url(fn(Supplier $record): string => route('suppliers.show', $record)),
                     EditAction::make()
-                        ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
-                        ->url(fn (Supplier $record): string => route('suppliers.edit', $record))
-                        ->visible(fn (Supplier $record): bool => Gate::allows('update', $record)),
+                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
+                        ->url(fn(Supplier $record): string => route('suppliers.edit', $record))
+                        ->visible(fn(Supplier $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
-                        ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
+                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
                         ->requiresConfirmation()
-                        ->action(fn (Supplier $record) => $record->delete())
-                        ->visible(fn (Supplier $record): bool => Gate::allows('delete', $record)),
+                        ->action(fn(Supplier $record) => $record->delete())
+                        ->visible(fn(Supplier $record): bool => Gate::allows('delete', $record)),
                 ]),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->url(fn(): string => route('suppliers.create'))
+                    ->visible(fn() => Gate::allows('create', Supplier::class)),
             ]);
     }
 

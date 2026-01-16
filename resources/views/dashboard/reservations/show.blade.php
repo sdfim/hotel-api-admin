@@ -9,32 +9,45 @@
             --luxury-gold: #C29C75;
             --luxury-dark: #222222;
             --luxury-light: #F8F8F8;
+            --luxury-card-bg: #ffffff;
+            --luxury-card-border: #e5e7eb;
+            --luxury-text-main: #222222;
+            --luxury-text-label: #6b7280;
         }
+
+        [data-mode="dark"] {
+            --luxury-card-bg: #2c2c36;
+            --luxury-card-border: #3f3f46;
+            --luxury-text-main: #f8f8f8;
+            --luxury-text-label: #a1a1aa;
+            --luxury-light: #3f3f46;
+        }
+
         .luxury-card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
+            background: var(--luxury-card-bg);
+            border: 1px solid var(--luxury-card-border);
             border-radius: 4px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
         .luxury-header {
-            font-family: 'Playfair Display', serif; /* Assuming standard serif fallback if not loaded */
+            font-family: 'Playfair Display', serif;
             letter-spacing: 0.05em;
-            color: var(--luxury-dark);
+            color: var(--luxury-text-main);
             border-bottom: 2px solid var(--luxury-gold);
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
             font-weight: 600;
         }
         .luxury-label {
-            color: #6b7280;
+            color: var(--luxury-text-label);
             font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.025em;
             font-weight: 500;
         }
         .luxury-value {
-            color: var(--luxury-dark);
+            color: var(--luxury-text-main);
             font-weight: 600;
         }
         .luxury-badge {
@@ -45,18 +58,18 @@
             font-weight: 600;
         }
         .section-title {
-            background-color: var(--luxury-dark) !important;
+            background-color: #1a1a1a !important; /* Keep section headers dark */
             color: white !important;
             border-left: 4px solid var(--luxury-gold);
         }
         .luxury-tag {
             background-color: var(--luxury-light);
-            color: var(--luxury-dark);
+            color: var(--luxury-text-main);
             padding: 0.15rem 0.5rem;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 500;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--luxury-card-border);
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
@@ -65,6 +78,12 @@
             background-color: #f3e9df;
             color: #8b6e4e;
             border-color: #e9dccb;
+        }
+
+        [data-mode="dark"] .luxury-tag-gold {
+            background-color: #43392f;
+            color: #d4b491;
+            border-color: #5a4b3b;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
@@ -132,7 +151,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                     <!-- Price Column -->
-                    <div class="luxury-card p-0 overflow-hidden border-0 shadow-sm bg-white">
+                    <div class="luxury-card p-0 overflow-hidden border-0 shadow-sm">
                         <div class="section-title p-3 px-4">
                             <h5 class="text-15 text-white mb-0 font-serif tracking-wider uppercase">Price Details</h5>
                         </div>
@@ -140,29 +159,29 @@
                             <div class="grid grid-cols-2 gap-y-4 gap-x-6">
                                  <div>
                                     <p class="luxury-label mb-1">Currency</p>
-                                    <p class="text-lg font-bold text-[#8b6e4e]">{{ Arr::get($field, 'price.currency', 'USD') }}</p>
+                                    <p class="text-lg font-bold text-[#8b6e4e] dark:text-[#d4b491]">{{ Arr::get($field, 'price.currency', 'USD') }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="luxury-label mb-1">Total Tax</p>
-                                    <p class="luxury-value text-gray-700">{{ $total_tax }}</p>
+                                    <p class="luxury-value">{{ $total_tax }}</p>
                                 </div>
                                 <div>
                                     <p class="luxury-label mb-1">Total Net</p>
-                                    <p class="luxury-value text-gray-700">{{ $total_net }}</p>
+                                    <p class="luxury-value">{{ $total_net }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="luxury-label mb-1">Total Fees</p>
-                                    <p class="luxury-value text-gray-700">{{ $total_fees }}</p>
+                                    <p class="luxury-value">{{ $total_fees }}</p>
                                 </div>
                                 <div>
                                     <p class="luxury-label mb-1">Markup</p>
-                                    <p class="luxury-value text-gray-700">{{ $markup }}</p>
+                                    <p class="luxury-value">{{ $markup }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="luxury-label mb-1">Subtotal</p>
-                                    <p class="luxury-value text-gray-700">{{ $subtotal }}</p>
+                                    <p class="luxury-value">{{ $subtotal }}</p>
                                 </div>
-                                 <div class="col-span-2 pt-3 border-t border-gray-100 mt-2 flex justify-between items-start">
+                                 <div class="col-span-2 pt-3 border-t border-gray-100 dark:border-zinc-700 mt-2 flex justify-between items-start">
                                     <div>
                                         <p class="luxury-label mb-1">Total Price</p>
                                         <p class="luxury-value text-4xl font-serif text-[#C29C75]">{{ $total_price }}</p>
@@ -173,7 +192,7 @@
                                         @if(isset($advisorCommission) && $advisorCommission > 0)
                                             <div class="mt-3">
                                                 <p class="luxury-label text-xs mb-0">Advisor Commission</p>
-                                                <p class="text-lg font-serif text-[#8b6e4e]">{{ number_format($advisorCommission, 2) }}</p>
+                                                <p class="text-lg font-serif text-[#8b6e4e] dark:text-[#d4b491]">{{ number_format($advisorCommission, 2) }}</p>
                                             </div>
                                         @endif
                                     </div>
@@ -183,13 +202,13 @@
                     </div>
 
                     <!-- Reservation Information Column (Merged Info & Hotel) -->
-                    <div class="luxury-card p-0 overflow-hidden border-0 shadow-sm bg-white lg:col-span-2">
+                    <div class="luxury-card p-0 overflow-hidden border-0 shadow-sm lg:col-span-2">
                         <div class="section-title p-3 px-4">
                             <h5 class="text-15 text-white mb-0 font-serif tracking-wider uppercase">Reservation Information</h5>
                         </div>
                         <div class="p-6">
                             <!-- Full Width Hotel Name -->
-                            <div class="mb-8 pb-6 border-gray-100">
+                            <div class="mb-8 pb-6 border-gray-100 dark:border-zinc-700">
                                 <span class="luxury-label block mb-2">Hotel Name</span>
                                 <h2 class="text-3xl font-serif text-[#C29C75] font-bold leading-tight uppercase tracking-tight">{{ $field['hotel_name'] }}</h2>
                             </div>
@@ -223,7 +242,7 @@
                                     </div>
                                     <div>
                                         <p class="luxury-label mb-1">Advisor Email</p>
-                                        <p class="luxury-value text-sm text-gray-500 italic">{{ $advisorEmail ?? 'N/A' }}</p>
+                                        <p class="luxury-value text-sm text-gray-500 dark:text-gray-400 italic">{{ $advisorEmail ?? 'N/A' }}</p>
                                     </div>
                                 </div>
 
@@ -270,15 +289,15 @@
                                     }
                                 @endphp
 
-                                <div class="p-6 luxury-card bg-white border-l-4 border-l-[#C29C75] shadow-sm">
+                                <div class="p-6 luxury-card border-l-4 border-l-[#C29C75] shadow-sm">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                                         <!-- Column 1: Core Room Info -->
                                         <div>
                                             <h4 class="luxury-label mb-1">Room {{ $index + 1 }}</h4>
-                                            <h3 class="text-xl font-serif text-[#222222] font-semibold mb-4">{{ trim($roomName) }}</h3>
+                                            <h3 class="text-xl font-serif font-semibold mb-4 luxury-value">{{ trim($roomName) }}</h3>
 
                                             @if(count($roomNames) > 1 && isset($roomPrices[$index]))
-                                                <div class="mb-5 p-3 bg-[#fdfaf7] border border-[#f3e9df] rounded-lg inline-block min-w-[150px]">
+                                                <div class="mb-5 p-3 bg-[#fdfaf7] dark:bg-[#43392f] border border-[#f3e9df] dark:border-[#5a4b3b] rounded-lg inline-block min-w-[150px]">
                                                     <p class="luxury-label text-[10px] uppercase tracking-wider mb-1">Room Price</p>
                                                     <p class="text-xl font-serif text-[#C29C75] font-bold">
                                                         {{ Arr::get($field, 'price.currency', 'USD') }} {{ number_format($roomPrices[$index], 2) }}
@@ -334,16 +353,15 @@
                                             @endif
                                         </div>
 
-                                        <!-- Column 2: Passengers -->
                                         <div>
                                             @if(isset($passengers_by_room[$index + 1]))
                                                 <h5 class="luxury-label mb-3">Passengers</h5>
                                                 <div class="space-y-2">
                                                     @foreach($passengers_by_room[$index + 1] as $passenger)
-                                                        <div class="bg-gray-50 p-3 rounded text-sm border-l-2 border-gray-200 mb-1 flex justify-between items-center">
+                                                        <div class="bg-gray-50 dark:bg-zinc-700/50 p-3 rounded text-sm border-l-2 border-gray-200 dark:border-zinc-600 mb-1 flex justify-between items-center">
                                                              <div>
-                                                                 <p class="font-semibold text-gray-800">{{ ucfirst($passenger['title'] ?? '') }} {{ $passenger['given_name'] ?? '' }} {{ $passenger['family_name'] ?? '' }}</p>
-                                                                 <p class="text-xs text-gray-500 mt-1">Age: {{ $passenger['age'] ?? 'N/A' }} | DOB: {{ $passenger['date_of_birth'] ?? 'N/A' }}</p>
+                                                                 <p class="font-semibold text-gray-800 dark:text-gray-100">{{ ucfirst($passenger['title'] ?? '') }} {{ $passenger['given_name'] ?? '' }} {{ $passenger['family_name'] ?? '' }}</p>
+                                                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Age: {{ $passenger['age'] ?? 'N/A' }} | DOB: {{ $passenger['date_of_birth'] ?? 'N/A' }}</p>
                                                              </div>
                                                              @if(isset($passenger['age']) && is_numeric($passenger['age']) && $passenger['age'] < 18)
                                                                  <div class="text-[#C29C75] text-xl" title="Child">
@@ -361,17 +379,17 @@
 
                                         <!-- Column 3: Requests & Images -->
                                         <div>
-                                             @if(!empty(trim($special_requests_by_room[$index + 1] ?? '')) || !empty(trim($comments_by_room[$index + 1] ?? '')))
-                                                <h5 class="luxury-label mb-3">Requests & Notes</h5>
-                                                @if(!empty(trim($special_requests_by_room[$index + 1] ?? '')))
-                                                     <p class="text-xs luxury-label">Special Request</p>
-                                                     <p class="text-sm text-gray-700 italic mb-3">{{ $special_requests_by_room[$index + 1] }}</p>
-                                                @endif
-                                                @if(!empty(trim($comments_by_room[$index + 1] ?? '')))
-                                                     <p class="text-xs luxury-label">Comment</p>
-                                                     <p class="text-sm text-gray-700 italic mb-4">{{ $comments_by_room[$index + 1] }}</p>
-                                                @endif
-                                             @endif
+                                              @if(!empty(trim($special_requests_by_room[$index + 1] ?? '')) || !empty(trim($comments_by_room[$index + 1] ?? '')))
+                                                 <h5 class="luxury-label mb-3">Requests & Notes</h5>
+                                                 @if(!empty(trim($special_requests_by_room[$index + 1] ?? '')))
+                                                      <p class="text-xs luxury-label">Special Request</p>
+                                                      <p class="text-sm text-gray-700 dark:text-gray-300 italic mb-3">{{ $special_requests_by_room[$index + 1] }}</p>
+                                                 @endif
+                                                 @if(!empty(trim($comments_by_room[$index + 1] ?? '')))
+                                                      <p class="text-xs luxury-label">Comment</p>
+                                                      <p class="text-sm text-gray-700 dark:text-gray-300 italic mb-4">{{ $comments_by_room[$index + 1] }}</p>
+                                                 @endif
+                                              @endif
 
                                              @if ($roomImages)
                                                 <h5 class="luxury-label mb-3">Room Gallery</h5>

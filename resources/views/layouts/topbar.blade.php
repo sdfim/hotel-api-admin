@@ -1,74 +1,55 @@
 <nav
-    class="main fixed inset-x-0 top-0 z-10 flex items-center justify-between border-b bg-white dark:border-zinc-700 dark:bg-zinc-800 print:hidden">
+    class="main fixed inset-x-0 top-0 z-10 flex items-center justify-between border-b dark:border-zinc-700 print:hidden">
     <!-- Brand & burger -->
     <div class="topbar-brand flex items-center">
-        <div
-            class="navbar-brand flex h-[50px] shrink items-center justify-start border-r bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 px-0">
+        <div class="navbar-brand flex h-[50px] shrink items-center justify-start border-r dark:border-zinc-700 px-0">
             <button type="button" id="vertical-menu-btn" class="vertical-menu-btn text-gray-100 dark:text-white">
                 <i class="fa fa-fw fa-bars text-lg"></i>
             </button>
             <a href="#" class="logo-link flex items-center font-bold text-lg dark:text-white">
                 <img src="{{ URL::asset('build/images/logo-vidanta.png') }}" alt="logo"
-                    class="logo-lg inline-block h-6 mt-1" />
+                    class="logo-lg inline-block h-6" />
                 <img src="{{ URL::asset('build/images/logo-vidanta-short.png') }}" alt="logo"
-                    class="logo-sm inline-block h-6 mt-1" style="display: none;" />
+                    class="logo-sm inline-block h-6" style="display: none;" />
             </a>
         </div>
     </div>
 
-    <!-- Right section: search + user -->
-    <div class="flex items-center space-x-2 px-4">
-        <!-- Search (Filament-style) -->
-        {{-- <form action="#" method="GET">--}}
-            {{-- <div
-                class="flex w-64 items-center gap-2 overflow-hidden rounded-lg border border-gray-300 bg-white px-3 transition-all"
-                --}} {{-- :class="focused ? 'ring-2 ring-primary-500 border-primary-500' : ''" --}} {{--
-                @click="focused = true" --}} {{-- @click.away="focused = false">--}}
-                {{-- <span class="text-gray-500 dark:text-gray-400">--}}
-                    {{-- <i data-feather="search" class="h-4 w-4"></i>--}}
-                    {{-- </span>--}}
-                {{-- <input--}} {{-- type="text" --}} {{-- name="search" --}} {{-- placeholder="Search" --}} {{--
-                    x-model="query" --}} {{--
-                    class="w-full border-none bg-transparent text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-0 dark:text-gray-200 dark:placeholder-gray-400"
-                    --}} {{-- @focus="focused = true" --}} {{-- />--}}
-                {{-- <button--}} {{-- x-show="query.length > 0" --}} {{-- x-cloak--}} {{--
-                    @click.prevent="query = ''; focused = false" --}} {{-- type="button" --}} {{--
-                    class="text-gray-400 hover:text-gray-500">--}}
-                    {{-- <i data-feather="x" class="h-4 w-4"></i>--}}
-                    {{-- </button>--}}
-                    {{-- </div>--}}
-            {{-- </form>--}}
+    <!-- Breadcrumbs Section (Center) -->
+    <div class="flex-1 px-4 hidden md:block">
+        {{-- Breadcrumbs removed from topbar as per user request --}}
+    </div>
 
-        <!-- User dropdown -->
+    <!-- Right section: user menu (hidden via CSS when scrolled or in hidden mode) -->
+    <div class="topbar-right-section flex items-center space-x-2 px-4 h-[50px]">
         <div class="relative" x-data="{ open: false, bodyMode: localStorage.getItem('topbar-mode') || 'fixed' }"
-            @click.away="open = false">
+            @click.away="open = false" @set-topbar-mode.window="open = false" @toggle-theme.window="open = false">
             <button id="user-dropdown-toggle" @click="open = !open"
-                class="flex h-[50px] items-center border-gray-100 px-4 dark:border-zinc-600 dark:bg-zinc-800">
+                class="flex h-[50px] items-center border-gray-100 px-4 dark:border-zinc-600">
                 <div class="user-toggle-content flex items-center">
-                    <span class="hidden text-gray-100 dark:text-white xl:block text-sm">{{ Auth::user()->name }}</span>
+                    <span
+                        class="hidden text-gray-700 dark:text-white xl:block text-sm font-medium">{{ Auth::user()->name }}</span>
                     <svg class="ml-1 h-4 w-4 text-gray-500 dark:text-white" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </div>
-                <i class="fa fa-bars user-mode-icon hidden"></i>
             </button>
 
             <!-- Dropdown panel -->
-            <div id="user-dropdown" x-show="open" x-transition
-                class="absolute right-0 mt-2 w-64 space-y-2 rounded bg-white p-3 text-sm text-gray-800 shadow dark:bg-zinc-800 dark:text-gray-100"
-                style="display:none;">
+            <div id="user-dropdown" x-show="open" x-transition x-cloak
+                class="absolute right-0 mt-2 w-64 space-y-2 rounded bg-white p-3 text-sm text-gray-800 shadow-xl ring-1 ring-black ring-opacity-5 dark:bg-zinc-800 dark:text-gray-100 z-[10006]">
                 <!-- Profile & API in single column -->
                 <div class="flex flex-col gap-1">
-                    <a href="{{ route('profile.show') }}"
-                        class="flex items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700">
-                        <i class="mdi mdi-account text-lg"></i>
+                    <a href="{{ route('profile.show') }}" @click="open = false"
+                        class="flex items-center rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                        <i class="mdi mdi-account-outline text-lg mr-2 w-5 text-center"></i>
                         <span>Profile</span>
                     </a>
                     @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                        <a href="{{ route('api-tokens.index') }}"
-                            class="flex items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700">
-                            <i class="mdi mdi-key-variant text-lg"></i>
+                        <a href="{{ route('api-tokens.index') }}" @click="open = false"
+                            class="flex items-center rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                            <i class="mdi mdi-key-variant text-lg mr-2 w-5 text-center"></i>
                             <span>API</span>
                         </a>
                     @endif
@@ -76,48 +57,37 @@
 
                 <!-- Toggle theme -->
                 <button type="button" @click="open = false; window.dispatchEvent(new Event('toggle-theme'));"
-                    class="light-dark-mode flex w-full items-center space-x-2 rounded px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-zinc-700">
-                    <i data-feather="moon" class="block h-5 w-5 dark:hidden"></i>
-                    <i data-feather="sun" class="hidden h-5 w-5 dark:block"></i>
+                    class="flex w-full items-center rounded px-2 py-1.5 text-left hover:bg-gray-100 dark:hover:bg-zinc-700">
+                    <i class="mdi mdi-theme-light-dark mr-2 text-lg w-5 text-center"></i>
                     <span>Toggle Theme</span>
                 </button>
 
                 <!-- Topbar Mode Settings -->
                 <div class="border-t border-gray-100 pt-2 mt-2 dark:border-zinc-700">
-                    <p class="px-2 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Topbar Mode</p>
+                    <p class="px-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Topbar Mode</p>
                     <div class="flex flex-col gap-1">
                         <button type="button"
-                            @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'fixed' })); bodyMode = 'fixed';"
-                            class="flex items-center space-x-2 rounded px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-zinc-700"
+                            @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'fixed' })); bodyMode = 'fixed'; open = false;"
+                            class="flex w-full items-center px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-700"
                             :class="bodyMode === 'fixed' ? 'bg-gray-100 dark:bg-zinc-700 font-bold' : ''">
-                            <i data-feather="lock" class="h-4 w-4"></i>
-                            <span>Always Present</span>
+                            <i class="mdi mdi-pin-outline mr-2 text-lg w-5 text-center"></i> Always Present
                         </button>
                         <button type="button"
-                            @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'dynamic' })); bodyMode = 'dynamic';"
-                            class="flex items-center space-x-2 rounded px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-zinc-700"
-                            :class="bodyMode === 'dynamic' ? 'bg-gray-100 dark:bg-zinc-700 font-bold' : ''">
-                            <i data-feather="zap" class="h-4 w-4"></i>
-                            <span>Dynamic</span>
-                        </button>
-                        <button type="button"
-                            @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'hidden' })); bodyMode = 'hidden';"
-                            class="flex items-center space-x-2 rounded px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-zinc-700"
+                            @click="window.dispatchEvent(new CustomEvent('set-topbar-mode', { detail: 'hidden' })); bodyMode = 'hidden'; open = false;"
+                            class="flex w-full items-center px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-700"
                             :class="bodyMode === 'hidden' ? 'bg-gray-100 dark:bg-zinc-700 font-bold' : ''">
-                            <i data-feather="eye-off" class="h-4 w-4"></i>
-                            <span>No Topbar</span>
+                            <i class="mdi mdi-eye-off-outline mr-2 text-lg w-5 text-center"></i> No Topbar
                         </button>
                     </div>
                 </div>
 
                 <!-- Logout -->
-                <form method="POST" action="{{ route('logout') }}"
+                <form method="POST" action="{{ route('logout') }}" @submit="open = false"
                     class="border-t border-gray-100 pt-2 mt-2 dark:border-zinc-700">
                     @csrf
                     <button type="submit"
-                        class="flex w-full items-center space-x-2 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-zinc-700 text-red-500">
-                        <i class="mdi mdi-logout text-lg"></i>
-                        <span>Logout</span>
+                        class="flex w-full items-center px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-zinc-700 text-red-500 text-sm font-medium">
+                        <i class="mdi mdi-logout mr-2 text-lg w-5"></i> Logout
                     </button>
                 </form>
             </div>
@@ -183,7 +153,8 @@
         syncTheme(savedMode);
 
         // Sync Topbar Mode
-        const savedTopbarMode = localStorage.getItem(TOPBAR_MODE_KEY) || 'fixed';
+        let savedTopbarMode = localStorage.getItem(TOPBAR_MODE_KEY) || 'fixed';
+        if (savedTopbarMode === 'dynamic') savedTopbarMode = 'fixed';
         setTopbarMode(savedTopbarMode);
 
         if (typeof feather !== 'undefined') {
@@ -192,14 +163,6 @@
     });
 
     window.addEventListener('scroll', function () {
-        if (document.body.classList.contains('topbar-dynamic')) {
-            if (window.scrollY > 50) {
-                document.body.classList.add('is-scrolled');
-            } else {
-                document.body.classList.remove('is-scrolled');
-            }
-        } else {
-            document.body.classList.remove('is-scrolled');
-        }
+        document.body.classList.remove('is-scrolled');
     });
 </script>
