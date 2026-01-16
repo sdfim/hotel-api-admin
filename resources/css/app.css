@@ -1,12 +1,172 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree&family=Open+Sans&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Figtree&family=Open+Sans&display=swap");
 @import "tailwind.css";
 /*@import "supplier-repository.css";*/
-@import 'swiper/css/bundle';
+@import "swiper/css/bundle";
 
+/* Default Topbar Behavior */
 nav.main {
     height: 65px;
     border: none;
     border-bottom: 1px solid var(--theme-light-color);
+    transition: all 0.3s ease;
+}
+
+.vertical-menu, .main-content, .footer {
+    transition: all 0.3s ease;
+}
+
+/* Align burger with sidebar icon column */
+.navbar-brand {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.vertical-menu-btn {
+    width: 70px !important;
+    min-width: 70px !important;
+    height: 50px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.navbar-brand .logo-link {
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+/* Hide logo entirely in compressed mode */
+body[data-sidebar-size="sm"] .navbar-brand .logo-link {
+    display: none !important;
+}
+
+/* Dynamic AND Hidden Mode Shared Behavior */
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) nav.main {
+    background: transparent !important;
+    border-bottom: none !important;
+}
+
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .navbar-brand {
+    background: #f3f5f8 !important; /* Matches Light SideBar */
+    border-right: none !important;
+    transition: all 0.3s ease;
+    width: var(--tw-sidebar-width);
+}
+
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .navbar-brand {
+    background: #0c0c10 !important; /* Matches Dark SideBar */
+}
+
+/* Light Mode Colors (Black logos/text) */
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-lg,
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-sm {
+    filter: invert(1) brightness(0.2) !important;
+}
+
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .vertical-menu-btn,
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle span,
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle svg {
+    color: #1a1a1a !important;
+}
+
+/* Dark Mode Colors (White logos/text) */
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-lg,
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .logo-sm {
+    filter: none !important;
+}
+
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) .vertical-menu-btn,
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle span,
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle svg {
+    color: #ffffff !important;
+}
+
+/* Mode Specifics */
+body.topbar-dynamic.is-scrolled nav.main {
+    height: 50px !important;
+}
+
+body.topbar-dynamic.is-scrolled .vertical-menu {
+    top: 50px !important;
+}
+
+body.topbar-hidden nav.main {
+    height: 50px !important;
+    position: fixed !important;
+    z-index: 50 !important;
+    pointer-events: none;
+    background: transparent !important;
+    border: none !important;
+}
+
+body.topbar-hidden nav.main > * {
+    pointer-events: auto;
+}
+
+body.topbar-hidden .navbar-brand {
+    height: 50px !important;
+}
+
+body.topbar-hidden .vertical-menu {
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 40 !important;
+    padding-top: 50px !important;
+}
+
+body.topbar-hidden .main-content {
+    margin-top: 0 !important;
+}
+
+body.topbar-hidden .page-content {
+    padding-top: 10px !important;
+}
+
+/* Default: hide the simplified bars icon for user menu */
+#user-dropdown-toggle .user-mode-icon {
+    display: none;
+}
+
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    justify-content: center !important;
+    position: fixed !important;
+    right: 15px;
+    top: 7px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255,255,255,0.1);
+}
+
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-toggle-content {
+    display: none !important;
+}
+
+body:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-mode-icon {
+    display: block !important;
+    color: #333 !important;
+    font-size: 16px;
+}
+
+[data-mode="dark"]:is(.topbar-dynamic.is-scrolled, .topbar-hidden) #user-dropdown-toggle .user-mode-icon {
+    color: #eee !important;
+}
+
+.logo-lg, .logo-sm, .vertical-menu-btn, #user-dropdown-toggle span, #user-dropdown-toggle svg, #user-dropdown-toggle {
+    transition: all 0.3s ease;
 }
 
 footer {
@@ -18,9 +178,9 @@ footer.border-t {
 }
 
 .btn-back {
-    padding: 0.5rem 2.5rem;  /* py-2 px-10 */
-    font-weight: 700;        /* font-bold */
-    color: white;          /* text-white */
+    padding: 0.5rem 2.5rem; /* py-2 px-10 */
+    font-weight: 700; /* font-bold */
+    color: white; /* text-white */
     background-color: var(--theme-light-color);
     border-color: var(--theme-light-color);
     transition: all 0.2s ease-in-out;
@@ -33,14 +193,14 @@ footer.border-t {
 }
 
 .btn-back:focus {
-    color: #ffffff;          /* focus:text-white */
+    color: #ffffff; /* focus:text-white */
     background-color: var(--theme-color);
     border-color: var(--theme-color);
     box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.25); /* focus:ring-4 focus:ring-orange-400 */
 }
 
 .btn-back:active {
-    color: #ffffff;          /* active:text-white */
+    color: #ffffff; /* active:text-white */
     background-color: var(--theme-color);
     border-color: var(--theme-color);
 }
@@ -64,7 +224,7 @@ footer.border-t {
     display: none !important;
 }
 
-.custom-repeater-class .grid.gap-y-2{
+.custom-repeater-class .grid.gap-y-2 {
     row-gap: 0 !important;
 }
 
@@ -73,7 +233,7 @@ footer.border-t {
     background-repeat: no-repeat;
 }
 
-.choices .choices__input.choices__input--cloned{
+.choices .choices__input.choices__input--cloned {
     padding-left: 10px !important;
 }
 
@@ -92,14 +252,14 @@ footer.border-t {
     color: var(--theme-color);
 }
 
-:is([data-mode=dark] .copy-clipboard-btn) {
+:is([data-mode="dark"] .copy-clipboard-btn) {
     color: #c1c0ff;
 }
 
 .copy-tooltip {
     position: absolute;
     background-color: #333;
-    color: #FFFFFF;
+    color: #ffffff;
     padding: 5px;
     border-radius: 3px;
     font-size: 12px;
@@ -109,7 +269,7 @@ footer.border-t {
 #inspector-table td > div > div {
     display: flex;
     justify-content: space-between;
-    padding: 0 .3rem;
+    padding: 0 0.3rem;
 }
 
 .fi-btn-label {
