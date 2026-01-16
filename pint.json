@@ -1,13 +1,3 @@
 {
-    "preset": "laravel",
-    "rules": {
-        "binary_operator_spaces": {
-            "operators": {
-                "=>": "align_single_space_minimal",
-                "=": "align_single_space_minimal"
-            }
-        },
-        "array_indentation": false,
-        "blank_line_before_statement": false
-    }
+    "preset": "psr12"
 }

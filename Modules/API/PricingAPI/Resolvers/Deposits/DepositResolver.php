@@ -123,8 +123,7 @@ class DepositResolver
                 'total_deposit' => self::calculate(
                     $depositInfo,
                     $baseAmount,
-                    self::getMultiplier($depositInfo, $query),
-                    $query
+                    self::getMultiplier($depositInfo, $query)
                 ),
             ];
 
@@ -227,6 +226,13 @@ class DepositResolver
 
             // Sum initial payments
             $amount = (float) ($deposit['total_deposit'] ?? 0);
+
+            // Ensure no individual or cumulative deposit exceeds total price
+            if ($totalInitialPayment + $amount > $totalPrice) {
+                $amount = max(0.0, (float) round($totalPrice - $totalInitialPayment, 2));
+                $deposit['total_deposit'] = $amount;
+            }
+
             $totalInitialPayment += $amount;
 
             // Find the latest balance payment due date
@@ -294,13 +300,13 @@ class DepositResolver
         return $deposits;
     }
 
-    public static function getHotelLevel(array $depositInformation, array $query, $giataId, $rating = null): array
+    public static function getHotelLevel(array $depositInformation, array $query, $giataId, $rating = null, $supplierName = null): array
     {
         if (empty($depositInformation)) {
             return [];
         }
 
-        $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId, $rating);
+        $activeDepositInformation = self::getCachedFilteredDepositInformation($depositInformation, $query, $giataId, $rating, $supplierName);
         $activeDepositInformationHotelLevel = $activeDepositInformation['hotel'];
 
         $calculatedDeposits = [];
