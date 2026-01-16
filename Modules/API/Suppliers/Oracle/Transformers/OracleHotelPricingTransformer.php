@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Oracle\Transformers;
 
+use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Support\Arr;
@@ -168,7 +169,8 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
         $roomGroupsResponse->setRateDescription($roomGroup['room_name'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
-        $requestedCurrency = Arr::get($query, 'currency', 'USD');
+        $defaultCurrency = Arr::get(GeneralConfiguration::getCached(), 'default_currency');
+        $requestedCurrency = Arr::get($query, 'currency', $defaultCurrency) ?? 'USD';
         $this->currency = Arr::get($roomGroup, 'rates.0.total.currencyCode', 'USD');
 
         if ($requestedCurrency !== '*') {
@@ -272,7 +274,8 @@ class OracleHotelPricingTransformer extends BaseHotelPricingTransformer
 
         $currency = Arr::get($rate, 'total.currencyCode', 'USD');
 
-        $requestedCurrency = Arr::get($query, 'currency', 'USD');
+        $defaultCurrency = Arr::get(GeneralConfiguration::getCached(), 'default_currency');
+        $requestedCurrency = Arr::get($query, 'currency', $defaultCurrency) ?? 'USD';
         if ($requestedCurrency !== '*' && $currency !== $requestedCurrency) {
             return [];
         }

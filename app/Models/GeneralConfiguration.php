@@ -26,6 +26,7 @@ class GeneralConfiguration extends Model
         'star_ratings',
         'stop_bookings',
         'content_supplier',
+        'default_currency',
         'created_at',
         'updated_at',
     ];
@@ -42,6 +43,7 @@ class GeneralConfiguration extends Model
         'time_inspector_retained' => 'integer',
         'star_ratings' => 'float',
         'stop_bookings' => 'integer',
+        'default_currency' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -6,6 +6,7 @@ use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
+use App\Models\GeneralConfiguration;
 use App\Repositories\ApiBookingInspectorRepository;
 use Exception;
 use Fiber;
@@ -228,7 +229,8 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
-                $currency = Arr::get($filters, 'currency', 'USD');
+                $defaultCurrency = Arr::get(GeneralConfiguration::getCached(), 'default_currency');
+                $currency = Arr::get($filters, 'currency', $defaultCurrency) ?? 'USD';
                 $roomTypesToProcess = [];
                 if (empty($guestDetails['roomType'])) {
                     if ($currency === '*') {
@@ -452,7 +454,8 @@ class OracleClient
 
                 $guestDetails = $this->mapSingleRoomToOracleQuery($roomConfig);
 
-                $currency = Arr::get($filters, 'currency', 'USD');
+                $defaultCurrency = Arr::get(GeneralConfiguration::getCached(), 'default_currency');
+                $currency = Arr::get($filters, 'currency', $defaultCurrency) ?? 'USD';
                 $roomTypesToProcess = [];
                 if (empty($guestDetails['roomType'])) {
                     if ($currency === '*') {

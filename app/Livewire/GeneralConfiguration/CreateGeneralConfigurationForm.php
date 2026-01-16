@@ -100,6 +100,20 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->minValue(fn (): int => 1)
                     ->maxValue(fn (): int => 365 * 24)
                     ->required(),
+                Select::make('default_currency')
+                    ->label('Default Currency')
+                    ->options([
+                        '*' => 'ALL',
+                        'USD' => 'USD',
+                        'MXN' => 'MXN',
+                        'EUR' => 'EUR',
+                        'GBP' => 'GBP',
+                        'CAD' => 'CAD',
+                        'AUD' => 'AUD',
+                        'JPY' => 'JPY',
+                        'CNY' => 'CNY',
+                    ])
+                    ->required(),
             ])
             ->statePath('data')
             ->model($this->getDynamicModel())
@@ -123,6 +137,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration_row->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration_row->star_ratings = $request->star_ratings;
             $general_configuration_row->stop_bookings = $request->stop_bookings;
+            $general_configuration_row->default_currency = $request->default_currency;
             $general_configuration_row->save();
             Notification::make()
                 ->title('Created successfully')
@@ -136,7 +151,9 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration[0]->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration[0]->star_ratings = $request->star_ratings;
             $general_configuration[0]->stop_bookings = $request->stop_bookings;
+            $general_configuration[0]->default_currency = $request->default_currency;
             $general_configuration[0]->save();
+
             Notification::make()
                 ->title('Updated successfully')
                 ->success()
