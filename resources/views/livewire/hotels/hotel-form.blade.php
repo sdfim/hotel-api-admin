@@ -102,7 +102,6 @@
 
     @endif
 
-
     <x-filament::modal id="open-modal-on-sale-causation">
         <x-slot name="heading">
             {{ __('Reason for On Sale Status Change') }}

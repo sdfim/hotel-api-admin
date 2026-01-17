@@ -1,10 +1,10 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('General Channels') }}
+    {{ __('Channels') }}
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="General channels" pagetitle="index" />
+    <x-page-title title="Channels" pagetitle="index" />
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             @livewire('channels.channels-table')

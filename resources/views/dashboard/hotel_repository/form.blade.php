@@ -61,13 +61,13 @@
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
-        <div class="card-body pb-0">
+        <div class="pb-0">
             <h2 class="font-semibold dark:text-white"
                 x-data="{ message: '{{ $hotel->exists ? $text['edit'] : $text['create'] }} {{ $hotel?->product?->name }}' }"
                 x-text="message"></h2>
         </div>
 
-        <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
+        <div class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
             <div class="relative overflow-x-auto">
 
                 <div x-data="{activeTab: new URLSearchParams(window.location.search).get('tab') || '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
