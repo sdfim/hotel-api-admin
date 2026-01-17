@@ -15,17 +15,16 @@
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="mb-6 row">
-                                @if ($isSrCreator && $giataId)
+                                <x-button-back class="pr-6" route="{{ route('pricing-rules.index') }}" text="Back"/>
+                                @if ($giataId)
                                     @php
                                         $hotel = Hotel::where('giata_code', $giataId)->first();
                                     @endphp
                                     @if ($hotel)
                                         <x-button-back class="ml-4"
-                                                       route="{{ route('hotel-repository.edit', $hotel->id) }}"
-                                                       text="Back"/>
+                                                       route="{{ route('hotel-repository.edit', $hotel->id) . '?tab=pricing-rules'}}"
+                                                       text="Go to Hotel Content Repository"/>
                                     @endif
-                                @else
-                                    <x-button-back class="pr-6" route="{{ route('pricing-rules.index') }}" text="Back"/>
                                 @endif
                             </div>
                         </div>
