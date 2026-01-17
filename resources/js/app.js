@@ -15,7 +15,11 @@ import './bootstrap';
     // initLeftMenuCollapse
     function initLeftMenuCollapse() {
         var currentSIdebarSize = document.body.getAttribute('data-sidebar-size');
+        // Ensure the sidebar is collapsed by default on page load
         window.onload = function () {
+            if (!document.body.getAttribute('data-sidebar-size')) {
+                document.body.setAttribute('data-sidebar-size', 'sm');
+            }
             if (window.innerWidth >= 1024 && window.innerWidth <= 1366) {
                 document.body.setAttribute('data-sidebar-size', 'sm');
                // updateRadio('sidebar-size-small')
@@ -29,12 +33,13 @@ import './bootstrap';
                     document.body.classList.toggle('sidebar-enable');
                     if (window.innerWidth >= 992) {
                         if (currentSIdebarSize == null) {
-                            (document.body.getAttribute('data-sidebar-size') == null || document.body.getAttribute('data-sidebar-size') === "lg") ? document.body.setAttribute('data-sidebar-size', 'sm') : document.body.setAttribute('data-sidebar-size', 'lg')
+                            (document.body.getAttribute('data-sidebar-size') == null || document.body.getAttribute('data-sidebar-size') === "lg") ? document.body.setAttribute('data-sidebar-size', 'sm') : document.body.setAttribute('data-sidebar-size', 'lg');
                         } else if (currentSIdebarSize === "md") {
-                            (document.body.getAttribute('data-sidebar-size') === "md") ? document.body.setAttribute('data-sidebar-size', 'sm') : document.body.setAttribute('data-sidebar-size', 'md')
+                            (document.body.getAttribute('data-sidebar-size') === "md") ? document.body.setAttribute('data-sidebar-size', 'sm') : document.body.setAttribute('data-sidebar-size', 'md');
                         } else {
-                            (document.body.getAttribute('data-sidebar-size') === "sm") ? document.body.setAttribute('data-sidebar-size', 'lg') : document.body.setAttribute('data-sidebar-size', 'sm')
+                            (document.body.getAttribute('data-sidebar-size') === "sm") ? document.body.setAttribute('data-sidebar-size', 'lg') : document.body.setAttribute('data-sidebar-size', 'sm');
                         }
+                        saveSidebarState(); // Save the updated state
                     } else {
                         initMenuItemScroll();
                     }
@@ -121,6 +126,23 @@ import './bootstrap';
         }
     }
 
+    // Save sidebar state to localStorage
+    function saveSidebarState() {
+        const sidebarSize = document.body.getAttribute('data-sidebar-size');
+        localStorage.setItem('sidebar-size', sidebarSize);
+    }
+
+    // Restore sidebar state from localStorage
+    function restoreSidebarState() {
+        const savedSidebarSize = localStorage.getItem('sidebar-size');
+        if (savedSidebarSize) {
+            document.body.setAttribute('data-sidebar-size', savedSidebarSize);
+        }
+    }
+
+    // Call restoreSidebarState on page load
+    restoreSidebarState();
+
     function init() {
         initMetisMenu();
         initLeftMenuCollapse();
@@ -167,9 +189,6 @@ function dropdownEvent(elem, place) {
         item.querySelectorAll(".dropdown-toggle").forEach(function (subitem) {
             subitem.addEventListener("click", function (event) {
                 subitem.classList.toggle("show");
-                var popper = Popper.createPopper(subitem, item.querySelector(".dropdown-menu"), {
-                    placement: place
-                });
 
                 if (subitem.classList.contains("show") !== true) {
                     item.querySelector(".dropdown-menu").classList.remove("block")

@@ -5,6 +5,8 @@
 
 body {
     background-color: #f3f5f8 !important;
+    /* Set the default sidebar size to 'sm' for collapsed state */
+    --sidebar-size: sm;
 }
 
 [data-mode="dark"] body {
@@ -58,7 +60,6 @@ body.topbar-hidden .topbar-brand {
 
 body[data-mode="dark"].topbar-hidden .topbar-brand {
     background-color: #0c0c10 !important;
-    border-right: 1px solid #2d2d39 !important;
 }
 
 body[data-sidebar-size="sm"] .topbar-brand,
@@ -278,6 +279,13 @@ body.topbar-hidden .vertical-menu {
     top: 0 !important;
     height: 100vh !important;
     padding-top: 50px !important;
+}
+
+/* Ensure the sidebar is collapsed by default */
+body[data-sidebar-size="sm"] .vertical-menu {
+    /* Additional styles for collapsed state if needed */
+    width: 70px !important;
+    overflow: hidden;
 }
 
 /* Global Sidebar Interaction Fixes */

@@ -31,7 +31,7 @@
     @stack('head')
 </head>
 
-<body data-mode="light" data-sidebar-size="lg">
+<body data-mode="light" data-sidebar-size="sm">
     <script>
         (function () {
             const theme = localStorage.getItem('theme') || 'light';
@@ -87,3 +87,4 @@
 </body>
 
 </html>
+
